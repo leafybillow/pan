@@ -128,21 +128,21 @@ TaCutList::Init(const VaDataBase& db)
 	cerr << "TaCutList::Init WARNING: Unknown cut type = " << temp[2]
 	     << " found in database -- ignoring" << endl;
     }
-  
 }
 
 
 Bool_t 
 TaCutList::OK (const TaEvent& ev) const   
 {
-  // Return true if event not in any cut interval of this list.
+  // Return true if event not in any cut interval of this list which
+  // has nonzero value..
 
   Bool_t oksofar = true;
   for (vector<TaCutInterval>::const_iterator c = fIntervals.begin();
        oksofar && (c != fIntervals.end()); 
        ++c )
     {
-      if (c->Inside(ev, fLowExtension[c->GetCut()], fHighExtension[c->GetCut()]))
+      if (c->Inside(ev, fLowExtension[c->GetCut()], fHighExtension[c->GetCut()]) && c->GetVal() != 0)
 	oksofar = false;
     }
     return oksofar;
@@ -152,14 +152,14 @@ vector<pair<Cut_t,Int_t> >
 TaCutList::CutsFailed (const TaEvent& ev) const 
 {
   // Return a vector of cuts (pairs of cut type and value) for which
-  // the given event is inside an interval.
+  // the given event is inside an interval with nonzero value.
 
   vector<pair<Cut_t,Int_t> > cf;
   for (vector<TaCutInterval>::const_iterator c = fIntervals.begin();
        c != fIntervals.end(); 
        ++c )
     {
-      if (c->Inside(ev, fLowExtension[c->GetCut()], fHighExtension[c->GetCut()]))
+      if (c->Inside(ev, fLowExtension[c->GetCut()], fHighExtension[c->GetCut()]) && c->GetVal() != 0)
 	cf.push_back(make_pair(c->GetCut(),c->GetVal()));
     }
   return cf;
@@ -288,6 +288,7 @@ TaCutList::PrintExt (ostream& s) const
        ++k)
     s << " " << *k;
   s << endl;
+  s << "N.B. extensions are in events, not windows as in database" << endl;
 }
 
 void
