@@ -1,3 +1,10 @@
+Comments by R. Holmes, 20 Nov 2002
+----------------------------------
+
+Now that TaFileName can be used from CINT, open.macro can and should
+be rewritten to use it.
+
+
 Comments by R. Michaels, Oct 21, 2002
 -------------------------------------
 

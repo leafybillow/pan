@@ -6,6 +6,38 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 20 Nov 2002
+-----------------------------------
+
+Checked in a first, very early version of a prompt analysis macro.
+This is to be run from the pan command line (N.B. not root) after
+running a prompt analysis; so far it produces plots of various monitor
+differences, monitor double differences, raw detector asymmetries, and
+corrected detector asymmetries.  Of course since there are no
+detectors in the data so far this fails miserably unless you turn on
+detector faking, and since there is no modulation or correlation
+analysis there is no way to get even bogus values for the correction
+coefficients, so they're just set to zero for now, making the raw and
+corrected values the same.  The macro also outputs a text file with
+means, errors, and widths of these distributions.
+
+In the process I updated TaFileName with non-stringy versions of its
+constructor, Setup(), and access functions.  These are just defined in
+terms of their stringy equivalents so work the same way; they're
+provided so you can use TaFileName in CINT without having to mess with
+getting CINT and STL to play nicely together (something I've never
+succeeeded fully in doing.)  prompt.macro uses TaFileName to find the
+ROOT file and to create its output file.
+
+macro/prompt.macro
+
+ o First, very early version.
+
+src/TaFileName.{hh,cc}
+
+ o Non-stringy interface for use in CINT.
+
+
 Changes by R. Holmes on 19 Nov 2002
 -----------------------------------
 
