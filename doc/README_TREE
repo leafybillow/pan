@@ -1,0 +1,266 @@
+!README_TREE
+
+Documentation of trees produced by standard Pan analysis
+
+Pan's flexibility with regard to what devices it reads implies a good
+deal of variability in the details of what appears in the ROOT trees
+it produces, but the general content is as follows.
+
+Two trees are produced, a 'raw' tree and a 'pair' tree.  Names of
+these trees are 'R' and 'P' respectively.
+
+In the following, angle brackets (<>) surround variable parts of a
+leaf name; for example, batt<n> refers to leaf names like batt1,
+batt2, and so forth.
+
+All references to "helicity" refer to the signal sent from the source
+corresponding to the sign of the offset applied to the helicity
+Pockels cell.  The labels "right" and "left" are arbitrary and do not
+necessarily correspond to the actual sign of the helicity in the hall.
+No sign flip due to half wave plate insertion and/or g-2 precession is
+applied.  It is up to the user to determine and apply the correct sign
+run by run or slug by slug.
+
+The raw tree contains a leaf for each event.  There are the following
+branches:
+
+  Data for each ADC or scaler:
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    adc<n>_<m> ........ Raw values read from ADC <m> in ADC board <n>.
+                        <m> ranges from 0 to 3; <n> from 0 to (number
+                        of boards - 1).
+    adc<n>_<m>_cal .... Same data after DAC noise and pedestal
+                        subtraction.
+
+    scaler<n>_<m> ..... Raw values read from scaler <m> in scaler board
+                        <n>.  <m> ranges from 0 to 31; <n> from 0 to
+                        (number of boards - 1).
+    scaler<n>_<m>_cal . Same data after pedestal subtraction.  
+
+  Additional ADC data:
+  ^^^^^^^^^^^^^^^^^^^^
+    csr<n> ............ CSR status for ADC board <n>; <n> from 0 to
+                        (number of boards - 1).
+    dac<n> ............ DAC noise value for ADC board <n>; <n> from 0
+                        to (number of boards - 1).
+    integtime ......... Integration time
+    rampdelay ......... Ramp delay time
+
+  Data for each device read by an ADC or scaler:
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  (List of devices will in general vary depending on the
+  configuration.  The following are typical but a given root file may
+  lack some of these devices or have other devices not listed here.
+  These branches contain copies of values from above, e.g. if BCM1 is
+  read by ADC3_0, then bcm1r and adc3_0 contain the same value, as do
+  bcm1 and adc3_0_cal.)
+
+    batt<n> ........... Battery (for crosstalk checking); <n> ranges
+                        from 1.  (Pedestal/DAC noise subtracted.)
+
+    bcm<n> ............ HAPPEX-I style beam current monitors; <n>
+                        ranges from 1.  (Pedestal/DAC noise
+                        subtracted.)
+    bcm<n>r ........... Same, before subtraction.
+
+    bcmcav<n> ......... G0 style beam current monitors; <n> ranges
+                        from 1.  (Pedestal/DAC noise subtracted.)
+    bcmcav<n>r ........ Same, before subtraction.
+
+    bpm<n><xxxx> ...... Data for stripline position monitor BPM<n>.
+                        Present legal values for <n> are 8, 10, 12, 4a,
+                        4b, 1I02, 1I04, 1I06, 0I02, 0L01, 0L02, 0L03,
+                        0L04, 0L06.  <xxxx> may be:
+
+                        ws .. 4-wire sum (Pedestal/DAC noise
+                              subtracted.)
+                        x ... x position (in mm, rotation applied if 
+                              appropriate).
+                        xm .. x- wire value (Pedestal/DAC noise
+                              not subtracted.)
+                        xp .. Same for x+ wire.
+                        xws . x wire sum for BPM<n> (Pedestal/DAC noise
+                              subtracted.)
+                        y ... Same as x, for y position. 
+                        ym .. Same as xm, for y. 
+                        yp .. Same as xp, for y. 
+                        yws . Same as xws, for y. 
+
+    bpmcav<n><xxxx> ... Data for G0 type cavity position monitor
+                        BPMCAV<n>. Present legal values for <n> are
+                        1, 2, 3, 4.  <xxxx> may be 
+
+                        x ... x position (in mm).
+                        xr .. x position data before calibration.
+                        y ... Same as x, for y position.
+                        yr .. Same as x, for y.
+
+    det<n> ............ Cherenkov detectors; <n> ranges from 1.
+                        (Pedestal/DAC noise subtracted.) 
+    det<n>r ........... Same, before subtraction.
+
+    lumi<n> ........... Luminosity monitors; <n> ranges from 1.  
+                        (Pedestal/DAC noise subtracted.)
+    lumi<n>r .......... Same, before subtraction.
+
+  Sequencing/helicity information for the window containing this event:
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    helicity .......... Value of helicity flag (0 for "right" or 1 for
+                        "left") (crate 0).
+    pairsynch ......... Value of pairsynch flag (1 for first window of
+                        a pair, 0 for the second) (crate 0).
+    quadsynch ......... Value of quadsynch flag (1 for first window of
+                        a quadruple, 0 for the second through fourth)
+                        (crate 0). 
+    oversample ........ Raw value from oversample register (crate 0).
+    timeslot .......... Oversample timeslot number (from 1 to
+                        oversample value) (crate 0).
+
+    pitadac ........... 12-bit DAC value (crate 0).
+    precdac ........... 16-bit DAC value (crate 0).
+
+  Cuts:
+  ^^^^^
+    cond_<xxxx> ....... Nonzero if event fails cut condition <xxxx>.
+                        <xxxx> can be:
+
+                        beam_burp .. Abrupt change in beam intensity
+                        evt_seq .... Event sequence failure
+                        low_beam ... Beam intensity below threshold
+                        pair_seq ... Pair sequence failure
+                        startup .... First event(s) of run
+
+  Miscellaneous:
+  ^^^^^^^^^^^^^^
+    ev_num ............ Number of this event (starting with 1)
+    tirdata ........... Trigger Interrupt Register data
+    v2f_clk0 .......... Clock for voltage to frequency
+
+
+The pair tree contains a leaf for each helicity pair of events.  Some
+branches are arrays with a single index which can be 0 or 1; these
+correspond to values for the "right" and "left" events, respectively,
+of the pair.  There are the following branches:
+
+  Data for devices read by an ADC or scaler:
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    evt_<xxxx>[2] .............. Event data for device <xxxx> for
+                                 right, left events.  These is just
+                                 copies of the corresponding data in
+                                 the raw tree.  Devices may include
+                                 batt, bpm<n>, bpmcav<n>, bcm<n>,
+                                 bcmcav<n>, det<n>, and lumi<n>. In
+                                 all cases, pedestals and DAC noise
+                                 have been subtracted.)
+
+  Quantities calculated from above data:
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    diff_<xxxx> ................ Helicity correlated difference (right
+                                 minus left) for device <xxxx>.
+                                 Devices include batt<n>, bpm<n>.
+    asym_<xxxx> ................ Helicity correlated asymmetry (right
+                                 minus left over right plus left) for
+                                 device <xxxx>.  Devices include
+                                 bcm<n>, lumi<n>.
+    asym_n_<xxxx> .............. Normalized helicity correlated
+                                 asymmetry (as above but device data
+                                 divided by beam current, typically
+                                 measured by bcm1) for device <xxxx>.
+                                 Devices include det<n>, lumi<n>.
+    (The following asymmetries are for unweighted sums of devices.)
+    asym_n_lumi_sum ............ Normalized asymmetry for sum of lumi
+                                 channels.  
+    asym_n_det_l ............... Normalized asymmetry for sum of
+                                 detectors in left spectrometer arm.
+    asym_n_det_r ............... Normalized asymmetry for sum of
+                                 detectors in right spectrometer arm.
+    asym_n_det_lo .............. Normalized asymmetry for sum of
+                                 detectors at lower Q^2 (one in each
+                                 arm).
+    asym_n_det_hi .............. Normalized asymmetry for sum of
+                                 detectors at higher Q^2 (one in each
+                                 arm).
+    asym_n_det_all ............. Normalized asymmetry for sum of
+                                 all detectors.
+    asym_n_det_ave ............. Average of normalized asymmetries for
+                                 all detectors.
+
+
+  Sequencing/helicity information for the window containing this event:
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    prev_hel ................... Helicity of the event previous to the
+                                 first event of this pair.  
+    prev_readout_hel ........... Helicity read out in event previous to the
+                                 first event of this pair (and typically
+                                 belonging to the eighth previous
+                                 event).  
+    evt_readout_helicity[2] .... Helicities read out on crate 0 for
+                                 right, left events (and typically
+                                 belonging to the eighth previous
+                                 event).  .
+    evt_readout_helicity<n>[2] . Likewise for crate <n> (<n> ranges from
+                                 1 to 3).
+    evt_pairsynch[2] ........... Pairsynchs read out on crate 0 for
+                                 right, left events.
+    evt_pairsynch<n>[2] ........ Likewise for crate <n> (<n> ranges from
+                                 1 to 3).
+    evt_quadsynch[2] ........... Quadsynchs read out on crate 0 for
+                                 right, left events.
+    evt_quadsynch<n>[2] ........ Likewise for crate <n> (<n> ranges from
+                                 1 to 3).
+    evt_timeslot[2] ............ Oversampling timeslot read out on crate
+                                 0 for right, left events.
+    evt_timeslot<n>[2] ......... Likewise for crate <n> (<n> ranges from
+                                 1 to 3).
+
+  Cuts:
+  ^^^^^
+    ok_cond .................... Nonzero if this pair passes all cut
+                                 conditions.
+    ok_cut ..................... Nonzero if this pair is not inside any
+                                 cut interval.
+    cond_<xxxx>[2] ............. Nonzero if right, left event fails cut
+                                 condition <xxxx>.  <xxxx> can be as
+                                 above in raw tree description.
+    cut_<xxxx>[2] .............. Nonzero if right, left event falls
+                                 within cut interval for cut type
+                                 <xxxx>. 
+
+  Miscellaneous:
+  ^^^^^^^^^^^^^^
+    evt_ev_num[2] .............. Event numbers for right, left events
+                                 (starting with 1).
+    m_ev_num ................... Mean value of evt_ev_num[0] and
+                                 evt_ev_num[1]. 
+    evt_pitadac[2] ............. 12-bit DAC for crate 0 for right, left
+                                 events. 
+    evt_pitadac<n>[2] .......... Likewise for crate <n> (<n> ranges from
+                                 1 to 3).
+
+Cuts
+^^^^
+
+Events and pairs that fail cut conditions are not omitted from the
+trees.  Instead, one must use the cut information included in the tree
+to impose cuts.  
+
+Generally one wants to cut not only events that fail a cut condition
+but events occurring near such events in time, i.e., events within a
+cut interval around those that fail the cut condition.
+
+Any pair in which both events fall outside all cut intervals has
+nonzero value for ok_cut.  Therefore to impose all cuts just select on
+ok_cut, e.g.
+
+     P->Draw ("asym_bcm1", "ok_cut")
+
+For specialized analyses in which some cuts are to be ignored, you can
+test cuts individually with the cut_<xxxx> leaves.  Here the value is
+nonzero if the event *is* within a cut interval of the corresponding
+type.  So e.g. to impose only low beam cuts,
+
+    P->Draw ("asym_bcm1", "!cut_low_beam[0] && !cut_low_beam[1]")
+
