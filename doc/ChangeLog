@@ -6,6 +6,19 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on  21 May 2004
+--------------------------------------
+
+Bryan noticed the position feedback outputs were different by 1E3 from
+what he was expecting.  I changed 1E6 to 1E3 in three places in
+VaAnalysis::ComputeData, so positions are now converted from mm to um,
+not nm.
+
+I also replaced the label "RunIni" with "InitFeedback" in diagnostic
+outputs in VaAnalysis::InitFeedback, and corrected two obviously wrong
+comments about ToUpper in TaString.
+
+
 Changes by R. Michaels on  20 May 2004
 --------------------------------------
 
