@@ -52,7 +52,7 @@ private:
   UInt_t fRun;            // run number
   
   // Correction quantities
-  vector<string> fCorrMonTag;         // Monitors used
+  vector<string> fCorrMonTag[2];         // Monitors used [regress, modulation]
   map<string,vector<Double_t> > fCorrCoef[2];  // Correction coefficients [regress, modulation]
   
   // Monitor quantities
@@ -74,27 +74,15 @@ private:
 void 
 ParamSave::LoadCorrs ()
 {
-  // For now this is just hardwired
-
-  fCorrMonTag.clear();
-  fCorrMonTag.push_back ("bpm4ax");
-  fCorrMonTag.push_back ("bpm4bx");
-  fCorrMonTag.push_back ("bpm4ay");
-  fCorrMonTag.push_back ("bpm4by");
-  fCorrMonTag.push_back ("bpm1x");
-  fCorrMonTag.push_back ("bpm1y");
-  fCorrMonTag.push_back ("bpm12x");
-  fCorrMonTag.push_back ("bpm12y");
-  fCorrMonTag.push_back ("bpm10x");
-  fCorrMonTag.push_back ("bpm10y");
-  fCorrMonTag.push_back ("bpm8x");
-  fCorrMonTag.push_back ("bpm8y");
-
   // Detectors for which to look for coefficients
   vector<string> corrDetTag;
   corrDetTag.clear();
   corrDetTag.push_back ("det1");
+  corrDetTag.push_back ("det2");
   corrDetTag.push_back ("det3");
+  corrDetTag.push_back ("det4");
+  corrDetTag.push_back ("flumi1");
+  corrDetTag.push_back ("flumi2");
   corrDetTag.push_back ("blumi1");
   corrDetTag.push_back ("blumi2");
   corrDetTag.push_back ("blumi3");
@@ -107,30 +95,66 @@ ParamSave::LoadCorrs ()
   vector<Double_t> v;
 #ifndef FAKETYFAKE
   gROOT->LoadMacro("RedCoefs.macro+");
-  RedCoefs* rc = new RedCoefs (fRun, "regress");
+  RedCoefs* rcr = new RedCoefs (fRun, "regress");
+  fCorrMonTag[0] = rcr->Monitors();
+  RedCoefs* rcm = new RedCoefs (fRun, "dither");
+  fCorrMonTag[1] = rcm->Monitors();
   for (vector<string>::const_iterator idt = corrDetTag.begin();
        idt != corrDetTag.end();
        ++idt)
     {
+      // Regression
       v.clear();
-      // For now just regression
-      for (vector<string>::const_iterator imt = fCorrMonTag.begin();
-	   imt != fCorrMonTag.end();
+      for (vector<string>::const_iterator imt = fCorrMonTag[0].begin();
+	   imt != fCorrMonTag[0].end();
 	   ++imt)
 	{
-	  rc->Compute (string("asym_n_")+(*idt), string("diff_") + (*imt));
-	  if (rc->GetMeanErr() > 0)
-	    v.push_back (rc->GetMean());
+	  rcr->Compute (string("asym_n_")+(*idt), string("diff_") + (*imt));
+	  if (rcr->GetMeanErr() > 0)
+	    v.push_back (rcr->GetMean());
 	}
       fCorrCoef[0][*idt] = v;
+      // Modulation
+      v.clear();
+      for (vector<string>::const_iterator imt = fCorrMonTag[1].begin();
+	   imt != fCorrMonTag[1].end();
+	   ++imt)
+	{
+	  rcm->Compute (*idt, *imt);
+	  if (rcm->GetMeanErr() > 0)
+	    v.push_back (rcm->GetMean());
+	}
+      fCorrCoef[1][*idt] = v;
     }
-  delete rc;
+  delete rcm;
+  delete rcr;
 #else
   cerr << "=====================================" << endl;
   cerr << "WARNING!" << endl;
   cerr << "FAKE CORRECTION COEFFICIENTS LOADED!" << endl;
   cerr << "=====================================" << endl;
   
+  fCorrMonTag[0].clear();
+  fCorrMonTag[0].push_back ("bpm4ax");
+  fCorrMonTag[0].push_back ("bpm4bx");
+  fCorrMonTag[0].push_back ("bpm4ay");
+  fCorrMonTag[0].push_back ("bpm4by");
+  fCorrMonTag[0].push_back ("bpm1x");
+  fCorrMonTag[0].push_back ("bpm1y");
+  fCorrMonTag[0].push_back ("bpm12x");
+  fCorrMonTag[0].push_back ("bpm12y");
+  fCorrMonTag[0].push_back ("bpm10x");
+  fCorrMonTag[0].push_back ("bpm10y");
+  fCorrMonTag[0].push_back ("bpm8x");
+  fCorrMonTag[0].push_back ("bpm8y");
+
+  fCorrMonTag[1].clear();
+  fCorrMonTag[1].push_back ("bpm4ax");
+  fCorrMonTag[1].push_back ("bpm4bx");
+  fCorrMonTag[1].push_back ("bpm4ay");
+  fCorrMonTag[1].push_back ("bpm4by");
+  fCorrMonTag[1].push_back ("bpm12x");
+
   v.clear();
   v.push_back (0.1);
   v.push_back (0.2);
@@ -289,6 +313,7 @@ ParamSave::PutDet (const string dt, const string naora, TTree& t, const string s
 	i == 0 ? adetstring :
 	i == 1 ? AsyCorr (dt, 0) :
 	AsyCorr (dt, 1);
+      //      cerr << i << " '" << drawstring << "'" << endl; 
       if (drawstring != "")
 	{
 	  cerr << "Drawing " << drawstring << endl;
@@ -394,12 +419,12 @@ ParamSave::AsyCorr (string det, Bool_t modulation)
     {
       ret = TString("asym_n_");
       ret += det.c_str();
-      for (UInt_t i = 0; i < fCorrMonTag.size(); ++i)
+      for (UInt_t i = 0; i < fCorrMonTag[imr].size(); ++i)
 	{
 	  ret += "-(";
 	  ret += corrcoef[i];
 	  ret += ")*diff_";
-	  ret += fCorrMonTag[i].c_str();
+	  ret += fCorrMonTag[imr][i].c_str();
 	}
     }
   return string(ret.Data());
