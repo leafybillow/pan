@@ -210,6 +210,21 @@ Bool_t OnlineConfig::ParseConfig()
       }
       protorootfile = sConfFile[i][1];
     }
+    if(sConfFile[i][0] == "guicolor") {
+      if(sConfFile[i].size() != 2) {
+	cerr << "WARNING: guicolor command does not have the "
+	     << "correct number of arguments (needs 1)"
+	     << endl;
+	continue;
+      }
+      if(!guicolor.IsNull()) {
+	cerr << "WARNING: too many guicolor's defined. " 
+	     << " Will only use the first one." 
+	     << endl;
+	continue;
+      }
+      guicolor = sConfFile[i][1];
+    }
 
   }
 
@@ -578,10 +593,23 @@ void OnlineGUI::CreateGUI(const TGWindow *p, UInt_t w, UInt_t h)
   gClient->GetColorByName("lightblue",lightblue);
   gClient->GetColorByName("red",red);
 
-  if(fConfig->IsMonitor()) {
-    mainguicolor = lightgreen;
-  } else {
-    mainguicolor = lightblue;
+  Bool_t good_color=kFALSE; 
+  TString usercolor = fConfig->GetGuiColor();
+  if(!usercolor.IsNull()) {
+    good_color = gClient->GetColorByName(usercolor,mainguicolor);
+  }
+
+  if(!good_color) {
+    if(!usercolor.IsNull()) {
+      cout << "Bad guicolor (" << usercolor << ").. using default." << endl;
+    }
+    if(fConfig->IsMonitor()) {
+      // Default background color for Online Monitor
+      mainguicolor = lightgreen;
+    } else {
+      // Default background color for Normal Online Display
+      mainguicolor = lightblue;
+    }
   }
 
   fMain->SetBackgroundColor(mainguicolor);

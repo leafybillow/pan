@@ -43,6 +43,7 @@ private:
   TString rootfilename;  //  Just the name
   TString goldenrootfilename; // Golden rootfile for comparisons
   TString protorootfile; // Prototype for getting the rootfilename
+  TString guicolor; // User's choice of background color
   vector < pair <UInt_t,UInt_t> > pageInfo; 
   vector <TCut> cutList; 
   vector <UInt_t> GetDrawIndex(UInt_t);
@@ -56,6 +57,7 @@ public:
   Bool_t ParseConfig();
   TString GetRootFile() { return rootfilename; };
   TString GetGoldenFile() { return goldenrootfilename; };
+  TString GetGuiColor() { return guicolor; };
   TCut GetDefinedCut(TString ident);
   vector <TString> GetCutIdent();
   // Page utilites
