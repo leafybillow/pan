@@ -41,7 +41,7 @@
 /////////////////////////////////////////////////////////////////////
 
 #define MAXADC  31
-#define MAXSCAL 6
+#define MAXSCAL 7
 #define MAXCHAN 10
 #define MAXSCALCHAN 32
 #define DMAPSIZE 6
