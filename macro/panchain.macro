@@ -52,7 +52,7 @@ TChain* panchain (TString fnm)
   tch = new TChain ("tt");
 
   ifstream inn;
-  inn.open ("panchain");
+  inn.open (fnm);
 
   while (1)
     {
