@@ -12,20 +12,25 @@
 
 class RedCoefs
 {
+  // Class to get and dispense coefficients from redana results files
+
 public:
   RedCoefs (const UInt_t run = 0, 
-	    const string ctype = "dither",
-	    const string dep = "asym_n_det1",
-	    const string ind = "diff_bpm12x");
+	    const string ctype = "dither");
   RedCoefs (const RedCoefs& rc);
   virtual ~RedCoefs () {};
-  Double_t GetMean () const {return fLoaded ? fMean : 0;}
-  Double_t GetMeanErr () const {return fLoaded ? fMeanErr : -1;}
-
+  void Compute (const string dep = "asym_n_det1",
+		const string ind = "diff_bpm12x");
+  Double_t GetMean () const {return fComputed ? fMean : 0;}
+  Double_t GetMeanErr () const {return fComputed ? fMeanErr : -1;}
+  
 private:
-  TaIResultsFile* fFi;
+  UInt_t fRun;
   string fCtype;
-  Bool_t fLoaded;
+  vector<string> fTagvec;
+  vector<Double_t> fMeanvec;
+  vector<Double_t> fErrvec;
+  Bool_t fComputed;
   vector<Double_t> fMiniMean;
   vector<Double_t> fMiniMeanErr;
   Double_t fMean;
@@ -33,83 +38,108 @@ private:
 };
 
 RedCoefs::RedCoefs (const UInt_t run, 
-		    const string ctype,
-		    const string dep,
-		    const string ind)
+		    const string ctype)
 {
   // Open the file from redana (<path>/parity02_<run>_<dither or regress>.res)
-
-  fLoaded = false;
+  
+  Double_t meanval(0);
+  Double_t errval(0);
+  
+  fRun = run;
+  fTagvec.clear();
+  fMeanvec.clear();
+  fErrvec.clear();
+  fComputed = false;
+  
   if (ctype == "dither" || ctype == "regress")
     {
-      fFi = new TaIResultsFile (run, ctype);
+      TaIResultsFile* fi = new TaIResultsFile (run, ctype);
       fCtype = ctype;
+      if (fi == NULL || !(fi->is_open()))
+	return;
+      
+      while (fi->ReadNextLine())
+	{
+	  // Stash the file data in memory
+	  
+	  if (fi->GetPtag() == "redana")
+	    {
+	      string rtag = fi->GetRtag();
+	      meanval = fi->GetRes();
+	      errval = fi->GetErr();
+	      fTagvec.push_back (rtag);
+	      fMeanvec.push_back (meanval);
+	      fErrvec.push_back (errval);
+	    }
+	}
+      delete fi;
     }
   else
     {
       cerr << "RedCoefs::Redcoefs: ERROR: Invalid coefficient type: " << ctype << endl;
-      fFi = NULL;
       fCtype = "";
       return;
     }
+}
 
-  fLoaded = false;
-  if (fFi == NULL || !(fFi->is_open()))
-    return;
 
-  string slopest;
-  if (fCtype == "dither")
-    slopest = "";
-  else if (fCtype == "regress")
-    slopest = dep + "_vs_" + ind + "_slope";
-
+void 
+RedCoefs::Compute (const string dep, const string ind)
+{
+  // Now look in the stored vectors for the data, average them and
+  // return averages
+  
   Double_t meanval(0);
   Double_t errval(0);
+  
+  string slopest;
+  if (fCtype == "dither")
+    //    slopest = "";
+    return;
+  else if (fCtype == "regress")
+    slopest = dep + "_vs_" + ind + "_slope";
+  
   Double_t meanwsum(0);
   Double_t wsum(0);
-
-  while (fFi->ReadNextLine())
+  
+  for (UInt_t i = 0; i < fTagvec.size(); ++i)
     {
-      // Copy input data to output and look for BCM1 asymmetry
-      if (fFi->GetPtag() == "redana")
+      string rtag = fTagvec[i];
+      //      cerr << i << " '" << slopest << "' =?= '" << rtag << "'" << endl;
+      if (rtag.size() > slopest.size() &&
+	  rtag.substr (rtag.size()-slopest.size(), slopest.size()) == slopest)
 	{
-	  string rtag = fFi->GetRtag();
-	  if (rtag.size() > slopest.size() &&
-	      rtag.substr (rtag.size()-slopest.size(), slopest.size()) == slopest)
+	  meanval = fMeanvec[i];
+	  errval = fErrvec[i];
+	  //      cerr << meanval << endl;
+	  if (errval > 0)
 	    {
-	      meanval = fFi->GetRes();
-	      errval = fFi->GetErr();
-	      if (errval > 0)
-		{
-		  Double_t wt = 1 / errval / errval;
-		  meanwsum += meanval * wt;
-		  wsum += wt;
-		  fMiniMean.push_back (meanval);
-		  fMiniMeanErr.push_back (errval);
-		}
+	      Double_t wt = 1 / errval / errval;
+	      meanwsum += meanval * wt;
+	      wsum += wt;
+	      fMiniMean.push_back (meanval);
+	      fMiniMeanErr.push_back (errval);
 	    }
 	}
     }
-
+  
   if (wsum > 0)
     {
       fMean = meanwsum / wsum;
       fMeanErr = sqrt (1 / wsum);
-      fLoaded = true;
+      fComputed = true;
     }
   else
     {
       fMean = 0;
       fMeanErr = -1;
     }
+  //  cerr << dep << " " << ind << fMean << endl;
 }
 
 RedCoefs::RedCoefs (const RedCoefs& rc)
 {
-  fMiniMean = rc.fMiniMean;
-  fMiniMeanErr = rc.fMiniMeanErr;
-  fMean = rc.fMean;
-  fMeanErr = rc.fMeanErr;
+  cerr << "?copy?" << endl;
 }
 
 

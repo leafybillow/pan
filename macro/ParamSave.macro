@@ -107,7 +107,7 @@ ParamSave::LoadCorrs ()
   vector<Double_t> v;
 #ifndef FAKETYFAKE
   gROOT->LoadMacro("RedCoefs.macro+");
-  RedCoefs* rc;
+  RedCoefs* rc = new RedCoefs (fRun, "regress");
   for (vector<string>::const_iterator idt = corrDetTag.begin();
        idt != corrDetTag.end();
        ++idt)
@@ -118,13 +118,13 @@ ParamSave::LoadCorrs ()
 	   imt != fCorrMonTag.end();
 	   ++imt)
 	{
-	  rc = new RedCoefs  (fRun, "regress", string("asym_n_")+(*idt), string("diff_") + (*imt));
+	  rc->Compute (string("asym_n_")+(*idt), string("diff_") + (*imt));
 	  if (rc->GetMeanErr() > 0)
 	    v.push_back (rc->GetMean());
-	  delete rc;
 	}
       fCorrCoef[0][*idt] = v;
     }
+  delete rc;
 #else
   cerr << "=====================================" << endl;
   cerr << "WARNING!" << endl;
