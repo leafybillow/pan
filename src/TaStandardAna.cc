@@ -156,11 +156,11 @@ TaStandardAna::InitChanLists ()
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("lumi", "~", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("qpd", "~sum", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   // Channels for which to store normalized asymmetries
   f = ChanList ("lumi", "~", "ppm", fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN);
-  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanList ("qpd", "~sum", "ppm", fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   f = ChanList ("det", "~", "ppm", fgNO_BEAM_NO_ASY + fgASYN + fgBLIND);
