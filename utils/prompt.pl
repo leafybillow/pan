@@ -46,7 +46,7 @@ $noreg = "";
 $nodit = "";
 $nomacro = "";
 $batch = 0;
-$opts = "";
+$opts = "-l";
 
 # The following greatly evil code just gets defined options off the
 # command line and sets the corresponding variables to 1.
@@ -117,9 +117,10 @@ foreach $run (@runs)
 
 # Regression analysis =======================
 
+    $redexists = -e $rrootfn
     if (!$noreg) 
     { 
-	if ($forcereg || !-e $rrootfn) 
+	if ($forcereg || !$redexists) 
 	{ 
 	    if (!-e $rootfn) 
 	    {
@@ -131,8 +132,8 @@ foreach $run (@runs)
 		# metacharacter (;) so are run in sh.  A simple command
 		# with no metacharacter would be handled differently!!
 		
-		system "echo 'export PAN_CONFIG_FILE_SUFFIX=cfg_reg; ./redana -r $run'";
-		system "export PAN_CONFIG_FILE_SUFFIX=cfg_reg; ./redana -r $run" if !$DEBUG;
+		system "echo 'export PAN_CONFIG_FILE_SUFFIX=conf_reg; ./redana -r $run'";
+		system "export PAN_CONFIG_FILE_SUFFIX=conf_reg; ./redana -r $run" if !$DEBUG;
 	    }
 	}
 	else
@@ -145,7 +146,7 @@ foreach $run (@runs)
 
     if (!$nodit) 
     { 
-	if ($forcedit || !-e $rrootfn) 
+	if ($forcedit || !$redexists) 
 	{ 
 	    if (!-e $rootfn) 
 	    {
@@ -157,8 +158,8 @@ foreach $run (@runs)
 		# metacharacter (;) so are run in sh.  A simple command
 		# with no metacharacter would be handled differently!!
 		
-		system "echo 'export PAN_CONFIG_FILE_SUFFIX=cfg_dit; ./redana -r $run'";
-		system "export PAN_CONFIG_FILE_SUFFIX=cfg_dit; ./redana -r $run" if !$DEBUG;
+		system "echo 'export PAN_CONFIG_FILE_SUFFIX=conf_dit; ./redana -r $run'";
+		system "export PAN_CONFIG_FILE_SUFFIX=conf_dit; ./redana -r $run" if !$DEBUG;
 	    }
 	}
 	else
@@ -173,7 +174,7 @@ foreach $run (@runs)
     if (!$nomacro) 
     { 
 	system "echo \"root $opts 'prompt.macro($run, $batch)'\"";
-	system "root $opts 'prompt.macro($run, $batch)'" if !$DEBUG;
+	system "root $opts 'macro/prompt.macro($run, $batch)'" if !$DEBUG;
     }
 }
 
