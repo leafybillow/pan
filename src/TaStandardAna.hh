@@ -2,22 +2,22 @@
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
-//           TaPromptAna.hh  (interface)
+//           TaStandardAna.hh  (interface)
 //
 // Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
 // @(#)pan/src:$Name$:$Id$
 //
 ////////////////////////////////////////////////////////////////////////
 //
-//    Prompt data analysis.  This class derives from VaAnalysis.  It
+//    Standard analysis.  This class derives from VaAnalysis.  It
 //    simply puts differences and asymmetries of beam monitors and
 //    detectors into the output root file using the AutoPairAna lists,
 //    and prints statistics on these quantities periodically.
 //
 ////////////////////////////////////////////////////////////////////////
 
-#ifndef PAN_TaPromptAna
-#define PAN_TaPromptAna
+#ifndef PAN_TaStandardAna
+#define PAN_TaStandardAna
 
 #include <TObject.h>
 #include <TTree.h> 
@@ -27,13 +27,13 @@
 class TaRun;
 class VaEvent;
 
-class TaPromptAna: public VaAnalysis {
+class TaStandardAna: public VaAnalysis {
   
 public:
   
   // Constructors/destructors/operators
-  TaPromptAna();
-  ~TaPromptAna();
+  TaStandardAna();
+  ~TaStandardAna();
   // We should not need to copy or assign an analysis, so copy
   // constructor and operator= are private.
   
@@ -45,8 +45,10 @@ private:
   
   // We should not need to copy or assign an analysis, so copy
   // constructor and operator= are private.
-  TaPromptAna(const TaPromptAna& copy);
-  TaPromptAna& operator=( const TaPromptAna& assign);
+  TaStandardAna(const TaStandardAna& copy);
+  TaStandardAna& operator=( const TaStandardAna& assign);
+
+protected:
   
   // Member functions
   void EventAnalysis ();
@@ -56,7 +58,7 @@ private:
   // Data members
   
 #ifndef NODICT
-  ClassDef(TaPromptAna, 0)  // Prompt Data Analysis
+  ClassDef(TaStandardAna, 0)  // Prompt Data Analysis
 #endif
 };
 

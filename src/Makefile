@@ -131,10 +131,10 @@ LSRC = TaBlind.cc TaFileName.cc TaLabelledQuantity.cc \
       TaStatistics.cc TaString.cc 
 
 SRC = $(LSRC) TaAnalysisManager.cc  \
-      TaBeamAna.cc TaDebugAna.cc TaDevice.cc TaDataBase.cc \
+      TaDebugAna.cc TaDevice.cc TaDataBase.cc \
       TaCutInterval.cc TaCutList.cc VaEvent.cc TaEvent.cc TaSimEvent.cc \
-      TaPairFromPair.cc TaPairFromQuad.cc TaPromptAna.cc\
-      TaRun.cc \
+      TaPairFromPair.cc TaPairFromQuad.cc \
+      TaRun.cc  TaStandardAna.cc \
       VaAnalysis.cc VaPair.cc TaADCCalib.cc 
 
 LOBJS = $(LSRC:.cc=_NODICT.o)

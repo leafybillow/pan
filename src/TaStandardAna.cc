@@ -2,36 +2,37 @@
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
-//           TaPromptAna.cc  (implementation)
+//           TaStandardAna.cc  (implementation)
 //
 // Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
 // @(#)pan/src:$Name$:$Id$
 //
 ////////////////////////////////////////////////////////////////////////
 //
-//    Prompt data analysis.  This class derives from VaAnalysis.  It
+//    Standard analysis.  This class derives from VaAnalysis.  It
 //    simply puts differences and asymmetries of beam monitors and
 //    detectors into the output root file using the AutoPairAna lists,
 //    and prints statistics on these quantities periodically.
 //
 ////////////////////////////////////////////////////////////////////////
 
-#include "TaPromptAna.hh"
+#include "TaStandardAna.hh"
 #include "VaEvent.hh"
 #include "TaRun.hh"
 #include "TaLabelledQuantity.hh"
+#include "TaDevice.hh"
 
 #ifndef NODICT
-ClassImp(TaPromptAna)
+ClassImp(TaStandardAna)
 #endif
 
 // Constructors/destructors/operators
 
-TaPromptAna::TaPromptAna():VaAnalysis()
+TaStandardAna::TaStandardAna():VaAnalysis()
 {
 }
 
-TaPromptAna::~TaPromptAna(){}
+TaStandardAna::~TaStandardAna(){}
 
 
 // Private member functions
@@ -39,18 +40,18 @@ TaPromptAna::~TaPromptAna(){}
 // We should not need to copy or assign an analysis, so copy
 // constructor and operator= are private.
 
-TaPromptAna::TaPromptAna (const TaPromptAna& copy) 
+TaStandardAna::TaStandardAna (const TaStandardAna& copy) 
 {
 }
 
 
-TaPromptAna& TaPromptAna::operator=( const TaPromptAna& assign) 
+TaStandardAna& TaStandardAna::operator=( const TaStandardAna& assign) 
 { 
   return *this; 
 }
 
 
-void TaPromptAna::EventAnalysis()
+void TaStandardAna::EventAnalysis()
 {
   // Event analysis.
 
@@ -60,21 +61,33 @@ void TaPromptAna::EventAnalysis()
   fEvt->AddResult ( TaLabelledQuantity ( "bcm2",
 					 fEvt->GetData(IBCM2), 
 					 "chan" ) );
-  fEvt->AddResult ( TaLabelledQuantity ( "det1",
-					 fEvt->GetData(IDET1), 
-					 "chan" ) );
-  fEvt->AddResult ( TaLabelledQuantity ( "det2",
-					 fEvt->GetData(IDET2), 
-					 "chan" ) );
-  fEvt->AddResult ( TaLabelledQuantity ( "det3",
-					 fEvt->GetData(IDET3), 
-					 "chan" ) );
-  fEvt->AddResult ( TaLabelledQuantity ( "det4",
-					 fEvt->GetData(IDET4), 
-					 "chan" ) );
+  if (fRun->GetDevices().IsUsed(IDET1))
+    {
+      fEvt->AddResult ( TaLabelledQuantity ( "det1",
+					     fEvt->GetData(IDET1), 
+					     "chan" ) );
+    }
+  if (fRun->GetDevices().IsUsed(IDET2))
+    {
+      fEvt->AddResult ( TaLabelledQuantity ( "det2",
+					     fEvt->GetData(IDET2), 
+					     "chan" ) );
+    }
+  if (fRun->GetDevices().IsUsed(IDET3))
+    {
+      fEvt->AddResult ( TaLabelledQuantity ( "det3",
+					     fEvt->GetData(IDET3), 
+					     "chan" ) );
+    }
+  if (fRun->GetDevices().IsUsed(IDET4))
+    {
+      fEvt->AddResult ( TaLabelledQuantity ( "det4",
+					     fEvt->GetData(IDET4), 
+					     "chan" ) );
+    }
 }
 
-void TaPromptAna::PairAnalysis()
+void TaStandardAna::PairAnalysis()
 { 
   // Pair analysis
   // All we have here is a call to AutoPairAna.
@@ -84,14 +97,15 @@ void TaPromptAna::PairAnalysis()
 
 
 void
-TaPromptAna::InitChanLists ()
+TaStandardAna::InitChanLists ()
 {
   // Initialize the lists used by InitTree and AutoPairAna.
-  // TaPromptAna's implementation puts channels associated with beam
+  // TaStandardAna's implementation puts channels associated with beam
   // devices and electron detectors, into the lists.
 
   // Initialize the lists of devices to analyze
   vector<AnaList> f;
+
 
   // Channels for which to store left and right values
   fTreeList = ChanListFromName ("helicity", "", fgNO_STATS + fgCOPY);
@@ -144,23 +158,44 @@ TaPromptAna::InitChanLists ()
   vector<Int_t> keys(0);
   vector<Double_t> wts(0);
 
-  keys.push_back(IDET1);  keys.push_back(IDET2);
-  fTreeList.push_back (AnaList ("det_l", keys, wts, "ppm", 
-				fgNO_BEAM_NO_ASY + fgASYN));
-  keys.clear(); keys.push_back(IDET3);  keys.push_back(IDET4);
-  fTreeList.push_back (AnaList ("det_r", keys, wts, "ppm", 
-				fgNO_BEAM_NO_ASY + fgASYN));
-  keys.clear(); keys.push_back(IDET1);  keys.push_back(IDET3);
-  fTreeList.push_back (AnaList ("det_lo", keys, wts, "ppm", 
-				fgNO_BEAM_NO_ASY + fgASYN));
-  keys.clear(); keys.push_back(IDET2);  keys.push_back(IDET4);
-  fTreeList.push_back (AnaList ("det_hi", keys, wts, "ppm", 
-				fgNO_BEAM_NO_ASY + fgASYN));
-  keys.clear(); keys.push_back(IDET1);  keys.push_back(IDET2);
-  keys.push_back(IDET3);  keys.push_back(IDET4);
-  fTreeList.push_back (AnaList ("det_all", keys, wts, "ppm", 
-				fgNO_BEAM_NO_ASY + fgASYN));
-  fTreeList.push_back (AnaList ("det_ave", keys, wts, "ppm", 
-				fgNO_BEAM_NO_ASY + fgASYN + fgAVE));
-
+  if (fRun->GetDevices().IsUsed(IDET1) &&
+      fRun->GetDevices().IsUsed(IDET2))
+    {
+      keys.push_back(IDET1);  keys.push_back(IDET2);
+      fTreeList.push_back (AnaList ("det_l", keys, wts, "ppm", 
+				    fgNO_BEAM_NO_ASY + fgASYN));
+    }
+  if (fRun->GetDevices().IsUsed(IDET3) &&
+      fRun->GetDevices().IsUsed(IDET4))
+    {
+      keys.clear(); keys.push_back(IDET3);  keys.push_back(IDET4);
+      fTreeList.push_back (AnaList ("det_r", keys, wts, "ppm", 
+				    fgNO_BEAM_NO_ASY + fgASYN));
+    }
+  if (fRun->GetDevices().IsUsed(IDET1) &&
+      fRun->GetDevices().IsUsed(IDET3))
+    {
+      keys.clear(); keys.push_back(IDET1);  keys.push_back(IDET3);
+      fTreeList.push_back (AnaList ("det_lo", keys, wts, "ppm", 
+				    fgNO_BEAM_NO_ASY + fgASYN));
+    }
+  if (fRun->GetDevices().IsUsed(IDET2) &&
+      fRun->GetDevices().IsUsed(IDET4))
+    {
+      keys.clear(); keys.push_back(IDET2);  keys.push_back(IDET4);
+      fTreeList.push_back (AnaList ("det_hi", keys, wts, "ppm", 
+				    fgNO_BEAM_NO_ASY + fgASYN));
+    }
+  if (fRun->GetDevices().IsUsed(IDET1) &&
+      fRun->GetDevices().IsUsed(IDET2) &&
+      fRun->GetDevices().IsUsed(IDET3) &&
+      fRun->GetDevices().IsUsed(IDET4))
+    {
+      keys.clear(); keys.push_back(IDET1);  keys.push_back(IDET2);
+      keys.push_back(IDET3);  keys.push_back(IDET4);
+      fTreeList.push_back (AnaList ("det_all", keys, wts, "ppm", 
+				    fgNO_BEAM_NO_ASY + fgASYN));
+      fTreeList.push_back (AnaList ("det_ave", keys, wts, "ppm", 
+				    fgNO_BEAM_NO_ASY + fgASYN + fgAVE));
+    }
 }

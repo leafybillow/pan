@@ -9,10 +9,10 @@
 //
 ////////////////////////////////////////////////////////////////////////
 //
-//    Debug analysis.  This class derives from VaAnalysis.  No ROOT
-//    file is created.  It simply prints some basic information for
-//    each event, and prints statistics on differences and asymmetries
-//    of beam monitors and detectors periodically.
+//    Debug analysis.  This class derives from TaStandardAna.  No ROOT
+//    file is created, and some basic information for each event is
+//    printed.  It also prints statistics on differences and
+//    asymmetries of beam monitors and detectors periodically.
 //
 ////////////////////////////////////////////////////////////////////////
 
@@ -21,37 +21,23 @@
 
 #include <TObject.h>
 #include <TTree.h> 
-#include "VaAnalysis.hh"
+#include "TaStandardAna.hh"
 
 //class TaStatistics;
 class TaRun;
 class VaEvent;
 
-class TaDebugAna: public VaAnalysis {
+class TaDebugAna: public TaStandardAna {
   
 public:
   
   // Constructors/destructors/operators
   TaDebugAna();
-  ~TaDebugAna();
-  // We should not need to copy or assign an analysis, so copy
-  // constructor and operator= are private.
-  
-  // Major functions
-  
-  // Data access functions
   
 private:
   
-  // We should not need to copy or assign an analysis, so copy
-  // constructor and operator= are private.
-  TaDebugAna(const TaDebugAna& copy);
-  TaDebugAna& operator=( const TaDebugAna& assign);
-  
   // Member functions
   void EventAnalysis ();
-  void PairAnalysis ();
-  void InitChanLists ();
   
   // Data members
   
