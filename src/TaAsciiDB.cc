@@ -748,12 +748,12 @@ Bool_t TaAsciiDB::SelfCheck() {
    }
    itest = GetDelay();
    if (itest != 0 && itest != 8 ) {
-      cout << "TaAsciiDB:: SelfCheck ERROR:  'windelay' makes no sense to me !"<<endl;
+     cout << "TaAsciiDB:: SelfCheck ERROR:  'windelay' = " << itest << " outside range 0-8" <<endl;
       return kFALSE;
    }
    itest = GetOverSamp();
-   if (itest <= 0 || itest > 10 ) {
-      cout << "TaAsciiDB:: SelfCheck ERROR:  'oversamp' makes no sense to me !"<<endl;
+   if (itest <= 0 || itest > 12 ) {
+     cout << "TaAsciiDB:: SelfCheck ERROR:  'oversamp' = " << itest << " outside range 0-12" <<endl;
       return kFALSE;
    }
    stest = GetRunType();
