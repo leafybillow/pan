@@ -96,8 +96,7 @@ Double_t TaMysql::GetDacNoise(const Int_t& adc, const Int_t& chan, const string&
 
   if (chan < 0 ) return 0;
   if (adc > 9 ) return 0;
-  if (adc < 7 ) return 0;
-
+  if (adc < 0 ) return 0;
 
   static char cadc[10];  sprintf(cadc,"adc%d",adc);
   static char cchan[10];  sprintf(cchan,"chan%d",chan);
@@ -119,7 +118,7 @@ Double_t TaMysql::GetPedestal(const Int_t& adc, const Int_t& chan) const{
 
   if (chan < 0 ) return 0;
   if (adc > 9 ) return 0;
-  if (adc < 4 ) return 0;
+  if (adc < 0 ) return 0;
 
   static char cadc[10];  sprintf(cadc,"adc%d",adc);
   static char cchan[10];  sprintf(cchan,"chan%d",chan);
