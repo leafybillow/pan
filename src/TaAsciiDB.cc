@@ -231,7 +231,34 @@ Int_t TaAsciiDB::GetFdbkTimeScale( const string &fdbktype ) const{
    cerr<<"TaAsciiDB::GetFdbkTimeScale( const string &fdbktype ) ERROR\n"
 	<<"TABLE not declared correctly, need feedback table. "
 	<<"Example of line format in .db file:\n"
-        <<" feedback    AQ   on   3 "<<endl;
+        <<" feedback    AQ   on   3  bcm1 "<<endl;
+   return 0;
+ }
+};
+   
+string TaAsciiDB::GetFdbkMonitor( const string &fdbktype ) const{
+  // get the timescale of feedback type fdbktype
+  string table = "feedback";
+ if ( database.count("feedback") >1){ 
+     multimap<string, vector< dtype* > >::const_iterator lb = database.lower_bound(table);        
+     multimap<string, vector< dtype* > >::const_iterator ub = database.upper_bound(table);        
+     for ( multimap<string, vector< dtype* > >::const_iterator dmap = lb; dmap != ub; dmap++){
+       vector< dtype* > datatype = dmap->second;
+       if (datatype[0]->GetType() == "s"){
+	 if ( TaString(datatype[0]->GetS()).CmpNoCase(fdbktype) == 0 ){
+	   if (datatype[3]->GetType() == "s") {
+             return datatype[3]->GetS();
+	   }
+	 }
+       }
+     }
+     return 0;
+ }
+ else{
+   cerr<<"TaAsciiDB::GetFdbkMonitor( const string &fdbktype ) ERROR\n"
+	<<"TABLE not declared correctly, need feedback table. "
+	<<"Example of line format in .db file:\n"
+        <<" feedback    AQ   on   3  bcm1 "<<endl;
    return 0;
  }
 };   
@@ -701,6 +728,7 @@ void TaAsciiDB::InitDB() {
       columns.push_back(new dtype("s"));
       columns.push_back(new dtype("s"));
       columns.push_back(new dtype("i"));
+      columns.push_back(new dtype("s"));
     }
     if (i == 18) {   // IA slope 
        columns.push_back(new dtype("s"));
