@@ -384,6 +384,27 @@ Int_t TaAsciiDB::GetNumCuts() const {
    return (Int_t)GetValue("ncuts");
 };
 
+vector<string> 
+TaAsciiDB::GetCutNames () const 
+{
+  vector<string> result;
+  result.clear();
+  multimap<string, vector<dtype*> >::const_iterator lb =
+    database.lower_bound(TaString("cutnames").ToLower());
+  multimap<string, vector<dtype*> >::const_iterator ub = 
+    database.upper_bound(TaString("cutnames").ToLower());
+  for (multimap<string, vector<dtype*> >::const_iterator dmap = lb;
+       dmap != ub; dmap++) {
+    vector<dtype*> datav = dmap->second;
+    for (vector<dtype*>::const_iterator idat = datav.begin();
+	 idat != datav.end(); idat++) {
+      if ((*idat)->GetType() == "s") 
+	result.push_back((*idat)->GetS());
+    }
+  }
+  return result;
+};
+
 vector<Int_t> TaAsciiDB::GetExtLo() const {
 // Get cut extensions, low and high 
    return GetValueVector("extlo");
@@ -614,6 +635,7 @@ void TaAsciiDB::InitDB() {
   tables.push_back("feedback");      //  17 
   tables.push_back("IAparam");       //  18
   tables.push_back("PZTparam");      //  19
+  tables.push_back("cutnames");      //  20
 
   pair<string, int> sipair;
   int k;
@@ -686,6 +708,9 @@ void TaAsciiDB::InitDB() {
        columns.push_back(new dtype("d"));
        columns.push_back(new dtype("s"));
        columns.push_back(new dtype("d"));
+    }
+    if (i == 20) {   // cutnames
+      for (k = 0; k < 40; k++) columns.push_back(new dtype("s"));
     }
     sipair.second = columns.size(); 
     colsize.insert(sipair);

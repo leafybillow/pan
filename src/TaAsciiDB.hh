@@ -86,6 +86,8 @@ public:
   Double_t GetCutValue(const string& cutname) const;
 // Get number of cuts 
   Int_t GetNumCuts() const;
+// Get names of cuts
+  vector<string> GetCutNames () const;
 // Get cut extensions, low and high 
   vector<Int_t> GetExtLo() const;
   vector<Int_t> GetExtHi() const;
