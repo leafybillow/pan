@@ -655,6 +655,14 @@
 #define   IPAIRSYNCH2  642
 #define   IPAIRSYNCH3  643
 
+// Quad synch info from various crates
+#define   QUDOFF       710
+#define   QUDNUM         4
+#define   IQUADSYNCH   710        // quadsync
+#define   IQUADSYNCH1  711        // quadsync from 2nd crate
+#define   IQUADSYNCH2  712
+#define   IQUADSYNCH3  713
+
 // Timeboard data
 #define   TBDOFF       650
 #define   TBDNUM         4
