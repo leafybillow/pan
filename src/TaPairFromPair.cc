@@ -20,25 +20,10 @@
 #include "TaEvent.hh"
 #include "TaPairFromPair.hh"
 #include "TaRun.hh"
-#include "TaLabelledQuantity.hh"
-#include "TaString.hh"
-#include "VaDataBase.hh"
 
 #ifdef DICT
 ClassImp(TaPairFromPair)
 #endif
-
-// Static members
-const ErrCode_t TaPairFromPair::fgTAPFP_OK = 0;
-const ErrCode_t TaPairFromPair::fgTAPFP_ERROR = -1;
-Bool_t TaPairFromPair::fgSkipping = true;
-TaEvent TaPairFromPair::fgThisWinEv;
-TaEvent TaPairFromPair::fgLastWinEv;
-UInt_t TaPairFromPair::fgShreg = 1;
-UInt_t TaPairFromPair::fgNShreg = 0;
-Bool_t TaPairFromPair::fgPairMade = false;
-Bool_t TaPairFromPair::fgNeedHelCheck = true;
-Cut_t TaPairFromPair::fgSequenceNo;
 
 TaPairFromPair::TaPairFromPair():VaPair()
 {
@@ -58,28 +43,6 @@ TaPairFromPair::~TaPairFromPair()
 {
 }
 
-ErrCode_t
-TaPairFromPair::RunInit(const TaRun& run)
-{
-  if (VaPair::RunInit(run) != 0)
-    return fgTAPFP_ERROR;
-  fgSkipping = true;
-  fgThisWinEv = TaEvent();
-  fgLastWinEv = TaEvent();
-  fgShreg = 1;
-  fgNShreg = 0;
-  fgPairMade = false;
-  fgNeedHelCheck = true;
-  fgSequenceNo = run.GetDataBase().GetCutNumber("Sequence");
-  if (fgSequenceNo == (UInt_t) run.GetDataBase().GetNumCuts())
-    {
-      cerr << "TaPairFromPair::RunInit ERROR: Sequence"
-	   << " cut must be defined in database" << endl;
-      return fgTAPFP_ERROR;
-    }
-  return fgTAPFP_OK;
-}
-
 void TaPairFromPair::CheckSequence( TaEvent& ThisEv, TaRun& run )
 {
   // Look for sequence errors in the beam's window pair structure.
@@ -91,67 +54,81 @@ void TaPairFromPair::CheckSequence( TaEvent& ThisEv, TaRun& run )
   // In second and later events of window, pairsynch changed from first event
   // In second and later events of window, helicity changed from first event
 
-  const Int_t PSCHANGE  = 0x1;
-  const Int_t PSSAME    = 0x2;
-  const Int_t HELCHANGE = 0x3;
-  const Int_t HELSAME   = 0x4;
-  const Int_t HELWRONG  = 0x5;
+  const Int_t EPSCHANGE  = 0x1;
+  const Int_t WPSSAME    = 0x2;
+  const Int_t EHELCHANGE = 0x3;
+  const Int_t WHELSAME   = 0x4;
+  const Int_t WHELWRONG  = 0x5;
 
   Int_t val = 0;
-  if ( ThisEv.GetTimeSlot() == 1 )
+
+  static UInt_t gLastTimeSlot;
+  Bool_t newWin = ThisEv.GetTimeSlot() == 1 ||
+    ThisEv.GetTimeSlot() <= gLastTimeSlot;
+  gLastTimeSlot = ThisEv.GetTimeSlot();
+  
+  EPairSynch lps = ThisEv.GetPairSynch();
+  
+  //    clog << "TaPairFromPair::CheckSequence hel/ps/ts="
+  //         << " " << (ThisEv.GetDelHelicity() == RightHeli ? "R" : "L")
+  //         << " " << (ThisEv.GetPairSynch() == FirstPS ? "F" : "S")
+  //         << " " << ThisEv.GetTimeSlot()
+  //         << endl;
+  
+  if (newWin)
     { 
-      // start of new window.
+      // New window.
       // Store event for comparison to later ones
       fgLastWinEv = fgThisWinEv;
       fgThisWinEv = ThisEv;
-    }
 
-  if ( fgLastWinEv.GetEvNumber() > 0 )
-    {
-      // Comparisons to last window
-      // See if pairsynch changed since last window
-      if ( ThisEv.GetPairSynch() == fgLastWinEv.GetPairSynch() )
+      if ( fgLastWinEv.GetEvNumber() > 0 )
 	{
-	  cout << "TaPairFromPair::CheckSequence ERROR: Event " 
-	       << ThisEv.GetEvNumber() 
-	       << " pair synch unchanged" << endl;
-	  val = PSSAME;
-	}
-      
-      if ( fgNeedHelCheck && (ThisEv.GetPairSynch() == FirstPS) )
-	// See if helicity is right
-	{
-	  fgNeedHelCheck = false;
-	  if (!HelSeqOK (ThisEv.GetDelHelicity()))
+	  // Comparisons to last window
+	  // See if pairsynch changed since last window
+	  if ( lps == fgLastWinEv.GetPairSynch() )
 	    {
-	      cout << "TaPairFromPair::CheckEvent ERROR: Event " 
+	      cout << "TaPairFromPair::CheckSequence ERROR: Event " 
 		   << ThisEv.GetEvNumber() 
-		   << " helicity sequence error" << endl;
-	      val = HELWRONG;
-	    }	      
-	} 
-      else if (ThisEv.GetPairSynch() == SecondPS)
-	// See if helicity changed
-	if ( ThisEv.GetDelHelicity() == fgLastWinEv.GetDelHelicity() )
-	  {
-	    fgNeedHelCheck =  true;
-	    cout << "TaPairFromPair::CheckSequence ERROR: Event " 
-		 << ThisEv.GetEvNumber() 
-		 << " helicity unchanged" << endl;
-	    val = HELSAME;
-	  }
+		   << " pair synch unchanged" << endl;
+	      val = WPSSAME;
+	    }
+	  
+	  if (lps == FirstPS)
+	    // See if helicity is right
+	    {
+	      if (!HelSeqOK (ThisEv.GetDelHelicity()))
+		{
+		  cout << "TaPairFromPair::CheckEvent ERROR: Event " 
+		       << ThisEv.GetEvNumber() 
+		       << " helicity sequence error" << endl;
+		  val = WHELWRONG;
+		}	      
+	    } 
+	  else 
+	    // See if helicity changed
+	    {
+	      if ( ThisEv.GetDelHelicity() == fgLastWinEv.GetDelHelicity() )
+		{
+		  cout << "TaPairFromPair::CheckSequence ERROR: Event " 
+		       << ThisEv.GetEvNumber() 
+		       << " helicity unchanged from previous window" << endl;
+		  val = WHELSAME;
+		}
+	    }
+	}
     }
 
-  if ( ThisEv.GetTimeSlot() != 1 && fgThisWinEv.GetEvNumber() != 0 )
+  if ( !newWin && fgThisWinEv.GetEvNumber() != 0 )
     {
       // Comparisons to last event
       // See if pairsynch stayed the same
-      if ( ThisEv.GetPairSynch() != fgThisWinEv.GetPairSynch() )
+      if ( lps != fgThisWinEv.GetPairSynch() )
 	{
 	  cout << "TaPairFromPair::CheckSequence ERROR: Event " 
 	       << ThisEv.GetEvNumber()
 	       << " pairsynch change in mid window\n";
-	  val = PSCHANGE;
+	  val = EPSCHANGE;
 	}
       // See if helicity stayed the same
       if ( ThisEv.GetDelHelicity() != fgThisWinEv.GetDelHelicity() )
@@ -159,7 +136,7 @@ void TaPairFromPair::CheckSequence( TaEvent& ThisEv, TaRun& run )
 	  cout << "TaPairFromPair::CheckSequence ERROR: Event " 
 	       << ThisEv.GetEvNumber()
 	       << " helicity change in mid window\n";
-	  val = HELCHANGE;
+	  val = EHELCHANGE;
 	}
     }
   
@@ -185,85 +162,8 @@ void TaPairFromPair::CheckSequence( TaEvent& ThisEv, TaRun& run )
 }
 
 
-Bool_t 
-TaPairFromPair::Fill( TaEvent& ThisEv, TaRun& run )
-{
-  // If this event makes a pair with a stored one, put the two events
-  // into this pair and return true.  Otherwise store this event and
-  // return false.
-
-  Bool_t PairMade = false;
-  CheckSequence (ThisEv, run);
-
-  // Skip events until the first event of a new window
-  if ( ThisEv.GetPairSynch() == FirstPS &&
-       ThisEv.GetTimeSlot() == 1 )
-    fgSkipping = false;
-
-  if ( !fgSkipping )
-    {
-#ifdef NOISY
-    clog << "Pairing event "  << ThisEv.GetEvNumber() << endl;
-#endif
-      // If first of a pair, store it
-      if ( ThisEv.GetPairSynch() == FirstPS )
-	{
-	  if (fgPairMade && fgEventQueue.size() > 0)
-	    {
-	      // If event queue isn't empty, something is wrong: we
-	      // didn't pair off all first events with second events
-	      // before another first event came along.
-	      cerr << "TaPairFromPair::Fill ERROR: Nothing to pair first event "
-		   << fgEventQueue[0].GetEvNumber() << " with\n";
-	      fgEventQueue.clear();
-	      if (ThisEv.GetTimeSlot() == 1)
-		fgEventQueue.push_back(ThisEv);
-	      else
-		fgSkipping = true;
-	    }
-	  else
-	    fgEventQueue.push_back(ThisEv);
-	}
-      else
-	{
-	  // If second of a pair, get its partner and build the pair
-	  if (fgEventQueue.size() > 0)
-	    {
-	      if (fgEventQueue[0].GetDelHelicity() == RightHeli)
-		{
-		  fEvRight = fgEventQueue[0];
-		  fEvLeft = ThisEv;
-		}
-	      else
-		{
-		  fEvRight = ThisEv;
-		  fEvLeft = fgEventQueue[0];
-		}
-	      fgEventQueue.pop_front();
-	      PairMade = true;
-	    }
-	  else
-	    {
-	      // Something's wrong.  This is a second event but the
-	      // queue of first events is empty.
-	      cerr << "TaPairFromPair::Fill ERROR: Nothing to pair second event "
-		   << ThisEv.GetEvNumber() << " with\n";
-	      fgSkipping = true;
-	    }
-	}
-    }
-#ifdef NOISY
-  else
-    clog << "Skipping event " << ThisEv.GetEvNumber() << endl;
-#endif
-
-  fgPairMade = PairMade;
-  return PairMade;
-}
-
-
 UInt_t 
-TaPairFromPair::RanBit()
+TaPairFromPair::RanBit (UInt_t hRead = 2)
 {
   // Pseudorandom bit generator.  New bit is XOR of bits 17, 22, 23, 24
   // of 24 bit shift register fgShreg.  New fgShreg is old one shifted
@@ -272,48 +172,15 @@ TaPairFromPair::RanBit()
   // the one implemented in hardware in the helicity box and is used for
   // random helicity mode to set the helicity bit for the first window
   // of each window pair.
+  // Except: if the helicity bit actually read is passed as argument,
+  // it is used to update the shift register, not the generated bit.
  
   UInt_t bit24  = (fgShreg & 0x800000) != 0;
   UInt_t bit23  = (fgShreg & 0x400000) != 0;
   UInt_t bit22  = (fgShreg & 0x200000) != 0;
   UInt_t bit17  = (fgShreg & 0x010000) != 0;
   UInt_t newbit = ( bit24 ^ bit23 ^ bit22 ^ bit17 ) & 0x1;
-  fgShreg = ( newbit | (fgShreg << 1 )) & 0xFFFFFF;
+  fgShreg = ( (hRead == 2 ? newbit : hRead) | (fgShreg << 1 )) & 0xFFFFFF;
   return newbit; 
 }
 
-
-Bool_t
-TaPairFromPair::HelSeqOK (EHelicity h)
-{
-  // Return true iff helicity h matches what we expect to find next.  
-  
-  // Get this helicity bit (or 2 if unknown)
-  UInt_t hb = ( h == UnkHeli ? 2 :
-		( h == RightHeli ? 1 : 0 ) );
-
-  // Get expected helicity bit (or 2 if unknown)
-  UInt_t eb;
-  eb = RanBit();
-  Bool_t expectOK = (fgNShreg++ > 24);
-
-  if ( hb != 2 && hb != eb )
-    {
-      // Not the expected value, put it in shift register and
-      // reset count
-      fgShreg = (fgShreg & 0xFFFFFE) | hb;
-      if (expectOK)
-	fgNShreg = 0;
-    }
-
-#ifdef NOISY
-      if ( eb == 2 || eb != hb )
-	clog << "Helicity expected/got = " << eb << " " << hb 
-	     << " | " << fgShreg 
-	     << " fgNShreg = " << fgNShreg << endl;
-#endif
-
-  // Generate error if expected is known and does not match found
-
-  return ( !expectOK || (eb == 2 || eb == hb ));
-}
