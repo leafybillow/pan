@@ -95,9 +95,7 @@ TaBeamAna::InitChanLists ()
   fDiffList.insert (fDiffList.end(), f.begin(), f.end());
 
   // List of channels for which to store asymmetries
-  fAsymList = ChanList ("bcm", "bcm1", "ppm");
-  f = ChanList ("bcm", "bcm2", "ppm");
-  fAsymList.insert (fAsymList.end(), f.begin(), f.end());
+  fAsymList = ChanList ("bcm", "~", "ppm");
 
 }
 
