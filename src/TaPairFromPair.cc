@@ -177,7 +177,8 @@ TaPairFromPair::RanBit (UInt_t hRead)
   // of each window pair.
   // Except: if the helicity bit actually read is passed as argument,
   // it is used to update the shift register, not the generated bit.
- 
+
+#ifdef USEOLDRANBIT 
   UInt_t bit24  = (fgShreg & 0x800000) != 0;
   UInt_t bit23  = (fgShreg & 0x400000) != 0;
   UInt_t bit22  = (fgShreg & 0x200000) != 0;
@@ -185,5 +186,21 @@ TaPairFromPair::RanBit (UInt_t hRead)
   UInt_t newbit = ( bit24 ^ bit23 ^ bit22 ^ bit17 ) & 0x1;
   fgShreg = ( (hRead == 2 ? newbit : hRead) | (fgShreg << 1 )) & 0xFFFFFF;
   return newbit; 
+#else
+  const UInt_t IB1 = 0x1;	        // Bit 1 mask
+  const UInt_t IB3 = 0x4;	        // Bit 3 mask
+  const UInt_t IB4 = 0x8;	        // Bit 4 mask
+  const UInt_t IB24 = 0x800000;         // Bit 24 mask
+  const UInt_t MASK = IB1+IB3+IB4+IB24;	// 100000000000000000001101
+ 
+  int hPred = (fgShreg & IB24) ? 1 : 0;
+
+  if ((hRead == 2 ? hPred : hRead) == 1)
+    fgShreg = ((fgShreg ^ MASK) << 1) | IB1;
+  else
+    fgShreg <<= 1;
+
+  return hPred;
+#endif
 }
 
