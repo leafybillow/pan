@@ -4,6 +4,72 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 05 Jun 2002
+-----------------------------------
+
+These changes are mainly in two categories:
+
+(1) Allow more than one analysis in a job (e.g. by calling an analysis
+    macro from the Root prompt twice)
+
+(2) Option of a 2-pass analysis
+
+The last remaining obstacle (at least when using ASCII database file)
+to doing multiple analyses was in the TaAsciiDB class, where there
+were static variables used to control once-only initialization.  By
+making these into member variables, the initialization becomes once
+per analysis object.  (I suspect the MySQL database code does not have
+a similar problem, but have not verified this.)  I also added checks
+to make sure the database had been initialized in a couple of places.
+
+The code now permits a 2-pass analysis.  In theory, statistical widths
+computed in a single pass with no foreknowledge of the means are
+untrustworthy, due to loss of precision when subtracting (mean x)^2
+from (mean x^2) particularly when the widths are small compared to the
+means.  In our case the opposite usually is true and the loss of
+precision is negligible, but it's easy enough to allow a 2-pass option
+to verify 1-pass results.  A new command line option, "-2", selects
+the 2-pass option; 1-pass is the default.  The second pass analysis
+does only what is needed to get 2-pass statistics; in particular,
+there is no updating of the trees.
+
+VaAnalysis.{cc,hh}
+
+ o Make error return constants public, and initialize in
+   implementation file.  (The latter is not needed to compile with
+   MAKEDICTIONARY off, but is needed when MAKEDICTIONARY is on.
+   Either that or the constants have to be private; but it makes more
+   sense for them to be public.)
+
+TaAsciiDB.{cc,hh}
+
+ o Convert static flags to members, so what was once-only
+   initialization becomes once-per-database-object.
+ o Check init in a couple places.
+
+TaAnalysisManager.{cc,hh} VaAnalysis.{cc,hh}
+
+ o 2-pass analysis mods.
+
+TaRun.{cc,hh}
+
+ o 2-pass analysis mods.
+ o PrintStats takes const ref args (formerly non-const copy args, for
+   no good reason).
+
+TaStatistics.{cc,hh}
+
+ o Copy fFirstPass in copy c'tor and assigment.  This was a bug.
+ o Single-quantity methods take const arg  (formerly non-const, for no
+   good reason).
+
+main.cc
+
+ o 2-pass analysis mods
+ o Revised usage text; it now reflects reality!
+ o Improved command line scanning, catches mistakes like "./pan -r".
+
+
 Changes by R. Holmes on 04 Jun 2002
 -----------------------------------
 
