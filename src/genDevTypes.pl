@@ -20,11 +20,11 @@
 # Hall A stripline BPMs
 @halla_strlist = qw / IBPM8 IBPM10 IBPM12 IBPM4A IBPM4B /;
 # Injector stripline BPMs
-@inj_strlist =   qw / IBPMIN1 IBPMIN2 IBPMIN3 IBPMIN4 IBPMIN5 IBPMIN6 /;
+@inj_strlist =   qw / IBPM1I02 IBPM1I04 IBPM1I06 IBPM0I02 IBPM0I02A IBPM0L02 IBPM0L06 /;  
 # Cavity BPMs
 @cavlist =       qw / IBPMCAV1 IBPMCAV2 IBPMCAV3 IBPMCAV4 /;
 # Old (HAPPEX-I era) current monitors
-@old_bcmlist =   qw / IBCM1 IBCM2 IBCM3 /;
+@old_bcmlist =   qw / IBCM1 IBCM2 IBCM3 IBCM4/;
 # G0 current monitors
 @g0_bcmlist =    qw / IBCMCAV1 IBCMCAV2 IBCMCAV3 IBCMCAV4 /;
 # Batteries
