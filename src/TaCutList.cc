@@ -11,6 +11,7 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
+//#define NOISY
 
 #include "TaCutList.hh"
 #include <iostream>
@@ -45,20 +46,21 @@ TaCutList::Init(const VaDataBase& db)
 
   // Cut extensions 
 
-  // These can be replaced by simple assignments if types of GetEvLo,
-  // GetEvHi are changed to vector<UInt_t>.  However, we should then
-  // still do the resize to guarantee the correct size vector.
+  // These are specified in terms of helicity windows in the database
+  // but stored in terms of events -- i.e. we multiply by the
+  // oversample factor.
 
   fLowExtension.resize (MaxCuts, 0);
   fHighExtension.resize (MaxCuts, 0);
 
+  SlotNumber_t os = db.GetOverSamp();
   temp = db.GetEvLo();
   for (size_t i = 0; i < temp.size() && i < MaxCuts; ++i)
-    fLowExtension[i] = temp[i];
+    fLowExtension[i] = temp[i] * os;
 
   temp = db.GetEvHi();
   for (size_t i = 0; i < temp.size() && i < MaxCuts; ++i)
-    fHighExtension[i] = temp[i];
+    fHighExtension[i] = temp[i] * os;
 
   // Cut values
   for (size_t i = 0; i < db.GetNumBadEv(); ++i)
@@ -89,7 +91,7 @@ TaCutList::OK (const TaEvent& ev) const   // True if event not in any cut interv
       if (c->Inside(ev, fLowExtension[c->GetCut()], fHighExtension[c->GetCut()]))
 	oksofar = false;
     }
-  return oksofar;
+    return oksofar;
 }
 
 vector<pair<ECutType,Int_t> >
@@ -133,6 +135,9 @@ TaCutList::UpdateCutInterval (const ECutType cut, const Int_t val, const EventNu
 	      fOpenIntIndices.erase(oiit);
 	      fIntervals.push_back(TaCutInterval(cut, val, ev, fgMaxEvent));
 	      fOpenIntIndices.push_back(fIntervals.size()-1);
+#ifdef NOISY
+	      clog << *this;
+#endif
 	    }
 	}
       else
@@ -140,6 +145,9 @@ TaCutList::UpdateCutInterval (const ECutType cut, const Int_t val, const EventNu
 	  // No open cut interval for this cut
 	  fIntervals.push_back(TaCutInterval(cut, val, ev, fgMaxEvent));
 	  fOpenIntIndices.push_back(fIntervals.size()-1);
+#ifdef NOISY
+	      clog << *this;
+#endif
 	}
     }
   else
@@ -149,6 +157,9 @@ TaCutList::UpdateCutInterval (const ECutType cut, const Int_t val, const EventNu
 	  // Found open cut interval for this cut
 	  fIntervals[oi].SetEnd(ev);
 	  fOpenIntIndices.erase(oiit);
+#ifdef NOISY
+	      clog << *this;
+#endif
 	}
     }
 }
