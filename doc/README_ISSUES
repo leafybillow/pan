@@ -1,3 +1,47 @@
+Comments by A. Vacheret, March, 2002
+----------------------------------
+
+Resolved other 'discard const' warnings
+
+In VaAnalysis::RunInI() I set the value of fEHelDequeMax at 1 in case of no helicity delay.
+That's why we didn't have the pair tree after a run.
+
+TaEvent private variable FirstPS was set to 1 to respect the source convention. 
+
+See other change in ChangeLog
+  
+The code uses 32 Mbytes memory at present, I think this is because we have the pair analysis loop
+working now. No evident memory leak during a run but Pan is a kind of slow compared to apar. 
+
+Feedback are working but not the cuts yet. With cuts and pedestal calibration, it should 
+work like apar.
+
+Statisitics shows error during calculation, didn't take the time to look at this carefully
+
+Will put the type of analysis in the root file name. Also the time parameter for the feedback should be
+in the database to be able to change the lenght of a feedback minirun.
+
+
+
+
+commit -m "added analysis choice BEAM or FDBK" TaAnalysisManager.cc
+commit -m "added analysis choice BEAM or FDBK" TaAnalysisManager.hh
+commit -m "added TaFdbkAna " Makefile
+commit -m "added member functions" TaRun.cc
+commit -m "added member functions" TaRun.hh
+commit -m "added some test for asym debug and other" VaAnalysis.cc
+commit -m "added some test for asym debug and other" VaAnalysis.hh
+commit -m "fixed discard const and bug" TaEvent.cc 
+commit -m "fixed discard const and bug" TaEvent.hh
+commit -m "fixed discard const" TaADC.cc 
+commit -m "fixed conventions" TaPairFromPair.cc
+commit -m "fixed discard const" VaDevice.cc
+commit -m "fixed conventions and add function for cut test" VaPair.cc
+commit -m "fixed conventions and add function for cut test" VaPair.hh
+commit -m "new feedback class" TaFdbkAna.hh
+commit -m "new feedback class" TaFdbkAna.cc
+
+
 
 Comments by R. Michaels, Feb, 2002
 ----------------------------------

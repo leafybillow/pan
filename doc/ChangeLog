@@ -4,7 +4,42 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 	
+* changes leading to March 1 2002 version
+_________________________________________	
 
+TaAnalysisManager -
+   Can choose now between two type of analysis, so now the run type and the anatype could
+   be different. We still need to put the ana type in the root file name.
+	 
+	
+VaAnalysis -
+   Added RunInI() set the value of fEHelDequeMax at 1 in case of no 
+   helicity delay. This was the main problem why we didn't have 
+   the pair tree after a run.	
+
+TaEvent -
+   private variable FirstPS was set to 1 to respect the source 
+   convention.
+
+TaRun -
+   Added event number (ev_num) explicitly in the tree so we don't have to use scaler1_1 to get it.
+   Added SendEPICSInfo( pair< string, Double_t> value, pair<string,Double_t> errvalue) to be able 
+   to send feedbacks infos to the source. 	
+
+
+VaAnalysis -
+	 
+   Changed the convention for the asymmetry sign  : L - R  
+
+
+TaFdbkAna -
+	 
+    Derived from VaAnalysis, this is a 'TaBeamAna'  with charge asymmetry feedback implemented.
+    will add PZT info if needed.	
+    	
+  	
+	
+	
 
 * Primary changes leading to Feb 8, 2002 version
 ------------------------------------------------
