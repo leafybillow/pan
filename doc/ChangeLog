@@ -6,6 +6,54 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 23 Dec 2002
+-----------------------------------
+
+So why do we have a "prompt" and a "beam" analysis?  The former looks
+at levels of the detectors and asymmetries of detector combinations;
+for data with no detectors, this produces lots of error messages, so
+there's a "beam" analysis that doesn't try to look at detectors.  But
+I realized somewhat belatedly that the TaDetector::IsUsed(key)
+function can be used to prevent looking at devices that aren't in the
+datamap, making it possible for a single analysis to do both jobs.  So
+I've replaced TaPromptAna and TaBeamAna with TaStandardAna, which
+looks at detectors if they're there and not if they aren't.  Also, I
+made TaDebug derive from TaStandard, so its implementation is
+near-trivial.  For backward compatibility, TaStandardAna is
+instantiated when the analysis type requested is "prompt" or "beam"
+(or "standard", which should be the type used in the future.)
+
+The seg fault Kent noticed in 2-pass analysis is gone.  I never did
+figure out exactly what was causing it, but while looking into it I
+noticed the database write was taking place in both passes, and I
+realized the tree filling that was occurring in pass 1 should probably
+occur instead in the last pass (pass 1 for a 1 pass analysis, pass 2
+for a 2 pass).  Once I took care of those things, the seg fault went
+away.  In the course of this, I improved an error message in
+TaStatistics. 
+
+It also finally dawned on me that the odd sequence errors I was seeing
+at start of run were due to a bug, which I fixed.
+
+TaPromptAna.{cc,hh} TaBeamAna.{cc,hh} TaStandardAna.{cc,hh} Makefile
+TaDebugAna.{cc,hh} TaLinkDef.hh TaAnalysisManager.cc
+
+ o Replace TaPromptAna and TaBeamAna with TaStandardAna, and make
+   TaDebugAna derive from TaStandardAna
+
+TaAnalysisManager.{cc,hh} TaRun.cc VaAnalysis.{cc,hh} main.cc
+
+ o Do ROOT file and database output only in last pass
+
+TaPairFromQuad.cc
+
+ o Fix bug in sequence check
+
+TaStatistics.cc
+
+ o Give more information when pass lengths mismatch
+
+
 Changes by R. Holmes on 19 Dec 2002
 -----------------------------------
 
