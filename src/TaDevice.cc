@@ -59,7 +59,7 @@ map<string, Int_t> TaDevice::GetKeyList() const {
   return fKeyToIdx;
 };
 
-void TaDevice::Init(const VaDataBase& db) {
+void TaDevice::Init(VaDataBase& db) {
 // Initialized the key mapping to integers, and   
 // the list of raw data defined in the database.
 // The database defines the channel mapping, but the
@@ -112,7 +112,7 @@ Int_t TaDevice::AddRawKey(string keyname) {
    return key;
 }     
 
-Int_t TaDevice::GetKey(string keystr) {
+Int_t TaDevice::GetKey(string keystr) const {
 // Returns the integer key corresponding to the string key name.
 // Users of this class who have a list of string keys should upon
 // initialization of the code call this method to determine the 
@@ -121,13 +121,14 @@ Int_t TaDevice::GetKey(string keystr) {
 // variables in the tree, and to initialize datamap from database, 
 // but one should *NOT* use this method inside an event loop !!
   
-  return fKeyToIdx[keystr];
+  //  return fKeyToIdx[keystr];
+  return (fKeyToIdx.find(keystr))->second;
 }
 
 
-string TaDevice::GetKey(Int_t key) {
+string TaDevice::GetKey(Int_t key) const {
   static string nothing = "nothing";
-  for (map<string, Int_t>::iterator si = fKeyToIdx.begin(); 
+  for (map<string, Int_t>::const_iterator si = fKeyToIdx.begin(); 
        si != fKeyToIdx.end();  si++) {
         if (key == si->second) return si->first;
   }

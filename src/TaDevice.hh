@@ -40,10 +40,10 @@ class TaDevice {
 
 // Use the following to find integer keys corresponding to string key names.
 // But DO NOT use this inside an event loop.  Instead, build a list of integers
-    Int_t GetKey(string keystr);    // Get key int corresp. to key string
-    string GetKey(Int_t key);       // inverse map 
+    Int_t GetKey(string keystr) const;    // Get key int corresp. to key string
+    string GetKey(Int_t key) const;       // inverse map 
 
-    void Init(const VaDataBase& db);    // Initalize from database
+    void Init(VaDataBase& db);    // Initalize from database
       
     Int_t GetNumRaw() const;
     Int_t GetRawKey(const Int_t& index) const;
