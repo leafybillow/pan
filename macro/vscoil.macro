@@ -1,8 +1,16 @@
-void vscoil (TString quant)
+void vscoil (TString quant, int cyc=-1)
 {
   TTree* tt = gROOT->FindObject("R");
-
-  int cyc = tt->GetMaximum("bmwcyc");
+  if (tt == NULL)
+    {
+      cerr << "Tree R not found" << endl;
+      return;
+    }
+  if (cyc == -1)
+    {
+      cyc = tt->GetMaximum("bmwcyc");
+      cerr << "cyc = " << cyc << endl;
+    }
   TString sel ("bmwcyc==");
   sel += cyc;
 
