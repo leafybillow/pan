@@ -46,6 +46,7 @@ Double_t VaEvent::fgBurpCut;
 Cut_t VaEvent::fgLoBeamNo;
 Cut_t VaEvent::fgBurpNo;  
 Cut_t VaEvent::fgEvtSeqNo;
+Cut_t VaEvent::fgStartupNo;
 UInt_t VaEvent::fgOversample;
 UInt_t VaEvent::fgSizeConst;
 UInt_t VaEvent::fgNCuts;
@@ -139,18 +140,30 @@ VaEvent::RunInit(const TaRun& run)
 
   fgNCuts = (UInt_t) run.GetDataBase().GetNumCuts();
 
-  fgLoBeamNo = run.GetDataBase().GetCutNumber("Low_beam");
-  fgBurpNo = run.GetDataBase().GetCutNumber("Beam_burp");
-  fgEvtSeqNo = run.GetDataBase().GetCutNumber("Evt_seq");
+  fgLoBeamNo = run.GetDataBase().GetCutNumber ("Low_beam");
+  fgBurpNo = run.GetDataBase().GetCutNumber ("Beam_burp");
+  fgEvtSeqNo = run.GetDataBase().GetCutNumber ("Evt_seq");
+  fgStartupNo = run.GetDataBase().GetCutNumber ("Startup");
   if (fgEvtSeqNo == fgNCuts)
-    fgEvtSeqNo = run.GetDataBase().GetCutNumber("Oversample"); // backward compat
+    fgEvtSeqNo = run.GetDataBase().GetCutNumber ("Oversample"); // backward compat
   if (fgLoBeamNo == fgNCuts ||
-      fgBurpNo == fgNCuts ||
       fgEvtSeqNo == fgNCuts)
     {
-      cerr << "VaEvent::RunInit ERROR: Low_beam, Beam_burp, and Evt_seq"
-	   << " cuts must be defined in database" << endl;
+      cerr << "VaEvent::RunInit ERROR: Following cut(s) are not defined "
+	   << "in database and are required:";
+      if (fgLoBeamNo == fgNCuts) cerr << " Low_beam";
+      if (fgEvtSeqNo == fgNCuts) cerr << " Evt_seq";
+      cerr << endl;
       return fgTAEVT_ERROR;
+    }
+  if (fgBurpNo == fgNCuts ||
+      fgStartupNo == fgNCuts)
+    {
+      cerr << "VaEvent::RunInit WARNING: Following cut(s) are not defined "
+	   << "in database and will not be imposed:";
+      if (fgBurpNo == fgNCuts) cerr << " Beam_burp";
+      if (fgStartupNo == fgNCuts) cerr << " Startup";
+      cerr << endl;
     }
   fgOversample = run.GetOversample();
   fgLastEv = VaEvent();
@@ -388,7 +401,7 @@ VaEvent::CheckEvent(TaRun& run)
   Int_t val = 0;
 
   fFailedACut = false;
-  if ( current < fgLoBeam )
+  if ( fgLoBeamNo < fgNCuts && current < fgLoBeam )
     {
 #ifdef NOISY
       clog << "Event " << fEvNum << " failed lobeam cut, "
@@ -399,13 +412,20 @@ VaEvent::CheckEvent(TaRun& run)
   AddCut (fgLoBeamNo, val);
   run.UpdateCutList (fgLoBeamNo, val, fEvNum);
 
-  if ( fgLastEv.GetEvNumber() != 0 )
+  if ( fgLastEv.GetEvNumber() == 0 )
+    {
+      // First event, cut it (startup cut)
+
+      val = 1;
+    }
+  else
     {
       // Not the first event, so check event-to-event differences
       
       // Beam burp -- current change greater than limit?
       val = 0;
-      if (abs (current-fgLastEv.GetData(IBCM1)) > fgBurpCut)
+      if (fgBurpNo < fgNCuts &&
+	  abs (current-fgLastEv.GetData(IBCM1)) > fgBurpCut)
 	{
 #ifdef NOISY
 	  clog << "Event " << fEvNum << " failed beam burp cut, "
@@ -418,7 +438,8 @@ VaEvent::CheckEvent(TaRun& run)
 
       // Check event number sequence
       val = 0;
-      if (GetEvNumber() != fgLastEv.GetEvNumber() + 1) 
+      if (fgEvtSeqNo < fgNCuts &&
+	  GetEvNumber() != fgLastEv.GetEvNumber() + 1) 
 	{
 	  cerr << "VaEvent::CheckEvent ERROR Event " 
 	       << GetEvNumber() 
@@ -432,7 +453,8 @@ VaEvent::CheckEvent(TaRun& run)
 
       // Check time slot sequence
       val = 0;
-      if ( fgOversample > 0 )
+      if ( fgEvtSeqNo < fgNCuts &&
+	  fgOversample > 0 )
 	{ 
 	  if ( GetTimeSlot() != 
 	       fgLastEv.GetTimeSlot() % fgOversample + 1 ) 
@@ -449,8 +471,14 @@ VaEvent::CheckEvent(TaRun& run)
 	}
       AddCut (fgEvtSeqNo, val);
       run.UpdateCutList (fgEvtSeqNo, val, fEvNum);
+      
+      // Clear the startup cut
+      val = 0;
     }
   
+  AddCut (fgStartupNo, val);
+  run.UpdateCutList (fgStartupNo, val, fEvNum);
+
   fgLastEv = *this;
 };
 
@@ -728,7 +756,13 @@ VaEvent::MiniDump() const
        << "/" << setw(2) << (Int_t) GetData (ITIMESLOT)
        << "/" << setw(2) << (Int_t) GetData (IPAIRSYNCH)
        << "/" << setw(2) << (Int_t) GetData (IQUADSYNCH)
-       << " BCM1 = " << GetData (IBCM1) << endl; 
+       << " Cuts = " << setw(2) << CutCond(0)
+       << setw(2) << CutCond(1)
+       << setw(2) << CutCond(2)
+       << setw(2) << CutCond(3)
+       << setw(2) << CutCond(4)
+       << " BCM1 = " << GetData (IBCM1)
+       << endl; 
 }
 
 Double_t VaEvent::GetData( Int_t key ) const { 
