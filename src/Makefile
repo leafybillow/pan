@@ -95,7 +95,7 @@ endif
 SRC = TaAnalysisManager.cc TaAsciiDB.cc \
       TaBeamAna.cc TaFdbkAna.cc TaDevice.cc \
       TaCutInterval.cc TaCutList.cc TaEvent.cc TaLabelledQuantity.cc \
-      TaPairFromPair.cc TaRun.cc TaStatistics.cc \
+      TaPairFromPair.cc TaRun.cc TaStatistics.cc TaString.cc \
       VaAnalysis.cc VaDataBase.cc VaPair.cc TaADCCalib.cc
 
 DEPS = $(SRC:.cc=.d)

@@ -31,6 +31,7 @@
 #pragma link C++ class TaRun;
 #pragma link C++ class TaScaler;
 #pragma link C++ class TaStatistics;
+#pragma link C++ class TaString;
 #pragma link C++ class TaTB;
 #pragma link C++ class TaTIR;
 #pragma link C++ class VaAnalysis;
