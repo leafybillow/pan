@@ -14,7 +14,10 @@
 #
 # To compile optimized
 # export OPTIMIZE = 1
-# 
+#
+# Uncomment this if you want to use MySQL database
+#export MYSQLDB = 1
+#
 # Would uncommment this if you want rootcint Dictionary.
 # Only works with the CVS version of root as of Dec 21, 2001.
 # export MAKEDICTIONARY = 1
@@ -90,13 +93,27 @@ else
    CXXFLAGS += -g
 endif
 
+ifdef MYSQLDB
+MYSQL_INCLUDE = /usr/local/mysql/include
+INCLUDES      +=-I$(MYSQL_INCLUDE) 
+MYSQL_LIBS    = /cern/root/lib/libMySQL.so /usr/lib/libz.so
+ALL_LIBS += $(MYSQL_LIBS)
+endif
+
 # Grow the list of sources here.
 
-SRC = TaAnalysisManager.cc TaAsciiDB.cc \
+SRC = TaAnalysisManager.cc  \
       TaBeamAna.cc TaFdbkAna.cc TaDevice.cc \
       TaCutInterval.cc TaCutList.cc TaEvent.cc TaLabelledQuantity.cc \
       TaPairFromPair.cc TaRun.cc TaStatistics.cc TaString.cc \
       VaAnalysis.cc VaDataBase.cc VaPair.cc TaADCCalib.cc
+
+ifdef MYSQLDB
+ SRC +=TaMysql.cc
+ CXXFLAGS += -DMYSQLDB
+else
+ SRC +=TaAsciiDB.cc
+endif
 
 DEPS = $(SRC:.cc=.d)
 OBJS = $(SRC:.cc=.o)
@@ -108,6 +125,9 @@ ifdef ONLINE
   SRC += THaEtClient.cc
   CXXFLAGS += -DONLINE
 endif
+
+
+
 
 PROGS = pan
 
