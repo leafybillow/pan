@@ -20,5 +20,6 @@ enum EHelicity { RightHeli, LeftHeli, UnkHeli };
 enum EPairSynch { FirstPS, SecondPS };
 enum EQuadSynch { FirstQS, OtherQS };
 enum EPairType { FromPair, FromQuad };
+enum EFeedbackType { IA, PZTX, PZTY, PITA};
 
 #endif
