@@ -29,7 +29,7 @@
 
 using namespace std;
 
-#define ADC_MaxSlot 10
+#define ADC_MaxSlot 30
 #define ADC_MaxChan 4
 #define ADC_MinDAC 3000
 

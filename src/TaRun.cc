@@ -720,22 +720,22 @@ TaRun::Uncreate()
   delete fESliceStats;
   delete fERunStats;
   delete fPSliceStats;
-#ifndef PANAM
-  delete fPOrdSliceStats[0];
-  delete fPOrdSliceStats[1];
-  delete fPOrdSliceStats[2];
-  delete fPOrdSliceStats[3];
-  delete[] fPOrdSliceStats;
-#endif
+  if(fPOrdSliceStats!=NULL){
+    delete fPOrdSliceStats[0];
+    delete fPOrdSliceStats[1];
+    delete fPOrdSliceStats[2];
+    delete fPOrdSliceStats[3];
+    delete[] fPOrdSliceStats;
+  }
   delete fPRunStats;
   delete fResFile;
-#ifndef PANAM
-  delete fPOrdRunStats[0];
-  delete fPOrdRunStats[1];
-  delete fPOrdRunStats[2];
-  delete fPOrdRunStats[3];
-  delete[] fPOrdRunStats;
-#endif
+  if(fPOrdRunStats!=NULL) {
+    delete fPOrdRunStats[0];
+    delete fPOrdRunStats[1];
+    delete fPOrdRunStats[2];
+    delete fPOrdRunStats[3];
+    delete[] fPOrdRunStats;
+  }
   fCutList = 0;
   fCoda = 0;
   fEvent = 0;
