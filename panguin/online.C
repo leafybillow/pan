@@ -337,8 +337,9 @@ vector <TString> OnlineConfig::GetDrawCommand(UInt_t page, UInt_t nCommand)
   //  1: cut
   //  2: type
   //  3: title
+  //  $: treename
 
-  vector <TString> out_command(4);
+  vector <TString> out_command(5);
   vector <UInt_t> command_vector = GetDrawIndex(page);
   UInt_t index = command_vector[nCommand];
 
@@ -357,16 +358,13 @@ vector <TString> OnlineConfig::GetDrawCommand(UInt_t page, UInt_t nCommand)
   }
   if(sConfFile[index].size()>=2) {
     if((sConfFile[index][1] != "-type") &&
-       (sConfFile[index][1] != "-title"))
+       (sConfFile[index][1] != "-title") &&
+       (sConfFile[index][1] != "-tree"))
       out_command[1] = sConfFile[index][1];
   }
 
   // Now go through the rest of that line..
   for (UInt_t i=1; i<sConfFile[index].size(); i++) {
-#ifdef DEBUG
-    cout << sConfFile[index][i] << " ";
-#endif
-    // Check for -title
     if(sConfFile[index][i]=="-type") {
       out_command[2] = sConfFile[index][i+1];
       i = i+1;
@@ -381,17 +379,27 @@ vector <TString> OnlineConfig::GetDrawCommand(UInt_t page, UInt_t nCommand)
 	} else if(word.EndsWith("\"")) {
 	  title += " " + word.ReplaceAll("\"","");
 	  out_command[3] = title;
-	  i += j-1;
+	  i = j;
+	  break;
 	} else {
 	  title += " " + word;
 	}
       }
+    } else if(sConfFile[index][i]=="-tree") {
+      out_command[4] = sConfFile[index][i+1];
+      i = i+1;
     }
+
 #ifdef DEBUG
-  cout << endl;
+    cout << endl;
 #endif
   }
 #ifdef DEBUG
+  cout << sConfFile[index].size() << ": ";
+  for(UInt_t i=0; i<sConfFile[index].size(); i++) {
+    cout << sConfFile[index][i] << " ";
+  }
+  cout << endl;
   for(UInt_t i=0; i<out_command.size(); i++) {
     cout << i << ": " << out_command[i] << endl;
   }
@@ -660,7 +668,7 @@ void OnlineGUI::DoDraw()
   fCanvas->Clear();
   fCanvas->Divide(dim.first,dim.second);
 
-  vector <TString> drawcommand(4);
+  vector <TString> drawcommand(5);
   // Draw the histograms.
   for(UInt_t i=0; i<draw_count; i++) {    
     drawcommand = fConfig->GetDrawCommand(current_page,i);
@@ -904,8 +912,20 @@ UInt_t OnlineGUI::GetTreeIndex(TString var) {
 
 #endif
   return fRootTree.size()+1;
+}
 
+UInt_t OnlineGUI::GetTreeIndexFromName(TString name) {
+  // Called by TreeDraw().  Tries to find the Tree index provided the
+  //  name.  If it doesn't match up, return a number that's one larger
+  //  than the number of found trees.
+  for(UInt_t iTree=0; iTree<fRootTree.size(); iTree++) {
+    TString treename = fRootTree[iTree]->GetName();
+    if(name == treename) {
+      return iTree;
+    }
+  }
 
+  return fRootTree.size()+1;
 }
 
 void OnlineGUI::MacroDraw(vector <TString> command) {
@@ -1134,7 +1154,12 @@ void OnlineGUI::TreeDraw(vector <TString> command) {
   }
 
   // Determine which Tree the variable comes from, then draw it.
-  UInt_t iTree = GetTreeIndex(var);
+  UInt_t iTree;
+  if(command[4].IsNull()) {
+    iTree = GetTreeIndex(var);
+  } else {
+    iTree = GetTreeIndexFromName(command[4]);
+  }
   TString drawopt = command[2];
   Int_t errcode=0;
   if(drawopt.IsNull() && var.Contains(":")) drawopt = "box";
@@ -1144,13 +1169,8 @@ void OnlineGUI::TreeDraw(vector <TString> command) {
     TObject *hobj = (TObject*)gROOT->FindObject("htemp");
     if(errcode!=0) {
       if(!command[3].IsNull()) {
-	if(hobj->InheritsFrom("TH2F") || hobj->InheritsFrom("TProfile")) {
-	  TH2F* thathist = (TH2F*)hobj;
-	  thathist->SetTitle(command[3]);
-	}else if(hobj->InheritsFrom("TH1F")) {
-	  TH1F* thathist = (TH1F*)hobj;
-	  thathist->SetTitle(command[3]);
-	}
+	TH1* thathist = (TH1*)hobj;
+	thathist->SetTitle(command[3]);
       }
     } else {
       BadDraw("No Entries to Draw");

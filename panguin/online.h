@@ -116,6 +116,7 @@ public:
   void GetTreeVars();
   void GetRootTree();
   UInt_t GetTreeIndex(TString);
+  UInt_t GetTreeIndexFromName(TString);
   void TreeDraw(vector <TString>); 
   void HistDraw(vector <TString>);
   void MacroDraw(vector <TString>);
