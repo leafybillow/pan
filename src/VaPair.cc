@@ -333,6 +333,23 @@ VaPair::GetAsy (Int_t key) const
   return (GetRight().GetData(key) - GetLeft().GetData(key)) / denom;
 }
 
+Double_t 
+VaPair::GetAsyN (Int_t key, Int_t curmonkey) const
+{
+  // Get normalized asymmetry in quantity indexed by key for this pair.
+
+  Double_t denom = GetRight().GetData(key)/GetRight().GetData(curmonkey)
+    + GetLeft().GetData(key)/GetLeft().GetData(curmonkey);
+  if ( denom <= 0 )
+    {
+//        cerr << "VaPair::GetAsyN ERROR: Denominator is <= zero, key = " 
+//  	   << key << endl;
+      return -1;
+    }
+  return (GetRight().GetData(key)/GetRight().GetData(curmonkey)
+	  - GetLeft().GetData(key)/GetLeft().GetData(curmonkey)) / denom;
+}
+
 
 Double_t 
 VaPair::GetAsySum (vector<Int_t> keys, vector<Double_t> wts) const
@@ -344,11 +361,31 @@ VaPair::GetAsySum (vector<Int_t> keys, vector<Double_t> wts) const
     GetLeft().GetDataSum (keys, wts);
   if ( denom <= 0 )
     {
-      cerr << "VaPair::GetAsySum ERROR: Denominator is <= zero" << endl;
+//       cerr << "VaPair::GetAsySum ERROR: Denominator is <= zero" << endl;
       return -1;
     }
   return (GetRight().GetDataSum (keys, wts) - 
 	  GetLeft().GetDataSum (keys, wts)) / denom;
+}
+
+
+Double_t 
+VaPair::GetAsyNSum (vector<Int_t> keys, Int_t curmonkey, vector<Double_t> wts) const
+{
+  // Get normalized asymmetry in weighted sum of quantities indexed by keys for
+  // this pair.
+
+  Double_t denom = (GetRight().GetDataSum (keys, wts))/GetRight().GetData(curmonkey) + 
+    (GetLeft().GetDataSum (keys, wts))/GetLeft().GetData(curmonkey);
+  if ( denom <= 0 )
+    {
+      cerr << "VaPair::GetAsyNSum ERROR: Denominator is <= zero" << endl;
+      return -1;
+    }
+  Double_t numer = ((GetRight().GetDataSum (keys, wts))/GetRight().GetData(curmonkey)) - 
+		    ((GetLeft().GetDataSum (keys, wts))/GetLeft().GetData(curmonkey));
+
+  return  numer/denom;
 }
 
 
@@ -384,6 +421,40 @@ VaPair::GetAsyAve (vector<Int_t> keys, vector<Double_t> wts) const
       return 0;
     }
 
+  return sumxw / sumw;
+}
+
+Double_t 
+VaPair::GetAsyNAve (vector<Int_t> keys, Int_t curmonkey, vector<Double_t> wts) const
+{
+  // Get weighted average of normalized asymmetries of quantities
+  // indexed by keys for this pair.
+
+  Double_t sumxw = 0;
+  Double_t sumw = 0;
+
+  if (wts.size() == 0)
+    for (vector<Int_t>::const_iterator p = keys.begin();
+	 p != keys.end();
+	 ++p)
+      {
+	sumxw += GetAsyN (*p,curmonkey);
+	sumw++;
+      }
+  else if (wts.size() != keys.size())
+    cerr << "VaPair::GetAsyNAve ERROR: Weight and key vector sizes differ" << endl;
+  else
+    for (size_t i = 0; i < keys.size(); ++i)
+      {
+	sumxw += wts[i] * GetAsyN (keys[i],curmonkey);
+	sumw += wts[i];
+      }
+
+  if (sumw <= 0)
+    {
+      cerr << "VaPair::GetAsyNAve ERROR: Weight sum non-positive" << endl;
+      return 0;
+    }
   return sumxw / sumw;
 }
 

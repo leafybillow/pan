@@ -53,8 +53,11 @@ public:
   Double_t GetDiff (Int_t) const;
   Double_t GetDiffSum (vector<Int_t>, vector<Double_t> = vector<Double_t>(0)) const;
   Double_t GetAsy (Int_t) const;
+  Double_t GetAsyN (Int_t,Int_t) const;
   Double_t GetAsySum (vector<Int_t>, vector<Double_t> = vector<Double_t>(0)) const;
+  Double_t GetAsyNSum (vector<Int_t>, Int_t, vector<Double_t> = vector<Double_t>(0)) const;
   Double_t GetAsyAve (vector<Int_t>, vector<Double_t> = vector<Double_t>(0)) const;
+  Double_t GetAsyNAve (vector<Int_t>, Int_t, vector<Double_t> = vector<Double_t>(0)) const;
   Bool_t PassedCuts() const; // True if neither event has cut condition
   Bool_t PassedCutsInt(const TaCutList& cl) const; // True if neither event is in cut interval
   Bool_t PassedCCutsInt(const TaCutList& cl) const; // True if neither event is in cut interval (hallC)

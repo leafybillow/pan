@@ -1101,8 +1101,6 @@ VaAnalysis::AutoPairAna()
       if (alist.fFlagInt & fgASYN)
 	{
 	  // Channels for which to put normalized asymmetry in tree
-	  // Actually we assume small asymmetries in which case
-	  // asy(a/b) = asy(a) - asy(b)
 
 	  unit = alist.fUniStr;
 	  if ((alist.fFlagInt & fgNO_BEAM_NO_ASY) &&
@@ -1117,14 +1115,13 @@ VaAnalysis::AutoPairAna()
 	    {
 	      if (alist.fVarInts != 0)
 		{
-		  if (alist.fFlagInt & fgAVE)
-		    val = fPair->GetAsyAve (*(alist.fVarInts), *(alist.fVarWts));
+		  if (alist.fFlagInt & fgAVE) 
+		    val = fPair->GetAsyNAve (*(alist.fVarInts), fCurMon, *(alist.fVarWts)) * 1E6;
 		  else
-		    val = fPair->GetAsySum (*(alist.fVarInts), *(alist.fVarWts));
+		    val = fPair->GetAsyNSum (*(alist.fVarInts), fCurMon, *(alist.fVarWts)) * 1E6;
 		}
 	      else
-		val = fPair->GetAsy(alist.fVarInt);
-	      val = (val - fPair->GetAsy(fCurMon)) * 1E6;
+		val = fPair->GetAsyN(alist.fVarInt, fCurMon) * 1E6;
 	      if (fBlind->Blinding())
 		{
 		  if (alist.fFlagInt & fgBLIND)
