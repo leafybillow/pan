@@ -457,6 +457,11 @@ Int_t TaRun::GetKey(string keystr) const {
   return fDevices->GetKey(keystr);
 };
 
+string TaRun::GetKey(Int_t key) const {
+// return the string key that corresponds to the integer key.
+  return fDevices->GetKey(key);
+};
+
 
 void 
 TaRun::PrintStats (TaStatistics s, vector<string> n, vector<string> u) const

@@ -124,6 +124,16 @@ Int_t TaDevice::GetKey(string keystr) {
   return fKeyToIdx[keystr];
 }
 
+
+string TaDevice::GetKey(Int_t key) {
+  static string nothing = "nothing";
+  for (map<string, Int_t>::iterator si = fKeyToIdx.begin(); 
+       si != fKeyToIdx.end();  si++) {
+        if (key == si->second) return si->first;
+  }
+  return nothing;
+}
+
 void TaDevice::InitKeyList() {
 // Initialize the mapping between key names and integers.
 // Users of device data should access the data using the integer keys.
