@@ -196,7 +196,7 @@ void  TDBTools::PrintItemTable(TSQLServer *fbConn,TItem tDBItem, Int_t fcRunNum)
   
   cout << endl << "----------------------------------------------------------------------------------------" << endl;
   fQuery << "select * from " << fItemValueVersion.Data() << " where itemId=" << tDBItem.fItemId 
-	 << " AND " << fcRunNum << "=Run ORDER BY time" ;
+	 << " AND RunNumber=" << fcRunNum << " ORDER BY time" ;
   fResult = fbConn->Query(fQuery.Data());
   for(int j = 0; j < fResult->GetRowCount(); j++){
     fRow = fResult->Next();
@@ -235,7 +235,7 @@ void  TDBTools::PrintItem(const char *tSystem, const char *tSubSystem,const char
     
     cout << "--------------------- System found " << endl;
     fQuery << "select * from " << fItemValueVersion.Data() << " where itemId=" << flDBItem.fItemId 
-	   << " AND Run=" << tRun;
+	   << " AND RunNumber=" << tRun;
     if((fDebugMode&0x20)>0) fQuery.Preview();
     fResult = db->Query(fQuery.Data());
     while((fRow=fResult->Next())){
