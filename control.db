@@ -2,7 +2,7 @@
 # in summer 2001.
     run 1824
 # number of events to process (leave this out to get infinite)
-    maxevents 1000
+    maxevents 10000000
 # run type and analysis type (why do we need both ?)
     runtype BEAM      
     anatype BEAM      
@@ -12,8 +12,12 @@
     windelay  0     # helicity delay in windows
     pairtype  pair
 # feedback     type  switch on/off  timescale (mn)   
-    feedback    AQ       off               1
-    feedback    PZT      off               1                
+    feedback    AQ       on               1
+    feedback    PZT      on               1                
+# IA feedback parameters 
+    IAparam   slope 1000  int 26
+# PZT matrix
+    PZTparam  M11 100.1  M12 124.2  M21 200.1  M22 312.2
 # dacnoise values, these need to be calibrated
     dacnoise adc 4 chan 0 slope 0.0 int 0
     dacnoise adc 4 chan 1 slope 0.0 int 0
