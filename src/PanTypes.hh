@@ -20,4 +20,6 @@ enum EHelicity { RightHeli, LeftHeli, UnkHeli };
 enum EPairSynch { FirstPS, SecondPS };
 enum EPairType { FromPair };
 
+ECutType& operator++ (ECutType& c);
+
 #endif
