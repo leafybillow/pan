@@ -140,13 +140,13 @@ protected:
   ErrCode_t NewPrePair();
   virtual void InitChanLists ();
   virtual void InitTree ();
-  virtual vector<AnaList* > ChanList (const string& devtype, 
+  virtual vector<AnaList> ChanList (const string& devtype, 
 				      const string& channel, 
 				      const string& other,
 				      const UInt_t flags = 0);
-  virtual vector<AnaList* > ChanListFromName (const string& chanbase, 
-					      const string& other, 
-					      const UInt_t flags = 0);
+  virtual vector<AnaList> ChanListFromName (const string& chanbase, 
+					    const string& other, 
+					    const UInt_t flags = 0);
   virtual void AutoPairAna();
 
   virtual void QasyRunFeedback();
@@ -177,7 +177,7 @@ protected:
   size_t fEHelDequeMax;         // Max size of helicity delay event deque
   size_t fEDequeMax;            // Max size of cut delay event deque
   size_t fPDequeMax;            // Max size of cut delay pair deque
-  vector<AnaList* > fTreeList;  // Quantities to put in the pair results and pair tree
+  vector<AnaList> fTreeList;    // Quantities to put in the pair results and pair tree
   TTree* fPairTree;             // Pair tree for Root file
   Int_t fTreeREvNum;            // Right ev number for tree
   Int_t fTreeLEvNum;            // Left ev number for tree

@@ -88,7 +88,7 @@ TaBeamAna::InitChanLists ()
   // devices, but not detectors, into the lists.
 
   // Initialize the lists of devices to analyze
-  vector<AnaList* > f;
+  vector<AnaList> f;
 
   // List of channels for which to store left and right values
   fTreeList = ChanList ("tir", "helicity", "", fgNO_STATS + fgCOPY);

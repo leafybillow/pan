@@ -4,6 +4,15 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 11 Jul 2002
+-----------------------------------
+
+In VaAnalysis, ChanList and ChanListFromName were returning vectors of
+pointers (to AnaLists), which is contrary to our coding rules.
+Changed this to vectors of AnaLists.  Correspondingly, fTreeList is
+now a vector of AnaLists.  TaBeamAna was changed to reflect this too.
+
+
 Changes by R. Holmes on 9 Jul 2002
 -----------------------------------
 

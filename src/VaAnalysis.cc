@@ -630,16 +630,16 @@ VaAnalysis::InitTree ()
 #endif
 
   size_t treeListSize = 0;
-  for (vector<AnaList* >::const_iterator i = fTreeList.begin();
+  for (vector<AnaList>::const_iterator i = fTreeList.begin();
        i != fTreeList.end();
        ++i )
     {
-      AnaList* alist = *i;
-      if (alist->fFlagInt & fgCOPY)
+      AnaList alist = *i;
+      if (alist.fFlagInt & fgCOPY)
 	treeListSize += 2;
-      if (alist->fFlagInt & fgDIFF)
+      if (alist.fFlagInt & fgDIFF)
 	++treeListSize;
-      if (alist->fFlagInt & fgASY)
+      if (alist.fFlagInt & fgASY)
 	++treeListSize;
     }
 
@@ -654,60 +654,60 @@ VaAnalysis::InitTree ()
   // Add branches corresponding to channels in the channel lists
   string suff ("/D");
   
-  for (vector<AnaList* >::const_iterator i = fTreeList.begin();
+  for (vector<AnaList>::const_iterator i = fTreeList.begin();
        i != fTreeList.end();
        ++i )
     {
-      AnaList* alist = *i;
-      if (alist->fFlagInt & fgCOPY)
+      AnaList alist = *i;
+      if (alist.fFlagInt & fgCOPY)
 	{
 	  // Channels for which to copy right and left values to tree
 	  string prefix_r ("r_");
 	  string prefix_l ("l_");
-	  fPairTree->Branch ((prefix_r+alist->fVarStr).c_str(), 
+	  fPairTree->Branch ((prefix_r+alist.fVarStr).c_str(), 
 			     tsptr++, 
-			     (prefix_r+alist->fVarStr+suff).c_str(), 
+			     (prefix_r+alist.fVarStr+suff).c_str(), 
 			     bufsize); 
-	  fPairTree->Branch ((prefix_l+alist->fVarStr).c_str(), 
+	  fPairTree->Branch ((prefix_l+alist.fVarStr).c_str(), 
 			     tsptr++, 
-			     (prefix_l+alist->fVarStr+suff).c_str(), 
+			     (prefix_l+alist.fVarStr+suff).c_str(), 
 			     bufsize); 
 #ifdef TREEPRINT
-	  clog << (prefix_l+alist->fVarStr) << endl;
-	  clog << (prefix_r+alist->fVarStr) << endl;
+	  clog << (prefix_l+alist.fVarStr) << endl;
+	  clog << (prefix_r+alist.fVarStr) << endl;
 #endif
 	}
 
-      if (alist->fFlagInt & fgDIFF)
+      if (alist.fFlagInt & fgDIFF)
 	{
 	  // Channels for which to put difference in tree
 	  string prefix ("diff_");
-	  fPairTree->Branch ((prefix+alist->fVarStr).c_str(), 
+	  fPairTree->Branch ((prefix+alist.fVarStr).c_str(), 
 			     tsptr++, 
-			     (prefix+alist->fVarStr+suff).c_str(), 
+			     (prefix+alist.fVarStr+suff).c_str(), 
 			     bufsize); 
 #ifdef TREEPRINT
-	  clog << (prefix+alist->fVarStr) << endl;
+	  clog << (prefix+alist.fVarStr) << endl;
 #endif
 	}
 
-      if (alist->fFlagInt & fgASY)
+      if (alist.fFlagInt & fgASY)
 	{
 	  // Channels for which to put asymmetry in tree
 	  string prefix = "asym_";
-	  fPairTree->Branch ((prefix+alist->fVarStr).c_str(), 
+	  fPairTree->Branch ((prefix+alist.fVarStr).c_str(), 
 			     tsptr++, 
-			     (prefix+alist->fVarStr+suff).c_str(), 
+			     (prefix+alist.fVarStr+suff).c_str(), 
 			     bufsize); 
 #ifdef TREEPRINT
-	  clog << (prefix+alist->fVarStr) << endl;
+	  clog << (prefix+alist.fVarStr) << endl;
 #endif
 	}
     }
 }
 
 
-vector<AnaList* >
+vector<AnaList>
 VaAnalysis::ChanList (const string& devtype, const string& channel, const string& other, const UInt_t flags)
 {
   // Create a channel list with one entry per device of given type.
@@ -725,7 +725,7 @@ VaAnalysis::ChanList (const string& devtype, const string& channel, const string
   // ChanList ("bpm", "~x", "um", flag) will return: < <"bpm8x", key8x,
   // "um", flag>, <"bpm12x", key12x, "um", flag> >.
 
-  vector<AnaList* > chanlist;
+  vector<AnaList> chanlist;
   chanlist.clear();
   string chancopy1, chancopy2;
   chancopy1 = channel;
@@ -746,19 +746,19 @@ VaAnalysis::ChanList (const string& devtype, const string& channel, const string
           } else {
              channelp = channel;
           }
-          chanlist.push_back ( new AnaList(channelp, fRun->GetKey(channelp), other, flags) );
+          chanlist.push_back (AnaList(channelp, fRun->GetKey(channelp), other, flags));
         }
     }
 
   return chanlist;
 }
 
-vector<AnaList* >
+vector<AnaList>
 VaAnalysis::ChanListFromName (const string& chanbase, const string& other, const UInt_t flags)
 {
   // Create a channel list with one entry per channel with given base name.
   //
-  // Go through all keys in data map.  For each key whose channel name
+  // Go through all keys in devices.  For each key whose channel name
   // begins with the string chanbase, push onto the returned vector an
   // AnaList consisting of (<channel>, <key>, <other>, <flags>) where
   // <channel> is the channel name and <key> is the corresponding key.
@@ -770,7 +770,7 @@ VaAnalysis::ChanListFromName (const string& chanbase, const string& other, const
   // < <"batt1", key1, "chan", flag>, <"batt2", key2, "chan", flag> >
   // (if those are the only two channels starting with "batt").
 
-  vector<AnaList* > chanlist;
+  vector<AnaList> chanlist;
   chanlist.clear();
 
   map<string, Int_t> keyToIdx = fRun->GetDevices().GetKeyList();
@@ -779,10 +779,10 @@ VaAnalysis::ChanListFromName (const string& chanbase, const string& other, const
     {
       string channelp = ikey->first;
       if (channelp.substr(0, chanbase.size()) == chanbase)
-	chanlist.push_back (new AnaList(channelp, 
-					fRun->GetKey(channelp), 
-					other, 
-					flags));
+	chanlist.push_back (AnaList(channelp, 
+				    fRun->GetKey(channelp), 
+				    other, 
+				    flags));
     }
 
   return chanlist;
@@ -822,61 +822,61 @@ VaAnalysis::AutoPairAna()
 #endif
   Double_t val;
 
-  for (vector<AnaList* >::const_iterator i = fTreeList.begin();
+  for (vector<AnaList>::const_iterator i = fTreeList.begin();
        i != fTreeList.end();
        ++i )
     {
-      AnaList* alist = *i;
+      AnaList alist = *i;
       
-      if (alist->fFlagInt & fgCOPY)
+      if (alist.fFlagInt & fgCOPY)
 	{
 	  // Channels for which to copy right and left values to tree
 	  string prefix_r ("Right ");
 	  string prefix_l ("Left  ");
 	  
-	  val = fPair->GetRight().GetData(alist->fVarInt);
+	  val = fPair->GetRight().GetData(alist.fVarInt);
 	  *(tsptr++) = val;
-	  fPair->AddResult (TaLabelledQuantity (prefix_r+(alist->fVarStr), 
+	  fPair->AddResult (TaLabelledQuantity (prefix_r+(alist.fVarStr), 
 						val, 
-						alist->fUniStr,
-						alist->fFlagInt));
-	  val = fPair->GetLeft().GetData(alist->fVarInt);
+						alist.fUniStr,
+						alist.fFlagInt));
+	  val = fPair->GetLeft().GetData(alist.fVarInt);
 	  *(tsptr++) = val;
-	  fPair->AddResult (TaLabelledQuantity (prefix_l+(alist->fVarStr), 
+	  fPair->AddResult (TaLabelledQuantity (prefix_l+(alist.fVarStr), 
 						val, 
-						alist->fUniStr,
-						alist->fFlagInt));
+						alist.fUniStr,
+						alist.fFlagInt));
 	}
 
-      if (alist->fFlagInt & fgDIFF)
+      if (alist.fFlagInt & fgDIFF)
 	{
 	  // Channels for which to put difference in tree
 	  string prefix ("Diff ");
 
-	  val = fPair->GetDiff(alist->fVarInt) * 1E3;
+	  val = fPair->GetDiff(alist.fVarInt) * 1E3;
 	  *(tsptr++) = val;
-	  fPair->AddResult (TaLabelledQuantity (prefix+(alist->fVarStr), 
+	  fPair->AddResult (TaLabelledQuantity (prefix+(alist.fVarStr), 
 						val, 
-						alist->fUniStr,
-						alist->fFlagInt));
+						alist.fUniStr,
+						alist.fFlagInt));
 	}
       
-      if (alist->fFlagInt & fgASY)
+      if (alist.fFlagInt & fgASY)
 	{
 	  // Channels for which to put asymmetry in tree
 	  string prefix = "Asym ";
 
-	  if ((alist->fFlagInt & fgNO_BEAM_NO_ASY) &&
+	  if ((alist.fFlagInt & fgNO_BEAM_NO_ASY) &&
 	      (fPair->GetRight().BeamCut() ||
 	       fPair->GetLeft().BeamCut()))
 	    val = 0.0;
 	  else
-	    val = fPair->GetAsy(alist->fVarInt) * 1E6;
+	    val = fPair->GetAsy(alist.fVarInt) * 1E6;
 	  *(tsptr++) = val;
-	  fPair->AddResult (TaLabelledQuantity (prefix+(alist->fVarStr), 
+	  fPair->AddResult (TaLabelledQuantity (prefix+(alist.fVarStr), 
 						val, 
-						alist->fUniStr,
-						alist->fFlagInt));
+						alist.fUniStr,
+						alist.fFlagInt));
 	}
     }
 
