@@ -95,7 +95,7 @@ void TaPairFromQuad::CheckSequence( TaEvent& ThisEv, TaRun& run )
   EQuadSynch lqs = ThisEv.GetQuadSynch();
   
   //    clog << "TaPairFromQuad::CheckSequence hel/ps/qs/ts="
-  //         << " " << (ThisEv.GetDelHelicity() == RightHeli ? "R" : "L")
+  //         << " " << (ThisEv.GetHelicity() == RightHeli ? "R" : "L")
   //         << " " << (ThisEv.GetPairSynch() == FirstPS ? "F" : "S")
   //         << " " << (ThisEv.GetQuadSynch() == FirstQS ? "F" : "O")
   //         << " " << ThisEv.GetTimeSlot()
@@ -132,7 +132,7 @@ void TaPairFromQuad::CheckSequence( TaEvent& ThisEv, TaRun& run )
       if (fgQuadCount == 0)
 	// See if helicity is right
 	{
-	  if (!HelSeqOK (ThisEv.GetDelHelicity()))
+	  if (!HelSeqOK (ThisEv.GetHelicity()))
 	    {
 	      cout << "TaPairFromQuad::CheckEvent ERROR: Event " 
 		   << ThisEv.GetEvNumber() 
@@ -167,7 +167,7 @@ void TaPairFromQuad::CheckSequence( TaEvent& ThisEv, TaRun& run )
 	  if (fgQuadCount == 1 || fgQuadCount == 3)
 	    // See if helicity changed
 	    {
-	      if ( ThisEv.GetDelHelicity() == fgLastWinEv.GetDelHelicity() )
+	      if ( ThisEv.GetHelicity() == fgLastWinEv.GetHelicity() )
 		{
 		  cout << "TaPairFromQuad::CheckSequence ERROR: Event " 
 		       << ThisEv.GetEvNumber() 
@@ -178,7 +178,7 @@ void TaPairFromQuad::CheckSequence( TaEvent& ThisEv, TaRun& run )
 	  else if (fgQuadCount == 2)
 	    // See if helicity unchanged
 	    {
-	      if ( ThisEv.GetDelHelicity() != fgLastWinEv.GetDelHelicity() )
+	      if ( ThisEv.GetHelicity() != fgLastWinEv.GetHelicity() )
 		{
 		  cout << "TaPairFromQuad::CheckSequence ERROR: Event " 
 		       << ThisEv.GetEvNumber() 
@@ -209,7 +209,7 @@ void TaPairFromQuad::CheckSequence( TaEvent& ThisEv, TaRun& run )
 	  val = EQSCHANGE;
 	}
       // See if helicity stayed the same
-      if ( ThisEv.GetDelHelicity() != fgThisWinEv.GetDelHelicity() )
+      if ( ThisEv.GetHelicity() != fgThisWinEv.GetHelicity() )
 	{
 	  cout << "TaPairFromQuad::CheckSequence ERROR: Event " 
 	       << ThisEv.GetEvNumber()

@@ -324,9 +324,9 @@ TaRun::NextEvent()
   if (fEvent->GetEvNumber() > 0 && fEvent->GetTimeSlot() == 1)
     {    
       ph = h;
-      h = fEvent->GetHelicity();
+      h = fEvent->GetROHelicity();
     }
-  fEvent->SetPrevHelicity (ph);
+  fEvent->SetPrevROHelicity (ph);
 
   return true;
 }

@@ -26,7 +26,7 @@
 // The main event loop is inside the ProcessRun method.  The three
 // main methods called from here are PreProcessEvt, ProcessEvt, and
 // ProcessPair.  The first of these places the most recently read
-// event into a delay queue until the delayed helicity information for
+// event into a delay queue until the true helicity information for
 // that event becomes available.  Cut conditions are checked for here.
 // Once the helicity information is added the event is pushed onto a
 // second delay queue, while the events are used to construct pairs
@@ -100,8 +100,8 @@ VaAnalysis::VaAnalysis():
   fTreeMEvNum(0),
   fTreeOKCond(0),
   fTreeOKCut(0),
+  fTreePrevROHel(-1),
   fTreePrevHel(-1),
-  fTreePrevDelHel(-1),
   fTreeSpace(0),
   fNCuts(0),
   fCutArray(0),
@@ -500,7 +500,7 @@ VaAnalysis::PreProcessEvt()
 {
   // Preprocess event, checking for cut conditions, and putting event
   // in helicity delay queue.  If that fills up, take an event off the
-  // end, insert delayed helicity, and put it on the event delay
+  // end, insert true helicity, and put it on the event delay
   // queue.  Package these events into pairs.  If a pair is completed,
   // push it onto pair delay queue.
 
@@ -518,8 +518,8 @@ VaAnalysis::PreProcessEvt()
       {
         *fPreEvt = fEHelDeque.front();
         fEHelDeque.pop_front();
-        fPreEvt->SetDelHelicity(fRun->GetEvent().GetHelicity());
-        fPreEvt->SetPrevDelHelicity(fRun->GetEvent().GetPrevHelicity());
+        fPreEvt->SetHelicity(fRun->GetEvent().GetROHelicity());
+        fPreEvt->SetPrevHelicity(fRun->GetEvent().GetPrevROHelicity());
 
         fEDeque.push_back (*fPreEvt);
 #ifdef NOISY	
@@ -695,16 +695,16 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
   clog << "m_ev_num" << endl;
   clog << "ok_cond"  << endl;
   clog << "ok_cut"   << endl;
-  clog << "prev_intime_hel"   << endl;
   clog << "prev_hel"   << endl;
+  clog << "prev_readout_hel"   << endl;
 #endif
 
   fPairTree->Branch ("evt_ev_num",   &fTreeREvNum, "evt_ev_num[2]/I", bufsize); 
   fPairTree->Branch ("m_ev_num", &fTreeMEvNum, "m_ev_num/D",  bufsize); 
   fPairTree->Branch ("ok_cond",  &fTreeOKCond, "ok_cond/I",   bufsize); 
   fPairTree->Branch ("ok_cut",   &fTreeOKCut,  "ok_cut/I",    bufsize); 
-  fPairTree->Branch ("prev_intime_hel", &fTreePrevHel, "prev_intime_hel/I", bufsize); 
-  fPairTree->Branch ("prev_hel", &fTreePrevDelHel, "prev_hel/I", bufsize); 
+  fPairTree->Branch ("prev_hel", &fTreePrevROHel, "prev_hel/I", bufsize); 
+  fPairTree->Branch ("prev_readout_hel", &fTreePrevHel, "prev_readout_hel/I", bufsize); 
   
   // Add branches corresponding to channels in the channel lists
   
@@ -733,8 +733,8 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
     {
       AnaList alist = *i;
 
-      if (alist.fVarStr == "helicity")
-	alist.fVarStr = "intime_helicity";  // to reduce human confusion
+      if (alist.fVarStr.substr (0, 8) == "helicity")
+	alist.fVarStr.replace (0, 8, "readout_helicity");  // to reduce human confusion
 
       if (alist.fFlagInt & fgCOPY)
 	{
@@ -914,10 +914,10 @@ VaAnalysis::AutoPairAna()
 		     fPair->GetLeft().GetEvNumber())*0.5;
       fTreeOKCond = (fPair->PassedCuts() ? 1 : 0);
       fTreeOKCut  = (fPair->PassedCutsInt(fRun->GetCutList()) ? 1 : 0);
+      EHelicity proh = fPair->GetFirst().GetPrevROHelicity();
+      fTreePrevROHel = (proh == RightHeli) ? 0 : ((proh == LeftHeli) ? 1 : -1);
       EHelicity ph = fPair->GetFirst().GetPrevHelicity();
       fTreePrevHel = (ph == RightHeli) ? 0 : ((ph == LeftHeli) ? 1 : -1);
-      EHelicity pdh = fPair->GetFirst().GetPrevDelHelicity();
-      fTreePrevDelHel = (pdh == RightHeli) ? 0 : ((pdh == LeftHeli) ? 1 : -1);
     }
 
 #ifdef ASYMCHECK

@@ -70,7 +70,7 @@ void TaPairFromPair::CheckSequence( TaEvent& ThisEv, TaRun& run )
   EPairSynch lps = ThisEv.GetPairSynch();
   
   //    clog << "TaPairFromPair::CheckSequence hel/ps/ts="
-  //         << " " << (ThisEv.GetDelHelicity() == RightHeli ? "R" : "L")
+  //         << " " << (ThisEv.GetHelicity() == RightHeli ? "R" : "L")
   //         << " " << (ThisEv.GetPairSynch() == FirstPS ? "F" : "S")
   //         << " " << ThisEv.GetTimeSlot()
   //         << endl;
@@ -97,7 +97,7 @@ void TaPairFromPair::CheckSequence( TaEvent& ThisEv, TaRun& run )
 	  if (lps == FirstPS)
 	    // See if helicity is right
 	    {
-	      if (!HelSeqOK (ThisEv.GetDelHelicity()))
+	      if (!HelSeqOK (ThisEv.GetHelicity()))
 		{
 		  cout << "TaPairFromPair::CheckEvent ERROR: Event " 
 		       << ThisEv.GetEvNumber() 
@@ -108,7 +108,7 @@ void TaPairFromPair::CheckSequence( TaEvent& ThisEv, TaRun& run )
 	  else 
 	    // See if helicity changed
 	    {
-	      if ( ThisEv.GetDelHelicity() == fgLastWinEv.GetDelHelicity() )
+	      if ( ThisEv.GetHelicity() == fgLastWinEv.GetHelicity() )
 		{
 		  cout << "TaPairFromPair::CheckSequence ERROR: Event " 
 		       << ThisEv.GetEvNumber() 
@@ -131,7 +131,7 @@ void TaPairFromPair::CheckSequence( TaEvent& ThisEv, TaRun& run )
 	  val = EPSCHANGE;
 	}
       // See if helicity stayed the same
-      if ( ThisEv.GetDelHelicity() != fgThisWinEv.GetDelHelicity() )
+      if ( ThisEv.GetHelicity() != fgThisWinEv.GetHelicity() )
 	{
 	  cout << "TaPairFromPair::CheckSequence ERROR: Event " 
 	       << ThisEv.GetEvNumber()

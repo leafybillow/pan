@@ -36,7 +36,7 @@
 #include <fstream>
 #endif
 
-//#define FAKEDET
+#define FAKEDET
 #ifdef FAKEDET
 class TRandom;
 #endif
@@ -86,13 +86,13 @@ public:
   UInt_t GetEvLength() const;        // event length
   UInt_t GetEvType() const;          // event type
   SlotNumber_t GetTimeSlot() const;  // time slot
-  void SetDelHelicity (EHelicity);   // set delayed helicity
-  EHelicity GetHelicity() const;     // (in time) helicity
-  EHelicity GetDelHelicity() const;  // delayed helicity
-  void SetPrevHelicity(EHelicity h);     // set in-time helicity of prev evt
-  void SetPrevDelHelicity(EHelicity h);  // set delayed helicity of prev evt
-  EHelicity GetPrevHelicity() const;     // get in-time helicity of prev evt
-  EHelicity GetPrevDelHelicity() const;  // get delayed helicity of prev evt
+  void SetHelicity (EHelicity);      // set true helicity
+  EHelicity GetROHelicity() const;   // readout helicity
+  EHelicity GetHelicity() const;     // true helicity
+  void SetPrevROHelicity(EHelicity h);     // set readout helicity of prev evt
+  void SetPrevHelicity(EHelicity h);  // set true helicity of prev evt
+  EHelicity GetPrevROHelicity() const;     // get readout helicity of prev evt
+  EHelicity GetPrevHelicity() const;  // get true helicity of prev evt
 
   EPairSynch GetPairSynch() const;   // pair synch
   EQuadSynch GetQuadSynch() const;   // quad synch
@@ -152,9 +152,9 @@ private:
   Int_t* fCutArray;            // Array of cut values
   Bool_t fFailedACut;          // True iff a cut failed
   vector<TaLabelledQuantity> fResults;     // Results of event analysis
-  EHelicity fDelHel;           // Delayed helicity filled from later event
-  EHelicity fPrevHel;          // In-time helicity for previous event
-  EHelicity fPrevDelHel;       // Delayed helicity for previous event
+  EHelicity fHel;              // True helicity filled from later event
+  EHelicity fPrevROHel;        // Readout helicity for previous event
+  EHelicity fPrevHel;          // True helicity for previous event
   Double_t *fData;             // Decoded/corrected data
 
 #ifndef NODICT

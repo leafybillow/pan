@@ -244,8 +244,8 @@ protected:
   Double_t fTreeMEvNum;         // Mean ev number for tree
   Int_t fTreeOKCond;            // Pair passes cut conditions
   Int_t fTreeOKCut;             // Pair not in cut interval
-  Int_t fTreePrevHel;           // In-time helicity of prev event
-  Int_t fTreePrevDelHel;        // Delayed helicity of prev event
+  Int_t fTreePrevROHel;         // Readout helicity of prev event
+  Int_t fTreePrevHel;           // True helicity of prev event
   Double_t* fTreeSpace;         // Other data for tree
   UInt_t fNCuts;                // Size of cut array
   Int_t* fCutArray;             // Array of cut values for tree
