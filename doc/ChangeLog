@@ -32,11 +32,11 @@ Changes by R. Holmes on  7 Mar 2003
 
     $ utils/rut.pl --exp 'bpm.*x' --run 1637 --ana beam
     Opened ./parity03_1637_beam.res for input
-    From pan: Diff_bpm10x in evts 0 to 10000:   mean 4.895753 RMS 4.895753 um with N_eff = 2690.0
-    From pan: Diff_bpm12x in evts 0 to 10000:   mean 9.325296 RMS 9.325296 um with N_eff = 2690.0
-    From pan: Diff_bpm4ax in evts 0 to 10000:   mean 9.255259 RMS 9.255259 um with N_eff = 2690.0
-    From pan: Diff_bpm4bx in evts 0 to 10000:   mean 11.035430 RMS 11.035430 um with N_eff = 2690.0
-    From pan: Diff_bpm8x in evts 0 to 10000:   mean 14.083170 RMS 14.083170 um with N_eff = 2690.0
+    From pan: Diff_bpm10x in evts 0 to 10000:   mean 0.041 +- 0.094 RMS 4.896 um with N_eff = 2690.0
+    From pan: Diff_bpm12x in evts 0 to 10000:   mean -0.032 +- 0.180 RMS 9.325 um with N_eff = 2690.0
+    From pan: Diff_bpm4ax in evts 0 to 10000:   mean 0.102 +- 0.178 RMS 9.255 um with N_eff = 2690.0
+    From pan: Diff_bpm4bx in evts 0 to 10000:   mean 0.199 +- 0.213 RMS 11.035 um with N_eff = 2690.0
+    From pan: Diff_bpm8x in evts 0 to 10000:   mean 0.038 +- 0.272 RMS 14.083 um with N_eff = 2690.0
 
     I think this utility (or a fancier, expanded version thereof) will
     come in handy sometimes, but also it serves as a model for other

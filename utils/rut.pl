@@ -67,19 +67,16 @@ foreach $fn (@fn)
 	    
 	    ($val, $err, $min, $max, $units) = split (" ", $rest, 5);
 	    
-	    $val = sprintf "%f", $val;
-	    $err = sprintf "%f", $err;
 	    $key = "${stage}~${qty}~${min}~$max";
 	    
 	    if ($stat eq "mean")
 	    {
-		$mean{$key} = (sprintf "%f", $val) . (sprintf "%f", $err);
+		$mean{$key} = (sprintf "%.3f", $val) . " +- " . (sprintf "%.3f", $err);
 		$units{$key} = "$units";
 	    }
 	    elsif ($stat eq "RMS")
 	    {
-		$mean{$key} = sprintf "%f", $val;
-		$rms{$key} = $val;
+		$rms{$key} = sprintf "%.3f", $val;
 	    }
 	    elsif ($stat eq "Neff")
 	    {
