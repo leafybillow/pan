@@ -1,3 +1,31 @@
+Comments by R. Holmes, 13 March 2002
+---------------------------------
+
+I've changed the code whose intent is to prevent Pan from trying to
+compute and print statistics on things like the helicity bit, which
+gives errors since the distribution's width is zero.  It's still a
+kludge; Pan still accumulates sums for all quantities, but computes
+averages and widths and prints them only for quantities whose
+description doesn't start with "Left" or "Right".  I'm open to
+suggestions of a better way to handle this, which might involve some
+major changes to the way results are stored in pairs.
+
+The present code attempts to compute and store in the tree differences
+and asymmetries for all pairs, even if they fail cuts.  This is in
+keeping with our philosophy of putting everything in the tree and
+letting the user decide what's useful (based on cut markers etc.) but
+it does give rise to error messages when beam is off and the
+denominator of an asymmetry ends up being zero.
+
+I've changed the cuts code so that it multiplies the cut extensions
+from the database by the oversample factor; that means the extensions
+in the database should be regarded as a number of helicity windows,
+not a number of events.  At present these are labelled "evlo" and
+"evhi" in the database, and are retrieved by routines with names like
+GetEvLo().  We probably should change these names since the "ev" part
+is no longer appropriate.
+
+
 Comments by R. Holmes, March 2002
 ---------------------------------
 
@@ -22,25 +50,11 @@ comparing to size_t.  I'd prefer it if GetNumBadEv() returned UInt_t.
 argument, which I must initialize from an Int_t returned from
 VaDataBase::GetCutValues().  Probably just need a cast or something.
 
-(While we're on the subject, I have to use loops to initialize
-fLowExtension and fHighExtension in the same routine because they are
-vector<UInt_t> and VaDataBase::GetEvLo() and GetEvHi() return
-vector<Int_t>.  If they returned vector<UInt_t> I could do a vector
-assignment.)
-
   TaEvent.cc: In method `void TaEvent::Decode()':
   TaEvent.cc:158: warning: comparison between signed and unsigned
 
 (fSizeConst is UInt_t and it is being compared to (long)GetEvLength().
 Why?  GetEvLength() is a UInt_t too; why cast it to long?)
-
-Other issue: the pair_ok element of the pair tree is filled from
-VaPair::PassedCuts().  I fixed this to return 1 only if *both* events
-have zero CutStatus(), but this just means neither event failed a cut
-condition.  If we want to tag pairs in which neither event lies in a
-cut interval, that requires a different test (and more complicated,
-since it needs access to the cut list; we'd need to change the calling
-routine interface for a couple of levels).
 
 
 

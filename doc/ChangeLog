@@ -4,6 +4,38 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 13 Mar 2002
+----------------------------------------
+
+TaCutInterval.cc
+
+  o Bug fix: Intervals starting at an event number less than the
+    before-extension size were handled incorrectly due to unsigned
+    arithmetic. 
+
+TaCutList.cc
+
+  o Multiply extensions from db (now regarded as number of windows) by
+    oversample factor to get number of events.
+  o Add debug code.
+
+TaRun.cc
+
+  o Better labelling of stats outputs to clarify incremental and
+    cumulative stats.
+  o Now compute and print stats on all quantities except those
+    starting with "Right" or "Left".  This is still something of a
+    kludge, but it's a better kludge.
+
+VaAnalysis.hh,cc
+
+  o Replace pair_ok in tree with ok_cond and ok_cut.
+
+VaPair.hh,cc
+
+  o Add PassedCutsInt().
+
+
 More changes by R. Holmes on 7 Mar 2002
 ----------------------------------------
 
