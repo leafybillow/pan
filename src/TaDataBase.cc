@@ -211,7 +211,18 @@ void TaDataBase::SetDbCommand() {
     while (j < (long)dbcommand.size() && k < (long)dv.size()) {
        multimap<string, vector<dtype*> >::iterator dnext = 
           database.find(FindTable(dbcommand[j]));
-       if (dnext != database.end()) break;  // found next table
+       if (dnext != database.end()) { // found next table
+	 cout << "TaDataBase::SetDbCommand: WARNING: Found the next table."<<endl;
+         cout << "   This means that either:"<<endl;
+         cout << "     1. You entered with -D  a line which was less"<<endl;
+         cout << "        the expected length of data, OR"<<endl;
+         cout << "     2. Your line contains two database keywords."<<endl;
+         cout << "        You CANNOT have a database table name the SAME as"<<endl;
+         cout << "        a string of data in that table."<<endl;
+         cout << "        E.g.  'anatype feedback'"<<endl;
+         cout << "        is wrong since 'feedback' is another table."<<endl;
+         break; 
+       }  
        dtype *dat = new dtype(dv[k]->GetType()); 
        dat->Load(dbcommand[j]);   
        datavect.push_back(dat);
