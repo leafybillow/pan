@@ -36,6 +36,10 @@
 #include <fstream>
 #endif
 
+#define FAKEDET
+#ifdef FAKEDET
+class TRandom;
+#endif
 class TaDevice;
 class TTree;
 class TaCutList;
@@ -67,6 +71,7 @@ public:
   static Int_t GetMaxEvNumber() { return fgMaxEvNum; }; // Maximum event number
   Int_t GetRawData(Int_t index) const; // raw data, index = location in buffer 
   Double_t GetData(Int_t key) const;   // get data by unique key
+  Double_t GetDataSum (vector<Int_t>, vector<Double_t> = vector<Double_t>(0)) const; // get weighted sum of data
   Double_t GetRawADCData(Int_t slot, Int_t chan) const;  // get raw ADC data in slot and chan.
   Double_t GetCalADCData(Int_t slot, Int_t chan) const;  // get calib. ADC data in slot and chan.
   Double_t GetScalerData(Int_t slot, Int_t chan) const;  // get scaler data in slot and chan.
@@ -125,6 +130,13 @@ private:
   static UInt_t fgNCuts;       // Length of cut array
 #ifdef FAKEHEL
   static ifstream fgHelfile;   // fake helicity data file
+#endif
+#ifdef FAKEDET
+  static Double_t fgK[4];  // Proportionality constants
+  static Double_t fgD[4];  // Noise amplitude
+  static TRandom fgR;      // Random number object
+  // Fake data = BCM1 * (fgK[i] + 
+  //                     fgD[i] * normal noise[i])
 #endif
 
   // Data members

@@ -20,8 +20,11 @@
 //#define NOISY
 //#define DEBUG
 
-#include "TaCutList.hh"
 #include "TaEvent.hh"
+#ifdef FAKEDET
+#include "TRandom.h"
+#endif
+#include "TaCutList.hh"
 #include "TaLabelledQuantity.hh"
 #include "TaRun.hh"
 #include "TaString.hh"
@@ -51,6 +54,11 @@ UInt_t TaEvent::fgSizeConst;
 UInt_t TaEvent::fgNCuts;
 #ifdef FAKEHEL
 ifstream TaEvent::fgHelfile("helicity.data");
+#endif
+#ifdef FAKEDET
+Double_t TaEvent::fgK[4];  // Proportionality constants
+Double_t TaEvent::fgD[4];  // Noise amplitude
+TRandom TaEvent::fgR;      // Random number object
 #endif
 
 TaEvent::TaEvent(): 
@@ -149,6 +157,12 @@ TaEvent::RunInit(const TaRun& run)
     }
   fgOversample = run.GetOversample();
   fgLastEv = TaEvent();
+#ifdef FAKEDET
+  fgK[0] =    1.0;   fgK[1] =    1.0; 
+  fgK[2] =    1.0;   fgK[3] =    1.0; 
+  fgD[0] =  0.00100;   fgD[1] =  0.00135; 
+  fgD[2] =  0.00165;   fgD[3] =  0.00200; 
+#endif
   return fgTAEVT_OK;
 }
   
@@ -208,6 +222,23 @@ void TaEvent::Decode(TaDevice& devices) {
      key = devices.GetRawKey(i);
      fData[key] =  GetRawData(devices.GetEvPointer(key));
   }
+
+#ifdef FAKEDET
+  for (i = 0; i < 4; ++i)
+    {
+      key = DETOFF + 2*i;
+      if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+      idx = devices.GetRawIndex(key);
+      if (idx < 0) continue;
+      UInt_t k2 = idx - ADCOFF;
+      UInt_t iadc = k2 / 4;
+      fData[idx] = fgK[i] + fgR.Gaus(0,fgD[i]);
+      //    clog << ">>>>>> " << i << " " << fData[idx] << endl;
+      fData[idx] += devices.GetPedestal(key) - 
+	(fData[DACOFF + iadc] * devices.GetDacSlope(k2) -
+	 devices.GetDacInt(k2));
+    }
+#endif
 
 // Calibrate the ADCs first
   for (i = 0;  i < ADCNUM; i++) {
@@ -314,6 +345,10 @@ void TaEvent::Decode(TaDevice& devices) {
     idx = devices.GetCalIndex(key);
     if (idx < 0) continue;
     fData[key+1] = fData[idx];
+#ifdef FAKEDET
+     fData[key+1] *= fData[IBCM1];
+    //  clog << ">>>>>> " << i << " " << fData[idx] << endl;
+#endif
     if (devices.IsUsed(key)) devices.SetUsed(key+1);
   }
 #ifndef FAKEHEL
@@ -640,6 +675,27 @@ Double_t TaEvent::GetData( Int_t key ) const {
 // To find a value corresponding to a data key 
   return fData[Idx(key)];
 }; 
+
+Double_t 
+TaEvent::GetDataSum (vector<Int_t> keys, vector<Double_t> wts) const
+{
+  // Get weighted sum of quantities corresponding to set of keys
+
+  Double_t sum = 0;
+
+  if (wts.size() == 0)
+    for (vector<Int_t>::const_iterator p = keys.begin();
+	 p != keys.end();
+	 ++p)
+      sum += fData[Idx(*p)];
+  else if (wts.size() != keys.size())
+    cerr << "TaEvent::GetDataSum ERROR: Weight and key vector sizes differ" << endl;
+  else
+    for (size_t i = 0; i < keys.size(); ++i)
+      sum += wts[i] * fData[Idx(keys[i])];
+
+  return sum;
+}
 
 Int_t TaEvent::Idx(const Int_t& index) const {
   if (index >= 0 && index < MAXKEYS) return index;
