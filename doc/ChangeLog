@@ -6,6 +6,19 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by B. Moffit on   8 Feb 2004
+------------------------------------
+
+Makefile creates a libpan.so shared library.  Enables one to run 
+"root" and load the pan libraries interactively with:
+    gSystem->Load("libpan.so")
+
+This is useful if one wants to use ROOT's batch mode to run macro's
+from the UNIX/Linux command-line.
+
+Makefile
+ o Include compilation of libpan.so 
+
 Changes by B. Moffit on   2 Feb 2004
 ------------------------------------
 

@@ -163,8 +163,9 @@ endif
 
 install: all
 	mv pan ../
+	mv libpan.so ../
 
-all: $(PROGS) $(PANLIBS) $(PANLIBS_NODICT)
+all: $(PROGS) $(PANLIBS) $(PANLIBS_NODICT) libpan.so
 
 $(PROGS): main.o $(OBJS) $(SRC) $(HEAD) 
 	rm -f $@
@@ -180,6 +181,9 @@ $(PANLIBS): $(LOBJS) $(LSRC) $(LHEAD)
 
 main.o: main.cc
 	$(CXX) -c $(INCLUDES) $(CXXFLAGS) $<	
+
+libpan.so: $(OBJS) $(HEAD)
+	$(CXX) $(SOFLAGS) -O -o libpan.so $(OBJS) $(ALL_LIBS)
 
 # Dictionary
 
