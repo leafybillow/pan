@@ -43,6 +43,7 @@
 #include "TaDataBase.hh"
 #include "TaFileName.hh"
 #include "TaString.hh"
+#include "TDatime.h"
 
 #ifndef NODICT
 ClassImp(TaDataBase)
@@ -182,7 +183,7 @@ Int_t TaDataBase::ChkDbCommand() {
 //     Normally this is ok for trivial tables like 'lobeam'.
   usemysql = kFALSE;
   useroot = kFALSE;
-  string rootfile;
+  TaString rootfile;
   if (dbcommand.size() == 0) return 1;
   for (int i = 0; i < (long)dbcommand.size(); i++) {
     if (strcasecmp(dbcommand[i].c_str(),"mysql") == 0) 
@@ -243,7 +244,7 @@ void TaDataBase::SetDbCommand() {
 };
 
 void 
-TaDataBase::ReadRoot(string filename) {
+TaDataBase::ReadRoot(TaString filename) {
 // Load the database from a ROOT file 'filename'.
 // This is done with '-D useroot filename' command line option.
 // This choice, if chosen, takes precedence, i.e. all other source
@@ -527,6 +528,38 @@ TaDataBase::GetTimestamp() const
    if (datatype[0]->GetType() == "s" && datatype[1]->GetType() == "s") 
      return datatype[0]->GetS() + " " + datatype[1]->GetS(); 
    return "unknown";
+};
+
+TDatime
+TaDataBase::GetTimeTDatime() const 
+{
+// Get timestamp as a TDatime object
+  TDatime result;
+  result.Set(20000000,0);
+  static multimap<string, vector<dtype*> >::const_iterator dmap;
+  dmap = database.lower_bound ("timestamp");
+  if (dmap == database.end()) 
+     return result;
+   if (database.count ("timestamp") != 1) 
+     return result;
+   vector<dtype*> datatype = dmap->second;
+   if (datatype.size() != 2) 
+     return result;
+   if (datatype[0]->GetType() == "s" && datatype[1]->GetType() == "s") {
+     TaString sdate = TaString(datatype[0]->GetS());
+     TaString stime = TaString(datatype[1]->GetS());
+     Int_t idate = atoi(sdate.RemoveChar("-").c_str());
+     Int_t itime = atoi(stime.RemoveChar(":").c_str());
+     result.Set(idate,itime);
+   }
+   return result;
+};
+
+TString 
+TaDataBase::GetTimeTString() const 
+{
+  TString result(GetTimestamp().c_str());
+  return result;
 };
 
 

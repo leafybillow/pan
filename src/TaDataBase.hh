@@ -296,6 +296,7 @@ public:
   void Read(int run, const vector<string>& dbcommand);  
   void Write();        // Write database for this run (to ASCII and MYSQL)
                        // (but this happens only if you have 'Put' something)
+  void ReadRoot(TaString filename); // Read database from ROOT file
   void WriteRoot();    // Write database to the opened ROOT output.
   void Print();        // Human readable printout (for end-run summary)
 // Self check.  Returns kFALSE if problems.
@@ -315,6 +316,8 @@ public:
   string GetSimulationType() const;
 // Get timestamp
   string GetTimestamp() const;
+  TString GetTimeTString() const; // same, but TString
+  TDatime GetTimeTDatime() const; // same, but TDatime
 // Get random or toggle mode
   string GetRandomHeli() const;
 // Get blinding parameters
@@ -409,7 +412,6 @@ private:
   Int_t runnum;
   void InitDB();
 // Load database from root file. Invoked for dbcommand '-D useroot filename'
-  void ReadRoot(string filename); 
   Int_t ChkDbCommand();
   void SetDbCommand();
   void LoadTable(string table, vector<dtype*>);
