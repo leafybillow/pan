@@ -6,7 +6,25 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
-Changes by R. Holmes on  3 Jul 2004
+Changes by R. Holmes on  4 Jul 2004
+--------------------------------------
+
+Weights for det, blumi, and flumi added to database and used in
+TaStandardAna.  This make use of a weight checking routine in
+VaAnalysis (which checks whether weights are nonnegative and have
+nonzero sum).  To use add to database lines like
+
+   detwts  1.1 1.2 1.3 1.4
+   blumiwts 0.91 0.92 0.93 0.94 0.95 0.96 0.97 0.98
+   flumiwts 1.1 1.2
+
+There must be four detector weights, eight blumi weights, and two
+flumi weights (even if e.g. only two detectors are used in the
+database, all four weights must be there.)  If weights are absent
+unweighted averages are used.
+
+
+Changes by R. Holmes on  2 Jul 2004
 --------------------------------------
 
 Hall C low current cuts.  To use, change the database as follows:
