@@ -1,0 +1,35 @@
+// Interactive root script example
+// If one runs ./pan, the in the root shell .x run.macro
+
+{
+  cout << "Run number: ";
+  int run;
+  cin >> run;
+  
+  TaAnalysisManager am;
+  
+  am.Init (run);
+  am.Process();
+  am.End();
+  
+  char runfile[50];
+  char *file;
+  file = getenv("ROOT_OUTPUT");
+  if ( file != NULL) {
+    cout << "root file is in "<<file<<endl;
+    sprintf(runfile,"/pan_%d.root",run);
+    strcat(file,runfile);
+    f = new TFile(file);
+  } else {
+    cout << "Environment variable $ROOT_OUTPUT not defined. Using pwd."<<endl;
+    sprintf(runfile,"pan_%d.root",run);
+    f = new TFile(runfile);
+  }
+  TTree *raw = (TTree*)gROOT.FindObject("R");
+  //   raw->Print();
+  TTree *asy = (TTree*)gROOT.FindObject("P");
+  asy->Print();
+  
+  raw->Draw("bcm1:ev_num");
+  
+}

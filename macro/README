@@ -15,13 +15,19 @@ bgraph2.macro   -- crude example
 bplot.macro     -- driver for bplot package
 bpmdiff.macro   -- fits bpm diffs.  User is asked which bpm.
 open.macro      -- opens a root file.
+pan_asym.macro  -- charge asymmetry plots
+pan_diff.macro  -- position difference plots
 
 II. Usage
 =========
 
-    To plot data some macro's exist as *.macro in directory ./macro
+    Macros exist as *.macro in directory ./macro
 
-    To open a file:  'root .x open.macro'
+    To analyze a run, open its root file, and give a sample plot: 
+        '.x run.macro'
+        and answer which run number
+
+    To open a file:  '.x open.macro'
         and answer which run number
 
     To plot and fit the BCM asymmetries
@@ -33,5 +39,10 @@ II. Usage
     To plot lots of different things (raw signals, asymmetries, etc)
         '.x bplot.macro'  (this also calls open.macro)
 
+    To plot all types of charge asymetry plots
+        '.x pan_asym.macro' (this asks for run number and opens that
+        file)
 
-
+    To plot all types of bpm diffs plots
+        '.x pan_diff.macro' (this asks for run number and opens that
+        file)
