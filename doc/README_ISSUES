@@ -1,3 +1,20 @@
+Comments by A. Vacheret, 25 Sept 2002
+----------------------------------
+
+1) A minor thing : right now in TaFileName there is by default the 
+path for the coda file which start with a "./"
+so if you have your coda file in another directory you get for example
+.//avacheret/HAPPEX2/CODA_RUNS/parity02_1302.dat so you need to remove this "./"
+by hand in your version of TaFileName.cc to let pan recognize the correct path. 
+
+2) I don't know if it make sense to do feedback only on a PZT direction
+X or Y but the new code will be easy to change if this is important to test.
+Also almost everything is there to revive the PITA feedback in case we need it.
+  
+3) to reply Rich comment, as it is mentionned in the ChangeLog,
+the feedback monitor could be easily changed in the control.db
+file. 
+
 Comments by R. Holmes, 20 Aug 2002
 ----------------------------------
 
