@@ -1064,21 +1064,21 @@ VaAnalysis::AutoPairAna()
 		}
 	      else
 		val = fPair->GetAsy(alist.fVarInt) * 1E6;
+	      if (fBlind->Blinding())
+		{
+		  if (alist.fFlagInt & fgBLIND)
+		    {
+		      val = fBlind->Blind (val);
+		      unit += " (blinded)";
+		    }
+		  else if (alist.fFlagInt & fgBLINDSIGN)
+		    {
+		      val = fBlind->BlindSignOnly (val);
+		      unit += " (blinded sign)";
+		    }
+		}
 	    }
 	  unit = alist.fUniStr;
-	  if (fBlind->Blinding())
-	    {
-	      if (alist.fFlagInt & fgBLIND)
-		{
-		  val = fBlind->Blind (val);
-		  unit += " (blinded)";
-		}
-	      else if (alist.fFlagInt & fgBLINDSIGN)
-		{
-		  val = fBlind->BlindSignOnly (val);
-		  unit += " (blinded sign)";
-		}
-	    }
 	  if (fPairTree != 0)
 	    *(tsptr++) = val;
 	  fPair->AddResult (TaLabelledQuantity (string("Asym ")+(alist.fVarStr), 
@@ -1109,21 +1109,21 @@ VaAnalysis::AutoPairAna()
 	      else
 		val = fPair->GetAsy(alist.fVarInt);
 	      val = (val - fPair->GetAsy(fCurMon)) * 1E6;
+	      if (fBlind->Blinding())
+		{
+		  if (alist.fFlagInt & fgBLIND)
+		    {
+		      val = fBlind->Blind (val);
+		      unit += " (blinded)";
+		    }
+		  else if (alist.fFlagInt & fgBLINDSIGN)
+		    {
+		      val = fBlind->BlindSignOnly (val);
+		      unit += " (blinded sign)";
+		    }
+		}
 	    }
 	  unit = alist.fUniStr;
-	  if (fBlind->Blinding())
-	    {
-	      if (alist.fFlagInt & fgBLIND)
-		{
-		  val = fBlind->Blind (val);
-		  unit += " (blinded)";
-		}
-	      else if (alist.fFlagInt & fgBLINDSIGN)
-		{
-		  val = fBlind->BlindSignOnly (val);
-		  unit += " (blinded sign)";
-		}
-	    }
 	  if (fPairTree != 0)
 	    *(tsptr++) = val;
 	  fPair->AddResult (TaLabelledQuantity (string("AsyN ")+(alist.fVarStr), 
