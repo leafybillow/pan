@@ -35,6 +35,7 @@ class TaBPM : public TaADC {
   private:
  
     void Calibrate(const TaEvent& event);
+    Double_t Rotate(Double_t x, Double_t y, Int_t xy);
     Double_t kappa,x,y;
     string xkey,ykey;
 

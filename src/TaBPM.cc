@@ -86,9 +86,22 @@ void TaBPM::Calibrate(const TaEvent& event) {
     if (sum > 0) x = kappa * (xydata[0] - xydata[1])/(xydata[0] + xydata[1]);
     sum = xydata[2] + xydata[3];
     if (sum > 0) y = kappa * (xydata[2] - xydata[3])/(xydata[2] + xydata[3]);
-    fData[xkey] = x;
-    fData[ykey] = y;
+    fData[xkey] = Rotate(x, y, 1);
+    fData[ykey] = Rotate(x, y, 2);
 };
+
+Double_t TaBPM::Rotate(Double_t x, Double_t y, Int_t xy) {
+// Rotation to get X or Y depending on xy flag
+   Double_t result = 0;
+   Double_t root2 = (Double_t)sqrt(2);
+   if (xy == 2) {
+       result = ( x + y ) / root2;
+   } else {
+       result = ( x - y ) / root2;
+   }
+   return result;
+};
+
 
 
 
