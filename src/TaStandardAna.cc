@@ -200,7 +200,7 @@ TaStandardAna::InitChanLists ()
       fRun->GetDevices().IsUsed(IBLUMI7R) &&
       fRun->GetDevices().IsUsed(IBLUMI8R))
     {
-      keys.push_back(IBLUMI1);  keys.push_back(IBLUMI2);
+      keys.clear(); keys.push_back(IBLUMI1);  keys.push_back(IBLUMI2);
       keys.push_back(IBLUMI3);  keys.push_back(IBLUMI4);
       keys.push_back(IBLUMI5);  keys.push_back(IBLUMI6);
       keys.push_back(IBLUMI7);  keys.push_back(IBLUMI8);
@@ -212,7 +212,7 @@ TaStandardAna::InitChanLists ()
   if (fRun->GetDevices().IsUsed(IFLUMI1R) &&
       fRun->GetDevices().IsUsed(IFLUMI2R))
     {
-      keys.push_back(IFLUMI1);  keys.push_back(IFLUMI2);
+      keys.clear(); keys.push_back(IFLUMI1);  keys.push_back(IFLUMI2);
       fTreeList.push_back (AnaList ("flumi_sum", keys, wts, "ppm", 
 				    fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN));
       fTreeList.push_back (AnaList ("flumi_ave", keys, wts, "ppm", 
@@ -221,7 +221,7 @@ TaStandardAna::InitChanLists ()
   if (fRun->GetDevices().IsUsed(IDET1R) &&
       fRun->GetDevices().IsUsed(IDET2R))
     {
-      keys.push_back(IDET1);  keys.push_back(IDET2);
+      keys.clear(); keys.push_back(IDET1);  keys.push_back(IDET2);
       fTreeList.push_back (AnaList ("det_l", keys, wts, "ppm", 
 				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
     }
