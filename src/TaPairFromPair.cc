@@ -138,10 +138,12 @@ void TaPairFromPair::CheckSequence( TaEvent& ThisEv )
        << " hel/ps/ts " << (UInt_t)fgThisWinEv.GetHelicity() 
        << " " << (UInt_t)fgThisWinEv.GetPairSynch()
        << " " << fgThisWinEv.GetTimeSlot() << endl;
-  clog << "Last Window " << fgLastWinEv.GetEvNumber()
-       << " hel/ps/ts " << (UInt_t)fgLastWinEv.GetHelicity() 
-       << " " << (UInt_t)fgLastWinEv.GetPairSynch()
-       << " " << fgLastWinEv.GetTimeSlot() << endl;
+  if(fgLastWinEv.GetEvNumber() != 0){
+     clog << "Last Window " << fgLastWinEv.GetEvNumber()
+          << " hel/ps/ts " << (UInt_t)fgLastWinEv.GetHelicity() 
+          << " " << (UInt_t)fgLastWinEv.GetPairSynch()
+          << " " << fgLastWinEv.GetTimeSlot() << endl;
+  }
 #endif
 }
 
