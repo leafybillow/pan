@@ -121,7 +121,12 @@ Int_t TaDevice::GetKey(string keystr) const {
 // variables in the tree, and to initialize datamap from database, 
 // but one should *NOT* use this method inside an event loop !!
   
-  //  return fKeyToIdx[keystr];
+  map<string, Int_t>::const_iterator ki = fKeyToIdx.find(keystr);
+  if (ki == fKeyToIdx.end()) {
+    cout << "TaDevice::GetKey:: ERROR:  cannot find key "<<keystr;
+    cout << " returning zero "<<endl;
+    return 0;
+  }
   return (fKeyToIdx.find(keystr))->second;
 }
 
@@ -572,6 +577,16 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"timeslot3",ITIMESLOT2));
   fKeyToIdx.insert(make_pair((string)"timeslot4",ITIMESLOT3));
 
+  fKeyToIdx.insert(make_pair((string)"timeboard",ITIMEBOARD));
+  fKeyToIdx.insert(make_pair((string)"timeboard1",ITIMEBOARD1));
+  fKeyToIdx.insert(make_pair((string)"timeboard2",ITIMEBOARD2));
+  fKeyToIdx.insert(make_pair((string)"timeboard3",ITIMEBOARD3));
+
+  fKeyToIdx.insert(make_pair((string)"pairsynch",IPAIRSYNCH));
+  fKeyToIdx.insert(make_pair((string)"pairsynch1",IPAIRSYNCH1));
+  fKeyToIdx.insert(make_pair((string)"pairsynch2",IPAIRSYNCH2));
+  fKeyToIdx.insert(make_pair((string)"pairsynch3",IPAIRSYNCH3));
+
   fKeyToIdx.insert(make_pair((string)"rampdelay",IRAMPDELAY));
   fKeyToIdx.insert(make_pair((string)"rampdelay1",IRAMPDELAY1));
   fKeyToIdx.insert(make_pair((string)"rampdelay2",IRAMPDELAY2));
@@ -591,6 +606,7 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"precdac1",IPRECDAC1));
   fKeyToIdx.insert(make_pair((string)"precdac2",IPRECDAC2));
   fKeyToIdx.insert(make_pair((string)"precdac3",IPRECDAC3));
+
 
 };
 
