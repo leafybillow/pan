@@ -15,6 +15,7 @@
 //#define CHECKOUT
 //#define ASYMCHECK
 
+#include "TaCutList.hh"
 #include "TaEvent.hh"
 #include "TaLabelledQuantity.hh"
 #include "TaPairFromPair.hh"
@@ -51,7 +52,8 @@ VaAnalysis::VaAnalysis():
   fTreeREvNum(0),
   fTreeLEvNum(0),
   fTreeMEvNum(0),
-  fTreePairOK(0),
+  fTreeOKCond(0),
+  fTreeOKCut(0),
   fTreeSpace(0),
   fPairType(FromPair)
 { 
@@ -529,14 +531,15 @@ VaAnalysis::InitTree ()
   clog << "r_ev_num" << endl;
   clog << "l_ev_num" << endl;
   clog << "m_ev_num" << endl;
-  clog << "pair_ok"  << endl;
+  clog << "ok_cond"  << endl;
 #endif
 
   Double_t* tsptr = fTreeSpace;
   fPairTree->Branch ("r_ev_num", &fTreeREvNum, "r_ev_num/I", bufsize); 
   fPairTree->Branch ("l_ev_num", &fTreeLEvNum, "l_ev_num/I", bufsize); 
   fPairTree->Branch ("m_ev_num", &fTreeMEvNum, "m_ev_num/D", bufsize); 
-  fPairTree->Branch ("pair_ok",  &fTreePairOK, "pair_ok/I",  bufsize); 
+  fPairTree->Branch ("ok_cond",  &fTreeOKCond, "ok_cond/I",  bufsize); 
+  fPairTree->Branch ("ok_cut",   &fTreeOKCut,  "ok_cut/I",   bufsize); 
 
   // Add branches corresponding to channels in the channel lists
   string suff ("/D");
@@ -671,7 +674,8 @@ VaAnalysis::AutoPairAna()
   fTreeLEvNum = fPair->GetLeft().GetEvNumber();
   fTreeMEvNum = (fPair->GetRight().GetEvNumber()+
 		fPair->GetLeft().GetEvNumber())*0.5;
-  fTreePairOK = (fPair->PassedCuts() ? 1 : 0);
+  fTreeOKCond = (fPair->PassedCuts() ? 1 : 0);
+  fTreeOKCut  = (fPair->PassedCutsInt(fRun->GetCutList()) ? 1 : 0);
 #ifdef ASYMCHECK
   //  cout<<" mean ev pair "<<(fPair->GetRight().GetEvNumber()+fPair->GetLeft().GetEvNumber())*0.5<<" passed Cuts :"<<fPair->PassedCuts()<<endl;
 #endif
