@@ -38,7 +38,7 @@
 # BMW words
 @bmwlist = qw / IBMW_CLN IBMW_OBJ IBMW_VAL IBMW_CYC /;
 # Number of ADC modules, scaler modules, and crates
-$adcnum = 15;
+$adcnum = 23;
 $scanum = 4;
 $ncrates = 4;
 
@@ -541,7 +541,7 @@ sub do_timeboards
     $out1 .= "\n";
     $out1 .= &add_tir ("IPRECDAC");
     $out1 .= "\n";
-    $out1 .= &add_pitadac ("IPITADAC");
+    $out1 .= &add_tir ("IPITADAC");
 
     $out .= << "ENDTBDCOM";
 // Timeboard data from various crates
