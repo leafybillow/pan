@@ -6,6 +6,59 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 19 Dec 2002
+-----------------------------------
+
+Added a new class, TaBlind, for blinding results.
+
+A string is used to provide an initial seed for a random number
+generator.  Asymmetries are hidden with
+
+  A_hidden = ((A_true * Asign - AMean) * BlindSign 
+             + BlindOffset * AOffScale + AMean) * Asign
+
+where
+
+  Asign is the slow helicity reversal sign.
+  AMean is a supplied constant, typically the expected mean when
+     Asign is 1.
+  AOffScale is a supplied constant, typically the expected 
+    error
+  BlindSign is supplied by the blinding algorithm and is -1 or +1
+  BlindOffset is supplied by the blinding algorithm and is in range 
+    -1 to +1
+
+(Note that E158 fixes BlindSign = 1, in which case the value of AMean
+is immaterial and the hidden asymmetry is simply
+
+  A_hidden = A_true + BlindOffset * AOffScale * Asign
+
+We might do this too, and in fact I don't know why one would want a
+random BlindSign at all, but this class is written to allow it.)
+
+(Also note that E158 does not include Asign in the blinding methods;
+instead it is assumed that A_true has the "correct" sign, as will
+A_hidden.) 
+
+This is done by Blind and undone by UnBlind.
+
+To keep the sign of the asymmetry correlations with beam parameters,
+beam differences should get multiplied by BlindSign:
+
+  D_blind = D_true * BlindSign
+
+This is done by BlindSignOnly.
+
+I have not yet modified the rest of Pan to make use of TaBlind, but I
+wanted to get this implementation out for people to look at.  You can
+mess with it in CINT from interactive Pan.  Also note that it's
+included in libpan.a.
+
+
+TaBlind.{cc,hh} Makefile TaLinkDef.hh
+
+ o TaBlind class for blinding results
+
 
 Changes by R. Holmes on 12 Dec 2002
 -----------------------------------
