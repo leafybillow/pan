@@ -82,7 +82,7 @@ ifeq ($(OSNAME),Linux)
    ET_CFLAGS = -02 -fPIC -I. $(ET_AC_FLAGS) -DLINUXVERS
 # Typically CODA is an environment variable,e.g.
 #   CODA = /adaqfs/coda/2.2.1
-   LIBET = $(CODA)/lib/libet.so
+   LIBET = $(CODA)/Linux/lib/libet.so
    ONLIBS = $(LIBET) -lieee -lpthread -ldl -lresolv
    LIBS = $(GLIBS) $(ROOTLIBS) $(ROOTGLIBS)
 
