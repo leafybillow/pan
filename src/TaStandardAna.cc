@@ -203,18 +203,18 @@ TaStandardAna::InitChanLists ()
       keys.push_back(IBLUMI5);  keys.push_back(IBLUMI6);
       keys.push_back(IBLUMI7);  keys.push_back(IBLUMI8);
       fTreeList.push_back (AnaList ("blumi_sum", keys, wts, "ppm", 
-				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
+				    fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN));
       fTreeList.push_back (AnaList ("blumi_ave", keys, wts, "ppm", 
-				    fgNO_BEAM_NO_ASY + fgASYN + fgAVE + fgBLIND));
+				    fgNO_BEAM_NO_ASY + fgASYN + fgAVE + fgBLINDSIGN));
     }
   if (fRun->GetDevices().IsUsed(IFLUMI1R) &&
       fRun->GetDevices().IsUsed(IFLUMI2R))
     {
       keys.push_back(IFLUMI1);  keys.push_back(IFLUMI2);
       fTreeList.push_back (AnaList ("flumi_sum", keys, wts, "ppm", 
-				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
+				    fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN));
       fTreeList.push_back (AnaList ("flumi_ave", keys, wts, "ppm", 
-				    fgNO_BEAM_NO_ASY + fgASYN + fgAVE + fgBLIND));
+				    fgNO_BEAM_NO_ASY + fgASYN + fgAVE + fgBLINDSIGN));
     }
   if (fRun->GetDevices().IsUsed(IDET1R) &&
       fRun->GetDevices().IsUsed(IDET2R))
