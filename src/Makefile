@@ -18,12 +18,9 @@
 # To use "insure" from parasoft.com.  Must first type "use insure" on ifarml1.
 # export INSURE = 1
 #
-# Uncomment this if you want to use MySQL database
-# export MYSQLDB = 1
-#
 # Would uncommment this if you want rootcint Dictionary.
 # Requires Root version 3.02/07 or later.
-# export MAKEDICTIONARY = 1
+MAKEDICTIONARY = 1
 
 # Choose the compiler.
 GCC=g++
@@ -119,30 +116,15 @@ endif
 # libDBTools.a is created in ../pandb/DBTools/
 #
 
-ifdef MYSQLDB
-MYSQL_INCLUDE = /apps/mysql/PRO/include/mysql
-INCLUDES      +=-I$(MYSQL_INCLUDE) -I../pandb/DBTools
-MYSQL_LIBS     = $(ROOTSYS)/lib/libMySQL.so /apps/lib/libz.so \
-                 libDBTools.a
-ALL_LIBS += $(MYSQL_LIBS)
-endif
-
 # Grow the list of sources here.
 
 SRC = TaAnalysisManager.cc  \
-      TaBeamAna.cc TaDevice.cc \
+      TaBeamAna.cc TaDevice.cc TaDataBase.cc \
       TaCutInterval.cc TaCutList.cc TaEvent.cc \
       TaFileName.cc TaLabelledQuantity.cc \
       TaPairFromPair.cc TaPairFromQuad.cc TaPromptAna.cc\
       TaRun.cc TaStatistics.cc TaString.cc \
-      VaAnalysis.cc VaDataBase.cc VaPair.cc TaADCCalib.cc 
-
-ifdef MYSQLDB
- SRC +=TaMysql.cc 
- CXXFLAGS += -DMYSQLDB
-else
- SRC +=TaAsciiDB.cc
-endif
+      VaAnalysis.cc VaPair.cc TaADCCalib.cc 
 
 DEPS = $(SRC:.cc=.d)
 OBJS = $(SRC:.cc=.o)
