@@ -6,6 +6,29 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 19 Nov 2002
+-----------------------------------
+
+Foo.  I forgot to check in a version of TaAnalysisManager that knows
+about debug analysis.
+
+The other changes are to remove includes of our header files from our
+header files where they are not needed.  The benefit of doing so is
+that it reduces false dependencies, minimizing the number of classes
+that need to be recompiled when a header changes.  Usually the include
+can simply be changed to a class declaration and/or be moved to the
+implementation file, though in TaCutList it also required changing
+fIntervals from a vector of TaEvents to a pointer to such a vector.
+
+TaAnalysisManager.cc
+
+ o Add debug analysis type.
+
+TaCutInterval.{hh,cc} TaCutList.{hh,cc} TaDataBase.{hh,cc}
+
+ o General cleanup of class header includes in class headers
+
+
 Changes by R. Holmes on 18 Nov 2002
 -----------------------------------
 
