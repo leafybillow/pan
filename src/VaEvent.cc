@@ -781,40 +781,42 @@ VaEvent::CheckEvent(TaRun& run)
   Double_t current = GetData(fgCurMon);
   Double_t currentc = GetData(fgCurMonC);
 
-  Int_t val = 0;
 
   fFailedACut = false;
 
   if ( fgLoBeamNo < fgNCuts)
     {
+      Int_t thisval = 0;
       if (current < fgLoBeam )
 	{
 #ifdef NOISY
 	  clog << "Event " << fEvNum << " failed lobeam cut, "
 	       << current << " < " << fgLoBeam << endl;
 #endif
-	  val = 1;
+	  thisval = 1;
 	}
-      AddCut (fgLoBeamNo, val);
-      run.UpdateCutList (fgLoBeamNo, val, fEvNum);
+      AddCut (fgLoBeamNo, thisval);
+      run.UpdateCutList (fgLoBeamNo, thisval, fEvNum);
     }
 
   if ( fgLoBeamCNo < fgNCuts)
     {
+      Int_t thisval = 0;
       if (currentc < fgLoBeamC )
 	{
 #ifdef NOISY
 	  clog << "Event " << fEvNum << " failed lobeamc cut, "
 	       << currentc << " < " << fgLoBeamC << endl;
 #endif
-	  val = 1;
+	  thisval = 1;
 	}
-      AddCut (fgLoBeamCNo, val);
-      run.UpdateCutList (fgLoBeamCNo, val, fEvNum);
+      AddCut (fgLoBeamCNo, thisval);
+      run.UpdateCutList (fgLoBeamCNo, thisval, fEvNum);
     }
 
   if ( fgSatNo < fgNCuts)
     {
+      Int_t thisval = 0;
       Bool_t saturated = false;
       UInt_t i;
       for (i = 0; i < DETNUM && !saturated; i++) 
@@ -826,61 +828,62 @@ VaEvent::CheckEvent(TaRun& run)
 	  clog << "Event " << fEvNum << " failed saturation cut, det"
 	       << i << " raw = " << GetData (fgDet[i-1]) << " > " << fgSatCut << endl;
 #endif
-	  val = 1;
+	  thisval = 1;
 	}
-      AddCut (fgSatNo, val);
-      run.UpdateCutList (fgSatNo, val, fEvNum);
+      AddCut (fgSatNo, thisval);
+      run.UpdateCutList (fgSatNo, thisval, fEvNum);
     }
 
 
 
-
+  Int_t startupval = 0;
   if ( fgLastEv.GetEvNumber() == 0 )
     {
       // First event, cut it (startup cut)
 
-      val = 1;
+      startupval = 1;
     }
   else
     {
       // Not the first event, so check event-to-event differences
       
       // Beam burp -- current change greater than limit?
-      val = 0;
       if (fgBurpNo < fgNCuts)
 	{
+	  Int_t thisval = 0;
 	  if (abs (current-fgLastEv.GetData(fgCurMon)) > fgBurpCut)
 	    {
 #ifdef NOISY
 	      clog << "Event " << fEvNum << " failed beam burp cut, "
 		   << abs (current-fgLastEv.GetData(fgCurMon)) << " > " << fgBurpCut << endl;
 #endif
-	      val = 1;
+	      thisval = 1;
 	    }
-	  AddCut (fgBurpNo, val);
-	  run.UpdateCutList (fgBurpNo, val, fEvNum);
+	  AddCut (fgBurpNo, thisval);
+	  run.UpdateCutList (fgBurpNo, thisval, fEvNum);
 	}
 
       // C Beam burp -- current change greater than limit?
-      val = 0;
       if (fgCBurpNo < fgNCuts)
 	{
+	  Int_t thisval = 0;
 	  if (abs (currentc-fgLastEv.GetData(fgCurMonC)) > fgCBurpCut)
 	    {
 #ifdef NOISY
 	      clog << "Event " << fEvNum << " failed C-beam burp cut, "
 		   << abs (currentc-fgLastEv.GetData(fgCurMonC)) << " > " << fgCBurpCut << endl;
 #endif
-	      val = 1;
+	      thisval = 1;
 	    }
-	  AddCut (fgCBurpNo, val);
-	  run.UpdateCutList (fgCBurpNo, val, fEvNum);
+	  AddCut (fgCBurpNo, thisval);
+	  run.UpdateCutList (fgCBurpNo, thisval, fEvNum);
 	}
 
 
       //Check Position Beam Burp
       if ( fgPosBurpNo < fgNCuts)
 	{
+	  Int_t thisval = 0;
 	  Bool_t posburp = false;
 	  UInt_t i;
 	  for (i = 0; !posburp && i < fgNPosMon; i++)
@@ -896,19 +899,19 @@ VaEvent::CheckEvent(TaRun& run)
 		   << abs( GetData(fgPosMon[i-1])-fgLastEv.GetData(fgPosMon[i-1]) ) 
                    << " > " << fgPosBurp[i-1] << endl;
 #endif
-	      val = 1;
+	      thisval = 1;
 	    }
-	  AddCut (fgPosBurpNo, val);
-	  run.UpdateCutList (fgPosBurpNo, val, fEvNum);
+	  AddCut (fgPosBurpNo, thisval);
+	  run.UpdateCutList (fgPosBurpNo, thisval, fEvNum);
 	}
 
 
 
 
       // Check event number sequence
-      val = 0;
       if (fgEvtSeqNo < fgNCuts)
 	{
+	  Int_t thisval = 0;
 	  if (GetEvNumber() != fgLastEv.GetEvNumber() + 1) 
 	    {
 	      cerr << "VaEvent::CheckEvent ERROR Event " 
@@ -916,16 +919,16 @@ VaEvent::CheckEvent(TaRun& run)
 		   << " unexpected event number, last event was " 
 		   << fgLastEv.GetEvNumber()
 		   << endl;
-	      val = WRONGEVNO;
+	      thisval = WRONGEVNO;
 	    } 
-	  AddCut (fgEvtSeqNo, val);
-	  run.UpdateCutList (fgEvtSeqNo, val, fEvNum);
+	  AddCut (fgEvtSeqNo, thisval);
+	  run.UpdateCutList (fgEvtSeqNo, thisval, fEvNum);
 	}
 
       // Check time slot sequence
-      val = 0;
       if ( fgEvtSeqNo < fgNCuts)
 	{
+	  Int_t thisval = 0;
 	  if (fgOversample > 0 )
 	    { 
 	      if ( GetTimeSlot() != 
@@ -938,21 +941,19 @@ VaEvent::CheckEvent(TaRun& run)
 		       << " to " 
 		       << GetTimeSlot() 
 		       << endl;
-		  val = WRONGTMSL;
+		  thisval = WRONGTMSL;
 		} 
 	    }
-	  AddCut (fgEvtSeqNo, val);
-	  run.UpdateCutList (fgEvtSeqNo, val, fEvNum);
+	  AddCut (fgEvtSeqNo, thisval);
+	  run.UpdateCutList (fgEvtSeqNo, thisval, fEvNum);
 	}
 
-      // Clear the startup cut
-      val = 0;
     }
 
   if (fgStartupNo < fgNCuts)
     {
-      AddCut (fgStartupNo, val);
-      run.UpdateCutList (fgStartupNo, val, fEvNum);
+      AddCut (fgStartupNo, startupval);
+      run.UpdateCutList (fgStartupNo, startupval, fEvNum);
     }
 
   fgLastEv = *this;
