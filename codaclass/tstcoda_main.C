@@ -9,7 +9,7 @@
 #include <signal.h>
 
 //#define DUMPIT
-#define SPEEDTEST
+//#define SPEEDTEST
 
 void usage();
 void do_something(int* data);
@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
   } else {         // Online ET connection
 
       int mymode = 1;
-      TString mycomputer("adaqcp");
+      TString mycomputer("adaql1");
       TString mysession("par1");
 
       if (choice2 == 1) {   // Three different types of constructor 
@@ -91,6 +91,7 @@ int main(int argc, char* argv[])
       }
   }
 
+  cout << "closing CODA connection"<<endl<<flush;
   coda->codaClose();
   return 0;
 };
