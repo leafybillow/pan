@@ -327,6 +327,7 @@ void TaDataBase::Print() {
   clog << "   Low beam cut :  " << GetCutValue("lobeam") << endl;
   clog << "   Low beam C cut :  " << GetCutValue("lobeamc") << endl;
   clog << "   Burp cut :  " << GetCutValue("burpcut") << endl;
+  clog << "   Saturation cut :  " << GetCutValue("satcut") << endl;
 
   vector<Double_t> wts = GetDetWts();
   if (wts.size() > 0)
@@ -456,6 +457,7 @@ TaDataBase::Checkout()
   cout << "lobeam  cut = " << GetCutValue("LOBEAM") << endl;
   cout << "lobeamc  cut = " << GetCutValue("LOBEAMC") << endl;
   cout << "burpcut  cut = " << GetCutValue("BURPCUT") << endl;
+  cout << "satcut  cut = " << GetCutValue("SATCUT") << endl;
   cout << "window delay = " << GetDelay() << endl;
   cout << "oversampling factor = " << GetOverSamp() << endl;
   cout << "pair type (i.e. pair or quad) =  " << GetPairType() << endl;
@@ -1521,6 +1523,7 @@ void TaDataBase::InitDB() {
   tables.push_back("detwts");        //  34
   tables.push_back("blumiwts");      //  35
   tables.push_back("flumiwts");      //  36
+  tables.push_back("satcut");        //  37
 
   pair<string, int> sipair;
   int k;
@@ -1657,6 +1660,7 @@ void TaDataBase::InitDB() {
       for (k = 0; k < 8; k++) columns.push_back(new dtype("d"));
     if (i == 36)    // flumiwts
       for (k = 0; k < 2; k++) columns.push_back(new dtype("d"));
+    if (i == 37) columns.push_back(new dtype("d"));  // satcut
     sipair.second = columns.size(); 
     colsize.insert(sipair);
     LoadTable(tables[i],columns);

@@ -6,6 +6,14 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on  27 Sep 2004
+--------------------------------------
+
+Changes to TaDatabase, VaEvent, TaCutsList to implement a cut on
+detector saturation.  Also a new file, doc/newcuts.txt, documenting
+what I did as an example of how to implement a new cut.
+
+
 Changes by R. Holmes on  4 Jul 2004
 --------------------------------------
 

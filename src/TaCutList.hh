@@ -86,6 +86,7 @@ private:
   Cut_t fLoBeamCNo;                  // cut number for hallC low beam
   Cut_t fLoBeamNo;                   // cut number for low beam 
   Cut_t fBurpNo;                     // cut number for burp beam
+  Cut_t fSatNo;                      // cut number for saturation
 
 #ifndef NODICT
   ClassDef(TaCutList, 0)   // List of cuts

@@ -142,6 +142,7 @@ TaCutList::Init(const TaDataBase& db)
   fLoBeamCNo = db.GetCutNumber (TaString ("Low_beam_c"));
   fLoBeamNo  = db.GetCutNumber (TaString ("Low_beam"));
   fBurpNo    = db.GetCutNumber (TaString ("Beam_burp"));
+  fSatNo    = db.GetCutNumber (TaString ("Det_saturate"));
 
 }
 
@@ -176,7 +177,9 @@ TaCutList::OKC (const VaEvent& ev) const
        oksofar && (c != fIntervals->end()); 
        ++c )
     {
-      if (c->GetCut() != fLoBeamNo && c->GetCut() != fBurpNo &&
+      if (c->GetCut() != fLoBeamNo && 
+	  c->GetCut() != fBurpNo &&
+	  c->GetCut() != fSatNo &&
 	  c->Inside(ev, fLowExtension[c->GetCut()], 
 		    fHighExtension[c->GetCut()]) && 
 	  c->GetVal() != 0)

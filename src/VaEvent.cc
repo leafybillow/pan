@@ -46,14 +46,17 @@ Bool_t VaEvent::fgFirstDecode = true;
 Double_t VaEvent::fgLoBeam;
 Double_t VaEvent::fgLoBeamC;
 Double_t VaEvent::fgBurpCut;
+Double_t VaEvent::fgSatCut;
 Cut_t VaEvent::fgLoBeamNo;
 Cut_t VaEvent::fgLoBeamCNo;
 Cut_t VaEvent::fgBurpNo;  
+Cut_t VaEvent::fgSatNo;  
 Cut_t VaEvent::fgEvtSeqNo;
 Cut_t VaEvent::fgStartupNo;
 UInt_t VaEvent::fgOversample;
 UInt_t VaEvent::fgCurMon;
 UInt_t VaEvent::fgCurMonC;
+UInt_t VaEvent::fgDet[4];
 UInt_t VaEvent::fgSizeConst;
 UInt_t VaEvent::fgNCuts;
 Bool_t VaEvent::fgCalib;
@@ -152,12 +155,14 @@ VaEvent::RunInit(const TaRun& run)
   fgLoBeam = run.GetDataBase().GetCutValue("lobeam");
   fgLoBeamC = run.GetDataBase().GetCutValue("lobeamc");
   fgBurpCut = run.GetDataBase().GetCutValue("burpcut");
+  fgSatCut = run.GetDataBase().GetCutValue("satcut");
 
   fgNCuts = (UInt_t) run.GetDataBase().GetNumCuts();
 
   fgLoBeamNo = run.GetDataBase().GetCutNumber ("Low_beam");
   fgLoBeamCNo = run.GetDataBase().GetCutNumber ("Low_beam_c");
   fgBurpNo = run.GetDataBase().GetCutNumber ("Beam_burp");
+  fgSatNo = run.GetDataBase().GetCutNumber ("Det_saturate");
   fgEvtSeqNo = run.GetDataBase().GetCutNumber ("Evt_seq");
   fgStartupNo = run.GetDataBase().GetCutNumber ("Startup");
   if (fgEvtSeqNo == fgNCuts)
@@ -173,6 +178,7 @@ VaEvent::RunInit(const TaRun& run)
       return fgTAEVT_ERROR;
     }
   if (fgBurpNo == fgNCuts ||
+      fgSatNo == fgNCuts ||
       fgLoBeamCNo == fgNCuts ||
       fgStartupNo == fgNCuts)
     {
@@ -180,6 +186,7 @@ VaEvent::RunInit(const TaRun& run)
 	   << "in database and will not be imposed:";
       if (fgLoBeamCNo == fgNCuts) cerr << " Low_beam_c";
       if (fgBurpNo == fgNCuts) cerr << " Beam_burp";
+      if (fgSatNo == fgNCuts) cerr << " Det_saturate";
       if (fgStartupNo == fgNCuts) cerr << " Startup";
       cerr << endl;
     }
@@ -190,6 +197,10 @@ VaEvent::RunInit(const TaRun& run)
   string scurmonc = run.GetDataBase().GetCurMonC();
   if (scurmonc == "none") scurmonc = "bcm10";
   fgCurMonC = run.GetKey (scurmonc);
+  fgDet[0] = run.GetKey (string ("det1r"));
+  fgDet[1] = run.GetKey (string ("det2r"));
+  fgDet[2] = run.GetKey (string ("det3r"));
+  fgDet[3] = run.GetKey (string ("det4r"));
 
   fgOversample = run.GetOversample();
   fgLastEv = VaEvent();
@@ -737,6 +748,7 @@ VaEvent::CheckEvent(TaRun& run)
   Int_t val = 0;
 
   fFailedACut = false;
+
   if ( fgLoBeamNo < fgNCuts)
     {
       if (current < fgLoBeam )
@@ -763,6 +775,25 @@ VaEvent::CheckEvent(TaRun& run)
 	}
       AddCut (fgLoBeamCNo, val);
       run.UpdateCutList (fgLoBeamCNo, val, fEvNum);
+    }
+
+  if ( fgSatNo < fgNCuts)
+    {
+      Bool_t saturated = false;
+      UInt_t i;
+      for (i = 0; i < DETNUM && !saturated; i++) 
+	saturated = GetData (fgDet[i]) >= fgSatCut;
+      
+      if (saturated)
+	{
+#ifdef NOISY
+	  clog << "Event " << fEvNum << " failed saturation cut, det"
+	       << i << " raw = " << GetData (fgDet[i-1]) << " > " << fgSatCut << endl;
+#endif
+	  val = 1;
+	}
+      AddCut (fgLoBeamNo, val);
+      run.UpdateCutList (fgLoBeamNo, val, fEvNum);
     }
 
   if ( fgLastEv.GetEvNumber() == 0 )
