@@ -6,6 +6,19 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Michaels on   9 May 2004
+--------------------------------------
+
+Add new Get methods to get timestamp from TaDataBase.
+Examples:
+
+root [0] TaDataBase *db = new TaDataBase()
+root [1] db->ReadRoot("parity03_3365_standard.root");
+root [2] db->GetTimeTString()
+root [3] TDatime dt=db->GetTimeTDatime()
+root [4] dt.Print()
+
+
 Changes by B. Moffit on   8 Feb 2004
 ------------------------------------
 
