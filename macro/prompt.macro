@@ -27,6 +27,7 @@ void prompt (UInt_t run, UInt_t batch)
       ps->PutMonAsym("bcm3", *tt, "ok_cut");
       ps->PutMonAsym("bcm5", *tt, "ok_cut");
       ps->PutMonAsym("bcm6", *tt, "ok_cut");
+      ps->PutMonAsym("bcm10", *tt, "ok_cut&&evt_bcm10[0]>0.0005&&evt_bcm10[1]>0.0005");
       
       ps->PutMonDiff("bpm4ax", *tt, "ok_cut");
       ps->PutMonDiff("bpm4ay", *tt, "ok_cut");
