@@ -352,9 +352,9 @@ void TaEvent::Decode(TaDevice& devices) {
     if (devices.IsUsed(key)) devices.SetUsed(key+1);
   }
 #ifndef FAKEHEL
+  fData[IQUADSYNCH] = (Double_t)(((int)GetData(ITIRDATA) & 0x20) >> 5);
   fData[IHELICITY] = (Double_t)(((int)GetData(ITIRDATA) & 0x40) >> 6);
   fData[IPAIRSYNCH] = (Double_t)(((int)GetData(ITIRDATA) & 0x80) >> 7);
-// Need to load fData[IQUADSYNCH] when that signal exists.
   fData[ITIMESLOT] = (Double_t)(((int)GetData(IOVERSAMPLE) & 0xff00) >> 8);
 #else
   fgHelfile >> fData[IHELICITY] >> fData[IPAIRSYNCH]
@@ -370,6 +370,7 @@ void TaEvent::Decode(TaDevice& devices) {
   if (devices.IsUsed(ITIRDATA)) {  
      devices.SetUsed(IHELICITY);
      devices.SetUsed(IPAIRSYNCH); 
+     devices.SetUsed(IQUADSYNCH);
 // Don't forget to add quadsynch
   }
   if (devices.IsUsed(IOVERSAMPLE)) devices.SetUsed(ITIMESLOT);
