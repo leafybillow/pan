@@ -197,15 +197,15 @@ void TaEvent::Decode(const TaDevice& devices) {
 // Stripline BPMs
   for (i = 0; i < STRNUM; i++) {
     ok = 1;
-    for (j = 0; j < 4; j++) {
-      key = STROFF + 9*i + j;
-      idx = devices.GetRawIndex(key);
-      if (idx < 0) {
-          ok = 0;      // A device channel was not found.
-          continue;
-      }
-      fData[key] = fData[idx];
-    }
+//      for (j = 0; j < 4; j++) {
+//        key = STROFF + 9*i + j;
+//        idx = devices.GetRawIndex(key);
+//        if (idx < 0) {
+//            ok = 0;      // A device channel was not found.
+//            continue;
+//        }
+//        fData[key] = fData[idx];
+//      }
     if ( !ok ) continue;
     key = STROFF + 9*i;
     ixp = devices.GetCalIndex(key);
@@ -229,12 +229,13 @@ void TaEvent::Decode(const TaDevice& devices) {
     fData[iy] = Rotate (iy, xrot, yrot, 2);
     fData[key + 8] = fData[key + 6] + fData[key + 7];
   }
+
 // Cavity BPM monitors (when they exist)
   for (i = 0; i < CAVNUM; i++) {
     for (j = 0; j < 2; j++) {
        key = CAVOFF + 4*i + j;
        if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
-       idx = devices.GetRawIndex(key);
+       idx = devices.GetCalIndex(key);
        if (idx < 0) continue;
        fData[key+2] = fData[idx];
 // This needs to be divided by current... when they exist.
@@ -245,21 +246,36 @@ void TaEvent::Decode(const TaDevice& devices) {
     key = BCMOFF + 2*i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
     // raw and corrected BCM data
-    idx = devices.GetRawIndex(key);
-    if (idx < 0) continue;
-    fData[key] = fData[idx];
+//      idx = devices.GetRawIndex(key);
+//      if (idx < 0) continue;
+//      fData[key] = fData[idx];
     idx = devices.GetCalIndex(key);
     if (idx < 0) continue;
     fData[key+1] = fData[idx];
   }
+
+// Lumi monitors
+  for (i = 0; i < LMINUM; i++) {
+    key = LMIOFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+//      // raw LUMI data
+//      idx = devices.GetRawIndex(key);
+//      if (idx < 0) continue;
+//      fData[key] = fData[idx];
+    // corrected LUMI data
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+  }
+
 // Detectors
   for (i = 0; i < DETNUM; i++) {
     key = DETOFF + 2*i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
     // raw and corrected detector data
-    idx = devices.GetRawIndex(key);
-    if (idx < 0) continue;
-    fData[key] = fData[idx];
+//      idx = devices.GetRawIndex(key);
+//      if (idx < 0) continue;
+//      fData[key] = fData[idx];
     idx = devices.GetCalIndex(key);
     if (idx < 0) continue;
     fData[key+1] = fData[idx];
@@ -490,6 +506,7 @@ void TaEvent::RawDump() const {
 
 void TaEvent::DeviceDump() const {
 // Diagnostic dump of device data for debugging purposes.
+
 
   static int bpmraw[] = {  IBPM8XP, IBPM8XM, IBPM8YP, IBPM8YM, 
                            IBPM10XP, IBPM10XM, IBPM10YP, IBPM10YM, 
