@@ -233,6 +233,9 @@ Other documents in pan/doc
 
      README_PANAM -- Documentation of online monitoring
 
+     README_TREE -- Documentation of trees produced by standard Pan
+                    analysis 
+
      results_database.txt -- Description of results file format
 
 
