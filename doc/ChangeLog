@@ -4,6 +4,20 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 26 Jun 2002
+-----------------------------------
+
+TaADCCalib.{hh,cc} TaAnalysisManager.{hh,cc} VaAnalysis.{hh,cc}
+
+ o Changed VaAnalysis::Init and its derived method in TaADCCalib to
+   take a Bool_t, not Int_t, argument, for clarity.
+
+TaADCCalib.cc VaAnalysis.cc
+
+ o Improved diagnostics by tagging them with the method name, and
+   sending them to the appropriate output stream (cerr, clog).
+
+
 Changes by R. Michaels on 23 Jun 2002
 -----------------------------------
 
