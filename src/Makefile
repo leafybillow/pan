@@ -164,7 +164,7 @@ endif
 install: all
 	mv pan ../
 
-all: $(PROGS) $(PANLIBS)
+all: $(PROGS) $(PANLIBS) $(PANLIBS_NODICT)
 
 $(PROGS): main.o $(OBJS) $(SRC) $(HEAD) 
 	rm -f $@
