@@ -20,9 +20,33 @@ change these probabilities; just edit the line
 
 in the obvious way.)
 
+In doing the above I realized there's an obvious check we're not doing
+-- looking at the event number to see that it increments by 1.  (My
+excuse: In HAPPEX-I the event number always did increment by 1,
+because the analyzer generally got all events the DAQ collected; dead
+time would keep the DAQ from accepting triggers, but the events that
+did get read out had consecutive event numbers.  In the present system
+such trigger losses are not ever supposed to happen, but there's
+concern that the online analyzers might not get all the events read
+out, in which case the event number will sometimes jump by more than
+1.)  I've renamed the "Oversample" cut "Evt_seq" (rather than defining
+a new cut -- "Oversample" was a bad name, anyway, should've been
+"Timeslot" or something), and its value now is 1 if the event number
+isn't what's expected, 2 if the timeslot value isn't what's expected.
+To disambiguate, the "Sequence" cut is now renamed "Pair_seq".  I've
+changed these cut names in control.db, but the old cut names will
+still work so old db files do not need to be fixed up.
+
+While I was in control.db I modified the comments at the top, and
+removed the useless "runtype" entry.
+
 TaRun.cc
 
  o 'Dead time' faking.
+
+TaEvent.{hh,cc} VaPair.cc control.db
+
+ o 'Oversample' and 'Sequence' cuts are now 'Evt_seq' and 'Pair_seq'
 
 
 Changes by R. Holmes on 21 Nov 2002
