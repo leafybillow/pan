@@ -104,7 +104,6 @@ public:
 		  const TaCutList& cutlist, 
 		  TTree &tree);    // Add data to root Tree
 
-
 private:
 
   // Private methods

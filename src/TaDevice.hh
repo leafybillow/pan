@@ -49,7 +49,6 @@ class TaDevice {
     Int_t GetRawKey(const Int_t& index) const;
     Int_t GetEvPointer(const Int_t& index) const; 
     Double_t GetPedestal(const Int_t& index) const;
-    Double_t GetDacInt(const Int_t& index) const;
     Double_t GetDacSlope(const Int_t& index) const;
     Int_t GetDevNum(const Int_t& index) const;
     Int_t GetChanNum(const Int_t& index) const;
@@ -63,7 +62,7 @@ class TaDevice {
 
     Int_t fNumRaw;
     Int_t *fRawKeys, *fEvPointer, *fReadOut, *fIsUsed;
-    Double_t *fAdcPed, *fScalPed, *fDacInt, *fDacSlope;
+    Double_t *fAdcPed, *fScalPed, *fDacSlope;
     Int_t *fDevNum, *fChanNum;
     map<string, Int_t> fKeyToIdx;
     void InitKeyList();
@@ -91,10 +90,6 @@ inline Int_t TaDevice::GetRawKey(const Int_t& index) const  {
 
 inline Int_t TaDevice::GetEvPointer(const Int_t& index) const  {
   return fEvPointer[index];
-};
-
-inline Double_t TaDevice::GetDacInt(const Int_t& index) const  {
-  return fDacInt[index];
 };
 
 inline Double_t TaDevice::GetDacSlope(const Int_t& index) const  {

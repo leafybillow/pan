@@ -35,6 +35,8 @@
 @lumilist =      qw / ILUMI1 ILUMI2 ILUMI3 ILUMI4 /;
 # V2F clocks
 @v2fclocklist =  qw / IV2F_CLK0 IV2F_CLK1 IV2F_CLK2 IV2F_CLK3 /;
+# BMW words
+@bmwlist = qw / IBMW_CLN IBMW_OBJ IBMW_VAL IBMW_CYC /;
 # Number of ADC modules, scaler modules, and crates
 $adcnum = 15;
 $scanum = 4;
@@ -54,6 +56,7 @@ $out = "";   # output being built
 &do_timeboards();
 &do_lumis();
 &do_v2fclocks();
+&do_bmwwords();
 
 print << "END";
 //////////////////////////////////////////////////////////////////////////
@@ -322,8 +325,8 @@ ENDADCCOM
     $out1 = "";
     for $iacc (0..$adcnum-1)
     {
-	$acc = "IADC_CAL$iacc";
-	$out1 .= &add_adc ($acc);
+	$acc = "IADC$iacc";
+	$out1 .= &add_adccal ($acc);
     }
     $out .= << "ENDACCCOM";
 // Now the calibrated data
@@ -380,6 +383,18 @@ sub add_adc
     return $ret;
 }
 
+sub add_adccal
+{
+    my ($adc) = @_;
+    my ($ret);
+    $ret = "";
+    $ret .= "\#define   ${adc}_0_CAL     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_1_CAL     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_2_CAL     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_3_CAL     $p\n"; $p++;
+    return $ret;
+}
+
 sub add_daccsr
 {
     my ($adc) = @_;
@@ -412,8 +427,8 @@ ENDSCALERCOM
     $out1 = "";
     for $iscc (0..$scanum-1)
     {
-	$scc = "ICALSCA$iscc";
-	$out1 .= &add_scaler ($scc);
+	$scc = "ISCALER$iscc";
+	$out1 .= &add_scalercal ($scc);
     }
     $out .= << "ENDSCCCOM";
 // Calibrated scalers
@@ -432,6 +447,20 @@ sub add_scaler
     for $i (0..31)
     {
 	$ret .= "\#define   ${scaler}_$i     $p\n"; $p++;
+    }
+    $ret .= "\n";
+    return $ret;
+}
+
+sub add_scalercal
+{
+    my ($scaler) = @_;
+    my ($cal) = "_CAL";
+    my ($ret);
+    $ret = "";
+    for $i (0..31)
+    {
+	$ret .= "\#define   ${scaler}_$i${cal}     $p\n"; $p++;
     }
     $ret .= "\n";
     return $ret;
@@ -604,6 +633,36 @@ sub add_v2fclock
     my ($v2fclock) = @_;
     my ($ret);
     $ret = "\#define   ${v2fclock}      $p\n"; $p++;
+    return $ret;
+}
+
+
+sub do_bmwwords
+{
+# Beam modulation information
+
+    $bmwoff = $p;
+    $bmwnum = scalar (@bmwlist);
+    $out1 = "";
+    foreach $bmwword (@bmwlist)
+    {
+	$out1 .= &add_bmwword ($bmwword);
+    }
+    $out .= << "ENDBMWWORDCOM";
+// bmw words
+
+\#define   BMWOFF     $bmwoff     // bmw words start here
+\#define   BMWNUM     $bmwnum     // number of bmw words defined below
+
+$out1
+ENDBMWWORDCOM
+}
+
+sub add_bmwword
+{
+    my ($bmwword) = @_;
+    my ($ret);
+    $ret = "\#define   ${bmwword}      $p\n"; $p++;
     return $ret;
 }
 

@@ -31,6 +31,7 @@
 
 #define ADC_MaxSlot 10
 #define ADC_MaxChan 4
+#define ADC_MinDAC 3000
 
 //class TaStatistics;
 class TaRun;
@@ -55,6 +56,7 @@ private:
   //
   // Data members
   //
+
   Int_t typeFlag;
   //    array will be set true for each slot, channel  with an existing key
   Bool_t chanExists[ADC_MaxSlot][ADC_MaxChan]; 

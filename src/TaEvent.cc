@@ -39,6 +39,7 @@ ClassImp(TaEvent)
 #endif
 
 // Static members
+const Int_t ADC_MinDAC = 3000;
 const ErrCode_t TaEvent::fgTAEVT_OK = 0;
 const ErrCode_t TaEvent::fgTAEVT_ERROR = -1;
 TaEvent TaEvent::fgLastEv;
@@ -238,8 +239,7 @@ void TaEvent::Decode(TaDevice& devices) {
       fData[idx] = fgK[i] + fgR.Gaus(0,fgD[i]);
       //    clog << ">>>>>> " << i << " " << fData[idx] << endl;
       fData[idx] += devices.GetPedestal(key) - 
-	(fData[DACOFF + iadc] * devices.GetDacSlope(k2) -
-	 devices.GetDacInt(k2));
+	(fData[DACOFF + iadc]-ADC_MinDAC) * devices.GetDacSlope(k2)
     }
 #endif
 
@@ -248,7 +248,7 @@ void TaEvent::Decode(TaDevice& devices) {
     for (j = 0; j < 4; j++) {
       key = i*4 + j;
       fData[ACCOFF + key] = fData[ADCOFF + key] - devices.GetPedestal(ADCOFF + key)
-       - (fData[DACOFF + i] * devices.GetDacSlope(key) - devices.GetDacInt(key));
+       - (fData[DACOFF + i]-ADC_MinDAC) * devices.GetDacSlope(key);
       if (devices.IsUsed(ADCOFF+key)) devices.SetUsed(ACCOFF+key);
     }
   }
@@ -365,28 +365,43 @@ void TaEvent::Decode(TaDevice& devices) {
     if (devices.IsUsed(key)) devices.SetUsed(key+1);
   }
 #ifndef FAKEHEL
+
   fData[IQUADSYNCH] = (Double_t)(((int)GetData(ITIRDATA) & 0x20) >> 5);
   fData[IHELICITY] = (Double_t)(((int)GetData(ITIRDATA) & 0x40) >> 6);
   fData[IPAIRSYNCH] = (Double_t)(((int)GetData(ITIRDATA) & 0x80) >> 7);
+
+//  // Correction for inverted Pairsynch polarity
+//    Int_t fakeps = (((int)GetData(ITIRDATA) & 0x80) >> 7);
+//    if(fakeps==1) {
+//      fakeps = 0; 
+//    }else if (fakeps==0) {
+//      fakeps = 1;
+//    }
+//    fData[IPAIRSYNCH] = (Double_t) fakeps;
+
   fData[ITIMESLOT] = (Double_t)(((int)GetData(IOVERSAMPLE) & 0xff00) >> 8);
-  // kluge for 1..(n-1),0 counting of TB prototype
+  // kluge to correct new timing boards, with os counting 1,2...(n-1),0
+  // needs first line to assure that it will work with old timeboard data also.
+  fData[ITIMESLOT] = ((UInt_t) fData[ITIMESLOT] % (UInt_t) fgOversample);
   if (fData[ITIMESLOT]==0) fData[ITIMESLOT] = fgOversample;
+
+
 #else
   fgHelfile >> fData[IHELICITY] >> fData[IPAIRSYNCH]
 	    >> fData[IQUADSYNCH] >> fData[ITIMESLOT];
+#endif
 //    clog << "TaEvent::Load hel/ps/qs/ts: " 
 //         << " " << fData[IHELICITY]
 //         << " " << fData[IPAIRSYNCH]
 //         << " " << fData[IQUADSYNCH]
 //         << " " << fData[ITIMESLOT] << endl;
-#endif
+
 // Remember to set the "used" flag (to use for root output).
 // Probably safer to put this outside of the "ifndef"
   if (devices.IsUsed(ITIRDATA)) {  
      devices.SetUsed(IHELICITY);
      devices.SetUsed(IPAIRSYNCH); 
-     devices.SetUsed(IQUADSYNCH);
-// Don't forget to add quadsynch
+     devices.SetUsed(IQUADSYNCH); 
   }
   if (devices.IsUsed(IOVERSAMPLE)) devices.SetUsed(ITIMESLOT);
 };
@@ -788,6 +803,7 @@ TaEvent::AddToTree (TaDevice& devices,
         strcpy(tinfo,keystr.c_str());  strcat(tinfo,"/D");
   	rawtree.Branch(keystr.c_str(), &fData[key], tinfo, bufsize);
     }
+
 
     for (Cut_t icut = Cut_t (0); icut < cutlist.GetNumCuts(); ++icut)
       {

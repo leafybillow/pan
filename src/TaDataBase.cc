@@ -62,8 +62,8 @@ TaDataBase::TaDataBase() {
      fFirstScalPed = new Bool_t(kTRUE);
      nbadev = 0;
      rootdb = new TaRootRep();
-     dacparam = new Double_t[2*MAXADC*MAXCHAN];     
-     memset(dacparam,0,2*MAXADC*MAXCHAN*sizeof(Double_t));
+     dacparam = new Double_t[MAXADC*MAXCHAN];     
+     memset(dacparam,0,MAXADC*MAXCHAN*sizeof(Double_t));
      adcped = new Double_t[MAXADC*MAXCHAN];
      memset(adcped,0,MAXADC*MAXCHAN*sizeof(Double_t));
      scalped = new Double_t[MAXSCAL*MAXSCALCHAN];
@@ -364,13 +364,13 @@ Bool_t TaDataBase::SelfCheck() {
    if (itest != 0 && itest != 8 ) {
      cerr << "DataBase:: WARNING:  windelay = "<<itest<<" seems wrong."<<endl;
    }
-   if (itest < 0 || itest > 8 ) {
-     cerr << "DataBase:: SelfCheck ERROR:  'windelay' = " << itest << " outside range 0-8" <<endl;
+   if (itest < 0 || itest > 12 ) {
+     cerr << "DataBase:: SelfCheck ERROR:  'windelay' = " << itest << " outside range 0-12" <<endl;
      allok = kFALSE;
    }
    itest = GetOverSamp();
-   if (itest <= 0 || itest > 12 ) {
-     cerr << "DataBase:: SelfCheck ERROR:  'oversamp' = " << itest << " outside range 0-12" <<endl;
+   if (itest <= 0 || itest > 15 ) {
+     cerr << "DataBase:: SelfCheck ERROR:  'oversamp' = " << itest << " outside range 0-15" <<endl;
      allok = kFALSE;
    }
    stest = GetAnaType();
@@ -400,7 +400,6 @@ TaDataBase::Checkout()
       cout << "\n  channel " << chan;
       cout << "   ped = " << GetAdcPed(adc,chan);
       cout << "   dac slope = " << GetDacNoise(adc,chan,"slope");
-      cout << "   dac int = " << GetDacNoise(adc,chan,"int");
     }
   }  
   cout << "\n\nPedestal parameters for a few scalers : " << endl;
@@ -720,7 +719,7 @@ Double_t TaDataBase::GetData(dtype *d) const {
 };
 
 Double_t TaDataBase::GetDacNoise(const Int_t& adc, const Int_t& chan, const string& key) const {
-// Get Dac noise parameters for adc,chan with key = 'slope' or 'intercept'
+// Get Dac noise parameters for adc,chan with key = 'slope'
   if (!didinit) {
       cerr << "DataBase::GetDacNoise ERROR: Database not initialized\n";
       return 0;
@@ -737,7 +736,6 @@ Double_t TaDataBase::GetDacNoise(const Int_t& adc, const Int_t& chan, const stri
      keys.push_back("adc");   
      keys.push_back("chan");
      keys.push_back("slope");
-     keys.push_back("int");
      vector<Double_t> data = GetData("dacnoise",keys);
      int iadc,ichan;
      int index = 0;
@@ -751,7 +749,6 @@ Double_t TaDataBase::GetDacNoise(const Int_t& adc, const Int_t& chan, const stri
            if (idx < MAXADC*MAXCHAN) 
              {
               dacparam[idx] = data[index+2];
-              dacparam[idx+MAXADC*MAXCHAN] = data[index+3];
              }
           }
         index += keys.size();
@@ -762,10 +759,6 @@ Double_t TaDataBase::GetDacNoise(const Int_t& adc, const Int_t& chan, const stri
       {
        if (TaString(key).CmpNoCase("slope") == 0) return dacparam[idx];
       }
-    if (TaString(key).CmpNoCase("int") == 0 || TaString(key).CmpNoCase("intercept") == 0)
-      {
-      return dacparam[idx+MAXADC*MAXCHAN];
-      } 
     else 
       {
      cerr << "WARNING: DataBase::GetDacNoise:";
@@ -1032,8 +1025,8 @@ TaDataBase::GetValueVector(const string& table) const {
    return result;
 };
 
-void TaDataBase::PutDacNoise(const Int_t& adc, const Int_t& chan, const Double_t& slope, const Double_t& intcpt) {
-// Put Dac noise parameters slope and intercept for adc,chan 
+void TaDataBase::PutDacNoise(const Int_t& adc, const Int_t& chan, const Double_t& slope) {
+// Put Dac noise parameters slope  for adc,chan 
   if (!didinit) {
       cerr << "DataBase::PutDacNoise ERROR: Database not initialized\n";
   }
@@ -1046,8 +1039,6 @@ void TaDataBase::PutDacNoise(const Int_t& adc, const Int_t& chan, const Double_t
   dat = new dtype("i");  dat->Load(chan);    dvec.push_back(dat);
   dat = new dtype("s");  dat->Load("slope"); dvec.push_back(dat);
   dat = new dtype("d");  dat->Load(slope);   dvec.push_back(dat);
-  dat = new dtype("s");  dat->Load("int");   dvec.push_back(dat);
-  dat = new dtype("d");  dat->Load(intcpt);  dvec.push_back(dat);
   didput = kTRUE;
   PutData(table, dvec);
 };
@@ -1055,7 +1046,7 @@ void TaDataBase::PutDacNoise(const Int_t& adc, const Int_t& chan, const Double_t
 void TaDataBase::PutAdcPed(const Int_t& adc, const Int_t& chan, const Double_t& ped) {
 // Put Pedestals for adc, chan 
   if (!didinit) {
-      cerr << "DataBase::PutDacNoise ERROR: Database not initialized\n";
+      cerr << "DataBase::PutAdcPed ERROR: Database not initialized\n";
   }
   string table = "ped";
   vector<dtype *> dvec;   dvec.clear();
@@ -1073,7 +1064,7 @@ void TaDataBase::PutAdcPed(const Int_t& adc, const Int_t& chan, const Double_t& 
 void TaDataBase::PutScalPed(const Int_t& scal, const Int_t& chan, const Double_t& ped) {
 // Put Pedestals for scaler, chan 
   if (!didinit) {
-      cerr << "DataBase::PutDacNoise ERROR: Database not initialized\n";
+      cerr << "DataBase::PutScalPed ERROR: Database not initialized\n";
   }
   string table = "ped";
   vector<dtype *> dvec;   dvec.clear();
@@ -1179,8 +1170,6 @@ void TaDataBase::InitDB() {
        columns.push_back(new dtype("i"));
        columns.push_back(new dtype("s"));
        columns.push_back(new dtype("i"));
-       columns.push_back(new dtype("s"));
-       columns.push_back(new dtype("d"));
        columns.push_back(new dtype("s"));
        columns.push_back(new dtype("d"));
     }

@@ -284,7 +284,7 @@ public:
 // Get feedback timescale 
   Int_t GetFdbkTimeScale(const string &fdbktype) const;  
   string GetFdbkMonitor(const string &fdbktype) const;  
-// Get Dac noise parameters for adc,chan with key = 'slope' or 'intercept'
+// Get Dac noise parameters for adc,chan with key = 'slope'
   Double_t GetDacNoise(const Int_t& adc, const Int_t& chan, 
         const string& key)const;  
 // Get Pedestals for adc, chan
@@ -345,8 +345,8 @@ public:
 // Only certain data can be modified by the analyzer,
 // the rest must be modified by hand, using scripts.
 // -------------------------------------------------
-// Put Dac noise parameters for adc,chan with key = 'slope' or 'intercept'
-  void PutDacNoise(const Int_t& adc, const Int_t& chan, const Double_t& slope, const Double_t& intcpt);
+// Put Dac noise parameters for adc,chan with key = 'slope'
+  void PutDacNoise(const Int_t& adc, const Int_t& chan, const Double_t& slope);
 // Put Pedestals for adc, chan
   void PutAdcPed(const Int_t& adc, const Int_t& chan, const Double_t& value);
 // Put Pedestals for scaler, chan

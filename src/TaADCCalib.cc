@@ -246,7 +246,7 @@ void TaADCCalib::FinishDAC()
       id = isl*ADC_MaxChan + ich + 1;
       if (chanExists[isl][ich] && filledOK[id]) {
 	cout << "  " << key << " : ";
-	cout << " Pedestal: " << x0[id] << " +/- " << Ex0[id] 
+	cout << " Pedestal: " << x0[id] + slope[id]*ADC_MinDAC << " +/- " << Ex0[id] 
 	     << "   Slope: " << slope[id] << " +/- " << Eslope[id] << endl;
       }
     }
@@ -263,10 +263,10 @@ void TaADCCalib::FinishDAC()
     for (Int_t ich=0; ich < ADC_MaxChan;  ich++) {
       id = isl*ADC_MaxChan + ich + 1;
       if (chanExists[isl][ich] && filledOK[id]) {
-	ofile << isl << "  " << ich << "  " << x0[id] << "  " 
+	ofile << isl << "  " << ich << "  " << x0[id]+slope[id]*ADC_MinDAC << "  " 
 	      << slope[id] << endl;
 	ofiledb << "    dacnoise adc " << isl << " chan " << ich
-		<< " slope " << slope[id] << " int 0" << endl;
+		<< " slope " << slope[id] << endl;
       }
     }
   }
@@ -276,7 +276,7 @@ void TaADCCalib::FinishDAC()
       id = isl*ADC_MaxChan + ich + 1;
       if (chanExists[isl][ich] && filledOK[id]) {
 	ofiledb	<< "    ped adc " << isl << " chan " << ich 
-		<< " value " << x0[id] << endl;
+		<< " value " << x0[id]+slope[id]*ADC_MinDAC << endl;
       }
     }
   }
