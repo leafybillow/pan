@@ -23,8 +23,7 @@
 #include "TaString.hh"
 #include "TaDataBase.hh"
 #include "VaAnalysis.hh"
-#include "TaBeamAna.hh"
-#include "TaPromptAna.hh"
+#include "TaStandardAna.hh"
 #include "TaDebugAna.hh"
 #include "TaADCCalib.hh"
 
