@@ -1,18 +1,43 @@
+// -*- c++ -*-
+
+//**********************************************************************
+//
+//     HALL A C++/ROOT Parity Analyzer  Pan           
+//
+//           frame.macro
+//
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
+//
+////////////////////////////////////////////////////////////////////////
+//
+//  Plot frame macro
+//
+// Opens a new canvas labelled with <run> prepended to <label>,
+// titled with "HAPPEX-II Run <run>" prepended to <title>.  Canvas has
+// a pave label containing the title at the top, and a single empty
+// pad below that.  Returns pointer to the canvas, and gPad is left
+// pointing to the empty pad.
+//
+////////////////////////////////////////////////////////////////////////
+
 TCanvas* frame (Int_t run, TString label, TString title)
 {
-  // Opens a new canvas labelled with <run> prepended to <label>,
-  // titled with "HAPPEX Run <run>" prepended to <title>.  Canvas has
-  // a pave label containing the title at the top, and a single empty
-  // pad below that.  Returns pointer to the canvas, and gPad is left
-  // pointing to the empty pad.
+  // static keyword causes a problem, lose this feature for now
+  //   static Int_t x0 = 200;
+  //   static Int_t y0 = 10;
+  Int_t x0 = 200;
+  Int_t y0 = 10;
 
   char buf[100];
   sprintf (buf, "%d_%s", run, label.Data());
   TString llabel = buf;
-  sprintf (buf, "HAPPEX Run %d: %s", run, title.Data());
+  sprintf (buf, "HAPPEX-II Run %d: %s", run, title.Data());
   TString ltitle = buf;
 
-  c1 = new TCanvas (llabel, ltitle, 200, 10, 750, 800);
+  c1 = new TCanvas (llabel, ltitle, x0, y0, 600, 800);
+  x0 %= 200; x0 += 250;
+  y0 %= 50; y0 += 10;
   c1->Range (0, 0, 100, 100);
   
   TPaveLabel *pl = new TPaveLabel (5, 95, 95, 99, buf, "br");
