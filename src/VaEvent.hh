@@ -155,7 +155,7 @@ private:
   static UInt_t fgOversample;  // oversample factor
   static UInt_t fgCurMon;      // index to current monitor for cuts
   static UInt_t fgCurMonC;     // index to current monitor for cuts
-  static UInt_t fgDetRaw[4];      // index to raw detector values for cuts
+  static UInt_t fgDetRaw[DETNUM];      // index to raw detector values for cuts
   static UInt_t fgNPosMon;     // number of Position Monitors for Pos Burp cut.
   static UInt_t fgPosMon[fgMaxNumPosMon];   
                                // index to beam monitors for cuts

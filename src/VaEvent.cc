@@ -60,13 +60,13 @@ Cut_t VaEvent::fgCBurpNo;
 UInt_t VaEvent::fgOversample;
 UInt_t VaEvent::fgCurMon;
 UInt_t VaEvent::fgCurMonC;
-UInt_t VaEvent::fgDetRaw[4];
+UInt_t VaEvent::fgDetRaw[DETNUM];
 UInt_t VaEvent::fgNPosMon;
 UInt_t VaEvent::fgPosMon[fgMaxNumPosMon];   
 UInt_t VaEvent::fgSizeConst;
 UInt_t VaEvent::fgNCuts;
 Bool_t VaEvent::fgCalib;
-UInt_t VaEvent::fgDetKey[4];
+UInt_t VaEvent::fgDetKey[DETNUM];
 Double_t VaEvent::fgCombWt[DETCOMBNUM][DETNUM];
 
 VaEvent::VaEvent(): 
