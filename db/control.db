@@ -93,7 +93,7 @@
 #   table  device-type dev-name read-type dev-num startchan evbuff-offset channel-names(keys)
     datamap   tir        tir      tir        0     0       104             tirdata  
     datamap   batt       batt1    adc        4      0       67             batt1 
-    datamap   batt       batt2    adc        4      0       68             batt2 
+    datamap   batt       batt2    adc        4      1       68             batt2 
     datamap   bcm        bcm1     adc        4      2       69              bcm1r
     datamap   bcm        bcm2     adc        4      3       70              bcm2r
     datamap   adc        adc4     adc        4     -9       71             csr4 dac4  
