@@ -54,9 +54,9 @@ $comment = "NULL";
 open (INPUT,"<ascii.db") ||
     die "Can't read input file";
 
-while ( <INPUT> ) {
-
+LINE: while ( <INPUT> ) {
     $line = $_;
+    next LINE if $line=~/^#/; # skip comment lines
     chop $line;
     @field = split(/\s+/,$line);
     $system = $field[0];

@@ -1,3 +1,5 @@
+# ascii file 
+# 
 ana pan    run 1024
 ana pan    maxevents 500000
 ana pan    runtype BEAM      
@@ -7,6 +9,7 @@ ana pan    burpcut 500
 ana pan    oversamp 1
 ana pan    windelay  0   
 ana pan    pairtype  pair
+# Dacnoise
 dacnoise adc0 chan0   0.0  0   
 dacnoise adc0 chan1   0.0  0   
 dacnoise adc0 chan2   0.0  0   
@@ -47,6 +50,7 @@ dacnoise adc9 chan0   0.0250  4450
 dacnoise adc9 chan1   0.0251  4451   
 dacnoise adc9 chan2   0.0252  4452   
 dacnoise adc9 chan3   0.0253  4453   
+# Pedestals
 ped adc0 chan0  0
 ped adc0 chan1  0
 ped adc0 chan2  0
