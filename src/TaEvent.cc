@@ -46,8 +46,12 @@ Double_t TaEvent::fgBurpCut;
 Cut_t TaEvent::fgLoBeamNo;
 Cut_t TaEvent::fgBurpNo;  
 Cut_t TaEvent::fgOversampleNo;
+UInt_t TaEvent::fgOversample;
 UInt_t TaEvent::fgSizeConst;
 UInt_t TaEvent::fgNCuts;
+#ifdef FAKEHEL
+ifstream TaEvent::fgHelfile("helicity.data");
+#endif
 
 TaEvent::TaEvent(): 
   fEvType(0),  
@@ -143,6 +147,7 @@ TaEvent::RunInit(const TaRun& run)
 	   << " cuts must be defined in database" << endl;
       return fgTAEVT_ERROR;
     }
+  fgOversample = run.GetOversample();
   fgLastEv = TaEvent();
   return fgTAEVT_OK;
 }
@@ -311,10 +316,20 @@ void TaEvent::Decode(const TaDevice& devices) {
     if (idx < 0) continue;
     fData[key+1] = fData[idx];
   }
+#ifndef FAKEHEL
   fData[IHELICITY] = (Double_t)(((int)GetData(ITIRDATA) & 0x40) >> 6);
   fData[IPAIRSYNCH] = (Double_t)(((int)GetData(ITIRDATA) & 0x80) >> 7);
+// Need to load fData[IQUADSYNCH] when that signal exists.
   fData[ITIMESLOT] = (Double_t)(((int)GetData(IOVERSAMPLE) & 0xff00) >> 8);
-
+#else
+  fgHelfile >> fData[IHELICITY] >> fData[IPAIRSYNCH]
+	    >> fData[IQUADSYNCH] >> fData[ITIMESLOT];
+//    clog << "TaEvent::Load hel/ps/qs/ts: " 
+//         << " " << fData[IHELICITY]
+//         << " " << fData[IPAIRSYNCH]
+//         << " " << fData[IQUADSYNCH]
+//         << " " << fData[ITIMESLOT] << endl;
+#endif
 };
 
 void
@@ -357,10 +372,10 @@ TaEvent::CheckEvent(TaRun& run)
 
       // Check time slot sequence
       val = 0;
-      if ( run.GetOversample() > 0 )
+      if ( fgOversample > 0 )
 	{ 
 	  if ( GetTimeSlot() != 
-	       fgLastEv.GetTimeSlot() % run.GetOversample() + 1 ) 
+	       fgLastEv.GetTimeSlot() % fgOversample + 1 ) 
 	    {
 	      cerr << "TaEvent::CheckEvent ERROR Event " 
 		   << GetEvNumber() 
@@ -515,6 +530,18 @@ EPairSynch TaEvent::GetPairSynch() const {
     return FirstPS;
   else 
     return SecondPS;
+};
+
+EQuadSynch TaEvent::GetQuadSynch() const {
+  // Return quadsynch for this event as FirstQS or
+  // OtherQS, tagging this as an event from the first or later
+  // window, repectively, of a helicity window quad.
+
+  Double_t val = GetData(IQUADSYNCH);
+  if (val == 1) 
+    return FirstQS;
+  else 
+    return OtherQS;
 };
 
 const vector < TaLabelledQuantity > & TaEvent::GetResults() const 

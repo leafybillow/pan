@@ -30,6 +30,11 @@
 #include <iterator>
 #include <string>
 #include <utility>
+//#define FAKEHEL
+#ifdef FAKEHEL
+#include <iostream>
+#include <fstream>
+#endif
 
 class TaDevice;
 class TTree;
@@ -80,6 +85,7 @@ public:
   EHelicity GetHelicity() const;     // (in time) helicity
   EHelicity GetDelHelicity() const;  // delayed helicity
   EPairSynch GetPairSynch() const;   // pair synch
+  EQuadSynch GetQuadSynch() const;   // quad synch
   const vector < TaLabelledQuantity > & GetResults() const; // results for event
   void RawDump() const;      // dump raw data for debugging.
   void DeviceDump() const;   // dump device data for debugging.
@@ -112,8 +118,12 @@ private:
   static Cut_t fgLoBeamNo;  // cut number for low beam
   static Cut_t fgBurpNo;    // cut number for beam burp
   static Cut_t fgOversampleNo; // cut number for oversample
+  static UInt_t fgOversample;  // oversample factor
   static UInt_t fgSizeConst;   // size of first physics event should be size of all
   static UInt_t fgNCuts;       // Length of cut array
+#ifdef FAKEHEL
+  static ifstream fgHelfile;   // fake helicity data file
+#endif
 
   // Data members
   Int_t *fEvBuffer;            // Raw event data
