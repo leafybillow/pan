@@ -18,6 +18,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include <string>
+#include <vector>
 #include "Rtypes.h"
 #include "PanTypes.hh"
 
@@ -44,6 +45,7 @@ class TaAnalysisManager
   ErrCode_t Init ();              // Initialization with online data
   ErrCode_t Init (RunNumber_t);   // Initialization with run number
   ErrCode_t Init (string);        // Initialization with file path
+  void SetDbCommand(vector<string> dbcommand);  // Over-ride database 
   ErrCode_t InitPass2 ();         // Initialization for second pass
   ErrCode_t Process();            // Process all data
   ErrCode_t EndPass1();           // End first pass analysis
@@ -64,6 +66,7 @@ class TaAnalysisManager
   TaRun* fRun;              // Requested run
   VaAnalysis* fAnalysis;    // Requested analysis
   Bool_t fOnlFlag;          // Flag indicating data is online
+  vector<string> dbcommand; // Database command to pass to fRun
 
 #ifdef DICT
   ClassDef (TaAnalysisManager, 0) // Drives the entire analysis.  

@@ -37,6 +37,8 @@ int main(int argc, char **argv)
   int choice = 0;
   char *cfilename;
   Bool_t twopass(false);
+  vector<string> dbcommand;
+  dbcommand.clear();
 
   signal(31, signalhandler);
 
@@ -74,11 +76,29 @@ int main(int argc, char **argv)
 	choice = 3;
       else if (strcasecmp(argv[i],"-2") == 0)
 	twopass = true;
+      else if (strcasecmp(argv[i],"-D") == 0) {
+        if (i > argc-1) {
+           usage();
+           return 1;
+	}        
+	int k = i;
+        int n = argc-i-1;
+        for (int j = 0; j < n; j++) {
+          ++k;
+          if (strstr(argv[k],"-") != NULL) {
+            goto cont1;
+          } else {
+            dbcommand.push_back(argv[k]);
+            ++i;
+	  }
+	}
+      }
       else
 	{
 	  usage();
 	  return 1;
 	}
+cont1:
       ++i;
     }
   
@@ -104,6 +124,7 @@ int main(int argc, char **argv)
     {
 
       am = new TaAnalysisManager();
+      am->SetDbCommand(dbcommand);
 
       // Command line use with run number, file name or online specified
       if (choice == 1) 
@@ -145,7 +166,7 @@ int main(int argc, char **argv)
 void usage() {
 // Prints usage instructions
 
-  cerr << "Usage:  pan [data source specifier] [-2]" << endl;
+  cerr << "Usage:  pan [data source specifier] [-2] [-D data]" << endl;
   cerr << "" << endl;
   cerr << "  where data source specifier is" << endl;
   cerr << "    -r runnum   to analyze run number <runnum>" << endl;
@@ -159,7 +180,8 @@ void usage() {
   cerr << "  Interactive prompt will be given if no data source is specified." << endl;
   cerr << "" << endl;
   cerr << "  Other options:" << endl;
-  cerr << "    -2          Do 2-pass analysis (with -r or -f only)." << endl;
+  cerr << "    -2             Do 2-pass analysis (with -r or -f only)." << endl;
+  cerr << "    -D table data  Database command line override" << endl;
   cerr << "" << endl;
   cerr << "  Valid examples:" << endl;
   cerr << "     ./pan -r 1824 -2" << endl;
@@ -168,6 +190,10 @@ void usage() {
   cerr << "     ./pan -o " << endl;
 #endif
   cerr << "     ./pan" << endl;
+  cerr << "     ./pan -r 1824 -D lobeam 500 pairtype pair" << endl;
+  cerr << "     ./pan -r 1824 -D control.db evint 5610  5824 8 1" << endl;
+  cerr << "     ./pan -r 1824 -D mysql -D maxevents 50000" << endl;
+  cerr << "     ./pan -r 1824 -D useroot parity02_1821.root" << endl;
 }
 
 void signalhandler(int sig)

@@ -21,7 +21,7 @@
 #include "TaAnalysisManager.hh" 
 #include "TaRun.hh"
 #include "TaString.hh"
-#include "VaDataBase.hh"
+#include "TaDataBase.hh"
 #include "VaAnalysis.hh"
 #include "TaBeamAna.hh"
 #include "TaPromptAna.hh"
@@ -88,6 +88,13 @@ TaAnalysisManager::Init (string runfile)
   return InitCommon();
 }
 
+void 
+TaAnalysisManager::SetDbCommand(vector<string> dbstrings) 
+{
+  // Over-ride database from command line
+  dbcommand = dbstrings;
+} 
+
 
 ErrCode_t
 TaAnalysisManager::InitPass2()
@@ -152,7 +159,7 @@ TaAnalysisManager::InitCommon()
   clog << "\nTaAnalysisManager::InitCommon: Start of analysis\n" << endl;
 
   // Initialize the run
-  int status = fRun->Init();
+  int status = fRun->Init(dbcommand);
   if (status != 0)
     return status;
 
