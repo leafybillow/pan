@@ -103,8 +103,8 @@
     datamap   scaler     scaler1    0   24       34  scaler1_25 scaler1_26 scaler1_27 scaler1_28
     datamap   scaler     scaler1    0   28       38  scaler1_29 scaler1_30 scaler1_31 scaler1_32
     ncuts 12        
-    evlo 10 10 10 10 10 10 0 0 0 0 20 
-    evhi 40 40 40 40 40 20 0 0 0 0 60 
+    extlo 10 10 10 10 10 10 0 0 0 0 20 
+    exthi 40 40 40 40 40 20 0 0 0 0 60 
     evint 21232  23442 4  1
     evint 32232  34554 6  1
     evint 35665  37440 4  1
