@@ -206,32 +206,6 @@ VaAnalysis::RunIni(TaRun& run)
       return fgVAANA_ERROR;
     }
 
-  // Extract the feedback parameters (if doing online feedback)
-  if (fOnlFlag) {
-     vector<string> mykey;
-     vector<Double_t> dtmp;
-     mykey.clear();
-     mykey.push_back("slope");
-     mykey.push_back("int");
-     dtmp = fRun->GetDataBase().GetData("IAparam",mykey);
-     if (dtmp.size() == 2) {
-         fIAslope = dtmp[0];     
-         fIAint = dtmp[1];
-     }
-     mykey.clear();
-     mykey.push_back("M11");
-     mykey.push_back("M12");
-     mykey.push_back("M21");
-     mykey.push_back("M22");
-     dtmp = fRun->GetDataBase().GetData("PZTparam",mykey);
-     if (dtmp.size() == fgMatrixSize) {
-         for (int kk = 0; kk < (long)fgMatrixSize; kk++) {
-              fPZTMatrix[kk] = dtmp[kk];     
-	 }
-     }
-  }
-
-  
   fPairTree = 0;
   fPairTree = new TTree("P","Pair data DST");
   InitChanLists();
@@ -245,18 +219,39 @@ VaAnalysis::RunIni(TaRun& run)
     fZpair[i]=0;
     fZsum4B[i].clear();
   }  
+  vector<string> mykey;
+  vector<Double_t> dtmp;
   if ( fRun->GetDataBase().GetFdbkSwitch("AQ") == "on") fQSwitch = kTRUE;
-  if ( fQSwitch && fOnlFlag ) 
+  if ( fQSwitch  ) 
     {
       fQTimeScale = fRun->GetDataBase().GetFdbkTimeScale("AQ");
       clog<< " feedback timescale "<<fQTimeScale<<endl;
+      mykey.clear();
+      mykey.push_back("slope");
+      mykey.push_back("int");
+      dtmp = fRun->GetDataBase().GetData("IAparam",mykey);
+      if (dtmp.size() == 2) {
+         fIAslope = dtmp[0];     
+         fIAint = dtmp[1];
+      }
     }
   if ( fRun->GetDataBase().GetFdbkSwitch("PZT") == "on") fZSwitch = kTRUE;
-  if ( fZSwitch && fOnlFlag ) 
+  if ( fZSwitch ) 
     {
       fZTimeScale = fRun->GetDataBase().GetFdbkTimeScale("PZT");
       clog<< " feedback timescale "<<fZTimeScale<<endl;
-    }
+      mykey.clear();
+      mykey.push_back("M11");
+      mykey.push_back("M12");
+      mykey.push_back("M21");
+      mykey.push_back("M22");
+      dtmp = fRun->GetDataBase().GetData("PZTparam",mykey);
+      if (dtmp.size() == fgMatrixSize) {
+         for (int kk = 0; kk < (long)fgMatrixSize; kk++) {
+              fPZTMatrix[kk] = dtmp[kk];     
+         }
+      }
+   }
 
   // Set pair type
 
@@ -383,8 +378,8 @@ VaAnalysis::RunFini()
   clog << "VaAnalysis::RunFini: Processed " << fEvtProc 
        << " (" << fPairProc << ") events (pairs)" << endl;
 
-  if (fQSwitch && fOnlFlag) QasyEndFeedback();
-  if (fZSwitch && fOnlFlag) PZTEndFeedback();
+  if (fQSwitch) QasyEndFeedback();
+  if (fZSwitch) PZTEndFeedback();
 
   if (fFirstPass)
     {
@@ -846,15 +841,15 @@ VaAnalysis::AutoPairAna()
 	}
     }
 
-  if (fQSwitch && fOnlFlag) QasyRunFeedback();
-  if (fZSwitch && fOnlFlag) PZTRunFeedback();
+  if (fQSwitch ) QasyRunFeedback();
+  if (fZSwitch ) PZTRunFeedback();
 }
 
 void 
 VaAnalysis::QasyRunFeedback(){
   // Intensity feedback routine.
 
-  if ( fQSwitch && fOnlFlag ){ 
+  if ( fQSwitch ){ 
     if ( fPair->PassedCuts() && fPair->PassedCutsInt(fRun->GetCutList()) ){
       fQNpair++;
       fQsum.push_back(fPair->GetAsy(IBCM1)*1E6);
@@ -941,7 +936,7 @@ void VaAnalysis::QasyEndFeedback(){
   // a feedback, this function needs enough pairs.
   // It checks the QAsym vector size, computes an error and 
   // tests the value and sends it.
- if ( fQSwitch && fOnlFlag ){ 
+ if ( fQSwitch ){ 
   if (fQsum.size() > fQTimeScale ) {     
     fQNpair = fQsum.size();
     fQfeedNum = -1; // arbitrary end feedback number is -1
@@ -1044,7 +1039,11 @@ void VaAnalysis::QasySendEPICS(){
       sprintf(cinfo," 1 %6.2f",setpoint);
       strcat(command, cinfo);
       clog << "Command for IA feedback "<<command<<endl;
-      system(command);
+      if (fOnlFlag) {
+           system(command);
+      } else {
+  	   clog << "Command not sent because we are not running online"<<endl;
+      }
     }
 }
 
@@ -1054,7 +1053,7 @@ void VaAnalysis::PZTRunFeedback(){
   // do feedback at bpms at the injector in the 5 MeV region....if it is the case 
   // just replace the name of the bpm.  
 
-  if (fZSwitch && fOnlFlag){ 
+  if (fZSwitch ){ 
     if ( fPair->PassedCuts() && fPair->PassedCutsInt(fRun->GetCutList())){     
        fZNpair++;
        //       clog<<"good pair for PZT"<<endl;
@@ -1151,7 +1150,7 @@ void VaAnalysis::PZTRunFeedback(){
 
 void VaAnalysis::PZTEndFeedback(){
   // Position feedback at end of run
-  if (fZSwitch && fOnlFlag){
+  if (fZSwitch){
      if ((fZsum4B[0].size() > fQTimeScale*900) && 
          (fZsum4B[1].size() > fQTimeScale*900)){     
          fZfeedNum = -1; // arbitrary end feedback number is -1
@@ -1271,12 +1270,20 @@ void VaAnalysis::PZTSendEPICS(){
       sprintf(cinfo," 2 %6.2f",fdbk[0]);
       strcat(command, cinfo);
       clog << "Command for PZT X feedback :  " << command<<endl;
-      system(command);
+      if (fOnlFlag) {
+           system(command);
+      } else {
+  	   clog << "Command not sent because we are not running online"<<endl;
+      }
       sprintf(cinfo," 3 %6.2f",fdbk[1]);
       strcpy(command,comm0);
       strcat(command, cinfo);
       clog << "Command for PZT Y feedback :  " << command<<endl;
-      system(command);
+      if (fOnlFlag) {
+           system(command);
+      } else {
+  	   clog << "Command not sent because we are not running online"<<endl;
+      }
     }
 }
 
