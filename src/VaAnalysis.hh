@@ -154,7 +154,7 @@ protected:
   virtual void QasySendEPICS();
   virtual void PZTSendEPICS();
   virtual void SendVoltagePZT();
-
+  virtual void GetLastSetPt();
 
   // Data members
   TaRun* fRun;                  // Run being analyzed
@@ -216,9 +216,9 @@ protected:
   Double_t fZ4BRMS[2];          // feedback data
   Double_t fZ4Bdiff[2];         // feedback data
   Double_t fZ4BdiffEr[2];       // feedback data
-  Double_t fIAslope,fIAint;     // slope and intercept of IA feedback
+  Double_t fIAslope;            // slope of IA feedback
   Double_t *fPZTMatrix;         // PZT matrix
-  Double_t *fBpmOff;            // Offset in BPM diffs (when setpoint=0)
+  Double_t fIAlast,fPZTXlast,fPZTYlast;
 
   // Define LEAKCHECK to check that new = del
 #define LEAKCHECK
@@ -237,3 +237,8 @@ protected:
 };
 
 #endif
+
+
+
+
+

@@ -629,17 +629,11 @@ void TaAsciiDB::InitDB() {
       columns.push_back(new dtype("s"));
       columns.push_back(new dtype("i"));
     }
-    if (i == 18) {   // IA slope and intercept
-       columns.push_back(new dtype("s"));
-       columns.push_back(new dtype("d"));
+    if (i == 18) {   // IA slope 
        columns.push_back(new dtype("s"));
        columns.push_back(new dtype("d"));
     }
-    if (i == 19) {   // PZT matrix
-       columns.push_back(new dtype("s"));
-       columns.push_back(new dtype("d"));
-       columns.push_back(new dtype("s"));
-       columns.push_back(new dtype("d"));
+    if (i == 19) {   // PZT matrix 
        columns.push_back(new dtype("s"));
        columns.push_back(new dtype("d"));
        columns.push_back(new dtype("s"));

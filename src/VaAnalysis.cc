@@ -58,6 +58,7 @@
 #include "TaAsciiDB.hh"
 #include "VaPair.hh"
 #include <iostream>
+#include <stdio.h>
 
 #ifdef DICT
 ClassImp(VaAnalysis)
@@ -101,7 +102,9 @@ VaAnalysis::VaAnalysis():
   fPairType(FromPair),
   fFirstPass(true),
   fIAslope(0),
-  fIAint(0)
+  fIAlast(0),
+  fPZTXlast(0),
+  fPZTYlast(0)
 { 
   fEHelDeque.clear(); 
   fEDeque.clear(); 
@@ -109,9 +112,7 @@ VaAnalysis::VaAnalysis():
   fTreeList.clear();
   fEvt = new TaEvent();
   fPZTMatrix = new Double_t[2*fgNumBpmFdbk];
-  fBpmOff = new Double_t[fgNumBpmFdbk];
   memset(fPZTMatrix, 0, 2*fgNumBpmFdbk*sizeof(Double_t));
-  memset(fBpmOff, 0, fgNumBpmFdbk*sizeof(Double_t));
 #ifdef LEAKCHECK
   ++fLeakNewEvt;
 #endif
@@ -137,7 +138,6 @@ VaAnalysis::~VaAnalysis()
   delete fPairTree;
   delete[] fTreeSpace;
   delete[] fPZTMatrix;
-  delete[] fBpmOff;
 #ifdef LEAKCHECK
   ++fLeakDelEvt;
   ++fLeakDelPair;
@@ -231,12 +231,11 @@ VaAnalysis::RunIni(TaRun& run)
       clog<< " feedback timescale "<<fQTimeScale<<endl;
       mykey.clear();
       mykey.push_back("slope");
-      mykey.push_back("int");
       dtmp = fRun->GetDataBase().GetData("IAparam",mykey);
-      if (dtmp.size() == 2) {
+      if (dtmp.size() == 1) {
          fIAslope = dtmp[0];     
-         fIAint = dtmp[1];
       }
+      cout << "fIAslope = "<<fIAslope<<endl;
     }
   if ( fRun->GetDataBase().GetFdbkSwitch("PZT") == "on") fZSwitch = kTRUE;
   if ( fZSwitch ) 
@@ -248,18 +247,13 @@ VaAnalysis::RunIni(TaRun& run)
       mykey.push_back("M12");
       mykey.push_back("M21");
       mykey.push_back("M22");
-      mykey.push_back("xoff");
-      mykey.push_back("yoff");
       dtmp = fRun->GetDataBase().GetData("PZTparam",mykey);
-      if (dtmp.size() == 3*fgNumBpmFdbk) {  // matrix and offset
+      if (dtmp.size() == 2*fgNumBpmFdbk) {  // matrix and offset
          for (int kk = 0; kk < 2*(long)fgNumBpmFdbk; kk++) {
               fPZTMatrix[kk] = dtmp[kk];     
          }
-         fBpmOff[0] = dtmp[2*fgNumBpmFdbk];
-         fBpmOff[1] = dtmp[2*fgNumBpmFdbk+1];
       }
       cout << "PZT Matrix "<<fPZTMatrix[0]<<"  "<<fPZTMatrix[1]<<"  "<<fPZTMatrix[2]<<"  "<<fPZTMatrix[3]<<endl;
-      cout << "fBpmOff  "<<fBpmOff[0]<<"     "<<fBpmOff[1]<<endl;
    }
   
 
@@ -1028,6 +1022,27 @@ void VaAnalysis::SendVoltagePC(){
     }
 }
 
+void VaAnalysis::GetLastSetPt() {
+  FILE *fd;
+  fd = fopen("/adaqfs/halla/apar/feedback/latest.value","r");
+  if (fd == NULL) {
+    cout << "ERROR: Cannot open latest value of set points !\n"<<endl;
+    return;
+  }
+  static char strin[100],epicsvar[100];
+  float epicsval;
+  for (int i = 0; i<3; i++){
+    if (fgets(strin,100,fd) != NULL) {
+       sscanf(strin,"%s %f",&epicsvar,&epicsval);
+        if (i==0) fPZTXlast = epicsval;
+        if (i==1) fPZTYlast = epicsval;
+        if (i==2) fIAlast = epicsval;
+    }
+  }      
+  cout << "Check of last EPICS values "<<fPZTXlast<<"  "<<fPZTYlast<<"  "<<fIAlast<<endl;
+}
+
+
 void VaAnalysis::QasySendEPICS(){
   // Send intensity feedback value to EPICS
     if ( abs(Int_t(fQasy)) < 25 || abs(Int_t(fQasy)) > 25 && 
@@ -1035,6 +1050,7 @@ void VaAnalysis::QasySendEPICS(){
         // CRITERIA are OK.  
       //      clog<<" fQasy and fQasy/fQasyEr :"<<fQasy<<" "<< abs(Int_t(fQasy)/(Int_t(fQasyEr)))<<endl;
       clog<<" \n             *** Pan is sending EPICS values for PC *** "<<endl;
+      GetLastSetPt();
       static char command[100],cinfo[100];
       char *commpath;
       commpath = getenv("EPICS_SCRIPTS");
@@ -1045,7 +1061,8 @@ void VaAnalysis::QasySendEPICS(){
       }
       strcat(command,"/epics_feedback");
       float setpoint = 0;
-      if (fIAslope != 0) setpoint = (fQasy - fIAint)/fIAslope;
+
+      if (fIAslope != 0) setpoint = fIAlast + (fQasy)/fIAslope;
       sprintf(cinfo," 1 %6.2f",setpoint);
       strcat(command, cinfo);
       clog << "Command for IA feedback "<<command<<endl;
@@ -1255,6 +1272,7 @@ void VaAnalysis::PZTSendEPICS(){
          abs(Int_t(fZ4Bdiff[1])/(Int_t(fZ4BdiffEr[1]))) > 2)) {
 
       clog<<" \n             *** Pan is sending EPICS values for PZT *** "<<endl;
+      GetLastSetPt();
       static char comm0[100],command[100],cinfo[100];
       static Double_t pztinv[4],fdbk[2];
       char *commpath;
@@ -1275,8 +1293,8 @@ void VaAnalysis::PZTSendEPICS(){
         pztinv[2] = -1*fPZTMatrix[2]/determ;
         pztinv[3] = fPZTMatrix[0]/determ;
       }
-      fdbk[0] = pztinv[0]*(fZ4Bdiff[0]-fBpmOff[0]) + pztinv[1]*(fZ4Bdiff[1]-fBpmOff[1]);
-      fdbk[1] = pztinv[2]*(fZ4Bdiff[0]-fBpmOff[0]) + pztinv[3]*(fZ4Bdiff[1]-fBpmOff[1]);
+      fdbk[0] = fPZTXlast + pztinv[0]*(fZ4Bdiff[0]) + pztinv[1]*(fZ4Bdiff[1]);
+      fdbk[1] = fPZTYlast + pztinv[2]*(fZ4Bdiff[0]) + pztinv[3]*(fZ4Bdiff[1]);
       sprintf(cinfo," 2 %6.2f",fdbk[0]);
       strcat(command, cinfo);
       clog << "Command for PZT X feedback :  " << command<<endl;
