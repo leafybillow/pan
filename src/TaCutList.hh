@@ -9,12 +9,15 @@
 //
 ////////////////////////////////////////////////////////////////////////
 //
-//    List of cuts intervals.  The cut list for a given run identifies
-//    all the intervals during which a cut condition existed.  It also
-//    contains extensions for each cut type, telling how many events
-//    to extend each interval before and after the stored event numbers;
-//    a tally of events failing each cut type; and labels for the cut 
-//    types.
+// Container of cut intervals for a given run. The cut list for a
+// given run identifies all the intervals during which a cut condition
+// existed.  It also contains extensions for each cut type, telling
+// how many events to extend each interval before and after the stored
+// event numbers; a tally of events failing each cut type; and labels
+// for the cut types.  It provides functions to add cut intervals to
+// the list and to determine with intervals, if any, a given event is
+// in. The cut list is initialized from the database and updated after
+// each event is preprocessed.
 //
 ////////////////////////////////////////////////////////////////////////
 

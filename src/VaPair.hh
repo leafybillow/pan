@@ -1,30 +1,24 @@
 #ifndef PAN_VaPair
 #define PAN_VaPair 
-//////////////////////////////////////////////////////////////////////////
+//**********************************************************************
 //
-//     HALL A C++/ROOT parity analyzer  Pan           
+//     HALL A C++/ROOT Parity Analyzer  Pan           
 //
-//              VaPair.hh           Author : A. Vacheret, R. S. Holmes
+//       VaPair.cc  (implementation)
 //
-//    base class of pairing process in analyis of runs     
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
 //
-//    Round 1-2 Sep-Oct 2001  AV
-//    Extensively modified Dec 2001 RSH
+////////////////////////////////////////////////////////////////////////
 //
-//  This class is implemented as follow:
-// 
-//  The VaAnalysis object will create a pair object at the beginning
-//  of run analysis. A event "ring" will be created and seen by all 
-//  the pair object created after (it will be shared because declared 
-//   as STATIC ).
-//  The purpose of this object is to accummulate events and when pairing 
-//  is possible, we compute results, send these results to the pair tree     
-//  and send it again to the acccumpair() function of the Analysismanager.
-//  if not the event is discarded.
-//  In case of oversampling it will still events in the ring and a new pair
-//  will created if slot numbers matched together. 
+// Base class for pairs of events of opposite helicities.  Contains
+// (when full) two events, as well as the results of analysis of that
+// pair. Different derived classes correspond to different beam
+// helicity structures, i.e., different methods of getting a pair from
+// an event sequence. Methods are provided to compute differences and
+// asymmetries for a given device.
 //
-//////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 #include "Rtypes.h"
 #include <deque>
@@ -60,11 +54,14 @@ public:
   const vector<TaLabelledQuantity>& GetResults() const;
   
 protected:
-  
-  static deque< TaEvent > fgEventQueue;
-  TaEvent fEvLeft;
-  TaEvent fEvRight;
-  vector<TaLabelledQuantity> fResults;
+
+  // Static data members  
+  static deque< TaEvent > fgEventQueue;  // Events waiting to be paired
+
+  // Data members
+  TaEvent fEvLeft;                       // "Left" helicity event
+  TaEvent fEvRight;                      // "Right" helicity event
+  vector<TaLabelledQuantity> fResults;   // Pair analysis results
   
 #ifdef DICT
   ClassDef( VaPair, 0 )  // Base class for helicity pairs

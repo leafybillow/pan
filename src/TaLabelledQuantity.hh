@@ -50,7 +50,7 @@ private:
   string fUnits;  // Units for the quantity
 
 #ifdef DICT
-  ClassDef(TaLabelledQuantity, 0)
+  ClassDef(TaLabelledQuantity, 0)  // Quantity with label and units
 #endif
 
 };

@@ -58,7 +58,7 @@ private:
   static Bool_t  fgNeedHelCheck; // need to check helicity on next first event
 
 #ifdef DICT
-  ClassDef(TaPairFromPair, 0)  // Helicity pair from HAPPEX pair structure
+  ClassDef(TaPairFromPair, 0)  // Event pair from window pair helicity structure
 #endif
 };
 

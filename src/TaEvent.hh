@@ -12,11 +12,11 @@
 //
 ////////////////////////////////////////////////////////////////////////
 //
-//    An event of data.
-//    Includes methods to get data using keys.  For ADCs and 
-//    scalers can also get the data by slot number and channel.
-//    Events are loaded from a data source and may have analysis results
-//    added to them; they may be checked for cut conditions.
+//    An event of data. Includes methods to get data using keys.  For
+//    ADCs and scalers can also get the data by slot number and
+//    channel.  Events are loaded from a data source and may have
+//    analysis results added to them; they may be checked for cut
+//    conditions.
 //
 ////////////////////////////////////////////////////////////////////////
 

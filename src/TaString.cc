@@ -1,15 +1,22 @@
-//////////////////////////////////////////////////////////////////////////
+//**********************************************************************
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
-//       TaString.hh  (header file)
-//       ^^^^^^^^^^^
+//       TaString.cc  (implementation)
 //
-//    Authors :  R. Holmes, A. Vacheret, R. Michaels
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
 //
-//    Class for improved strings
+////////////////////////////////////////////////////////////////////////
 //
-//    Inherits from STL string, but with additional methods.
+// Derives from STL string; provides additional methods.  No
+// additional storage is defined, so strings and TaStrings can be
+// converted back and forth as needed; e.g. to convert a string to
+// lowercase you can do something like
+//
+//      string mixedstring ("MixedCaseString");
+//      TaString temp = mixedstring;
+//      string lowerstring = temp.ToLower();
 //
 ////////////////////////////////////////////////////////////////////////
 
@@ -29,7 +36,9 @@ ClassImp(TaString)
 int 
 TaString::CmpNoCase (const string& s)
 {
-  // case insensitive compare
+  // Case insensitive compare.  Returns -1 if "less", 0 if equal, 1 if
+  // "greater".
+
   string::const_iterator p = this->begin();
   string::const_iterator p2 = s.begin();
 
@@ -47,7 +56,7 @@ TaString::CmpNoCase (const string& s)
 vector<string> 
 TaString::Split()
 {
-  // split on whitespace
+  // Split on whitespace.
   istrstream ist(this->c_str());
   string w;
   vector<string> v;
@@ -61,7 +70,7 @@ TaString::Split()
 UInt_t 
 TaString::Hex()
 {
-  // conversion to to unsigned interpreting as hex
+  // Conversion to to unsigned interpreting as hex.
   istrstream ist(this->c_str());
   UInt_t in;
   ist >> hex >> in;
@@ -71,7 +80,7 @@ TaString::Hex()
 TaString 
 TaString::ToLower ()
 {
-  // conversion to lower case
+  // Conversion to lower case.
   TaString::const_iterator p = this->begin();
   TaString result("");
   while (p != this->end()) 
@@ -85,7 +94,7 @@ TaString::ToLower ()
 TaString 
 TaString::ToUpper ()
 {
- // conversion to lower case
+ // Conversion to lower case.
   TaString::const_iterator p = this->begin();
   TaString result("");
   while (p != this->end()) 

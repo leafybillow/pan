@@ -1,20 +1,27 @@
-//////////////////////////////////////////////////////////////////////////
+#ifndef PAN_TaString
+#define PAN_TaString
+
+//**********************************************************************
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
-//       TaString.hh  (header file)
-//       ^^^^^^^^^^^
+//       TaString.hh  (interface)
 //
-//    Authors :  R. Holmes, A. Vacheret, R. Michaels
-//
-//    Class for improved strings
-//
-//    Inherits from STL string, but with additional methods.
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
 //
 ////////////////////////////////////////////////////////////////////////
-
-#ifndef PAN_TaString
-#define PAN_TaString
+//
+// Derives from STL string; provides additional methods.  No
+// additional storage is defined, so strings and TaStrings can be
+// converted back and forth as needed; e.g. to convert a string to
+// lowercase you can do something like
+//
+//      string mixedstring ("MixedCaseString");
+//      TaString temp = mixedstring;
+//      string lowerstring = temp.ToLower();
+//
+////////////////////////////////////////////////////////////////////////
 
 #include "Rtypes.h"
 #include <string>
