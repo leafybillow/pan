@@ -16,7 +16,7 @@ root [2] .x connect.c
 
 -----
 
- Mysql can be dowloaded from http://www.mysql.com 
+ Mysql can be downloaded from http://www.mysql.com 
  It is also found at CUE in /apps/mysql/
  Use Mysql version: mysql-3.23.xx 
  
