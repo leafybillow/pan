@@ -85,56 +85,14 @@ TaFileName::TaFileName (const string s,
   //   $PAN_ROOT_FILE_SUFFIX      root
   //   $PAN_OUTPUT_FILE_PATH      .
 
-  string path (".");
-  string tags ("");
-  string suffix ("");
-  string base = fgBaseName;
+  Create (s, com, suf);
+}
 
-  if (fgBaseName == "")
-    Setup (0, "");
-
-  if (s == "coda")
-    {
-      suffix = GetEnvOrDef ("PAN_CODA_FILE_SUFFIX", "dat");
-      path = GetEnvOrDef ("PAN_CODA_FILE_PATH", ".");
-    }
-  else if (s == "db")
-    {
-      suffix = GetEnvOrDef ("PAN_DB_FILE_SUFFIX", "db");
-      path = GetEnvOrDef ("PAN_DB_FILE_PATH", "./db");
-    }
-  else if (s == "dbdef")
-    {
-      suffix = GetEnvOrDef ("PAN_DB_FILE_SUFFIX", "db");
-      path = GetEnvOrDef ("PAN_DB_FILE_PATH", ".");
-      base = "control";
-    }
-  else if (s == "root")
-    {
-      suffix = GetEnvOrDef ("PAN_ROOT_FILE_SUFFIX", "root");
-      path = GetEnvOrDef ("PAN_ROOT_FILE_PATH", ".");
-    }
-  else if (s == "output")
-    {
-      suffix = suf;
-      path = GetEnvOrDef ("PAN_OUTPUT_FILE_PATH", ".");
-    }
-  else
-    {
-      clog << "TaFileName::TaFileName ERROR: Unknown filename type " << s << endl;
-      fFileName = "ERROR";
-      return;
-    }
-
-  if (s == "root" || s == "output")
-    {
-      if (fgAnaStr != "")
-	tags += string ("_") + fgAnaStr;
-      if (com != "")
-	tags += string ("_") + com;
-    }
-
-  fFileName = path + string("/") + base + tags + string(".") + suffix;
+TaFileName::TaFileName (const char* s, 
+			const char* com = "", 
+			const char* suf = "")
+{
+  Create (string (s), string (com), string (suf));
 }
 
 TaFileName::TaFileName (const TaFileName& fn)
@@ -193,8 +151,70 @@ TaFileName::Setup (RunNumber_t r, string a)
   fgAnaStr = a;
 }
 
+void 
+TaFileName::Setup (RunNumber_t r, char* a)
+{
+  Setup (r, string (a));
+}
+
 // Private member functions
 
+void
+TaFileName::Create (const string s, 
+		    const string com = "", 
+		    const string suf = "")
+{
+  string path (".");
+  string tags ("");
+  string suffix ("");
+  string base = fgBaseName;
+
+  if (fgBaseName == "")
+    Setup (0, "");
+
+  if (s == "coda")
+    {
+      suffix = GetEnvOrDef ("PAN_CODA_FILE_SUFFIX", "dat");
+      path = GetEnvOrDef ("PAN_CODA_FILE_PATH", ".");
+    }
+  else if (s == "db")
+    {
+      suffix = GetEnvOrDef ("PAN_DB_FILE_SUFFIX", "db");
+      path = GetEnvOrDef ("PAN_DB_FILE_PATH", "./db");
+    }
+  else if (s == "dbdef")
+    {
+      suffix = GetEnvOrDef ("PAN_DB_FILE_SUFFIX", "db");
+      path = GetEnvOrDef ("PAN_DB_FILE_PATH", ".");
+      base = "control";
+    }
+  else if (s == "root")
+    {
+      suffix = GetEnvOrDef ("PAN_ROOT_FILE_SUFFIX", "root");
+      path = GetEnvOrDef ("PAN_ROOT_FILE_PATH", ".");
+    }
+  else if (s == "output")
+    {
+      suffix = suf;
+      path = GetEnvOrDef ("PAN_OUTPUT_FILE_PATH", ".");
+    }
+  else
+    {
+      clog << "TaFileName::TaFileName ERROR: Unknown filename type " << s << endl;
+      fFileName = "ERROR";
+      return;
+    }
+
+  if (s == "root" || s == "output")
+    {
+      if (fgAnaStr != "")
+	tags += string ("_") + fgAnaStr;
+      if (com != "")
+	tags += string ("_") + com;
+    }
+
+  fFileName = path + string("/") + base + tags + string(".") + suffix;
+}
 
 // Non member functions
 

@@ -31,6 +31,9 @@ public:
   TaFileName (const string s, 
 	      const string c = "", 
 	      const string suf = "");
+  TaFileName (const char* s, 
+	      const char* c = "", 
+	      const char* suf = "");
   TaFileName (const TaFileName&);
   virtual ~TaFileName() {};
   TaFileName& operator= (const TaFileName&);
@@ -38,10 +41,12 @@ public:
   // Major functions
 
   static void Setup (RunNumber_t r, string a);
+  static void Setup (RunNumber_t r, char* a);
 
   // Access functions
 
   const string& String() { return fFileName; }
+  const char* C_str() { return fFileName.c_str(); }
 
 private:
   
@@ -49,6 +54,12 @@ private:
 
   static string fgAnaStr;      // name of analysis type
   static string fgBaseName;    // base name: "prefix_runnumber"
+
+  // private methods
+
+  void Create (const string s, 
+	       const string c = "", 
+	       const string suf = "");
 
   // Data members
 
