@@ -710,7 +710,7 @@ void TaAsciiDB::InitDataMap() {
   dmapiter = datamap.begin();
   initdm = kTRUE;
 // Comment: should CHECK datamap, in case of typo errors.
-  PrintDataMap();   // DEBUG
+//  PrintDataMap();   // DEBUG
 };
 
 void TaAsciiDB::PrintDataMap() {
