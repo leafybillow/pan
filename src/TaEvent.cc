@@ -82,8 +82,8 @@ TaEvent::RunInit(const TaRun& run)
   // to initial values.
 
   fgFirstDecode = true;
-  fgLoBeam = run.GetDataBase()->GetCutValue("lobeam");
-  fgBurpCut = run.GetDataBase()->GetCutValue("burpcut");
+  fgLoBeam = run.GetDataBase().GetCutValue("lobeam");
+  fgBurpCut = run.GetDataBase().GetCutValue("burpcut");
   fgLastEv = TaEvent();
 }
   
