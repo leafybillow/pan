@@ -36,18 +36,23 @@ Starting in the top level pan directory, do the following:
 In sh-like shells:
 
    export ROOTSYS=/usr/local/root/pro
+   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ROOTSYS/lib
+   export PATH=$PATH:$ROOTSYS/bin
 
 or in csh-like shells:
 
    setenv ROOTSYS /usr/local/root/pro
+   setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH:$ROOTSYS/lib
+   setenv PATH $PATH:$ROOTSYS/bin
 
-(substituting whatever path is appropriate on your system for the top
-level of the ROOT directory structure); then:
+(substituting in the first line whatever path is appropriate on your
+system for the top level of the ROOT directory structure -- you'll
+probably want to put these lines in your startup command files); then:
 
    cd codaclass
    make libcoda.a
    cd ../src
-   ln -s ../libcoda.a ./
+   ln -s ../codaclass/libcoda.a ./
    make clean
    make install
    cd ..
@@ -113,7 +118,9 @@ You can invoke Pan as follows
 
 (Rather to our surprise, in recent Red Hat Linux releases there is a
 news reader called Pan, which may get invoked instead of our Pan if
-you type "pan" rather than "./pan".)
+you type "pan" rather than "./pan".  If you'd rather, you can put "."
+at the front of your PATH to give it precedence.  Then "pan" should
+work.)
 
 Options may be given in any order.  Use "./pan -r XXXX" to analyze run
 number XXXX, from data file parityYY-XXXX.dat in the pan directory.
