@@ -130,11 +130,11 @@ VaPair::GetAsy (Int_t key)
 {
   // Get asymmetry in quantity indexed by key for this pair.
   Double_t denom = GetRight().GetData(key) + GetLeft().GetData(key);
-  if ( denom == 0 )
+  if ( denom <= 0 )
     {
-      cerr << "VaPair::GetAsy ERROR: Denominator is zero, key = " 
+      cerr << "VaPair::GetAsy ERROR: Denominator is <= zero, key = " 
            << key << endl;
-      return 0;
+      return -1;
     }
   return (GetRight().GetData(key) - GetLeft().GetData(key)) / denom;
 }
