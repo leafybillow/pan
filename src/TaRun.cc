@@ -364,6 +364,8 @@ TaRun::AccumPair(const VaPair& pr)
 	  fPSliceStats->Zero();
 	}
       clog << endl;
+      fCutList->PrintTally(clog);
+      clog << endl;
     }
 }
 
@@ -427,7 +429,9 @@ TaRun::Finish()
   if (fPRunStats != 0)
     PrintStats (*fPRunStats, fPStatsNames, fPStatsUnits);
 
-  //  clog << *fCutList << endl;
+  clog << endl;
+  fCutList->PrintTally(clog);
+  clog << endl;
 }
 
 
