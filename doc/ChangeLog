@@ -6,6 +6,18 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on  31 May 2004
+--------------------------------------
+
+ParamSave now indeed does warn you if it's making stuff up.
+
+A new method in TaCutList writes cut condition tallies to a results
+file, and TaRun::WriteRun calls that method.
+
+The pansummary.pl utility write out cut condition tallies found in the
+results file.
+
+ 
 Changes by R. Holmes on  30 May 2004
 --------------------------------------
 
