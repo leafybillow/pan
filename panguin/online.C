@@ -375,7 +375,6 @@ vector <TString> OnlineConfig::GetDrawCommand(UInt_t page, UInt_t nCommand)
       for(j=i+1; j<sConfFile[index].size(); j++) {
 	TString word = sConfFile[index][j];
 	if( (word.BeginsWith("\"")) && (word.EndsWith("\"")) ) {
-	  cout << "Urgent" << endl;
 	  title = word.ReplaceAll("\"","");
 	  out_command[3] = title;
 	  i = j;
