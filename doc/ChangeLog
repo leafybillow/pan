@@ -20,9 +20,19 @@ concatenated in GetTimestamp()) which can be used to init a TDatime
 object; then TDatime methods can be used to convert to other
 representations, if needed.
 
+Bob complained that e.g. "make install" was not regenerating
+DevTypes.hh when it was supposed to; I don't know why not (it works
+for me) but I did make a couple of changes related to this: the path
+(./) is specified for genDevTypes, and DevTypes.hh is deleted in "make
+clean".  DevTypes.hh is specified as a prerequisite for %.d.
+
 TaDataBase.{hh,cc} TaRun.cc
 
  o Timestamp in database.
+
+Makefile
+
+ o Improvements to genDevTypes invocation.
 
 
 Changes by R. Holmes on 10 Dec 2002
