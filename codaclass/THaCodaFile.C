@@ -29,58 +29,56 @@ ClassImp(THaCodaFile)
   THaCodaFile::THaCodaFile(TString fname) {
        ffirst = 0;
        init(fname);
-       int status = codaOpen(fname.Data(),"r");       // read only 
-       staterr("open",status);
+       codaOpen(fname.Data(),"r");       // read only 
   }
   THaCodaFile::THaCodaFile(TString fname, TString readwrite) {
        ffirst = 0;
        init(fname);
-       int status = codaOpen(fname.Data(),readwrite.Data());  // pass read or write flag
-       staterr("open",status);
+       codaOpen(fname.Data(),readwrite.Data());  // pass read or write flag
   }
 
 //Destructor
   THaCodaFile::~THaCodaFile () {
-       int status = codaClose();
-       staterr("close",status);
+       codaClose();
+       staterr("close",fStatus);
   };       
 
   int THaCodaFile::codaOpen(TString fname) {  
        init(fname);
-       int status = evOpen((char*)fname.Data(),"r",&handle);
-       staterr("open",status);
-       return status;
+       fStatus = evOpen((char*)fname.Data(),"r",&handle);
+       staterr("open",fStatus);
+       return fStatus;
   };
 
   int THaCodaFile::codaOpen(TString fname, TString readwrite) {  
       init(fname);
-      int status = evOpen((char*)fname.Data(),(char*)readwrite.Data(),&handle);
-      staterr("open",status);
-      return status;
+      fStatus = evOpen((char*)fname.Data(),(char*)readwrite.Data(),&handle);
+      staterr("open",fStatus);
+      return fStatus;
   };
 
 
   int THaCodaFile::codaClose() {
 // Close the file. Do nothing if file not opened.
     if( handle ) {
-      int status = evClose(handle);
+      fStatus = evClose(handle);
       handle = 0;
-      return status;
+      return fStatus;
     }
-    return CODA_OK;
+    fStatus = CODA_OK;
+    return fStatus;
   }
 
 
   int THaCodaFile::codaRead() {
 // codaRead: Reads data from file, stored in evbuffer.
 // Must be called once per event.
-    int status;
     if ( handle ) {
-       status = evRead(handle, evbuffer, MAXEVLEN);
-       staterr("read",status);
-       if (status != S_SUCCESS) {
-  	  if (status == EOF) return status;  // ok, end of file
-          status = CODA_ERROR;
+       fStatus = evRead(handle, evbuffer, MAXEVLEN);
+       staterr("read",fStatus);
+       if (fStatus != S_SUCCESS) {
+  	  if (fStatus == EOF) return fStatus;  // ok, end of file
+          fStatus = CODA_ERROR;
        }
     } else {
       if(CODA_VERBOSE) {
@@ -88,24 +86,23 @@ ClassImp(THaCodaFile)
          cout << "You need to call codaOpen(filename)" << endl;
          cout << "or use the constructor with (filename) arg" << endl;
       }
-      status = CODA_ERROR;
+      fStatus = CODA_ERROR;
     }
-    return status;
+    return fStatus;
   };
 
 
 
   int THaCodaFile::codaWrite(int *evbuffer) {
 // codaWrite: Writes data to file
-     int status;
      if ( handle ) {
-       status = evWrite(handle, evbuffer);
-       staterr("write",status);
+       fStatus = evWrite(handle, evbuffer);
+       staterr("write",fStatus);
      } else {
        cout << "codaWrite ERROR: tried to access file with handle = 0" << endl;
-       status = CODA_ERROR;
+       fStatus = CODA_ERROR;
      }
-     return status;
+     return fStatus;
    };
 
 
@@ -182,11 +179,11 @@ Cont2:
              if (CODA_DEBUG) {
 	       cout << "Filtering event, nfilt " << dec << nfilt << endl;
 	     }
-	     int status = fout->codaWrite(getEvBuffer());
-             if (status != S_SUCCESS) {
+	     fStatus = fout->codaWrite(getEvBuffer());
+             if (fStatus != S_SUCCESS) {
 	       if (CODA_VERBOSE) {
 		 cout << "Error in filterToFile ! " << endl;
-                 cout << "codaWrite returned status " << status << endl;
+                 cout << "codaWrite returned status " << fStatus << endl;
 	       }
                goto Finish;
 	     }

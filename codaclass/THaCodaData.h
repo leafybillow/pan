@@ -37,6 +37,7 @@ public:
    virtual int codaRead()=0; 
    virtual int *getEvBuffer() { return evbuffer; };     
    virtual int getBuffSize() const { return MAXEVLEN; };
+   virtual int status() const { return fStatus; };
 
 private:
 
@@ -47,6 +48,7 @@ protected:
 
    TString filename;
    int *evbuffer;                    // Raw data     
+   int fStatus;                      // Status from CODA calls
 
 #ifndef STANDALONE
    ClassDef(THaCodaData,0) // Base class of CODA data (file, ET conn, etc)
