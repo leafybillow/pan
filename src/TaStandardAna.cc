@@ -189,12 +189,32 @@ TaStandardAna::InitChanLists ()
   vector<Int_t> keys(0);
   vector<Double_t> wts(0);
 
-  if (fRun->GetDevices().IsUsed(ILUMI1R) &&
-      fRun->GetDevices().IsUsed(ILUMI2R))
+  if (fRun->GetDevices().IsUsed(IBLUMI1R) &&
+      fRun->GetDevices().IsUsed(IBLUMI2R) &&
+      fRun->GetDevices().IsUsed(IBLUMI3R) &&
+      fRun->GetDevices().IsUsed(IBLUMI4R) &&
+      fRun->GetDevices().IsUsed(IBLUMI5R) &&
+      fRun->GetDevices().IsUsed(IBLUMI6R) &&
+      fRun->GetDevices().IsUsed(IBLUMI7R) &&
+      fRun->GetDevices().IsUsed(IBLUMI8R))
     {
-      keys.push_back(ILUMI1);  keys.push_back(ILUMI2);
-      fTreeList.push_back (AnaList ("lumi_sum", keys, wts, "ppm", 
+      keys.push_back(IBLUMI1);  keys.push_back(IBLUMI2);
+      keys.push_back(IBLUMI3);  keys.push_back(IBLUMI4);
+      keys.push_back(IBLUMI5);  keys.push_back(IBLUMI6);
+      keys.push_back(IBLUMI7);  keys.push_back(IBLUMI8);
+      fTreeList.push_back (AnaList ("blumi_sum", keys, wts, "ppm", 
 				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
+      fTreeList.push_back (AnaList ("blumi_ave", keys, wts, "ppm", 
+				    fgNO_BEAM_NO_ASY + fgASYN + fgAVE + fgBLIND));
+    }
+  if (fRun->GetDevices().IsUsed(IFLUMI1R) &&
+      fRun->GetDevices().IsUsed(IFLUMI2R))
+    {
+      keys.push_back(IFLUMI1);  keys.push_back(IFLUMI2);
+      fTreeList.push_back (AnaList ("flumi_sum", keys, wts, "ppm", 
+				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
+      fTreeList.push_back (AnaList ("flumi_ave", keys, wts, "ppm", 
+				    fgNO_BEAM_NO_ASY + fgASYN + fgAVE + fgBLIND));
     }
   if (fRun->GetDevices().IsUsed(IDET1R) &&
       fRun->GetDevices().IsUsed(IDET2R))
