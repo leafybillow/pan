@@ -139,6 +139,7 @@ void TaDevice::BpmDefRotate() {
 // database:  by convention a device-name (3rd column) can have
 // suffix "_r" or "_ur" to force rotation or unrotation.  Leaving
 // out this suffix will result in the default behavior here.
+// The suffix "_r" or "_ur" are otherwise IGNORED.
 // Example of device-name in db file:  
 //     "bpm8"    --> rotated (default here)
 //     "bpm8_r"  --> still rotated
