@@ -27,6 +27,8 @@
 @old_bcmlist =   qw / IBCM1 IBCM2 IBCM3 IBCM4 IBCM5 IBCM6 /;
 # G0 current monitors
 @g0_bcmlist =    qw / IBCMCAV1 IBCMCAV2 IBCMCAV3 IBCMCAV4 /;
+# UMass profile scanner
+@prof_list =    qw / IRPROF IRPROFX IRPROFY ILPROF ILPROFX ILPROFY /;
 # Batteries
 @battlist =      qw / IBATT1 IBATT2 IBATT3 IBATT4 IBATT5 /;
 # Detectors
@@ -56,6 +58,7 @@ $out = "";   # output being built
 &do_striplines();
 &do_cavities();
 &do_bcms();
+&do_profile();
 &do_batts();
 &do_dets();
 &do_adcs();
@@ -262,6 +265,46 @@ sub add_cavcorr
     $ret .= "\n";
     return $ret;
 }
+
+sub do_profile
+{
+# UMass profile scanner
+
+    $profoff = $p;
+    $profnum = scalar (@prof_list);
+    $out1 = "";
+    foreach $prof (@prof_list)
+    {
+	$out1 .= &add_profile ($prof);
+    }
+    
+    $out .= << "ENDPROFCOM";
+// UMass Profile Scanner
+\#define   PROFOFF     $profoff     // UMass profile scanner start here
+\#define   PROFNUM     $profnum     // num. prof. devices defined below
+
+// "PROFX", "PROFY" = positions, "PROF" = amplitude.
+// Prefix "IR","IL" = right, left spectrometer.
+// Suffix "R" = raw data.
+// Suffix "C" = corrected but no pedestal subtraction.
+// No suffix = fully corrected data.
+
+$out1
+ENDPROFCOM
+}
+
+sub add_profile
+{
+    my ($prof) = @_;
+    my ($ret);
+    $ret = "";
+    $ret .= "\#define   ${prof}R    $p\n"; $p++;
+    $ret .= "\#define   ${prof}C    $p\n"; $p++;
+    $ret .= "\#define   ${prof}    $p\n"; $p++;
+    $ret .= "\n";
+    return $ret;
+}
+
 
 sub do_bcms
 {

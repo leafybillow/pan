@@ -467,6 +467,16 @@ VaEvent::Decode(TaDevice& devices)
     if (devices.IsUsed(key)) devices.SetUsed(key+1);
   }
 
+  // UMass Profile scanners
+  for (i = 0; i < PROFNUM; i++) {
+     key = PROFOFF + 3*i;
+     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+     idx = devices.GetCalIndex(key);
+     if (idx < 0) continue;
+     fData[key+2] = fData[idx];
+     if (devices.IsUsed(key)) devices.SetUsed(key+2);
+  }
+
   // Helicity signals
   for (i = 0; i < TIRNUM; i++) {
     key = TIROFF + i;
@@ -652,12 +662,23 @@ VaEvent::CalibDecode(TaDevice& devices)
 // Detectors (no pedestal subtraction here!)
   for (i = 0; i < DETNUM; i++) {
     key = DETOFF + 2*i;
-    corrkey = DETCORROFF + i;
+    corrkey = key + i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
     idx = devices.GetCorrIndex(key);
     if (idx < 0) continue;
     fData[corrkey] = fData[idx];
     if (devices.IsUsed(key)) devices.SetUsed(corrkey);
+  }
+
+// UMass Profile scanners (no pedestal subtraction)
+  for (i = 0; i < PROFNUM; i++) {
+     key = PROFOFF + 3*i;
+     corrkey = key + 1;
+     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+     idx = devices.GetCorrIndex(key);
+     if (idx < 0) continue;
+     fData[corrkey] = fData[idx];
+     if (devices.IsUsed(key)) devices.SetUsed(corrkey);
   }
 
 }
@@ -1053,6 +1074,8 @@ void VaEvent::DeviceDump() const {
                            IBPM4BXP, IBPM4BXM, IBPM4BYP, IBPM4BYM };
   static int bpmcalib[] = { IBPM8X, IBPM8Y, IBPM10X, IBPM10Y, 
                            IBPM4AX, IBPM4AY, IBPM4BX, IBPM4BY };
+  static int profile[] = { ILPROF, ILPROFX, ILPROFY,
+                           IRPROF, IRPROFX, IRPROFY };
   static int scalers[] = { ISCALER0_0, ISCALER0_1, ISCALER0_2, ISCALER0_3 };
   cout << "\n============   Device Data for Event "<<dec<<GetEvNumber()<<"  ======== "<<endl;
   cout << "Raw BCM1 = 0x"<<hex<<(Int_t)GetData(IBCM1R);
@@ -1067,6 +1090,10 @@ void VaEvent::DeviceDump() const {
   for (int i = 0; i < 8; i++) {
     cout << bpmcalib[i] << " = "<<GetData(bpmcalib[i])<<"    ";
     if (i > 0 && (((i+1) % 2) == 0)) cout << endl;
+  }
+  cout << "UMass profile scanner "<<endl;
+  for (int i = 0; i < 6; i++) {
+    cout << profile[i] << "  =  " << GetData(profile[i])<<"   ";
   }
   cout << "Scalers: "<<endl;
   for (int i = 0; i < 4; i++) {
