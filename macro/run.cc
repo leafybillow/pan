@@ -1,7 +1,7 @@
 // Interactive root script example
 // If one runs ./pan, the in the root shell .x run.cc
 
-void run(UInt runnumber=0){
+void run(UInt_t runnumber=0){
 
   if(runnumber==0) {
     cout << "Enter run number: "<< endl;
