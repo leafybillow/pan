@@ -1,3 +1,31 @@
+Comments by R. Holmes, 16 Apr 2002
+----------------------------------
+
+I tried to put in deletes for everything we new in TaRun.cc.  But
+there's some weirdness if I try to delete fEvtree.  If I have this
+code in Uncreate():
+
+  delete fEvtree;
+  delete fCoda;
+  delete fEvent;
+  delete fDataBase;
+  delete fDevices;
+  delete fCutList;
+  delete fESliceStats;
+  delete fERunStats;
+  delete fPSliceStats;
+  delete fPRunStats;
+
+then it hangs in delete fEvent.  If I comment out delete fEvent then
+it hangs in delete fDataBase (I think, or perhaps one of the later
+deletes).  But if I comment out delete fEvtree there's no hang.  I
+have the feeling I've seen behavior like this before -- thought maybe
+it was because I was trying to delete the same allocation twice, but
+I've looked into it and I don't think I am.  Strange.
+
+For now, I comment out delete fEvtree.
+
+
 Comments by R. Holmes, 10 Apr 2002
 ----------------------------------
 
@@ -96,38 +124,6 @@ not a number of events.  At present these are labelled "evlo" and
 "evhi" in the database, and are retrieved by routines with names like
 GetEvLo().  We probably should change these names since the "ev" part
 is no longer appropriate.
-
-
-Comments by R. Holmes, March 2002
----------------------------------
-
-Compiler warnings at present include:
-
-  TaFdbkAna.hh: In method `TaFdbkAna::TaFdbkAna()':
-  TaFdbkAna.hh:79: warning: member initializers for `Int_t TaFdbkAna::fZsent'
-  TaFdbkAna.hh:81: warning:   and `Double_t TaFdbkAna::fQmevFdbk'
-  TaFdbkAna.cc:39: warning:   will be re-ordered to match declaration order
-
-(Probably just need to swap ordering of a couple of initializers to
-fix this.)
-
-  TaCutList.cc: In method `void TaCutList::Init(const class VaDataBase &)':
-  TaCutList.cc:66: warning: comparison between signed and unsigned
-  TaCutList.cc:69: warning: conversion from `int' to `enum ECutType'
-
-(First is because VaDataBase::GetNumBadEv() returns Int_t and I'm
-comparing to size_t.  I'd prefer it if GetNumBadEv() returned UInt_t.
-
-(Second is because the TaCutInterval constructor takes an ECutType
-argument, which I must initialize from an Int_t returned from
-VaDataBase::GetCutValues().  Probably just need a cast or something.
-
-  TaEvent.cc: In method `void TaEvent::Decode()':
-  TaEvent.cc:158: warning: comparison between signed and unsigned
-
-(fSizeConst is UInt_t and it is being compared to (long)GetEvLength().
-Why?  GetEvLength() is a UInt_t too; why cast it to long?)
-
 
 
 Comments by A. Vacheret, March, 2002

@@ -4,6 +4,24 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 16 Apr 2002
+-----------------------------------
+
+TaFdbkAna.cc
+
+  o Move SendEPICSInfo here from TaRun.
+
+TaRun.{cc,hh}
+
+  o Move SendEPICSInfo to TaFdbkAna.cc.
+  
+  o Init all pointers to zero, and delete all pointers (except
+    fEvtree). 
+
+main.cc
+
+  o Fix bug in string length computation.
+
 Changes by R. Holmes on 11 Apr 2002
 -----------------------------------
 
@@ -47,20 +65,23 @@ TaAsciiDB.cc
 
 TaCutInterval.{hh,cc}, TaCutList.{cc,hh}
 
- o Added copy constructors and operator=.
+ o Add copy constructors and operator=.
 
 TaEvent.hh
 
- o Removed some unused data members.
+ o Remove some unused data members.
 
 TaLinkDef.hh
 
- o Added TaString class.
+ o Add TaString class.
+
+TaString.{cc,hh}
+
+ o New.
 
 VaDataBase.{cc,hh}
 
- o Removed bstrstr, stlow, vsplit, and str_to_base16.
-
+ o Remove bstrstr, stlow, vsplit, and str_to_base16.
 
 
 Changes by R. Michaels on 10 Apr 2002
