@@ -105,6 +105,7 @@ TaRun::Init()
        << fCodaFileName << endl;
 
   evtree = new TTree("R","Event data DST");
+  evtree->Branch ("ev_num", &fEventNumber, "ev_num/I", 5000); // event number
 
   if (fCodaFileName == "online") { 
 #ifdef ONLINE
@@ -158,6 +159,7 @@ TaRun::Init()
 
 }
  
+
 Int_t TaRun::FindRunNumber() {
    if (fCodaFileName == "online") {
       ifstream runfile(getenv("RUNNUMBER_FILE"));
@@ -213,6 +215,7 @@ void
 TaRun::Decode()
 {
    fEvent->Decode();
+   fEventNumber = fEvent->GetEvNumber();
    evtree->Fill();
 // Use this to make detailed checks of decoding:
 #ifdef CHECKOUT
@@ -298,7 +301,7 @@ TaRun::AccumPair(const VaPair& pr)
   if (fEvent->GetEvNumber() >= fSliceLimit)
     {
       fSliceLimit += fgSLICELENGTH;
-      clog << "TaRun::AccumEvent: At event " << fEvent->GetEvNumber() 
+      clog << "TaRun::AccumEvent(): At event " << fEvent->GetEvNumber() 
 	   << " of run " << fRunNumber << endl;
       if (fESliceStats != 0)
 	{
@@ -331,6 +334,23 @@ TaRun::AddCuts()
     {
       fCutList->UpdateCutInterval ( i->first, i->second, fEvent->GetEvNumber() );
     }
+}
+
+void TaRun::SendEPICSInfo( pair< char* , Double_t> value)
+{
+  //#ifdef ONLINE 
+  char* thevar = value.first;
+  char* thevalue = new char[100];
+  char* command = new char[100];
+  sprintf(thevalue,"%6.0f",value.second);
+  sprintf(command,"/pathtothescript/feedback_script ");
+  strcat( command,thevar);
+  strcat(command," ");
+  strcat(command,thevalue);
+  clog << "SHELL command = "<<command<<endl<<flush; 
+  system(command);
+  delete [] thevar;delete []thevalue; delete [] command;
+  //#endif
 }
 
 

@@ -61,7 +61,8 @@ public:
   TaEvent& GetEvent() const { return *fEvent; };
   Int_t GetRunNumber() const { return fRunNumber; };
   VaDataBase* GetDataBase() const { return fDataBase; };
-
+  void SendEPICSInfo( pair< char*, Double_t> value); // used by feedbacks 
+                                                        // to send EPICS var in ONLINE mode.
 private:
 
   // Copy constructor and operator= -- defined null and private
@@ -87,6 +88,7 @@ private:
 
   // Data members
   RunNumber_t fRunNumber;
+  Int_t fEventNumber;
   VaDataBase* fDataBase;
   TaCutList* fCutList;
   map<string, VaDevice* > devices;
