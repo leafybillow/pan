@@ -18,14 +18,9 @@ char *Rmsp = Rmstg;
 
 // open the file and access trees
 
-//   Int_t run=1824;                                                             
-cout << "Enter run number : ";
-cin >> run;
-cout << "Run "<<run<<endl;
-char runfile[50];
-sprintf(runfile,"parity02_%d_BEAM.root",run);
-
-f = new TFile(runfile);
+gROOT->LoadMacro("macro/open.macro");
+open(0,"beam");
+  
 
 TTree *r = (TTree*)gROOT.FindObject("R");
 //r->Print();
