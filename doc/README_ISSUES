@@ -1,26 +1,3 @@
-Comments by R. Holmes, 26 Dec 2002
-----------------------------------
-
-The syntax of the database command line override causes the following to fail:
-
-   ./pan -r 2181 -D IAparam slope -600
-
-or any other attempt to set a database element to a negative value;
-the parser regards the minus sign as the start of a new command line
-option.
-
-Perhaps the syntax ought to be e.g.
-
-   ./pan -r 2181 -D 'IAparam slope -600'
-
-
-Comments by R. Holmes, 20 Nov 2002
-----------------------------------
-
-Now that TaFileName can be used from CINT, open.macro can and should
-be rewritten to use it.
-
-
 Comments by R. Michaels, Oct 21, 2002
 -------------------------------------
 
@@ -37,22 +14,6 @@ there now is the perl script. (?)
 When you "Put()" data to database, the output file is in a funny
 order because STL map reshuffles things.  Not a big deal.
 
-Comments by A. Vacheret, 25 Sept 2002
-----------------------------------
-
-1) A minor thing : right now in TaFileName there is by default the 
-path for the coda file which start with a "./"
-so if you have your coda file in another directory you get for example
-.//avacheret/HAPPEX2/CODA_RUNS/parity02_1302.dat so you need to remove this "./"
-by hand in your version of TaFileName.cc to let pan recognize the correct path. 
-
-2) I don't know if it make sense to do feedback only on a PZT direction
-X or Y but the new code will be easy to change if this is important to test.
-Also almost everything is there to revive the PITA feedback in case we need it.
-  
-3) to reply Rich comment, as it is mentionned in the ChangeLog,
-the feedback monitor could be easily changed in the control.db
-file. 
 
 Comments by R. Holmes, 20 Aug 2002
 ----------------------------------
@@ -104,33 +65,6 @@ as well be committed with the rest of his changes.  You can patch your
 copy for now and get it working.
 
 
-Comments by R. Holmes, 7 Aug 2002
-----------------------------------
-
-Quadsynch needs to be loaded in TaEvent::Load once that signal exists
-in hardware.
-
-
-Comments by R. Holmes, 26 Jul 2002
-----------------------------------
-
-With the new standardized file names, the macros that expect to find
-pan_%d.root will break.  The quick and dirty fix will be to change
-these to parity02_%d.root, but it may be worthwhile to do something
-more elegant.
-
-
-Comments by R. Holmes, 23 Jul 2002
-----------------------------------
-
-TaMysql is even more broken, because it needs a GetCutNames
-definition. 
-
-(Note, though, that GetCutNumber is defined in VaDataBase in terms of
-other database methods -- so that, at least, should work with the SQL
-database.) 
-
-
 Comments by R. Michaels, 23 July 2002
 -------------------------------------
 
@@ -176,98 +110,4 @@ For now, I comment out delete fEvtree.
 
 TaAsciiDB needs fixes to delete its allocations.
 
-
-Comments by R. Michaels, 6 Apr 2002
------------------------------------
-
-Studied profiles and effect of gcc optimization level.  Optimization
-can lead an approx 10% increase in speed, not more.  Leave the 
-default at level 1 as a compromise between speed of compilation
-and speed of code.  
-
-Profiled optimized code shows that 42% of the "visible" time is
-spent in TaEvent deep copy.  However, the visible time (i.e. cumulative
-time reported by gprof) is only 15% of the total; therefore the deep
-copy appears to be 6% of the total.  This is consistent with the
-observation that by adjusting MAXKEYS in TaEvent, which adjusts the
-size of the deep copy and calibrates its influence on the speed,
-the deep copy costs about 6% of cpu time.  Unfortunately, when we
-profile without optimization, while the total speed doesn't change
-much (10% level), the distribution becomes inconsistent with the
-above pattern.  The conclusions for now is that we do not know from
-gprof what the main bottlenecks are.
-
-See /doc/prof_opt.dat  and  /doc/prof_noopt.dat
-
-
-Comments by R. Michaels, 5 Apr 2002
------------------------------------
-
-As we all know, "pan" was horribly slow.  There appear to have
-been three main culprits:
-
-  1. Use of string keys in map<string, *> is slow due to
-     log(N) lookup time.  hash_map was ~4 times faster, but
-     random access of a static array can be ~100 times faster.
-
-  2. TaEvent contained a plethora of data that needed to be
-     copied each time an event was added to a queue.  This
-     was unecessary because much of this data never changed.
-
-  3. Thousands of calls from Cut related classes, on average
-     per event.  I don't know why.
-
-In this release, I have fixed #1 and #2 (see ChangeLog for details),
-and at present "pan" runs at 680 Hz on an 800 MHz PC with local I/O.
-This is still a bit slower than "apar" but would be acceptable for
-feedback at 30 Hz.  I did not fix #3 yet and leave it to Rich.
-
-I noticed that "gprof" cumulative time falls far short of the
-cpu time measured with other methods with or without -pg compile
-option (e.g. the method of "time pan -f file").  Some of this 
-shortfall is due to ROOT not being compiled with -pg.  Also noticed
-that the profile distribution depends on g++ optimization, which is 
-reasonable, but it indicates we may benefit from learning more about
-g++ optimization.
-
-At present there are still some warnings when compiling and
-running the code.  I'm too burned out to fix them now; but they
-seem harmless.  However, one thing deserving attention is that
-BPM10 x,y differences are very different from the previous version
-of "pan".  Actually I think the present version makes sense, but
-until the difference is understood, I'm nervous.  Strangely, these 
-are the only quantities affected.  All other results (asymmetries, 
-differences, root tree values, etc), look identical to previuos
-version results.
-
-
-Comments by A. Vacheret, March, 2002
-----------------------------------
-  
-The code uses 32 Mbytes memory at present, I think this is because we have the pair analysis loop
-working now. No evident memory leak during a run but Pan is a kind of slow compared to apar. 
-
-Feedback are working but not the cuts yet. With cuts and pedestal calibration, it should 
-work like apar.
-
-Statisitics shows error during calculation, didn't take the time to look at this carefully
-
-Will put the type of analysis in the root file name. Also the time parameter for the feedback should be
-in the database to be able to change the lenght of a feedback minirun.
-
-
-
-
-Comments by R. Michaels, Feb, 2002
-----------------------------------
-
-Several of the problems mentioned below were addressed,
-see ChangeLog.
-
-Still some compiler warnings, and you may get in trouble
-if you don't 'make clean' before 'make'.
-
-Do we need to distinguish between 'run type' and 'analysis
-type' in the database ?  For now I let this distinction exist
-and have awkwardly e.g. runtype = anatype = BEAM
 
