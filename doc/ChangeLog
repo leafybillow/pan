@@ -4,6 +4,22 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 31 May 2002
+-----------------------------------
+
+TaAsciiDB.{cc,hh} TaCutList.cc TaMysql.{cc,hh} VaAnalysis.cc
+VaDataBase.hh 
+
+ o Name changes: evlo, evhi --> extlo, exthi in database keys, and
+   similar changes to access function names.  (This is because cut
+   extensions are expressed in the database as a number of windows,
+   not a number of events.)
+
+main.cc
+
+ o Log info about software version.  
+
+
 Changes by R. Holmes on 24 May 2002
 -----------------------------------
 

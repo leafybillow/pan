@@ -162,18 +162,6 @@ differences, root tree values, etc), look identical to previuos
 version results.
 
 
-Comments by R. Holmes, 13 March 2002
----------------------------------
-
-I've changed the cuts code so that it multiplies the cut extensions
-from the database by the oversample factor; that means the extensions
-in the database should be regarded as a number of helicity windows,
-not a number of events.  At present these are labelled "evlo" and
-"evhi" in the database, and are retrieved by routines with names like
-GetEvLo().  We probably should change these names since the "ev" part
-is no longer appropriate.
-
-
 Comments by A. Vacheret, March, 2002
 ----------------------------------
   
