@@ -20,7 +20,7 @@
 
 #define ET_CHUNK_SIZE 50
 #include "et.h"
-#include <iostream.h>
+#include <iostream>
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
@@ -32,6 +32,8 @@
 #include <sys/time.h>
 #include <netdb.h>
 #include "TString.h"
+
+using namespace std;
 
 // The ET memory file will have this prefix.  The suffix is $SESSION.
 #define ETMEM_PREFIX "/tmp/et_sys_"
