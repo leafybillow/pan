@@ -95,8 +95,8 @@ public:
 
   // Major functions
   virtual void Init();
-  virtual void RunIni(TaRun&);
-  virtual void ProcessRun();
+  virtual ErrCode_t RunIni(TaRun&);
+  virtual ErrCode_t ProcessRun();
   virtual void RunFini();
   virtual void Finish();
 
@@ -109,6 +109,8 @@ public:
   static const UInt_t fgCOPY;
   static const UInt_t fgDIFF;
   static const UInt_t fgASY;
+  static const ErrCode_t fgVAANA_ERROR = -1;  // returned on error
+  static const ErrCode_t fgVAANA_OK = 0;      // returned on success
 
 protected:
 
@@ -127,12 +129,12 @@ protected:
   // EventAnalysis and PairAnalysis; these are pure virtual and must
   // be supplied by the derived classes.
 
-  virtual void PreProcessEvt();
-  virtual void ProcessEvt();
-  virtual void ProcessPair();
+  virtual ErrCode_t PreProcessEvt();
+  virtual ErrCode_t ProcessEvt();
+  virtual ErrCode_t ProcessPair();
   virtual void EventAnalysis () = 0;
   virtual void PairAnalysis () = 0;
-  void NewPrePair();
+  ErrCode_t NewPrePair();
   virtual void InitChanLists ();
   virtual void InitTree ();
   virtual vector<AnaList* > ChanList (const string& devtype, 
