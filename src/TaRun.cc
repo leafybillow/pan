@@ -21,7 +21,11 @@
 #include <stdlib.h>
 #include "THaCodaData.h"
 #include "THaCodaFile.h"
+#ifdef MYSQLDB
+#include "TaMysql.hh"
+#else
 #include "TaAsciiDB.hh"
+#endif
 #include "TaCutList.hh"
 #include "TaEvent.hh"
 #include "TaDevice.hh"
@@ -160,8 +164,13 @@ TaRun::Init()
     {
       cerr << "TaRun::Init Run number is " << fRunNumber << endl;
     }
-    
+  
+#ifdef MYSQLDB
+  fDataBase = new TaMysql();
+#else
   fDataBase = new TaAsciiDB();
+#endif
+
   fDataBase->Load(fRunNumber);
   fDevices = new TaDevice();
   fDevices->Init(*fDataBase);
