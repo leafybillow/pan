@@ -44,4 +44,17 @@ a copy too, at:
 
   http://www.jlab.org/~rom/cvsbook.ps.gz
 
+Examples of CVS commands for username = rsholmes
+
+* Checking out a working copy 
+    cvs -d ":ext:rsholmes@jlabs1.jlab.org:/group/halla/parity/cvs" checkout pan
+
+* Looking for differences in repository
+   cvs -d ":ext:rsholmes@jlabs1.jlab.org:/group/halla/parity/cvs" diff
+
+* Obtaining updates from the respository
+   cvs -d ":ext:rsholmes@jlabs1.jlab.org:/group/halla/parity/cvs" update
+
+* Committing a change
+   cvs -d ":ext:rsholmes@jlabs1.jlab.org:/group/halla/parity/cvs" commit -m "correct path to codaclass" Makefile
 
