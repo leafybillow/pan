@@ -1,3 +1,44 @@
+Comments by R. Michaels, 5 Apr 2002
+-----------------------------------
+
+As we all know, "pan" was horribly slow.  There appear to have
+been three main culprits:
+
+  1. Use of string keys in map<string, *> is slow due to
+     log(N) lookup time.  hash_map was ~4 times faster, but
+     random access of a static array can be ~100 times faster.
+
+  2. TaEvent contained a plethora of data that needed to be
+     copied each time an event was added to a queue.  This
+     was unecessary because much of this data never changed.
+
+  3. Thousands of calls from Cut related classes, on average
+     per event.  I don't know why.
+
+In this release, I have fixed #1 and #2 (see ChangeLog for details),
+and at present "pan" runs at 680 Hz on an 800 MHz PC with local I/O.
+This is still a bit slower than "apar" but would be acceptable for
+feedback at 30 Hz.  I did not fix #3 yet and leave it to Rich.
+
+I noticed that "gprof" cumulative time falls far short of the
+cpu time measured with other methods with or without -pg compile
+option (e.g. the method of "time pan -f file").  Some of this 
+shortfall is due to ROOT not being compiled with -pg.  Also noticed
+that the profile distribution depends on g++ optimization, which is 
+reasonable, but it indicates we may benefit from learning more about
+g++ optimization.
+
+At present there are still some warnings when compiling and
+running the code.  I'm too burned out to fix them now; but they
+seem harmless.  However, one thing deserving attention is that
+BPM10 x,y differences are very different from the previous version
+of "pan".  Actually I think the present version makes sense, but
+until the difference is understood, I'm nervous.  Strangely, these 
+are the only quantities affected.  All other results (asymmetries, 
+differences, root tree values, etc), look identical to previuos
+version results.
+
+
 Comments by R. Holmes, 13 March 2002
 ---------------------------------
 
