@@ -179,37 +179,37 @@ Int_t TaMysql::GetNumCuts() const {
   return Ncut.Get(0);  
 };
 
-vector<Int_t> TaMysql::GetEvLo() const {
-// Get cut evlo event intervals 
+vector<Int_t> TaMysql::GetExtLo() const {
+// Get cut extensions, low and high 
 
-  TIntBuffer Evlo; 
+  TIntBuffer Extlo; 
   TDBTools db = TDBTools("pandb"); 
-  db.GetDBIntBuff("ana","cut","evlo",fRunIndex,&Evlo);  
+  db.GetDBIntBuff("ana","cut","extlo",fRunIndex,&Extlo);  
 
   vector<Int_t> result;
   result.clear();
 
   Int_t ncuts = GetNumCuts();
   for (Int_t i=0;i<ncuts;i++){
-    result.push_back(Evlo.Get(i));
+    result.push_back(Extlo.Get(i));
   }
 
   return result;
 };
 
-vector<Int_t> TaMysql::GetEvHi() const {
+vector<Int_t> TaMysql::GetExtHi() const {
 // Get cut evhi event intervals 
 
-  TIntBuffer Evhi; 
+  TIntBuffer Exthi; 
   TDBTools db = TDBTools("pandb"); 
-  db.GetDBIntBuff("ana","cut","evhi",fRunIndex,&Evhi);  
+  db.GetDBIntBuff("ana","cut","exthi",fRunIndex,&Exthi);  
 
   vector<Int_t> result;
   result.clear();
 
   Int_t ncuts = GetNumCuts();
   for (Int_t i=0;i<ncuts;i++){
-    result.push_back(Evhi.Get(i));
+    result.push_back(Exthi.Get(i));
   }
 
   return result;
@@ -218,10 +218,10 @@ vector<Int_t> TaMysql::GetEvHi() const {
 Int_t TaMysql::GetNumBadEv() const {
 // Get number of bad event intervals
 
-  TIntBuffer Evlo; 
+  TIntBuffer Extlo; 
   TDBTools db = TDBTools("pandb"); 
-  db.GetDBIntBuff("ana","badevt","evlo",fRunIndex,&Evlo);  
-  return Evlo.GetSize();
+  db.GetDBIntBuff("ana","badevt","extlo",fRunIndex,&Extlo);  
+  return Extlo.GetSize();
 };
 
 map <Int_t, vector<Int_t> > TaMysql::GetCutValues() const {
@@ -231,11 +231,11 @@ map <Int_t, vector<Int_t> > TaMysql::GetCutValues() const {
   
   TDBTools db = TDBTools("pandb"); 
 
-  TIntBuffer Evlo; 
-  db.GetDBIntBuff("ana","badevt","evlo",fRunIndex,&Evlo);  
+  TIntBuffer Extlo; 
+  db.GetDBIntBuff("ana","badevt","extlo",fRunIndex,&Extlo);  
   
-  TIntBuffer Evhi; 
-  db.GetDBIntBuff("ana","badevt","evhi",fRunIndex,&Evhi);  
+  TIntBuffer Exthi; 
+  db.GetDBIntBuff("ana","badevt","exthi",fRunIndex,&Exthi);  
   
   TIntBuffer Ncut; 
   db.GetDBIntBuff("ana","badevt","ncut",fRunIndex,&Ncut);  
@@ -253,8 +253,8 @@ map <Int_t, vector<Int_t> > TaMysql::GetCutValues() const {
 
   for (Int_t k=0; k<NumBadEv; k++){  
     
-    temp.push_back(Evlo.Get(k));
-    temp.push_back(Evhi.Get(k));
+    temp.push_back(Extlo.Get(k));
+    temp.push_back(Exthi.Get(k));
     temp.push_back(Ncut.Get(k));
     temp.push_back(State.Get(k));
     
@@ -374,9 +374,9 @@ void TaMysql::PutNumCuts(Int_t numcuts) {
 // Put number of cuts 
 };
 
-void TaMysql::PutCuts(const vector<Int_t>& evlo, 
-                        const vector<Int_t>& evhi) {
-// Put cut evlo, evhi event intervals 
+void TaMysql::PutExts(const vector<Int_t>& extlo, 
+                        const vector<Int_t>& exthi) {
+// Put cut extensions, low and high 
 };
 
 void TaMysql::PutNumBadEv(Int_t num_intervals) {
@@ -412,8 +412,8 @@ void TaMysql::InitDB() {
   tables.push_back("header");        //   8
   tables.push_back("datamap");       //   9
   tables.push_back("ncuts");         //  10
-  tables.push_back("evlo");          //  11
-  tables.push_back("evhi");          //  12
+  tables.push_back("extlo");          //  11
+  tables.push_back("exthi");          //  12
   tables.push_back("evint");         //  13
   tables.push_back("windelay");      //  14
   tables.push_back("oversamp");      //  15
@@ -460,10 +460,10 @@ void TaMysql::InitDB() {
        for (k = 0; k < 10; k++) columns.push_back(new dtype("s"));
     }
     if (i == 10) columns.push_back(new dtype("i"));  // ncuts
-    if (i == 11) {   // evlo
+    if (i == 11) {   // extlo
       for (k = 0; k < 40; k++) columns.push_back(new dtype("i"));
     }
-    if (i == 12) {  // evhi
+    if (i == 12) {  // exthi
       for (k = 0; k < 40; k++) columns.push_back(new dtype("i"));
     }
     if (i == 13) {  // evint

@@ -96,11 +96,11 @@ TaCutList::Init(const VaDataBase& db)
   // oversample factor.
 
   SlotNumber_t os = db.GetOverSamp();
-  temp = db.GetEvLo();
+  temp = db.GetExtLo();
   for (size_t i = 0; i < temp.size() && i < MaxCuts; ++i)
     fLowExtension[i] = temp[i] * os;
 
-  temp = db.GetEvHi();
+  temp = db.GetExtHi();
   for (size_t i = 0; i < temp.size() && i < MaxCuts; ++i)
     fHighExtension[i] = temp[i] * os;
 

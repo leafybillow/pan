@@ -209,9 +209,9 @@ public:
   virtual Double_t GetCutValue(const string& cutname) const =0;
 // Get number of cuts 
   virtual Int_t GetNumCuts() const =0;
-// Get cut evlo and evhi event intervals 
-  virtual vector<Int_t> GetEvLo() const=0;
-  virtual vector<Int_t> GetEvHi() const=0;
+// Get cut extensions, low and high 
+  virtual vector<Int_t> GetExtLo() const=0;
+  virtual vector<Int_t> GetExtHi() const=0;
 // Get number of bad event intervals
   virtual Int_t GetNumBadEv() const=0;
 // For bad event intervals, get formatted results 
@@ -247,9 +247,9 @@ public:
   virtual void PutCutValue(string cutname, Double_t value)=0;
 // Put number of cuts 
   virtual void PutNumCuts(Int_t numcuts)=0;
-// Put cut evlo and evhi event intervals 
-  virtual void PutCuts(const vector<Int_t>& evlo, 
-                       const vector<Int_t>& evhi)=0;
+// Put cut extensions, low and high 
+  virtual void PutExts(const vector<Int_t>& extlo, 
+                       const vector<Int_t>& exthi)=0;
 // Put number of bad event intervals
   virtual void PutNumBadEv(Int_t num_intervals)=0;
 // For bad event intervals, get formatted results 

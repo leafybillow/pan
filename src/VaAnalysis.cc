@@ -185,11 +185,11 @@ VaAnalysis::RunIni(TaRun& run)
     }
   }  
   cout << "\n\nNumber of cuts "<<fRun->GetDataBase()->GetNumCuts()<<endl;
-  vector<Int_t> evlo = fRun->GetDataBase()->GetEvLo();
-  vector<Int_t> evhi = fRun->GetDataBase()->GetEvHi();
+  vector<Int_t> extlo = fRun->GetDataBase()->GetExtLo();
+  vector<Int_t> exthi = fRun->GetDataBase()->GetExtHi();
   for (int i = 0; i<fRun->GetDataBase()->GetNumCuts(); i++) { 
-    if (i >= (long)evhi.size()) cout << "evlo and evhi mismatched size"<<endl;
-    cout << "Cut "<<i<<"   Evlo  = "<<evlo[i]<<"  Evhi = "<<evhi[i]<<endl;
+    if (i >= (long)exthi.size()) cout << "extlo and exthi mismatched size"<<endl;
+    cout << "Cut "<<i<<"   Extlo  = "<<extlo[i]<<"  Exthi = "<<exthi[i]<<endl;
   }  
   cout << "\n\nNum cut event intervals "<<fRun->GetDataBase()->GetNumBadEv()<<endl;
   map<Int_t, vector<Int_t> > evint = fRun->GetDataBase()->GetCutValues();

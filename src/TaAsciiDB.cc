@@ -332,14 +332,14 @@ Int_t TaAsciiDB::GetNumCuts() const {
    return (Int_t)GetValue("ncuts");
 };
 
-vector<Int_t> TaAsciiDB::GetEvLo() const {
-// Get cut evlo event intervals 
-   return GetValueVector("evlo");
+vector<Int_t> TaAsciiDB::GetExtLo() const {
+// Get cut extensions, low and high 
+   return GetValueVector("extlo");
 };
 
-vector<Int_t> TaAsciiDB::GetEvHi() const {
+vector<Int_t> TaAsciiDB::GetExtHi() const {
 // Get cut evhi event intervals 
-   return GetValueVector("evhi");
+   return GetValueVector("exthi");
 };
 
 Int_t TaAsciiDB::GetNumBadEv() const {
@@ -514,9 +514,9 @@ void TaAsciiDB::PutNumCuts(Int_t numcuts) {
 // Put number of cuts 
 };
 
-void TaAsciiDB::PutCuts(const vector<Int_t>& evlo, 
-                        const vector<Int_t>& evhi) {
-// Put cut evlo, evhi event intervals 
+void TaAsciiDB::PutExts(const vector<Int_t>& extlo, 
+                        const vector<Int_t>& exthi) {
+// Put cut extensions, low and high 
 };
 
 void TaAsciiDB::PutNumBadEv(Int_t num_intervals) {
@@ -552,8 +552,8 @@ void TaAsciiDB::InitDB() {
   tables.push_back("header");        //   8
   tables.push_back("datamap");       //   9
   tables.push_back("ncuts");         //  10
-  tables.push_back("evlo");          //  11
-  tables.push_back("evhi");          //  12
+  tables.push_back("extlo");          //  11
+  tables.push_back("exthi");          //  12
   tables.push_back("evint");         //  13
   tables.push_back("windelay");      //  14
   tables.push_back("oversamp");      //  15
@@ -601,10 +601,10 @@ void TaAsciiDB::InitDB() {
        for (k = 0; k < 10; k++) columns.push_back(new dtype("s"));
     }
     if (i == 10) columns.push_back(new dtype("i"));  // ncuts
-    if (i == 11) {   // evlo
+    if (i == 11) {   // extlo
       for (k = 0; k < 40; k++) columns.push_back(new dtype("i"));
     }
-    if (i == 12) {  // evhi
+    if (i == 12) {  // exthi
       for (k = 0; k < 40; k++) columns.push_back(new dtype("i"));
     }
     if (i == 13) {  // evint
