@@ -4,6 +4,59 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 22 Jul 2002
+------------------------------------
+
+Most of these changes have to do with putting the individual cut
+states into the event tree.  This info will also go in the pair tree,
+but later.  Note that these are indications of what cut conditions are
+passed/failed by each event, not of whether each event falls into a
+cut interval.  The latter could be done too, and I suspect it should,
+but we'll start with the cut conditions first.
+
+PanTypes.hh
+
+ o ECutType operator++ declaration added
+
+TaCutList.cc
+
+ o ECutType operator++ and GetName definitions added
+
+TaCutList.hh
+
+ o GetName declaration added
+
+TaEvent.{cc,hh}
+ o Two vectors of cuts (passed and failed) replaced with one array of
+   cut values.  (Nonzero value means cut failed.)
+
+ o AddToTree adds cuts to tree
+
+ o CheckEvent() returns void instead of the useless vector of cuts it
+   formerly returned.
+
+ o Unused GetCuts() and GetCutsPassed() removed
+
+TaRun.cc
+
+ o Since cut names are used to generate tags for tree leaves, cut
+   names must have no spaces, so spaces were replaced with
+   underscored.  (If this is too onerous for some reason, AddToTree
+   could do this replacement automatically, but it hardly seems worth
+   the effort.)
+
+ o InitDevices more aptly renamed to InitTree
+
+ o Tree filled in AccumEvent instead of Decode (since at Decode time
+   the cuts have not been established).
+
+ o Cut list arg added to call to AddToTree.
+
+TaRun.hh
+
+ o InitDevices more aptly renamed to InitTree
+
+
 Changes by R. Holmes on 15 Jul 2002
 -----------------------------------
 
