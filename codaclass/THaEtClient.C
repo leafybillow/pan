@@ -14,6 +14,8 @@
 /////////////////////////////////////////////////////////////////////
 
 #include "THaEtClient.h"
+#include <stdio.h>
+#include <time.h>
 
 #ifndef STANDALONE
 ClassImp(THaEtClient)
@@ -62,7 +64,9 @@ void THaEtClient::initflags()
 };
 
 int THaEtClient::init() {
-   return init("hana_sta");
+// initialize with a unique station name; therefore each client gets
+// 100% of data - if possible - it still is not allowed to cause deadtime.
+   return init(uniqueStation());
 };
 
 int THaEtClient::init(TString mystation) 
@@ -131,6 +135,26 @@ int THaEtClient::init(TString mystation)
   return fStatus;
 };
 
+TString THaEtClient::uniqueStation() {
+// Construct a unique station name from the system time.  
+// Works if clients start at >1 sec separate in time.
+     char *cp,*anum;
+     time_t btime;
+     char csta[]="----------------------------------------------";
+     time(&btime);
+     anum = ctime(&btime);
+     int j=0;
+     cp = anum;
+     int size = strlen(anum) < strlen(csta) ? strlen(anum) : strlen(csta);
+     while( j++ < size+1 ) {
+       if(*cp!=' '&&*cp!=':') csta[j] = *cp;
+       cp++;
+     }
+     csta[j]='\0';
+     TString result = csta;
+     return result;
+}
+
 int THaEtClient::codaClose() {
   if (didclose || firstread) 
     {
@@ -143,8 +167,18 @@ int THaEtClient::codaClose() {
       fStatus = CODA_ERROR;
       return fStatus;
     }
+  if (my_att == 0) {
+     cout << "ERROR: codaClose: no attachment ?"<<endl<<flush;
+     fStatus = CODA_ERROR; 
+     return fStatus;
+  }
   if (et_station_detach(id, my_att) != ET_OK) {
     cout << "ERROR: codaClose: detaching from ET"<<endl;
+    fStatus = CODA_ERROR;
+    return fStatus;
+  }
+  if (et_station_remove(id, my_stat) != ET_OK) {
+    cout << "ERROR: codaClose: removing ET station"<<endl;
     fStatus = CODA_ERROR;
     return fStatus;
   }

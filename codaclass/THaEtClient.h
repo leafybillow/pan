@@ -83,6 +83,7 @@ private:
     int waitflag,initetfile,didclose,notopened,firstread;
     void initflags();
     int init();
+    TString uniqueStation();
     int init(TString computer);
 
 // use ClassDef if using rootcint
