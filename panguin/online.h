@@ -41,6 +41,8 @@ private:
   // pageInfo is the vector of the pages containing the sConfFile index
   //   and how many commands issued within that page (title, 1d, etc.)
   TString rootfilename;  //  Just the name
+  TString goldenrootfilename; // Golden rootfile for comparisons
+  TString protorootfile; // Prototype for getting the rootfilename
   vector < pair <UInt_t,UInt_t> > pageInfo; 
   vector <TCut> cutList; 
   vector <UInt_t> GetDrawIndex(UInt_t);
@@ -53,6 +55,7 @@ public:
   OnlineConfig(TString);
   Bool_t ParseConfig();
   TString GetRootFile() { return rootfilename; };
+  TString GetGoldenFile() { return goldenrootfilename; };
   TCut GetDefinedCut(TString ident);
   vector <TString> GetCutIdent();
   // Page utilites
@@ -75,7 +78,7 @@ private:
   TGMainFrame                      *fMain;
   TGHorizontalFrame                *fTopframe;
   TGVerticalFrame                  *vframe;
-  TGRadioButton                    *fRadioPage[40];
+  TGRadioButton                    *fRadioPage[50];
   TGPictureButton                  *wile;
   TRootEmbeddedCanvas              *fEcanvas;
   TGHorizontalFrame                *fBottomFrame;
@@ -89,6 +92,8 @@ private:
   OnlineConfig                     *fConfig;
   UInt_t                            current_page;
   TFile*                            fRootFile;
+  TFile*                            fGoldenFile;
+  Bool_t                            doGolden;
   vector <TTree*>                   fRootTree;
   vector <Int_t>                    fTreeEntries;
   vector < pair <TString,TString> > fileObjects;
@@ -101,6 +106,9 @@ private:
   TH1D                             *mytemp1d;
   TH2D                             *mytemp2d;
   TH3D                             *mytemp3d;
+  TH1D                             *mytemp1d_golden;
+  TH2D                             *mytemp2d_golden;
+  TH3D                             *mytemp3d_golden;
 
 public:
   OnlineGUI(OnlineConfig&,Bool_t);

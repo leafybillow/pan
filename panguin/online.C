@@ -26,6 +26,8 @@
 //#define NOISY
 //#define OLDTIMERUPDATE
 
+TString guiDirectory = "panguin";
+
 ///////////////////////////////////////////////////////////////////
 //  Class: OnlineConfig
 //
@@ -56,11 +58,11 @@ OnlineConfig::OnlineConfig(TString anatype)
   if ( ! (*fConfFile) ) {
     cerr << "OnlineConfig() WARNING: config file " << confFileName.Data()
          << " does not exist" << endl;
-    cerr << " Checking the panguin directory" << endl;
-    confFileName.Prepend("panguin/");
+    cerr << " Checking the " << guiDirectory << " directory" << endl;
+    confFileName.Prepend(guiDirectory+"/");
     fConfFile = new ifstream(confFileName.Data());
     if ( ! (*fConfFile) ) {
-      confFileName = "panguin/default.cfg";
+      confFileName = guiDirectory+"/default.cfg";
       cout << "OnlineConfig()  Trying " << confFileName.Data() 
 	   << " as default configuration." << endl
 	   << " (May be ok.)" << endl;
@@ -178,6 +180,36 @@ Bool_t OnlineConfig::ParseConfig()
       }
       rootfilename = sConfFile[i][1];
     }
+    if(sConfFile[i][0] == "goldenrootfile") {
+      if(sConfFile[i].size() != 2) {
+	cerr << "WARNING: goldenfile command does not have the "
+	     << "correct number of arguments"
+	     << endl;
+	continue;
+      }
+      if(!goldenrootfilename.IsNull()) {
+	cerr << "WARNING: too many goldenrootfile's defined. " 
+	     << " Will only use the first one." 
+	     << endl;
+	continue;
+      }
+      goldenrootfilename = sConfFile[i][1];
+    }
+    if(sConfFile[i][0] == "protorootfile") {
+      if(sConfFile[i].size() != 2) {
+	cerr << "WARNING: protorootfile command does not have the "
+	     << "correct number of arguments"
+	     << endl;
+	continue;
+      }
+      if(!protorootfile.IsNull()) {
+	cerr << "WARNING: too many protorootfile's defined. " 
+	     << " Will only use the first one." 
+	     << endl;
+	continue;
+      }
+      protorootfile = sConfFile[i][1];
+    }
 
   }
 
@@ -194,6 +226,11 @@ Bool_t OnlineConfig::ParseConfig()
 
   if (fMonitor) 
     cout << "Will periodically update plots" << endl;
+  if(!goldenrootfilename.IsNull()) {
+    cout << "Will compare chosen histrograms with the golden rootfile: " 
+	 << endl 
+	 << goldenrootfilename << endl;
+  }
 
   return kTRUE;
 
@@ -337,7 +374,7 @@ vector <TString> OnlineConfig::GetDrawCommand(UInt_t page, UInt_t nCommand)
   //  1: cut
   //  2: type
   //  3: title
-  //  $: treename
+  //  4: treename
 
   vector <TString> out_command(5);
   vector <UInt_t> command_vector = GetDrawIndex(page);
@@ -445,10 +482,18 @@ vector <TString> OnlineConfig::SplitString(TString instring,TString delim)
 
 void OnlineConfig::OverrideRootFile(UInt_t runnumber) 
 {
-  // Override the ROOT file defined in the cfg file
-  //  Uses a helper macro "GetRootFileName.C(UInt_t runnumber)
+  // Override the ROOT file defined in the cfg file If
+  // protorootfile is used, construct filename using it, otherwise
+  // uses a helper macro "GetRootFileName.C(UInt_t runnumber)
 
-  rootfilename = GetRootFileName(runnumber);
+  if(!protorootfile.IsNull()) {
+    TString rn = "";
+    rn += runnumber;
+    protorootfile.ReplaceAll("XXXXX",rn.Data());
+    rootfilename = protorootfile;
+  } else {
+    rootfilename = GetRootFileName(runnumber);
+  }
 
   cout << "Overridden File name: " << rootfilename << endl;
 }
@@ -507,33 +552,55 @@ void OnlineGUI::CreateGUI(const TGWindow *p, UInt_t w, UInt_t h)
     }
 
   }
+  TString goldenfilename=fConfig->GetGoldenFile();
+  if(!goldenfilename.IsNull()) {
+    fGoldenFile = new TFile(goldenfilename,"READ");
+    if(!fGoldenFile->IsOpen()) {
+      cout << "ERROR: goldenrootfile: " << goldenfilename
+	   << " does not exist.  Oh well, no comparison plots."
+	   << endl;
+      doGolden = kFALSE;
+      fGoldenFile=NULL;
+    } else {
+      doGolden = kTRUE;
+    }
+  } else {
+    doGolden=kFALSE;
+    fGoldenFile=NULL;
+  }
 
 
   // Create the main frame
   fMain = new TGMainFrame(p,w,h);
   fMain->Connect("CloseWindow()", "OnlineGUI", this, "MyCloseWindow()");
-  ULong_t black, lightblue, red;
-  gClient->GetColorByName("black",black);
+  ULong_t lightgreen, lightblue, red, mainguicolor;
+  gClient->GetColorByName("lightgreen",lightgreen);
   gClient->GetColorByName("lightblue",lightblue);
   gClient->GetColorByName("red",red);
 
-  fMain->SetBackgroundColor(lightblue);
+  if(fConfig->IsMonitor()) {
+    mainguicolor = lightgreen;
+  } else {
+    mainguicolor = lightblue;
+  }
+
+  fMain->SetBackgroundColor(mainguicolor);
 
   // Top frame, to hold page buttons and canvas
   fTopframe = new TGHorizontalFrame(fMain,200,200);
-  fTopframe->SetBackgroundColor(lightblue);
+  fTopframe->SetBackgroundColor(mainguicolor);
   fMain->AddFrame(fTopframe, new TGLayoutHints(kLHintsExpandX 
                                               | kLHintsExpandY,10,10,10,1));
 
   // Create a verticle frame widget with radio buttons
   //  This will hold the page buttons
   vframe = new TGVerticalFrame(fTopframe,40,200);
-  vframe->SetBackgroundColor(lightblue);
+  vframe->SetBackgroundColor(mainguicolor);
   TString buff;
   for(UInt_t i=0; i<fConfig->GetPageCount(); i++) {
     buff = fConfig->GetPageTitle(i);
     fRadioPage[i] = new TGRadioButton(vframe,buff,i);
-    fRadioPage[i]->SetBackgroundColor(lightblue);
+    fRadioPage[i]->SetBackgroundColor(mainguicolor);
   }
 
   fRadioPage[0]->SetState(kButtonDown);
@@ -544,14 +611,16 @@ void OnlineGUI::CreateGUI(const TGWindow *p, UInt_t w, UInt_t h)
                                                      kLHintsCenterY,5,5,3,4));
     fRadioPage[i]->Connect("Pressed()", "OnlineGUI", this, "DoRadio()");
   }
-  wile = 
-    new TGPictureButton(vframe,gClient->GetPicture("panguin/genius.xpm"));
-  wile->SetBackgroundColor(lightblue);
   if(!fConfig->IsMonitor()) {
+    wile = 
+      new TGPictureButton(vframe,gClient->GetPicture(guiDirectory+"/genius.xpm"));
     wile->Connect("Pressed()","OnlineGUI", this,"DoDraw()");
   } else {
+    wile = 
+      new TGPictureButton(vframe,gClient->GetPicture(guiDirectory+"/panguin.xpm"));
     wile->Connect("Pressed()","OnlineGUI", this,"DoDrawClear()");
   }
+  wile->SetBackgroundColor(mainguicolor);
 
   vframe->AddFrame(wile,new TGLayoutHints(kLHintsBottom|kLHintsLeft,5,10,4,2));
 
@@ -561,27 +630,27 @@ void OnlineGUI::CreateGUI(const TGWindow *p, UInt_t w, UInt_t h)
   
   // Create canvas widget
   fEcanvas = new TRootEmbeddedCanvas("Ecanvas", fTopframe, 800, 600);
-  fEcanvas->SetBackgroundColor(lightblue);
+  fEcanvas->SetBackgroundColor(mainguicolor);
   fTopframe->AddFrame(fEcanvas, new TGLayoutHints(kLHintsExpandY,10,10,10,1));
   fCanvas = fEcanvas->GetCanvas();
 
   // Create the bottom frame.  Contains control buttons
   fBottomFrame = new TGHorizontalFrame(fMain,1200,200);
-  fBottomFrame->SetBackgroundColor(lightblue);
+  fBottomFrame->SetBackgroundColor(mainguicolor);
   fMain->AddFrame(fBottomFrame, new TGLayoutHints(kLHintsExpandX,10,10,10,10));
   
   // Create a horizontal frame widget with buttons
   hframe = new TGHorizontalFrame(fBottomFrame,1200,40);
-  hframe->SetBackgroundColor(lightblue);
+  hframe->SetBackgroundColor(mainguicolor);
   fBottomFrame->AddFrame(hframe,new TGLayoutHints(kLHintsExpandX,200,20,2,2));
 
   fPrev = new TGTextButton(hframe,"Prev");
-  fPrev->SetBackgroundColor(lightblue);
+  fPrev->SetBackgroundColor(mainguicolor);
   fPrev->Connect("Clicked()","OnlineGUI",this,"DrawPrev()");
   hframe->AddFrame(fPrev, new TGLayoutHints(kLHintsCenterX,5,5,1,1));
 
   fNext = new TGTextButton(hframe,"Next");
-  fNext->SetBackgroundColor(lightblue);
+  fNext->SetBackgroundColor(mainguicolor);
   fNext->Connect("Clicked()","OnlineGUI",this,"DrawNext()");
   hframe->AddFrame(fNext, new TGLayoutHints(kLHintsCenterX,5,5,1,1));
 
@@ -601,18 +670,22 @@ void OnlineGUI::CreateGUI(const TGWindow *p, UInt_t w, UInt_t h)
   TGString labelBuff(Buff);
   
   fRunNumber = new TGLabel(hframe,Buff);
-  fRunNumber->SetBackgroundColor(lightblue);
+  fRunNumber->SetBackgroundColor(mainguicolor);
   hframe->AddFrame(fRunNumber,new TGLayoutHints(kLHintsCenterX,5,5,1,1));
 
   fPrint = new TGTextButton(hframe,"Print To &File");
-  fPrint->SetBackgroundColor(lightblue);
+  fPrint->SetBackgroundColor(mainguicolor);
   fPrint->Connect("Clicked()","OnlineGUI",this,"PrintToFile()");
   hframe->AddFrame(fPrint, new TGLayoutHints(kLHintsCenterX,5,5,1,1));
 
 
   // Set a name to the main frame
-  fMain->SetWindowName("Online Analysis GUI");
-  
+  if(fConfig->IsMonitor()) {
+    fMain->SetWindowName("Parity ANalysis GUI moNitor");
+  } else {
+    fMain->SetWindowName("Online Analysis GUI");
+  }
+
   // Map all sub windows to main frame
   fMain->MapSubwindows();
   
@@ -657,8 +730,9 @@ void OnlineGUI::DoDraw()
 //   gStyle->SetLabelSize(0.10,"Y");
   gStyle->SetLabelSize(0.05,"X");
   gStyle->SetLabelSize(0.05,"Y");
+  gStyle->SetPadLeftMargin(0.14);
   gStyle->SetNdivisions(505,"X");
-  gStyle->SetNdivisions(505,"Y");
+  gStyle->SetNdivisions(404,"Y");
   gROOT->ForceStyle();
 
   // Determine the dimensions of the canvas..
@@ -950,6 +1024,7 @@ void OnlineGUI::MacroDraw(vector <TString> command) {
     return;
   }
 
+  if(doGolden) fRootFile->cd();
   gROOT->Macro(command[1]);
   
 
@@ -1039,9 +1114,10 @@ void OnlineGUI::BadDraw(TString errMessage) {
   // failed.
   TLatex l;
   l.SetTextAlign(23);
+  l.SetTextFont(72);
   l.SetTextSize(0.1);
-  l.DrawLatex(0.5,0.5,errMessage);
-  
+  l.DrawLatex(0.5,3.0,errMessage);
+  cout << errMessage << endl;
 
 }
 
@@ -1117,29 +1193,79 @@ Int_t OnlineGUI::OpenRootFile() {
 void OnlineGUI::HistDraw(vector <TString> command) {
   // Called by DoDraw(), this will plot a histogram.
 
-  
+  Bool_t showGolden=kFALSE;
+  if(doGolden) showGolden=kTRUE;
+
+  if(command.size()==2)
+    if(command[1]=="noshowgolden") {
+      showGolden = kFALSE;
+    }
 
   // Determine dimensionality of histogram
   for(UInt_t i=0; i<fileObjects.size(); i++) {
     if (fileObjects[i].first.Contains(command[0])) {
       if(fileObjects[i].second.Contains("TH1")) {
+	if(showGolden) fRootFile->cd();
 	mytemp1d = (TH1D*)gDirectory->Get(command[0]);
-	mytemp1d->Draw();
+	if(mytemp1d->GetEntries()==0) {
+	  BadDraw("Empty Histogram");
+	} else {
+	  if(showGolden) {
+	    fGoldenFile->cd();
+	    mytemp1d_golden = (TH1D*)gDirectory->Get(command[0]);
+	    mytemp1d_golden->SetLineColor(30);
+	    mytemp1d_golden->SetFillColor(30);
+	    Int_t fillstyle=3027;
+	    if(fPrintOnly) fillstyle=3010;
+	    mytemp1d_golden->SetFillStyle(fillstyle);
+	    mytemp1d_golden->Draw();
+	    mytemp1d->Draw("sames");
+	  } else {
+	    mytemp1d->Draw();
+	  }
+	}
 	break;
       }
       if(fileObjects[i].second.Contains("TH2")) {
+	if(showGolden) fRootFile->cd();
 	mytemp2d = (TH2D*)gDirectory->Get(command[0]);
-	mytemp2d->Draw();
+	if(mytemp2d->GetEntries()==0) {
+	  BadDraw("Empty Histogram");
+	} else {
+// These are commented out for some reason (specific to DVCS?)
+// 	  if(showGolden) {
+// 	    fGoldenFile->cd();
+// 	    mytemp2d_golden = (TH2D*)gDirectory->Get(command[0]);
+// 	    mytemp2d_golden->SetMarkerColor(2);
+// 	    mytemp2d_golden->Draw();
+	    //mytemp2d->Draw("sames");
+// 	  } else {
+	  mytemp2d->Draw();
+// 	  }
+	}
 	break;
       }
       if(fileObjects[i].second.Contains("TH3")) {
+	if(showGolden) fRootFile->cd();
 	mytemp3d = (TH3D*)gDirectory->Get(command[0]);
-	mytemp3d->Draw();
+	if(mytemp3d->GetEntries()==0) {
+	  BadDraw("Empty Histogram");
+	} else {
+	  mytemp3d->Draw();
+	  if(showGolden) {
+	    fGoldenFile->cd();
+	    mytemp3d_golden = (TH3D*)gDirectory->Get(command[0]);
+	    mytemp3d_golden->SetMarkerColor(2);
+	    mytemp3d_golden->Draw();
+	    mytemp3d->Draw("sames");
+	  } else {
+	    mytemp3d->Draw();
+	  }
+	}
 	break;
       }
     }
   }
-
 
 }
 
@@ -1185,7 +1311,7 @@ void OnlineGUI::TreeDraw(vector <TString> command) {
 	thathist->SetTitle(command[3]);
       }
     } else {
-      BadDraw("No Entries to Draw");
+      BadDraw("Empty Histogram");
     }
   } else {
     BadDraw(var+" not found");
@@ -1251,7 +1377,23 @@ void OnlineGUI::PrintPages() {
     }
     
   }
-  
+  TString goldenfilename=fConfig->GetGoldenFile();
+  if(!goldenfilename.IsNull()) {
+    fGoldenFile = new TFile(goldenfilename,"READ");
+    if(!fGoldenFile->IsOpen()) {
+      cout << "ERROR: goldenrootfile: " << goldenfilename
+	   << " does not exist.  Oh well, no comparison plots."
+	   << endl;
+      doGolden = kFALSE;
+      fGoldenFile=NULL;
+    } else {
+      doGolden = kTRUE;
+    }
+  } else {
+    doGolden=kFALSE;
+    fGoldenFile=NULL;
+  }
+
   // I'm not sure exactly how this works.  But it does.
   fCanvas = new TCanvas("fCanvas","trythis",850,1050);
 //   TCanvas *maincanvas = new TCanvas("maincanvas","whatever",850,1100);
@@ -1308,6 +1450,7 @@ void OnlineGUI::MyCloseWindow()
   delete vframe;
   delete fTopframe;
   delete fMain;
+  if(fGoldenFile!=NULL) delete fGoldenFile;
   if(fRootFile!=NULL) delete fRootFile;
   delete fConfig;
 }
@@ -1325,6 +1468,7 @@ OnlineGUI::~OnlineGUI()
     timer->Stop();
     delete timer;
   }
+  delete fPrint;
   delete fExit;
   delete fRunNumber;
   delete fPrev;
@@ -1338,6 +1482,7 @@ OnlineGUI::~OnlineGUI()
   delete fBottomFrame;
   delete fTopframe;
   delete fMain;
+  if(fGoldenFile!=NULL) delete fGoldenFile;
   if(fRootFile!=NULL) delete fRootFile;
   delete fConfig;
 }
