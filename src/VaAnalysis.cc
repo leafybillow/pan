@@ -175,7 +175,8 @@ VaAnalysis::RunIni(TaRun& run)
   ++fLeakNewEvt;
 #endif
   NewPrePair();
-  fPrePair->RunInit();
+  if (fPrePair->RunInit(run) != 0)
+    return fgVAANA_ERROR;
   fPair = 0;
 
 // Define CHECKOUT if you want a printout of the database.  This might be worth
@@ -296,7 +297,8 @@ VaAnalysis::RunReIni(TaRun& run)
   ++fLeakNewEvt;
 #endif
   NewPrePair();
-  fPrePair->RunInit();
+  if (fPrePair->RunInit(run) != 0)
+    return fgVAANA_ERROR;
   fPair = 0;
 
   fQSwitch = kFALSE;
