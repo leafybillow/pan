@@ -4,6 +4,107 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 10 Apr 2002
+-----------------------------------
+
+I've made a bunch of changes, mostly in three categories: (1) fixing
+compiler warnings (2) improving stats output format and (3) changing
+the way cut intervals are updated.
+
+The latter is a little arcane.  The point is that multiple copies of
+events get stored -- there's the copy owned by TaRun, the copy in the
+event queue, and the copy in a pair in the pair queue, for instance.
+(And before going into those queues, they go through the helicity
+delay queue.)  The copy in TaRun is the one that gets checked for
+event errors, and is later copied into the event and pair queues;
+however, it's a copy of this which is put into a pair and checked for
+helicity/synch sequence errors.  That means a couple of things.  One,
+the event found in the event queue never has pair cuts stored in its
+list of failed cuts.  Since event queue events are presumably used
+only for the non-pair tree and non-pair analyses, that's not
+necessarily a problem.
+
+What is a problem is that the event owned by TaRun also has pair cut
+failures indicated.  We were using that copy of the event to update
+cut intervals; this means sequence errors were never generating cut
+intervals.  Bad thing.
+
+The new scheme is to call a new method in TaRun to update the cut
+intervals immediately upon finding each cut condition.  The ugly side
+of this is that a couple of pair methods now have run arguments where
+they didn't need them before.
+
+Here's a more detailed list of changes:
+
+TaCutList.{cc,hh}
+
+ o Added tally of events that fail cut conditions.
+
+ o Added a vector string to hold cut names, with an access function to
+   add a name.  Used by printTally().
+
+ o Added printInt(), printExt(), and printTally() methods, and
+   redefined operator<< as a call to all three.
+
+ o Other minor tweaks.
+
+TaDevice.{cc,hh}
+
+ o Added const to both GetKey()s.  For GetKey(Int_t) this then
+   required changing the iterator to const_iterator; for
+   GetKey(string) I had to replace fKeyToIdx[keystr] by
+   (fKeyToIdx.find(keystr))->second .  (You can't index into a const
+   map, but you can do a find on it.  I believe this should not change
+   the behavior for defined keys, and for undefined keys
+   GetKey(string) probably should complain, not just silently return
+   zero.
+
+ o Removed const from argument of Init(), since it calls
+   DataMapReStart() and NextDataMap() which modify the database object.
+
+ BOB -- PLEASE VERIFY THESE CHANGES ARE OK!
+
+TaEvent.{cc,hh}
+
+ o Added calls to TaRun::UpdateCutList().
+
+ o Other tweaks.
+
+TaFdbkAna.cc
+
+ o Re-ordered constructor initializers to quell a warning.
+
+TaPairFromPair.{cc,hh}
+
+ o Added call to TaRun::UpdateCutList().
+ 
+ o Added run argument to CheckSequence() and Fill().
+
+TaRun.{cc,hh}
+
+ o Added calls to TaCutList::AddName().
+
+ o Stats output format enhancements.
+
+ o Added UpdateCutList() method.
+
+ o Commented out body of AddCuts() method.  (To be removed entirely if
+   the new scheme works OK.)
+
+VaAnalysis.cc
+
+ o Added run argument to VaPair::Fill() call.
+
+ o Other tweaks.
+
+VaPair.{cc,hh}
+
+ o Added run argument to Fill().
+
+ o Other tweaks.
+
+
+
 Changes by R. Michaels on 6 Apr 2002
 -------------------------------------
 
