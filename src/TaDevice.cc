@@ -1354,10 +1354,31 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"lumi3",  ILUMI3));
   fKeyToIdx.insert(make_pair((string)"lumi4r", ILUMI4R));
   fKeyToIdx.insert(make_pair((string)"lumi4",  ILUMI4));
-  fKeyToIdx.insert(make_pair((string)"lumi5r", ILUMI5R));
-  fKeyToIdx.insert(make_pair((string)"lumi5",  ILUMI5));
-  fKeyToIdx.insert(make_pair((string)"lumi6r", ILUMI6R));
-  fKeyToIdx.insert(make_pair((string)"lumi6",  ILUMI6));
+
+  fKeyToIdx.insert(make_pair((string)"flumi1r", IFLUMI1R));
+  fKeyToIdx.insert(make_pair((string)"flumi1",  IFLUMI1));
+  fKeyToIdx.insert(make_pair((string)"flumi2r", IFLUMI2R));
+  fKeyToIdx.insert(make_pair((string)"flumi2",  IFLUMI2));
+  fKeyToIdx.insert(make_pair((string)"flumi3r", IFLUMI3R));
+  fKeyToIdx.insert(make_pair((string)"flumi3",  IFLUMI3));
+
+  fKeyToIdx.insert(make_pair((string)"blumi1r", IBLUMI1R));
+  fKeyToIdx.insert(make_pair((string)"blumi1",  IBLUMI1));
+  fKeyToIdx.insert(make_pair((string)"blumi2r", IBLUMI2R));
+  fKeyToIdx.insert(make_pair((string)"blumi2",  IBLUMI2));
+  fKeyToIdx.insert(make_pair((string)"blumi3r", IBLUMI3R));
+  fKeyToIdx.insert(make_pair((string)"blumi3",  IBLUMI3));
+  fKeyToIdx.insert(make_pair((string)"blumi4r", IBLUMI4R));
+  fKeyToIdx.insert(make_pair((string)"blumi4",  IBLUMI4));
+  fKeyToIdx.insert(make_pair((string)"blumi5r", IBLUMI5R));
+  fKeyToIdx.insert(make_pair((string)"blumi5",  IBLUMI5));
+  fKeyToIdx.insert(make_pair((string)"blumi6r", IBLUMI6R));
+  fKeyToIdx.insert(make_pair((string)"blumi6",  IBLUMI6));
+  fKeyToIdx.insert(make_pair((string)"blumi7r", IBLUMI7R));
+  fKeyToIdx.insert(make_pair((string)"blumi7",  IBLUMI7));
+  fKeyToIdx.insert(make_pair((string)"blumi8r", IBLUMI8R));
+  fKeyToIdx.insert(make_pair((string)"blumi8",  IBLUMI8));
+
 
   fKeyToIdx.insert(make_pair((string)"v2f_clk0",IV2F_CLK0));
   fKeyToIdx.insert(make_pair((string)"v2f_clk1",IV2F_CLK1));
@@ -1372,6 +1393,19 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"qpd1x", IQPD1X));
   fKeyToIdx.insert(make_pair((string)"qpd1y", IQPD1Y));
   fKeyToIdx.insert(make_pair((string)"qpd1sum", IQPD1SUM));
+
+// scanner
+  fKeyToIdx.insert(make_pair((string)"scanlxenc",ISCANLXENC));
+  fKeyToIdx.insert(make_pair((string)"scanlyenc",ISCANLYENC));
+  fKeyToIdx.insert(make_pair((string)"scanlx",ISCANLX));
+  fKeyToIdx.insert(make_pair((string)"scanly",ISCANLY));
+  fKeyToIdx.insert(make_pair((string)"scanldet",ISCANLDET));
+
+  fKeyToIdx.insert(make_pair((string)"scanrxenc",ISCANRXENC));
+  fKeyToIdx.insert(make_pair((string)"scanryenc",ISCANRYENC));
+  fKeyToIdx.insert(make_pair((string)"scanrx",ISCANRX));
+  fKeyToIdx.insert(make_pair((string)"scanry",ISCANRY));
+  fKeyToIdx.insert(make_pair((string)"scanrdet",ISCANRDET));
 
   fKeyToIdx.insert(make_pair((string)"bmw_clean",IBMW_CLN));
   fKeyToIdx.insert(make_pair((string)"bmw_obj",IBMW_OBJ));

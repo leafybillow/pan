@@ -32,11 +32,13 @@
 # Detectors
 @detlist =       qw / IDET1 IDET2 IDET3 IDET4 /;
 # Lumi detectors
-@lumilist =      qw / ILUMI1 ILUMI2 ILUMI3 ILUMI4 ILUMI5 ILUMI6 /;
+@lumilist =      qw / IBLUMI1 IBLUMI2 IBLUMI3 IBLUMI4 IBLUMI5 IBLUMI6 IBLUMI7 IBLUMI8 IFLUMI1 IFLUMI2 IFLUMI3 ILUMI1 ILUMI2 ILUMI3 ILUMI4/;
 # V2F clocks
 @v2fclocklist =  qw / IV2F_CLK0 IV2F_CLK1 IV2F_CLK2 IV2F_CLK3 /;
 # quad photodiode
 @qpdlist = qw / IQPD1 /;
+# Q2 scanner
+@scanlist = qw / ISCANL ISCANR /;
 # BMW words
 @bmwlist = qw / IBMW_CLN IBMW_OBJ IBMW_VAL IBMW_CYC /;
 # Number of ADC modules, scaler modules, and crates
@@ -59,6 +61,7 @@ $out = "";   # output being built
 &do_lumis();
 &do_v2fclocks();
 &do_qpds();
+&do_scans();
 &do_bmwwords();
 
 print << "END";
@@ -680,6 +683,46 @@ sub add_qpd
     $ret .= "\#define   ${qpd}X    $p\n"; $p++;
     $ret .= "\#define   ${qpd}Y    $p\n"; $p++;
     $ret .= "\#define   ${qpd}SUM  $p\n"; $p++;
+    $ret .= "\n";
+    return $ret;
+}
+
+
+sub do_scans
+{
+# Q2 scanners
+
+    $scanoff = $p;
+    $scannum = scalar (@scanlist);
+    $out1 = "// Q2 Scanners \n";
+    foreach $scan (@scanlist)
+    {
+	$out1 .= &add_scan ($scan);
+    }
+    
+    $out .= << "ENDSCANCOM";
+// Quad photodiodes
+
+\#define   SCANOFF     $scanoff     // Q2 scanners start here
+\#define   SCANNUM     $scannum     // number of Q2 scanners defined below
+
+// XENC, YENC = raw encoder values,  X, Y = calibrated encoder values  
+// DET = integrated PMT signal
+
+$out1
+ENDSCANCOM
+}
+
+sub add_scan
+{
+    my ($scan) = @_;
+    my ($ret);
+    $ret = "";
+    $ret .= "\#define   ${scan}XENC   $p\n"; $p++;
+    $ret .= "\#define   ${scan}YENC   $p\n"; $p++;
+    $ret .= "\#define   ${scan}X   $p\n"; $p++;
+    $ret .= "\#define   ${scan}Y   $p\n"; $p++;
+    $ret .= "\#define   ${scan}DET   $p\n"; $p++;
     $ret .= "\n";
     return $ret;
 }
