@@ -4,6 +4,23 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 21 May 2002
+-----------------------------------
+
+TaAsciiDB.hh TaBeamAna.{cc,hh} TaCutInterval.{cc,hh} TaCutList.{cc,hh},
+TaEvent.{cc,hh} TaLabelledQuantity.{cc,hh} TaPairFromPair.{cc,hh} 
+
+ o Comments for THtml.
+
+TaLinkDef.hh 
+
+ o Remove TaFdbkAna, TaRunFeedback.
+
+VaAnalysis.cc
+
+ o Call to VaPair::RunInit; no tree print.
+
+
 Changes by R. Holmes on 20 May 2002
 -----------------------------------
 
