@@ -32,6 +32,13 @@
 ClassImp(TaCutList)
 #endif
 
+// Define a ++ for ECutType
+
+ECutType& operator++ (ECutType& c)
+{
+  return c = (c == MaxCuts) ? LowBeamCut: ECutType (c+1);
+}
+
 // Constructors/destructors/operators
 
 TaCutList::TaCutList(RunNumber_t run): fRunNumber(run)
@@ -230,6 +237,14 @@ TaCutList::AddName (const ECutType cut, const string& s)
   // For the given cut type, add a label to the list of cut type names.
 
   fCutNames[cut] = s;
+}
+
+const string& 
+TaCutList::GetName (const ECutType cut) const
+{
+  // Get name from list
+
+  return fCutNames[(unsigned int) cut];
 }
 
 void
