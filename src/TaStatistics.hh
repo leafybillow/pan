@@ -80,25 +80,26 @@ public:
   vector<pair<Double_t,Double_t> > 
   MeanAndErr() const;   // vector of means of x and their errors
   vector<Double_t>  Neff() const;        // effective N for all x
-  Double_t  DataRMS(size_t i) const;     // RMS of one x
-  Double_t  Mean(size_t i) const;        // mean of one x
-  Double_t  MeanVar(size_t i) const;     // variance of mean of one x
-  Double_t  MeanErr(size_t i) const;     // error of mean of one x
+  Double_t  DataRMS(const size_t i) const;     // RMS of one x
+  Double_t  Mean(const size_t i) const;        // mean of one x
+  Double_t  MeanVar(const size_t i) const;     // variance of mean of one x
+  Double_t  MeanErr(const size_t i) const;     // error of mean of one x
   pair<Double_t,Double_t> 
-  MeanAndErr(size_t i) const;  // mean of one x and its error
-  Double_t  Neff(size_t i) const;        // effective N for one x
+  MeanAndErr(const size_t i) const;  // mean of one x and its error
+  Double_t  Neff(const size_t i) const;        // effective N for one x
   
   // Other functions
   void      SetFirstPass(Bool_t);        // for multipass analysis
+  void      DumpSums (const size_t i) const;         // For debugging, print raw sums for one quantity.
 
 private:
   
 // Private member functions
 
-  Double_t PDataMS (size_t i) const;
-  Double_t PMean (size_t i) const;
-  Double_t PMeanVar (size_t i) const;
-  Double_t PNeff (size_t i) const;
+  Double_t PDataMS (const size_t i) const;
+  Double_t PMean (const size_t i) const;
+  Double_t PMeanVar (const size_t i) const;
+  Double_t PNeff (const size_t i) const;
 
   // Data members
 

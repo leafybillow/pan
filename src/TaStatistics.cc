@@ -57,7 +57,7 @@ TaStatistics::TaStatistics (const size_t nquant, const Bool_t goodErrors = true)
 
 TaStatistics::TaStatistics (const TaStatistics& s):
   fGoodErrors(s.fGoodErrors),
-  fFirstPass(true),
+  fFirstPass(s.fFirstPass),
   fN(s.fN),
   fN2(s.fN2),
   fSumWt(s.fSumWt),
@@ -82,6 +82,7 @@ TaStatistics::operator= (const TaStatistics& s)
   if (this != &s)
     {
       fGoodErrors = s.fGoodErrors;
+      fFirstPass = s.fFirstPass;
       fN = s.fN;
       fN2 = s.fN2;
       fSumWt = s.fSumWt;
@@ -116,7 +117,6 @@ TaStatistics::Zero ()
   fSumWtXs = vector<Double_t>(fSumWtXs.size(),0);
   fSumWtXs2 = vector<Double_t>(fSumWtXs2.size(),0);
 }
-
 
 void 
 TaStatistics::Update (const vector<Double_t>& x,
@@ -485,7 +485,7 @@ TaStatistics::Neff() const
 
 
 Double_t 
-TaStatistics::DataRMS (size_t i) const      
+TaStatistics::DataRMS (const size_t i) const      
 {
   // RMS of one x (with error checking)
   if ( fSumWt.size() > i )
@@ -509,7 +509,7 @@ TaStatistics::DataRMS (size_t i) const
 
 
 Double_t 
-TaStatistics::Mean (size_t i) const         
+TaStatistics::Mean (const size_t i) const         
 {
   // Mean of one x (with error checking)
   if ( fSumWt.size() > i )
@@ -533,7 +533,7 @@ TaStatistics::Mean (size_t i) const
 
 
 Double_t 
-TaStatistics::MeanVar (size_t i) const      
+TaStatistics::MeanVar (const size_t i) const      
 {
   // Variance of mean of one x (with error checking)
   if ( fSumWt.size() > i )
@@ -557,7 +557,7 @@ TaStatistics::MeanVar (size_t i) const
 
 
 Double_t 
-TaStatistics::MeanErr (size_t i) const      
+TaStatistics::MeanErr (const size_t i) const      
 {
   // Error of mean of one x
   if ( fSumWt.size() > i )
@@ -581,7 +581,7 @@ TaStatistics::MeanErr (size_t i) const
 
 
 pair<Double_t,Double_t> 
-TaStatistics::MeanAndErr (size_t i) const   
+TaStatistics::MeanAndErr (const size_t i) const   
 {
   // Mean of one x and its error
   if ( fSumWt.size() > i )
@@ -606,7 +606,7 @@ TaStatistics::MeanAndErr (size_t i) const
 
 
 Double_t
-TaStatistics::Neff (size_t i) const 
+TaStatistics::Neff (const size_t i) const 
 {
   // Effective N for one x (with error checking)
   if ( fSumWt.size() > i )
@@ -642,10 +642,29 @@ TaStatistics::SetFirstPass (Bool_t fp)
 }
 
 
+void
+TaStatistics::DumpSums (const size_t i) const
+{
+  // For debugging, print raw sums for one quantity.
+
+  cout << " fN: " << fN
+       << " fN2: " << fN2
+       << " fSumWt: " << fSumWt[i]
+       << " fSumWt2: " << fSumWt2[i]
+       << " fSumWtX: " << fSumWtX[i]
+       << " fSumWtX2: " << fSumWtX2[i]
+       << " fSumWt2Err2: " << fSumWt2Err2[i]
+       << " fXbar: " << fXbar[i]
+       << " fSumWtXs: " << fSumWtXs[i]
+       << " fSumWtXs2: " << fSumWtXs2[i]
+       << " fFirstPass: " << (fFirstPass?"T":"F")
+       << endl;
+}
+
 // Private member functions
 
 Double_t
-TaStatistics::PDataMS (size_t i) const
+TaStatistics::PDataMS (const size_t i) const
 {
   // RMS of one x.  Computed differently depending on whether first or
   // second pass.
@@ -686,7 +705,7 @@ TaStatistics::PDataMS (size_t i) const
 
 
 Double_t
-TaStatistics::PMean (size_t i) const
+TaStatistics::PMean (const size_t i) const
 {
   // Mean of one x
   if ( fSumWt[i] > 0 )
@@ -702,7 +721,7 @@ TaStatistics::PMean (size_t i) const
 
 
 Double_t
-TaStatistics::PMeanVar (size_t i) const
+TaStatistics::PMeanVar (const size_t i) const
 {
   // Variance of mean of one x
   if ( fSumWt[i] > 0 )
@@ -725,7 +744,7 @@ TaStatistics::PMeanVar (size_t i) const
 
 
 Double_t
-TaStatistics::PNeff (size_t i) const
+TaStatistics::PNeff (const size_t i) const
 {
   // Effective N for one x
   if ( fSumWt2[i] > 0 )
