@@ -6,6 +6,29 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Michaels on   14 May 2004
+---------------------------------------
+
+Add EPICS data as an optional TTree output.  
+The data goes both to "R" tree and a new "E" tree.  
+This is driven by the database; e.g. you put lines
+like these in the parity*.db file:
+
+# List of EPICS variables to put to output trees
+  epics IPM1H04A.XPOS IPM1H04A.YPOS IPM1H04B.XPOS
+  epics IPM1H04B.YPOS
+  epics Fred_Flintstone
+  epics HA:Q_ONOFF HA:Q_ASY HA:Q_STAMP HA:IA_SLOPE
+
+The "E" tree is created only if these lines exist in db.
+Without any "epics" lines there is no "E" tree.  The 
+illegal characters like ":" and arithmetic operations 
+will appear in the trees as underscores, hence 
+      "HA:Q_ASY" -> "HA_Q_ASY".
+This is because of TTree::Draw() limitations.
+If a variable (like "Fred_Flintstone") is undefined in
+raw data, it will be -1e32 in the tree.
+
 Changes by R. Michaels on   12 May 2004
 ---------------------------------------
 

@@ -1,3 +1,14 @@
+Comments by R. Michaels, 14 May 2004
+------------------------------------
+
+Why don't we fEvtree->Write() in TaRun::Finish() ?
+I don't get it.  It was absolutely necessary for
+fEpicsTree; perhaps fEvtree is only partially written.
+I leave it a question for now.
+
+Do we need TaPanamLinkDef.hh now ?
+
+
 Comments by R. Holmes, 14 Jan 2003
 ----------------------------------
 
