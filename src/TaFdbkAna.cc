@@ -29,8 +29,9 @@ ClassImp(TaFdbkAna)
 // Constructors/destructors/operators
 TaFdbkAna::TaFdbkAna():VaAnalysis(),
  fRunNum(0),
- fQStartPair(0),fQStopPair(0),fNQpair(0),fQlevFdbk(0), fQmevFdbk(0), fQnum(0), fQsent(0),
- fZStartpair(0),fZStopPair(0), fNZpair(0),fZlevFdbk(0), fZmevFdbk(0), fZnum(0), fZsent(0),
+ fQStartPair(0),fQStopPair(0),fNQpair(0),fQlevFdbk(0), fQnum(0), fQsent(0),
+ fZStartpair(0),fZStopPair(0), fNZpair(0),fZlevFdbk(0), fZnum(0), fZsent(0),
+ fQmevFdbk(0), fZmevFdbk(0), 
  fZdiff4AXMean1(0), fZdiff4AXMean2(0), fZdiff4AXRMS(0), fZdiff4AXErr(0),
  fZdiff4AYMean1(0), fZdiff4AYMean2(0), fZdiff4AYRMS(0), fZdiff4AYErr(0),
  fZdiff4BXMean1(0), fZdiff4BXMean2(0), fZdiff4BXRMS(0), fZdiff4BXErr(0),
