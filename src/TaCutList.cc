@@ -64,10 +64,16 @@ TaCutList::Init(const VaDataBase& db)
   for (size_t i = 0; i < db.GetNumBadEv(); ++i)
     {
       temp = db.GetCutValues()[i];
-      ECutType ct = temp[2];
-      EventNumber_t elo = temp[0];
-      EventNumber_t ehi = temp[1];
-      fIntervals.push_back(TaCutInterval (ct, temp[3], elo, ehi));
+      if (temp[2] >= 0 && temp[2] < MaxCuts)
+	{
+	  ECutType ct = temp[2];
+	  EventNumber_t elo = temp[0];
+	  EventNumber_t ehi = temp[1];
+	  fIntervals.push_back(TaCutInterval (ct, temp[3], elo, ehi));
+	}
+      else
+	cerr << "TaCutList::Init WARNING: Unknown cut type = " << temp[2]
+	     << " found in database -- ignoring" << endl;
     }
 }
 
@@ -188,4 +194,5 @@ operator<< (ostream& s, const TaCutList q)
        ++k)
     s << " " << *k;
   s << endl;
+  return s;
 }
