@@ -6,22 +6,31 @@
 #include "THaCodaFile.h"
 #include "THaEtClient.h"
 #include "TString.h"
+#include <signal.h>
+
+//#define DUMPIT
+#define SPEEDTEST
 
 void usage();
 void do_something(int* data);
+extern "C" void signalhandler (int s);
+THaCodaData *coda;
 
 int main(int argc, char* argv[])
 {
 
-  THaCodaData *coda;      // THaCodaData is abstract
-
-  if (argc < 3) {
+  if (argc < 3) {  
      usage();
      return 1;
   }
 
+  signal(31, signalhandler);  // kill -31 to end this
+
   int choice1 = atoi(argv[1]);
   int choice2 = atoi(argv[2]);
+  int NUMEVT;
+  NUMEVT =200;
+  if (argc > 3) NUMEVT = atoi(argv[3]);
 
   if (choice1 == 1) {  // CODA File
 
@@ -41,8 +50,8 @@ int main(int argc, char* argv[])
   } else {         // Online ET connection
 
       int mymode = 1;
-      TString mycomputer("adaql2");
-      TString mysession("onla");
+      TString mycomputer("adaqcp");
+      TString mysession("par1");
 
       if (choice2 == 1) {   // Three different types of constructor 
          coda = new THaEtClient();
@@ -59,7 +68,6 @@ int main(int argc, char* argv[])
   }
 
 // Loop over events
-  int NUMEVT=200;
   int status;
 
   for (int iev = 0; iev < NUMEVT; iev++) {
@@ -103,6 +111,7 @@ void do_something (int* data) {
   int len = data[0] + 1;
   int evtype = data[1]>>16;
   int evnum = data[4];
+#ifdef DUMPIT
  // Crude event dump
   cout << "\n\n Event number " << dec << evnum;
   cout << " length " << len << " type " << evtype << endl;
@@ -121,9 +130,21 @@ void do_something (int* data) {
       }
       cout << endl;
   }
+#endif
+#ifdef SPEEDTEST
+  static int dummy;
+  dummy += evnum;
+  if (evnum % 600 == 0) cout << "Event "<<evnum<<endl;
+  if (evnum % 2400 == 0) cout << "dummy sum "<<dummy<<endl;
+#endif
 };
 
-
+void signalhandler(int sig)
+{  // To deal with the signal "kill -31 pid"
+  cout << "Ending the online analysis"<<endl<<flush;
+  coda->codaClose();
+  exit(1);
+}
 
 
 
