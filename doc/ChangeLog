@@ -20,6 +20,14 @@ regression, if and only if it has coefficients for the detector in
 question.  prompt.macro has been updated with the requisite call to
 LoadCorrs(). 
 
+prompt.macro now has a second argument; if nonzero, we're in batch
+mode, but if it's zero we're interactive and the online macro is
+called. 
+
+There now is an overall prompt analysis script, prompt.pl; for usage
+see comments therein.  This calls the Pan analysis if needed, and then
+invokes prompt.macro within Pan.
+
 
 Changes by R. Holmes on  29 May 2004
 --------------------------------------
