@@ -101,6 +101,47 @@ void TaDevice::Init(TaDataBase& db) {
    fgTbdMask = db.GetMask("timeboard");
    fgTirHeader = db.GetHeader("tir");
    fgTirMask = db.GetMask("tir");
+// Try to recover from a database that doesn't define header, mask.
+   if (fgAdcHeader == 0) {
+     fgAdcHeader = 0xffadc000;
+     cout << "WARNING:  Header for ADC was zero.";
+     cout <<"  Using default  " << hex << fgAdcHeader << endl;
+   }
+   if (fgAdcMask == 0) {
+     fgAdcMask = 0xfffff000;
+     cout << "WARNING:  Mask for ADC was zero.";
+     cout <<"  Using default  " << hex << fgAdcMask << endl;
+   }
+   if (fgScalHeader == 0) {
+     fgScalHeader = 0xfffca000;
+     cout << "WARNING:  Header for Scaler was zero.";
+     cout <<"  Using default  " << hex << fgScalHeader << endl;
+   }
+   if (fgScalMask == 0) {
+     fgScalMask = 0xfffff000;
+     cout << "WARNING:  Mask for Scaler was zero.";
+     cout <<"  Using default  " << hex << fgScalMask << endl;
+   }
+   if (fgTbdHeader == 0) {
+     fgTbdHeader = 0xfffbd000;
+     cout << "WARNING:  Header for TimeBd was zero.";
+     cout <<"  Using default  " << hex << fgTbdHeader << endl;
+   }
+   if (fgTbdMask == 0) {
+     fgTbdMask = 0xfffff000;
+     cout << "WARNING:  Mask for TimeBd was zero.";
+     cout <<"  Using default  " << hex << fgTbdMask << endl;
+   }
+   if (fgTirHeader == 0) {
+     fgTirHeader = 0xffdaf000;
+     cout << "WARNING:  Header for TIR was zero.";
+     cout <<"  Using default  " << hex << fgTirHeader << endl;
+   }
+   if (fgTirMask == 0) {
+     fgTirMask = 0xfffff000;
+     cout << "WARNING:  Mask for TIR was zero.";
+     cout <<"  Using default  " << hex << fgTirMask << endl;
+   }
    fTiedKeys.clear();
    fNtied = 0;
    while ( db.NextDataMap() ) {
@@ -178,7 +219,7 @@ void TaDevice::Init(TaDataBase& db) {
              if (DECODE_DEBUG) {
 	      cout << "Tying key `"<< GetKey(tiedkey);
               cout << "' to key `" << keystr<<"'"<<endl;
-              cout << "crate = " << fCrate[tiedkey];
+              cout << "crate = " << dec << fCrate[tiedkey];
               cout << "    evptr = " << fEvPointer[tiedkey]<<endl;
 	     }
            }
