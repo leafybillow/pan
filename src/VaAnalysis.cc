@@ -1878,3 +1878,20 @@ void VaAnalysis::DefineADCStacks(Bool_t opt)
 #endif
 
 
+Bool_t
+VaAnalysis::WtsOK (vector<Double_t> wts)
+{
+  // Return true iff all weights are nonnegative and sum is nonzero
+
+  Double_t sum = 0;
+  Bool_t ret = false;
+  vector<Double_t>::const_iterator iw;
+  for (iw = wts.begin(); 
+       iw != wts.end() && (*iw) >= 0; 
+       ++iw)
+    sum += (*iw);
+  if (iw == wts.end())
+    ret = (sum > 0);
+
+  return ret;
+}

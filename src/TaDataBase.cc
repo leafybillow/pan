@@ -327,6 +327,32 @@ void TaDataBase::Print() {
   clog << "   Low beam cut :  " << GetCutValue("lobeam") << endl;
   clog << "   Low beam C cut :  " << GetCutValue("lobeamc") << endl;
   clog << "   Burp cut :  " << GetCutValue("burpcut") << endl;
+
+  vector<Double_t> wts = GetDetWts();
+  if (wts.size() > 0)
+    {
+      clog << "   Detector weights :  ";
+      for (vector<Double_t>::const_iterator iw = wts.begin(); iw != wts.end(); ++iw)
+	clog << (*iw) << " ";
+      clog << endl;
+    }
+  wts = GetBlumiWts();
+  if (wts.size() > 0)
+    {
+      clog << "   Blumi weights :  ";
+      for (vector<Double_t>::const_iterator iw = wts.begin(); iw != wts.end(); ++iw)
+	clog << (*iw) << " ";
+      clog << endl;
+    }
+  wts = GetFlumiWts();
+  if (wts.size() > 0)
+    {
+      clog << "   Flumi weights :  ";
+      for (vector<Double_t>::const_iterator iw = wts.begin(); iw != wts.end(); ++iw)
+	clog << (*iw) << " ";
+      clog << endl;
+    }
+
   vector<Int_t> extlo = GetExtLo();
   vector<Int_t> exthi = GetExtHi();
   Int_t nlo = extlo.size();
@@ -450,6 +476,20 @@ TaDataBase::Checkout()
       cout << "   ped = " << GetScalPed(scal,chan);
     }
   }  
+
+  vector<Double_t> wts = GetDetWts();
+  cout << "   Detector weights :  ";
+  for (vector<Double_t>::const_iterator iw = wts.begin(); iw != wts.end(); ++iw)
+    cout << (*iw) << " " << endl;
+  wts = GetBlumiWts();
+  cout << "   Blumi weights :  ";
+  for (vector<Double_t>::const_iterator iw = wts.begin(); iw != wts.end(); ++iw)
+    cout << (*iw) << " " << endl;
+  wts = GetFlumiWts();
+  cout << "   Flumi weights :  ";
+  for (vector<Double_t>::const_iterator iw = wts.begin(); iw != wts.end(); ++iw)
+    cout << (*iw) << " " << endl;
+
   cout << "\n\nNumber of cuts " << GetNumCuts() << endl;
   vector<Int_t> extlo = GetExtLo();
   vector<Int_t> exthi = GetExtHi();
@@ -1102,6 +1142,27 @@ vector<Int_t> TaDataBase::GetExtHi() const {
    return GetValueVector("exthi");
 };
 
+vector<Double_t> TaDataBase::GetDetWts() const 
+{
+  // Get detector weights
+
+  return GetValueDVector ("detwts");
+};
+
+vector<Double_t> TaDataBase::GetBlumiWts() const 
+{
+  // Get blumi weights
+
+  return GetValueDVector ("blumiwts");
+};
+
+vector<Double_t> TaDataBase::GetFlumiWts() const 
+{
+  // Get flumi weights
+
+  return GetValueDVector ("flumiwts");
+};
+
 Int_t TaDataBase::GetNumBadEv() const{
 // Get number of bad event intervals
    return nbadev;
@@ -1273,6 +1334,7 @@ TaDataBase::GetEpicsKeys() const {
   return result;
 };
 
+
 vector<Int_t> 
 TaDataBase::GetValueVector(const string& table) const {
    vector<Int_t> result;
@@ -1291,6 +1353,29 @@ TaDataBase::GetValueVector(const string& table) const {
      }
    }
    return result;
+};
+
+vector<Double_t> 
+TaDataBase::GetValueDVector(const string& table) const 
+{
+  vector<Double_t> result;
+  result.clear();
+  multimap<string, vector<dtype*> >::const_iterator lb =
+    database.lower_bound(TaString(table).ToLower());
+  multimap<string, vector<dtype*> >::const_iterator ub = 
+    database.upper_bound(TaString(table).ToLower());
+  for (multimap<string, vector<dtype*> >::const_iterator dmap = lb;
+       dmap != ub; dmap++) 
+    {
+      vector<dtype*> datav = dmap->second;
+      for (vector<dtype*>::const_iterator idat = datav.begin();
+	   idat != datav.end(); idat++) 
+	{
+	  if ((*idat)->GetType() == "d") 
+	    result.push_back((*idat)->GetD());
+	}
+    }
+  return result;
 };
 
 void TaDataBase::PutDacNoise(const Int_t& adc, const Int_t& chan, const Double_t& slope) {
@@ -1433,6 +1518,9 @@ void TaDataBase::InitDB() {
   tables.push_back("compress");      //  31
   tables.push_back("lobeamc");       //  32
   tables.push_back("curmonc");       //  33
+  tables.push_back("detwts");        //  34
+  tables.push_back("blumiwts");      //  35
+  tables.push_back("flumiwts");      //  36
 
   pair<string, int> sipair;
   int k;
@@ -1563,6 +1651,12 @@ void TaDataBase::InitDB() {
     if (i == 32) columns.push_back(new dtype("d"));  // lobeamc
     if (i == 33)   // curmonc
       columns.push_back(new dtype("s"));
+    if (i == 34)    // detwts
+      for (k = 0; k < 4; k++) columns.push_back(new dtype("d"));
+    if (i == 35)    // blumiwts
+      for (k = 0; k < 8; k++) columns.push_back(new dtype("d"));
+    if (i == 36)    // flumiwts
+      for (k = 0; k < 2; k++) columns.push_back(new dtype("d"));
     sipair.second = columns.size(); 
     colsize.insert(sipair);
     LoadTable(tables[i],columns);

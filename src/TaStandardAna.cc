@@ -190,6 +190,7 @@ TaStandardAna::InitChanLists ()
 
   vector<Int_t> keys(0);
   vector<Double_t> wts(0);
+  vector<Double_t> wtsa(0);
 
   if (fRun->GetDevices().IsUsed(IBLUMI1R) &&
       fRun->GetDevices().IsUsed(IBLUMI2R) &&
@@ -204,6 +205,12 @@ TaStandardAna::InitChanLists ()
       keys.push_back(IBLUMI3);  keys.push_back(IBLUMI4);
       keys.push_back(IBLUMI5);  keys.push_back(IBLUMI6);
       keys.push_back(IBLUMI7);  keys.push_back(IBLUMI8);
+      wts = fRun->GetDataBase().GetBlumiWts();
+      if (!WtsOK (wts)) 
+	{
+	  cerr << "TaStandardAna::InitChanLists WARNING: blumi weights bad, ignored" << endl;
+	  wts.clear();
+	}
       fTreeList.push_back (AnaList ("blumi_sum", keys, wts, "ppm", 
 				    fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN));
       fTreeList.push_back (AnaList ("blumi_ave", keys, wts, "ppm", 
@@ -213,6 +220,12 @@ TaStandardAna::InitChanLists ()
       fRun->GetDevices().IsUsed(IFLUMI2R))
     {
       keys.clear(); keys.push_back(IFLUMI1);  keys.push_back(IFLUMI2);
+      wts = fRun->GetDataBase().GetFlumiWts();
+      if (!WtsOK (wts)) 
+	{
+	  cerr << "TaStandardAna::InitChanLists WARNING: flumi weights bad, ignored" << endl;
+	  wts.clear();
+	}
       fTreeList.push_back (AnaList ("flumi_sum", keys, wts, "ppm", 
 				    fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN));
       fTreeList.push_back (AnaList ("flumi_ave", keys, wts, "ppm", 
@@ -222,6 +235,13 @@ TaStandardAna::InitChanLists ()
       fRun->GetDevices().IsUsed(IDET2R))
     {
       keys.clear(); keys.push_back(IDET1);  keys.push_back(IDET2);
+      wtsa = fRun->GetDataBase().GetDetWts();
+      wts.clear(); wts.push_back (wtsa[0]); wts.push_back (wtsa[1]); 
+      if (!WtsOK (wts)) 
+	{
+	  cerr << "TaStandardAna::InitChanLists WARNING: det1/2 weights bad, ignored" << endl;
+	  wts.clear();
+	}
       fTreeList.push_back (AnaList ("det_l", keys, wts, "ppm", 
 				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
     }
@@ -229,6 +249,13 @@ TaStandardAna::InitChanLists ()
       fRun->GetDevices().IsUsed(IDET4R))
     {
       keys.clear(); keys.push_back(IDET3);  keys.push_back(IDET4);
+      wtsa = fRun->GetDataBase().GetDetWts();
+      wts.clear(); wts.push_back (wtsa[2]); wts.push_back (wtsa[3]); 
+      if (!WtsOK (wts)) 
+	{
+	  cerr << "TaStandardAna::InitChanLists WARNING: det3/4 weights bad, ignored" << endl;
+	  wts.clear();
+	}
       fTreeList.push_back (AnaList ("det_r", keys, wts, "ppm", 
 				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
     }
@@ -236,6 +263,13 @@ TaStandardAna::InitChanLists ()
       fRun->GetDevices().IsUsed(IDET3R))
     {
       keys.clear(); keys.push_back(IDET1);  keys.push_back(IDET3);
+      wtsa = fRun->GetDataBase().GetDetWts();
+      wts.clear(); wts.push_back (wtsa[0]); wts.push_back (wtsa[2]); 
+      if (!WtsOK (wts)) 
+	{
+	  cerr << "TaStandardAna::InitChanLists WARNING: det1/3 weights bad, ignored" << endl;
+	  wts.clear();
+	}
       fTreeList.push_back (AnaList ("det_lo", keys, wts, "ppm", 
 				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
     }
@@ -243,6 +277,13 @@ TaStandardAna::InitChanLists ()
       fRun->GetDevices().IsUsed(IDET4R))
     {
       keys.clear(); keys.push_back(IDET2);  keys.push_back(IDET4);
+      wtsa = fRun->GetDataBase().GetDetWts();
+      wts.clear(); wts.push_back (wtsa[1]); wts.push_back (wtsa[3]); 
+      if (!WtsOK (wts)) 
+	{
+	  cerr << "TaStandardAna::InitChanLists WARNING: det2/4 weights bad, ignored" << endl;
+	  wts.clear();
+	}
       fTreeList.push_back (AnaList ("det_hi", keys, wts, "ppm", 
 				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
     }
@@ -253,6 +294,12 @@ TaStandardAna::InitChanLists ()
     {
       keys.clear(); keys.push_back(IDET1);  keys.push_back(IDET2);
       keys.push_back(IDET3);  keys.push_back(IDET4);
+      wts = fRun->GetDataBase().GetDetWts();
+      if (!WtsOK (wts)) 
+	{
+	  cerr << "TaStandardAna::InitChanLists WARNING: det1-4 weights bad, ignored" << endl;
+	  wts.clear();
+	}
       fTreeList.push_back (AnaList ("det_all", keys, wts, "ppm", 
 				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
       fTreeList.push_back (AnaList ("det_ave", keys, wts, "ppm", 

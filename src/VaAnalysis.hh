@@ -232,6 +232,7 @@ protected:
   virtual void ComputeData(EFeedbackType fdbk, UInt_t timescale, Int_t devicekey);
   virtual void ComputeLastData(EFeedbackType fdbk, UInt_t timescale, Int_t devicekey);
   virtual void SendEPICS(EFeedbackType fdbk, Int_t fdbkoption); 
+  Bool_t WtsOK (vector<Double_t> wts);
 
 
   // Data members

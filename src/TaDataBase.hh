@@ -379,6 +379,10 @@ public:
 // Get cut extensions, low and high 
   vector<Int_t> GetExtLo() const;
   vector<Int_t> GetExtHi() const;
+  // Get detector and lumi weights
+  vector<Double_t> GetDetWts() const;
+  vector<Double_t> GetBlumiWts() const;
+  vector<Double_t> GetFlumiWts() const; 
 // Get number of bad event intervals
   Int_t GetNumBadEv() const;
 // For bad event intervals, get formatted results 
@@ -393,6 +397,8 @@ public:
   Double_t GetValue(const string& table) const;
 // Get a vector of integer values from 'table'
   vector<Int_t> GetValueVector(const string& table) const;
+// Get a vector of double values from 'table'
+  vector<Double_t> GetValueDVector(const string& table) const;
 // Get string from 'table'
   string GetString(const string& table) const;
 // Return cut number for name
