@@ -42,6 +42,7 @@
 #include "TaDevice.hh"
 #include "TaLabelledQuantity.hh"
 #include "TaStatistics.hh"
+#include "TaString.hh"
 #include "VaAnalysis.hh"
 #include "VaPair.hh"
 #ifdef ONLINE
@@ -609,7 +610,7 @@ TaRun::InitRoot()
   // Set up the root file and event tree
 
   // Open the Root file
-  TaFileName::Setup (fRunNumber, fDataBase->GetAnaType());
+  TaFileName::Setup (fRunNumber, TaString (fDataBase->GetAnaType()).ToLower());
   TaFileName rootFileName ("root");
   fRootFile = new TFile(rootFileName.String().c_str(),"RECREATE");
   fRootFile->SetCompressionLevel(0);
