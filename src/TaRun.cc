@@ -308,14 +308,17 @@ TaRun::AccumPair(const VaPair& pr)
 #endif
 
   // Print a slice and reset its statistics
-  if (fEvent->GetEvNumber() >= fSliceLimit)
+  EventNumber_t evr = pr.GetRight().GetEvNumber();
+  EventNumber_t evl = pr.GetLeft().GetEvNumber();
+  if (evr >= fSliceLimit || evl >= fSliceLimit)
     {
       fSliceLimit += fgSLICELENGTH;
-      clog << "TaRun::AccumEvent(): At event " << fEvent->GetEvNumber() 
-	   << " of run " << fRunNumber
-	   << " -- Stats for last " << fgSLICELENGTH
-	   << " events:"
-	   << endl;
+      clog << "TaRun::AccumEvent(): At pair " << evr << "/" << evl
+	   << " of run " << fRunNumber;
+      if (fESliceStats != 0 || fPSliceStats != 0)
+	clog << " -- Stats for last " << fgSLICELENGTH
+	     << " events:";
+      clog << endl;
 
       if (fESliceStats != 0)
 	{
@@ -373,13 +376,26 @@ void TaRun::SendEPICSInfo( pair< char* , Double_t> value)
 void 
 TaRun::Finish() 
 { 
+  clog << "\nTaRun::Finish End of run " << fRunNumber;
+  size_t nSlice = fEventNumber - (fSliceLimit - fgSLICELENGTH);
+  if ((fESliceStats != 0 || fPSliceStats != 0) && nSlice > 5)
+    clog<< " -- Stats for last " << nSlice << " events:";
+  clog << endl;
+
+  if (fESliceStats != 0 && nSlice > 5)
+    PrintStats (*fESliceStats, fEStatsNames, fEStatsUnits);
+  if (fPSliceStats != 0 && nSlice > 5)
+    PrintStats (*fPSliceStats, fPStatsNames, fPStatsUnits);
+
   if (fESliceStats != 0)
     *fERunStats += *fESliceStats;
   if (fPSliceStats != 0)
     *fPRunStats += *fPSliceStats;
-  clog << "TaRun::Finish End of run " << fRunNumber
-       << " -- Cumulative stats: "
-       << endl;
+
+  if (fERunStats != 0 || fPRunStats != 0)
+    clog << "\nCumulative stats: "
+	 << endl;
+
   if (fERunStats != 0)
     PrintStats (*fERunStats, fEStatsNames, fEStatsUnits);
   if (fPRunStats != 0)
@@ -482,8 +498,8 @@ TaRun::PrintStats (TaStatistics s, vector<string> n, vector<string> u) const
     {
       // Some quantities it doesn't make sense to do statistics on.
       // For now we accumulate but don't do averages etc. on anything
-      // but diffs and asyms.  There's probably a better way but this
-      // will do at least for now.
+      // whose name starts with "Left" or "Right".  There's probably a
+      // better way but this will do at least for now.
 
       size_t i = n[j].find(' ');
       string firstword = string (n[j], 0, i);
