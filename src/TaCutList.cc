@@ -66,7 +66,7 @@ TaCutList::Init(const VaDataBase& db)
       temp = db.GetCutValues()[i];
       if (temp[2] >= 0 && temp[2] < MaxCuts)
 	{
-	  ECutType ct = temp[2];
+	  ECutType ct = (ECutType) temp[2];
 	  EventNumber_t elo = temp[0];
 	  EventNumber_t ehi = temp[1];
 	  fIntervals.push_back(TaCutInterval (ct, temp[3], elo, ehi));
