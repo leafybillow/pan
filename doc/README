@@ -8,20 +8,21 @@
 authors:  Richard Holmes, Antonin Vacheret, Robert Michaels
           (and later others...)
 
-Web documentation about code design:
-    <http://mepserv.phy.syr.edu/~rsholmes/happex/pan>
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Latest production version and web documentation may be found at:
+    <http://mep1.phy.syr.edu/~rsholmes/happex/pan>
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Directories of this distribution:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
       pan              where to run.
-      pan/doc          documentation  (you're there now)
-      pan/src          all sources for 'pan'
-      pan/db           database files
       pan/codaclass    CODA class library code
-      pan/utils        miscellaneous utilities of possible use
+      pan/db           database files
+      pan/doc          documentation  (including this file)
       pan/macro        ROOT macro examples
+      pan/pandb        tools for interface with MySQL database
+      pan/src          all sources for 'pan'
+      pan/utils        miscellaneous utilities of possible use
 
 
 To compile and link:
@@ -62,41 +63,48 @@ like, by defining suitable environment variables.  See below.  The
 behavior described here assumes you have not done so.
 
 Before running, you will need a 'database' file.  This is an ASCII
-file which contains parameters that control the program flow, cuts and
-calibrations, and the datamap.  Some database files are kept in the
-pan/db directory and you should copy to the pan directory and modify
-it if necessary.  The file name should be parityYY-XXXX.db, where YY
-is the last two digits of the present year and XXXX is the four-digit
-run number of the run to which the database file applies.  If Pan
-cannot find this file it will try to fall back to a generic database
-file called control.db in the pan directory; if it cannot find that,
-it will exit.
+file in the pan/db directory which contains parameters that control
+the program flow, cuts and calibrations, and the datamap.  Normally
+you will use a database file created by the online system at the time
+of the run, or a modified version thereof.  Failing that, there are
+some database files in the pan/db directory and you can modify one as
+needed.  The file name should be parityYY-XXXX.db, where YY is the
+last two digits of the present year and XXXX is the four-digit run
+number of the run to which the database file applies.  If Pan cannot
+find this file it will try to fall back to a generic database file
+called control.db in the pan directory; if it cannot find that, it
+will exit.
 
 You can invoke Pan as follows
 
-   pan [-2] [-r XXXX | -f file | -o]
+   pan [-t] [-D database-options] [-r XXXX | -f file | -o]
 
-Use "pan -r XXXX" to analyze run number XXXX, from data file
-parityYY-XXXX.dat in the pan directory.  (Again YY is the current
-year.)  Use "pan -f file" to analyze whatever run is in the specified
-file.  Use "pan -o" to analyze online data, if you compiled with
-ONLINE defined.  Or use none of the above, just "pan", to start with a
-ROOT prompt, from which you can invoke Pan methods interactively or
-through ROOT macros.
+Options may be given in any order.  Use "pan -r XXXX" to analyze run
+number XXXX, from data file parityYY-XXXX.dat in the pan directory.
+(Again YY is the current year.)  Use "pan -f file" to analyze whatever
+run is in the specified file.  Use "pan -o" to analyze online data, if
+you compiled with ONLINE defined.  Or use none of the above, just
+"pan", to start with a ROOT prompt, from which you can invoke Pan
+methods interactively or through ROOT macros.
 
-The somewhat esoteric -2 option tells Pan to do a 2-pass analysis
+The somewhat esoteric -t option tells Pan to do a 2-pass analysis
 which in principle gives better results with less roundoff error.  In
 practice the difference is usually negligible.  Use it, if at all,
 with the -r or -f options only.
 
+The -D option tells Pan to override its default database processing.
+See pan/doc/DATABASE.TXT for details.
+
 Pan will analyze the given run, producing some diagnostic outputs, and
-creating a ROOT output file, parityYY_XXXX_ZZZZ.root in the pan
-directory.  YY and XXXX are year and run number, as above, and ZZZZ is
-a tag denoting the analysis type specified in the database.  Some
-analyses may produce an additional ROOT file and/or output files, with
-names like parityYY_XXXX_ZZZZ_WWWW.root and
-parityYY_XXXX_ZZZZ_WWWW.VVV, respectively, where WWWW is a tag and VVV
-is a suffix provided by the analysis.
+creating a ROOT output file, parityYY_XXXX_ZZZZ.root, and an ASCII
+results file, parityYY_XXXX_ZZZZ.res, both in the pan directory.  YY
+and XXXX are year and run number, as above, and ZZZZ is a tag denoting
+the analysis type specified in the database.  Some analyses may
+produce additional ROOT files, results files, and/or output files,
+with names like parityYY_XXXX_ZZZZ_WWWW.root,
+parityYY_XXXX_ZZZZ_WWWW.res, and parityYY_XXXX_ZZZZ_WWWW.VVV,
+respectively, where WWWW is a tag and VVV is a suffix provided by the
+analysis.
 
 The principal ROOT file contains a 'event' tree "R" and an 'pair' tree
 "P".  The event tree contains raw data plus calibrated data with
@@ -109,6 +117,9 @@ Enter run number : 1824
 root [1] raw->Draw("bcm1r:bpm4axp+bpm4axm")
 root [2] asy->Draw("diff_bpm4bx")
 
+The results file contains analysis results in a standard format; see
+pan/doc/results_database.txt for details.
+
 
 Environment variables:
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -119,21 +130,29 @@ Again, fairly reasonable behavior is obtained if you do not set any
 environment variables, but if you need to do so, here is how.
 
 If PAN_FILE_PREFIX is set, it replaces "parityYY" as the base of all
-filenames. 
+filenames.  Note that you will probably want to do this if you are
+analyzing data taken before the current year; if not, then even if you
+specify e.g. "-f parity02_1111.dat" on the command line, Pan will
+still look for a database file called "parityYY_1111.db" (where YY is
+the current year).  Setting PAN_FILE_PREFIX to "parity02" lets you
+specify "-r 1111" on the command line and everything should work as
+expected. 
 
 If PAN_CODA_FILE_PATH is set, the input data file is looked for at
 that path.  Likewise, if PAN_DB_FILE_PATH is set, the ASCII database
-file is looked for at that path, and if PAN_ROOT_FILE_PATH or
-PAN_OUTPUT_FILE_PATH is set, the ROOT file(s) or the other output
-file(s), respectively, are written at those paths.
+file is looked for at that path, and if PAN_ROOT_FILE_PATH,
+PAN_RES_FILE_PATH, or PAN_OUTPUT_FILE_PATH is set, the ROOT file(s),
+results file(s), or the other output file(s), respectively, are
+written at those paths.
 
-If PAN_CODA_FILE_SUFFIX, PAN_DB_FILE_SUFFIX, or PAN_ROOT_FILE_SUFFIX
-is set, they replace "dat", "db", or "root", respectively, as the file
-suffix for the data, database, or ROOT files.
+If PAN_CODA_FILE_SUFFIX, PAN_DB_FILE_SUFFIX, PAN_RES_FILE_SUFFIX, or
+PAN_ROOT_FILE_SUFFIX is set, they replace "dat", "db", "res", or
+"root", respectively, as the file suffix for the data, database,
+results, or ROOT files.
 
 To set an environment variable in the bash (or other sh-like) shell
 use the command "export variable=value"; use "export -n variable" to
-unset it.  In the tcsh (or other csh-line) shell use "setenv variable
+unset it.  In the tcsh (or other csh-like) shell use "setenv variable
 value" to set, "unsetenv variable" to unset.  In either case use
 "printenv variable" to examine the value of a variable.
 
@@ -143,12 +162,13 @@ Unfortunately the year is now 2078, so Pan's default behavior when
 invoked with "pan -r 6666" is to look for a data file called
 parity78_6666.dat and a database file called parity78_6666.db.
 Furthermore the data file is in the directory /adaql944/data/parity,
-and John wants his ROOT and output files to go to
+and John wants his ROOT, results, and output files to go to
 /adaql944/work/parity.  So he does the following:
 
    $ export PAN_FILE_PREFIX=parity05
    $ export PAN_CODA_FILE_PATH=/adaql944/data/parity
    $ export PAN_ROOT_FILE_PATH=/adaql944/work/parity
+   $ export PAN_RES_FILE_PATH=/adaql944/work/parity
    $ export PAN_OUTPUT_FILE_PATH=/adaql944/work/parity
    $ pan -r 6666
 
@@ -167,15 +187,21 @@ Other documents in pan/doc
      ChangeLog  -- Detailed list of changes.  Helpful document to 
                    supplement CVS.  
 
-     DATABASE.RULES  -- Document explaining the rules about database
-                        and datamap.
+     CVS_howto -- Advice on how to use CVS     
+
+     DATABASE.TXT  -- Document explaining the rules about database
+                      and datamap.
 
      README_ISSUES  -- Current issues.  Make sure you date your entries,
                        since issues rapidly become non-issues.
 
-     CVS_howto -- Advice on how to use CVS     
+     README_PANAM -- Documentation of online monitoring
+
+     results_database.txt -- Description of results file format
 
 
+
+---------------- June 2002 -------------------------------------------
 Here is some info regarding online feedback on charge asymmetry, etc.
 ---------------- June 2002 -------------------------------------------
 

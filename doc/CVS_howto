@@ -2,6 +2,10 @@
    How to use CVS
    ==============
 
+This is a quick "crib sheet" on CVS usage for Pan users.  For more
+details, general information, instructions on obtaining and installing
+CVS, etc., see <http://www.cvshome.org>.
+
 Please use the "ext" access method instead of "pserver", with ssh as 
 the login protocol.  The old "pserver" method used clear text passwords
 which is a security hazard and should be avoided.  If you have used 
