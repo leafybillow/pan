@@ -485,7 +485,7 @@ TaPanamAna::InitMonitorDevices()
 	  fLastADCName=devname; 
           fMADC = new TaPanamMultiDevice(devname);
           fMADC->InsertADevice(*didx);
-          if (!strncmp(devname,"adc11",5) || !strncmp(devname,"adc12",5) || !strncmp(devname,"adc13",5))
+          if (!strncmp(devname,"adc8",5) || !strncmp(devname,"adc6",5) || !strncmp(devname,"adc16",5))
            fMDIADC.push_back(fMADC);
            else if (!strncmp(devname,"adc17",5) || !strncmp(devname,"adc29",5))
            fMDSADC.push_back(fMADC);    

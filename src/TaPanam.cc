@@ -139,7 +139,7 @@ Int_t TaPanam::SetConfig(UInt_t confignum)
      fADCCheck[6]->SetState(kButtonDown);
      fADCCheck[7]->SetState(kButtonDown);
      fADCCheck[8]->SetState(kButtonDown);
-     fADCCheck[9]->SetState(kButtonDown);
+     //     fADCCheck[9]->SetState(kButtonDown);
      //spectro ADC
      fSADCCheck[0]->SetState(kButtonDown);
      fSADCCheck[1]->SetState(kButtonDown);     
@@ -240,19 +240,19 @@ Int_t TaPanam::SetDevList()
 // Just need to specify first raw data name encountered fordevice to define complete device 
 // (i.e. just define adc1_0 in list to ask for the display of the 4 channels of adc1)    
   // inj ADC
-  AddADCToList(fIADCCheck[0],"adc11_0","adc11");
-  AddADCToList(fIADCCheck[1],"adc12_0","adc12");
-  AddADCToList(fIADCCheck[2],"adc13_0","adc13");
+  AddADCToList(fIADCCheck[0],"adc8_0","adc8");
+  AddADCToList(fIADCCheck[1],"adc6_0","adc6");
+  AddADCToList(fIADCCheck[2],"adc16_0","adc16");
   // parity ADC
-  AddADCToList(fADCCheck[0],"adc0_0","adc0");
-  AddADCToList(fADCCheck[1],"adc1_0","adc1");
-  AddADCToList(fADCCheck[2],"adc2_0","adc2");
-  AddADCToList(fADCCheck[3],"adc3_0","adc3");
-  AddADCToList(fADCCheck[4],"adc4_0","adc4");
-  AddADCToList(fADCCheck[5],"adc5_0","adc5");
-  AddADCToList(fADCCheck[6],"adc6_0","adc6");
-  AddADCToList(fADCCheck[7],"adc7_0","adc7");
-  AddADCToList(fADCCheck[8],"adc8_0","adc8");
+  AddADCToList(fADCCheck[0],"adc2_0","adc2");
+  AddADCToList(fADCCheck[1],"adc26_0","adc26");
+  AddADCToList(fADCCheck[2],"adc23_0","adc23");
+  AddADCToList(fADCCheck[3],"adc22_0","adc22");
+  AddADCToList(fADCCheck[4],"adc15_0","adc15");
+  AddADCToList(fADCCheck[5],"adc13_0","adc13");
+  AddADCToList(fADCCheck[6],"adc7_0","adc7");
+  AddADCToList(fADCCheck[7],"adc12_0","adc12");
+  AddADCToList(fADCCheck[8],"adc14_0","adc14");
   // HRS ADC
   AddADCToList(fSADCCheck[0],"adc29_0","adc29");
   AddADCToList(fSADCCheck[1],"adc17_0","adc17");
@@ -480,7 +480,7 @@ Int_t TaPanam::HandleMenuBar(Long_t parm1)
        fAnaMan = new TaAnalysisManager();               
         //DumpOptionState();           
 #ifdef CODAFILETEST 
-       fAnaMan->Init(3189);
+       fAnaMan->Init(4030);
 #endif
 #ifdef ETCONNECT 
        fAnaMan->Init();
@@ -777,9 +777,9 @@ void TaPanam::SetNumOfPads()
 {
  for (UInt_t i = 0; i< fAllDeviceList.size(); i++)
    {
-     if (!strncmp((fAllDeviceList[i]).c_str(),"adc11",5) || 
-         !strncmp((fAllDeviceList[i]).c_str(),"adc12",5) || 
-         !strncmp((fAllDeviceList[i]).c_str(),"adc13",5))
+     if (!strncmp((fAllDeviceList[i]).c_str(),"adc8",5) || 
+         !strncmp((fAllDeviceList[i]).c_str(),"adc6",5) || 
+         !strncmp((fAllDeviceList[i]).c_str(),"adc16",5))
        {
 	 fIADCNum++; fShowIADC = kTRUE;
        }   
@@ -2650,7 +2650,7 @@ void TaPanam::InitGUIFrames(){
   fPADCCrate = new TGGroupFrame(fADCSubFrame,new TGString(" Parity DAQ "));  
   fADCFrame1 = new TGCompositeFrame(fPADCCrate, 60, 60, kVerticalFrame);
   fADCCheck[0] = new TGCheckButton(fADCFrame1, " ADC2   ",23); 
-  fADCCheck[1] = new TGCheckButton(fADCFrame1, " ADC27   ",24); 
+  fADCCheck[1] = new TGCheckButton(fADCFrame1, " ADC26   ",24); 
   fADCCheck[2] = new TGCheckButton(fADCFrame1, " ADC23   ",25); 
   fADCCheck[3] = new TGCheckButton(fADCFrame1, " ADC22   ",26); 
   fADCCheck[4] = new TGCheckButton(fADCFrame1, " ADC15   ",27); 
