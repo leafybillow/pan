@@ -91,16 +91,18 @@ TaBeamAna::InitChanLists ()
   vector<AnaList* > f;
 
   // List of channels for which to store left and right values
-  fCopyList = ChanList ("tir", "helicity", "");
-  f = ChanList ("tir", "pairsynch", "");
-  fCopyList.insert (fCopyList.end(), f.begin(), f.end());
+  fTreeList = ChanList ("tir", "helicity", "", fgNO_STATS + fgCOPY);
+  f = ChanList ("tir", "pairsynch", "", fgNO_STATS + fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   // List of channels for which to store differences
-  fDiffList = ChanList ("bpm", "~x", "um");
-  f = ChanList ("bpm", "~y", "um");
-  fDiffList.insert (fDiffList.end(), f.begin(), f.end());
+  f = ChanList ("bpm", "~x", "um", fgDIFF);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("bpm", "~y", "um", fgDIFF);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   // List of channels for which to store asymmetries
-  fAsymList = ChanList ("bcm", "~", "ppm");
+  f = ChanList ("bcm", "~", "ppm", fgNO_BEAM_NO_ASY + fgASY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
 }
