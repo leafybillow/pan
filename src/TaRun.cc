@@ -199,6 +199,9 @@ TaRun::Init()
 	   << endl;
       return fgTARUN_ERROR;
     }
+
+  TaEvent::RunInit(*this);
+
   return fgTARUN_OK;
 
 }
@@ -538,8 +541,12 @@ TaRun::PrintStats (TaStatistics s, vector<string> n, vector<string> u) const
     // N.B. seem to need to convert to C-style string for setw to work.
 	      clog << " mean " << setw(10) << s.Mean(j)
 		   << " +- " << setw(10) << s.MeanErr(j)
-		   << " RMS " << setw(10) << s.DataRMS(j) 
-		   << " " << u[j] << endl;
+		   << " RMS " << setw(8) << s.DataRMS(j) 
+		   << " " << setw(6) << u[j].c_str()
+		   << endl;
+	      // Comment above line and uncomment this to get 
+	      // print of effective number of events:
+	      //   << s.Neff(j) << endl;
 	    }
 	  else
 	    {
