@@ -302,7 +302,7 @@ TSQLResult & TDBTools::SelectValues(const char *fcSystem, const char *fcSubSyste
       localErrMsg << "SelectValues: Type Is not what was expected   " << fcValueType;
       throw localErrMsg;
     }
-    
+   
     tmpQuery.Reset(); 
     TQuery  flTblName;
     flTblName << fcSystem << "_" << fcSubSystem << "_" << fcItem << "_VALUE";
@@ -311,6 +311,10 @@ TSQLResult & TDBTools::SelectValues(const char *fcSystem, const char *fcSubSyste
     if((fDebugMode&0x20)>0) tmpQuery.Preview();
     
     flResult = dbConn->Query(tmpQuery.Data());
+
+    // Close the connection (Revisit again)
+    if(flDBItem.fType != "char") delete dbConn; 
+
     if(flResult->GetRowCount() != 1){
       delete dbConn;
       TQuery localErrMsg;
@@ -324,7 +328,13 @@ TSQLResult & TDBTools::SelectValues(const char *fcSystem, const char *fcSubSyste
       localErrMsg << "SelectValues: Wrong Item Length. expected : " << flDBItem.fLength 
 		  << "  got : " << flResult->GetFieldCount()-4;
       throw localErrMsg;
-    }       		
+    }     
+    
+  } else {
+    
+    TQuery localErrMsg;
+    localErrMsg << "SelectValues: Database is not connected... "; 
+    throw localErrMsg; 
   } 
   
   return (*flResult);
