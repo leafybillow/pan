@@ -87,7 +87,7 @@ TaRun::TaRun():
 {
 #ifdef ONLINE
    mymode        = 1;
-   fComputer     = "adaqcp";  // DAQ computer
+   fComputer     = "adaql1";  // DAQ computer
    fSession      = "par1";    // CODA $SESSION
    fCoda         = new THaEtClient();
 #else
