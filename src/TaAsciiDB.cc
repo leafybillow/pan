@@ -51,14 +51,14 @@ void TaAsciiDB::Load(int run) {
   string rundbfile = "run_";  rundbfile += cnum;  rundbfile += ".db";
   dbfile = new ifstream(rundbfile.c_str());
   if ( ! (*dbfile) ) {
-    cout << "TaAsciiDB:: WARNING: run file "<<rundbfile<<" does not exist"<<endl;
+    cerr << "TaAsciiDB:: WARNING: run file "<<rundbfile<<" does not exist"<<endl;
     dbfile = new ifstream("control.db");
     if ( ! (*dbfile) ) {
-      cout << "TaAsciiDB:: WARNING: no 'control.db' file either !"<<endl;
-      cout << "You need a database to run.  Ask an expert."<<endl;
+      cerr << "TaAsciiDB:: WARNING: no 'control.db' file either !"<<endl;
+      cerr << "You need a database to run.  Ask an expert."<<endl;
       return;
     }
-    cout << "TaAsciiDB:: Using control.db as default. (May be ok.)"<<endl;
+    cerr << "TaAsciiDB:: Using control.db as default. (May be ok.)"<<endl;
   }
   string comment = "#";
   vector<string> strvect;
@@ -184,15 +184,17 @@ string TaAsciiDB::GetFdbkSwitch( const string &fdbktype )const {
   // get the feedback switch state corresponding to feedback type fdbktype.
   string table = "feedback";
   if ( database.count("feedback") >1){
-    cout<<" feedback"<<fdbktype<<" switched "
+    clog<<" feedback"<<fdbktype<<" switched "
         <<GetData(table,fdbktype, 0)<<endl;
     return GetData(table,fdbktype, 0);
   }
   else{
-    cout<<"TaAsciiDB::GetFeedbackSwitch( const string &fdbktype ) ERROR\n"
-	<<"TABLE not declared correctly, need feedback table. "
-	<<"Example of line format in .db file:\n"
-        <<" feedback    AQ   on   3 "<<endl;
+    // Commented out: Why should this be an error?  Why not just return
+    // "off" (or "", which is not "on")?
+    //      cerr<<"TaAsciiDB::GetFdbkSwitch ERROR\n"
+    //  	<<"TABLE not declared correctly, need feedback table. "
+    //  	<<"Example of line format in .db file:\n"
+    //          <<" feedback    AQ   on   3 "<<endl;
     return "";
   }     
 }; 
@@ -208,14 +210,14 @@ Int_t TaAsciiDB::GetFdbkTimeScale( const string &fdbktype ) const{
        if (datatype[0]->GetType() == "s"){
 	 if ( TaString(datatype[0]->GetS()).CmpNoCase(fdbktype) == 0 ){
 	   if (datatype[2]->GetType() == "i") return datatype[2]->GetI();
-           cout<<" feedback "<<fdbktype<<" timescsale "<<datatype[2]->GetI()<<endl;
+           clog<<" feedback "<<fdbktype<<" timescsale "<<datatype[2]->GetI()<<endl;
 	 }
        }
      }
      return 0;
  }
  else{
-   cout<<"TaAsciiDB::GetFeedbackSwitch( const string &fdbktype ) ERROR\n"
+   cerr<<"TaAsciiDB::GetFdbkTimeScale( const string &fdbktype ) ERROR\n"
 	<<"TABLE not declared correctly, need feedback table. "
 	<<"Example of line format in .db file:\n"
         <<" feedback    AQ   on   3 "<<endl;
@@ -265,8 +267,8 @@ Double_t TaAsciiDB::GetDacNoise(const Int_t& adc, const Int_t& chan, const strin
       } 
     else 
       {
-     cout << "WARNING: TaAsciiDB::GetDacNoise:";
-     cout << "  illegal combination of adc and channel #"<<endl;
+     cerr << "WARNING: TaAsciiDB::GetDacNoise:";
+     cerr << "  illegal combination of adc and channel #"<<endl;
      return 0;
       }
   return 0;
@@ -302,8 +304,8 @@ Double_t TaAsciiDB::GetPedestal(const Int_t& adc, const Int_t& chan) const{
   if (idx >=0 && idx < MAXADC*MAXCHAN) {
      return pedvalue[idx];
   } else {
-     cout << "WARNING: TaAsciiDB::GetPedestal:";
-     cout << "  illegal combination of adc and channel #"<<endl;
+     cerr << "WARNING: TaAsciiDB::GetPedestal:";
+     cerr << "  illegal combination of adc and channel #"<<endl;
      return 0;
   }
 };
@@ -399,19 +401,19 @@ Double_t TaAsciiDB::GetValue(const string& table) const {
    dmap = database.lower_bound(TaString(table).ToLower());
    if (dmap == database.end() || 
        database.count(TaString(table).ToLower()) == 0) {
-     cout << "ERROR: TaAsciiDB: Unknown database table "<<table<<endl;
+     cerr << "ERROR: TaAsciiDB: Unknown database table "<<table<<endl;
      return 0;
    }
    if (database.count(TaString(table).ToLower()) > 1) {
-     cout << "ERROR: TaAsciiDB: Mulitply defined table "<<table<<endl;
-     cout << "Fix the database to have one instance."<<endl;
+     cerr << "ERROR: TaAsciiDB: Mulitply defined table "<<table<<endl;
+     cerr << "Fix the database to have one instance."<<endl;
      return 0;
    }
    vector<dtype*> datatype = dmap->second;
    if (datatype[0]->GetType() == "i") return (Double_t)datatype[0]->GetI(); 
    if (datatype[0]->GetType() == "d") return datatype[0]->GetD(); 
-   cout << "ERROR: TaAsciiDB: Illegal data type for table "<<table<<endl;
-   cout << "Must be an integer or double."<<endl;
+   cerr << "ERROR: TaAsciiDB: Illegal data type for table "<<table<<endl;
+   cerr << "Must be an integer or double."<<endl;
    return 0;
 };
 
@@ -423,18 +425,18 @@ string TaAsciiDB::GetString(const string& table) const {
    dmap = database.lower_bound(TaString(table).ToLower());
    if (dmap == database.end() || 
        database.count(TaString(table).ToLower()) == 0) {
-     cout << "ERROR: TaAsciiDB: Unknown database table "<<table<<endl;
+     cerr << "ERROR: TaAsciiDB: Unknown database table "<<table<<endl;
      return 0;
    }
    if (database.count(TaString(table).ToLower()) > 1) {
-     cout << "ERROR: TaAsciiDB: Mulitply defined table "<<table<<endl;
-     cout << "Fix the database to have one instance."<<endl;
+     cerr << "ERROR: TaAsciiDB: Mulitply defined table "<<table<<endl;
+     cerr << "Fix the database to have one instance."<<endl;
      return 0;
    }
    vector<dtype*> datatype = dmap->second;
    if (datatype[0]->GetType() == "s") return datatype[0]->GetS(); 
-   cout << "ERROR: TaAsciiDB: Illegal data type for table "<<table<<endl;
-   cout << "Must be a string."<<endl;
+   cerr << "ERROR: TaAsciiDB: Illegal data type for table "<<table<<endl;
+   cerr << "Must be a string."<<endl;
    return 0;
 };
 
@@ -628,7 +630,7 @@ void TaAsciiDB::LoadTable(string table, vector<dtype*> columns) {
 // The 2nd call (loadflg==1) must overwrite the empty data of 1st call.
 // Subsequent calls load data.
   if  ( !didinit ) {
-    cout << "TaAsciiDB:: ERROR: cannot LoadTable before InitDB"<<endl;
+    cerr << "TaAsciiDB:: ERROR: cannot LoadTable before InitDB"<<endl;
     return;
   }
   map<string, int>::iterator im = dbinit.find(table);
@@ -700,7 +702,7 @@ Bool_t TaAsciiDB::NextDataMap() {
 
 string TaAsciiDB::GetDataMapName() const {
   if ( !initdm ) {
-    cout << "TaAsciiDB:: ERROR: must first InitDataMap before using it"<<endl;
+    cerr << "TaAsciiDB:: ERROR: must first InitDataMap before using it"<<endl;
     string nothing = "";
     return nothing;
   }
@@ -711,7 +713,7 @@ string TaAsciiDB::GetDataMapName() const {
   
 string TaAsciiDB::GetDataMapType() const {
   if ( !initdm ) {
-    cout << "TaAsciiDB:: ERROR: must first InitDataMap before using it"<<endl;
+    cerr << "TaAsciiDB:: ERROR: must first InitDataMap before using it"<<endl;
     string nothing = "";
     return nothing;
   }
@@ -733,7 +735,7 @@ void TaAsciiDB::InitDataMap() {
   int adc, chan, evb;
   string key;
   if ( !didinit ) {
-    cout << "TaAsciiDB:: ERROR: Cannot init datamap without first init DB"<<endl;
+    cerr << "TaAsciiDB:: ERROR: Cannot init datamap without first init DB"<<endl;
     return;
   }
   if (initdm) return;  // already initialized
@@ -799,27 +801,27 @@ Bool_t TaAsciiDB::SelfCheck() {
      if (key == "tirdata") ok = 1;
    }
    if ( !ok ) {
-     cout << "TaAsciiDB:: SelfCheck ERROR:  No tirdata defined in database"<<endl;
+     cerr << "TaAsciiDB:: SelfCheck ERROR:  No tirdata defined in database"<<endl;
      return kFALSE;
    }
    stest = GetPairType();
    if (strlen(stest.c_str())-1 <= 0) {
-      cout << "TaAsciiDB:: SelfCheck ERROR:  No pair type defined in database"<<endl;
+      cerr << "TaAsciiDB:: SelfCheck ERROR:  No pair type defined in database"<<endl;
       return kFALSE;
    }
    itest = GetDelay();
    if (itest != 0 && itest != 8 ) {
-     cout << "TaAsciiDB:: SelfCheck ERROR:  'windelay' = " << itest << " outside range 0-8" <<endl;
+     cerr << "TaAsciiDB:: SelfCheck ERROR:  'windelay' = " << itest << " outside range 0-8" <<endl;
       return kFALSE;
    }
    itest = GetOverSamp();
    if (itest <= 0 || itest > 12 ) {
-     cout << "TaAsciiDB:: SelfCheck ERROR:  'oversamp' = " << itest << " outside range 0-12" <<endl;
+     cerr << "TaAsciiDB:: SelfCheck ERROR:  'oversamp' = " << itest << " outside range 0-12" <<endl;
       return kFALSE;
    }
    stest = GetRunType();
    if (strlen(stest.c_str())-1 <= 0) {
-      cout << "TaAsciiDB:: SelfCheck WARNING:  No 'runtype' defined in database"<<endl;
+      cerr << "TaAsciiDB:: SelfCheck WARNING:  No 'runtype' defined in database"<<endl;
    }
    return kTRUE;
 };
