@@ -676,6 +676,8 @@ TaEvent::AddToTree (const TaDevice& devices,
           cerr << "Compile with a bigger MAXKEYS value."<<endl;
           continue;
         }
+// Dont add to tree unless in datamap
+        if ( !devices.IsUsed(key) ) continue;  
         strcpy(tinfo,keystr.c_str());  strcat(tinfo,"/D");
   	rawtree.Branch(keystr.c_str(), &fData[key], tinfo, bufsize);
     }

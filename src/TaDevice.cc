@@ -24,6 +24,7 @@ TaDevice::TaDevice() {
    fRawKeys = new Int_t[MAXKEYS];
    fEvPointer = new Int_t[MAXKEYS];
    fReadOut = new Int_t[MAXKEYS];
+   fIsUsed = new Int_t[MAXKEYS];
    fAdcPed = new Double_t[4*ADCNUM];
    fDacInt = new Double_t[4*ADCNUM];
    fDacSlope = new Double_t[4*ADCNUM];
@@ -33,6 +34,7 @@ TaDevice::TaDevice() {
    memset(fRawKeys, 0, MAXKEYS*sizeof(Int_t));
    memset(fEvPointer, 0, MAXKEYS*sizeof(Int_t));
    memset(fReadOut, 0, MAXKEYS*sizeof(Int_t));
+   memset(fIsUsed, 0, MAXKEYS*sizeof(Int_t));
    memset(fAdcPed, 0, 4*ADCNUM*sizeof(Double_t));
    memset(fDacInt, 0, 4*ADCNUM*sizeof(Double_t));
    memset(fDacSlope, 0, 4*ADCNUM*sizeof(Double_t));
@@ -87,6 +89,7 @@ void TaDevice::Init(VaDataBase& db) {
            if (key < 0) continue;
            fEvPointer[key] = keymap.GetEvOffset(keystr);
            fReadOut[key] = -1;
+           fIsUsed[key] = 1;
            if (keymap.IsAdc(keystr)) fReadOut[key] = ADCREADOUT;
            if (keymap.IsScaler(keystr)) fReadOut[key] = SCALREADOUT;
            fDevNum[key]  = keymap.GetAdc(keystr);
@@ -844,6 +847,10 @@ void TaDevice::Create(const TaDevice& rhs)
    memcpy(fRawKeys, rhs.fRawKeys, MAXKEYS*sizeof(Int_t));
    fEvPointer = new Int_t[MAXKEYS];
    memcpy(fEvPointer, rhs.fEvPointer, MAXKEYS*sizeof(Int_t));
+   fReadOut = new Int_t[MAXKEYS];
+   memcpy(fReadOut, rhs.fReadOut, MAXKEYS*sizeof(Int_t));
+   fIsUsed = new Int_t[MAXKEYS];
+   memcpy(fIsUsed, rhs.fIsUsed, MAXKEYS*sizeof(Int_t));
    fAdcPed = new Double_t[4*ADCNUM];
    memcpy(fAdcPed, rhs.fAdcPed, 4*ADCNUM*sizeof(Double_t));
    fDacInt = new Double_t[4*ADCNUM];
@@ -860,6 +867,8 @@ void TaDevice::Uncreate()
 {
    delete [] fRawKeys;
    delete [] fEvPointer;
+   delete [] fReadOut;
+   delete [] fIsUsed;
    delete [] fAdcPed;
    delete [] fDacInt;
    delete [] fDacSlope;

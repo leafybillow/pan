@@ -55,12 +55,13 @@ class TaDevice {
     Int_t GetChanNum(const Int_t& index) const;
     Int_t GetRawIndex(const Int_t& key) const;
     Int_t GetCalIndex(const Int_t& key) const;
+    Bool_t IsUsed(const Int_t& key) const;
     map<string, Int_t> GetKeyList() const;
 
  protected:
 
     Int_t fNumRaw;
-    Int_t *fRawKeys, *fEvPointer, *fReadOut;
+    Int_t *fRawKeys, *fEvPointer, *fReadOut, *fIsUsed;
     Double_t *fAdcPed, *fScalPed, *fDacInt, *fDacSlope;
     Int_t *fDevNum, *fChanNum;
     map<string, Int_t> fKeyToIdx;
@@ -107,6 +108,12 @@ inline Int_t TaDevice::GetChanNum(const Int_t& index) const  {
   return fChanNum[index];
 };
 
+inline Bool_t TaDevice::IsUsed(const Int_t& key) const {
+  if (key >= 0 && key < MAXKEYS) {
+    if (fIsUsed[key] == 1) return kTRUE;
+  }
+  return kFALSE;
+};
 
 #endif
 
