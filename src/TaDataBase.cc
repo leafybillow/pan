@@ -769,6 +769,7 @@ vector<Double_t> TaDataBase::GetData(string table, vector<string> keys) const {
 // Generic get method if you know the 'table' and 'keys' you want.
 // Structure is 'table (key, data) (key, data)' i.e. a series of
 // pairs of (string key, double data) after the string table
+// The entire list of keys must be found, not a parital match.
    vector<Double_t> result;  result.clear();
    multimap<string, vector<dtype*> >::const_iterator lb =
         database.lower_bound(table);
@@ -777,16 +778,26 @@ vector<Double_t> TaDataBase::GetData(string table, vector<string> keys) const {
    for (multimap<string, vector<dtype*> >::const_iterator dmap = lb;
         dmap != ub; dmap++) {
      vector<dtype*> datatype = dmap->second;
+     Bool_t foundall = kTRUE;
+     Int_t ikey = 0;
      for (vector<string>::const_iterator str = keys.begin(); 
        str != keys.end(); str++) {
        string key = *str;
+       Bool_t foundkey = kFALSE;
        for (int k = 0; k < (long)datatype.size(); k++) {         
          if (datatype[k]->GetType() == "s") {
            if ( TaString(datatype[k]->GetS()).CmpNoCase(key) == 0 ) {
-             result.push_back(GetData(datatype[k+1]));
+             foundkey = kTRUE;
+             if (foundall) {
+               result.push_back(GetData(datatype[k+1]));
+             } else {
+               if (ikey == 0) result.push_back(GetData(datatype[k+1]));
+             }
            }
          }
        }
+       ikey++;
+       if (!foundkey) foundall = kFALSE;
      }
    }
    return result;
