@@ -202,6 +202,7 @@ public:
  virtual string GetFdbkSwitch( const string &fdbktype) const=0;
 // Get feedback timescale 
  virtual Int_t  GetFdbkTimeScale(const string &fdbktype) const=0;  
+ virtual string  GetFdbkMonitor(const string &fdbktype) const=0;  
 // Get Dac noise parameters for adc,chan with key = 'slope' or 'intercept'
   virtual Double_t GetDacNoise(const Int_t& adc, const Int_t& chan, 
        const string& key)const =0;  
