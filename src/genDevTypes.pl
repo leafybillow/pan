@@ -30,7 +30,7 @@
 # UMass profile scanner
 @prof_list =    qw / IRPROF IRPROFX IRPROFY ILPROF ILPROFX ILPROFY /;
 # Batteries
-@battlist =      qw / IBATT1 IBATT2 IBATT3 IBATT4 IBATT5 /;
+@battlist =      qw / IBATT1 IBATT2 IBATT3 IBATT4 IBATT5 IBATT6 IBATT7 IBATT8/;
 # Detectors
 @detlist =       qw / IDET1 IDET2 IDET3 IDET4 /;
 # Lumi detectors

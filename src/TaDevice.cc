@@ -836,6 +836,9 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"batt3", IBATT3));
   fKeyToIdx.insert(make_pair((string)"batt4", IBATT4));
   fKeyToIdx.insert(make_pair((string)"batt5", IBATT5));
+  fKeyToIdx.insert(make_pair((string)"batt6", IBATT6));
+  fKeyToIdx.insert(make_pair((string)"batt7", IBATT7));
+  fKeyToIdx.insert(make_pair((string)"batt8", IBATT8));
         
 // Detectors, raw data ("r") and calibrated data
 // "c" = data before pedestal subtracted
