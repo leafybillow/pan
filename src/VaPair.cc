@@ -45,7 +45,9 @@ Bool_t VaPair::fgPairMade = false;
 Cut_t VaPair::fgSequenceNo;
 
 
-VaPair::VaPair()
+VaPair::VaPair() :
+  fEvFirst(0),
+  fEvSecond(0)
 {
 }
 
@@ -55,6 +57,21 @@ VaPair::VaPair(const VaPair& copy)
   fResults = copy.fResults;
   fEvLeft = copy.fEvLeft;
   fEvRight = copy.fEvRight;
+  if (copy.fEvFirst == &(copy.fEvLeft))
+    {
+      fEvFirst = &fEvLeft;
+      fEvSecond = &fEvRight;
+    }
+  else if (copy.fEvFirst == &(copy.fEvRight))
+    {
+      fEvFirst = &fEvRight;
+      fEvSecond = &fEvLeft;
+    }
+  else
+    {
+      fEvFirst = 0;
+      fEvSecond = 0;
+    }
 }
 
 
@@ -66,6 +83,21 @@ VaPair::operator=(const VaPair &assign)
       fResults = assign.fResults;
       fEvLeft = assign.fEvLeft;
       fEvRight = assign.fEvRight;
+      if (assign.fEvFirst == &(assign.fEvLeft))
+	{
+	  fEvFirst = &fEvLeft;
+	  fEvSecond = &fEvRight;
+	}
+      else if (assign.fEvFirst == &(assign.fEvRight))
+	{
+	  fEvFirst = &fEvRight;
+	  fEvSecond = &fEvLeft;
+	}
+      else
+	{
+	  fEvFirst = 0;
+	  fEvSecond = 0;
+	}
     } 
   return *this;
 }
@@ -155,11 +187,15 @@ VaPair::Fill( TaEvent& ThisEv, TaRun& run )
 		{
 		  fEvRight = fgEventQueue[0];
 		  fEvLeft = ThisEv;
+		  fEvFirst = &fEvRight;
+		  fEvSecond = &fEvLeft;
 		}
 	      else
 		{
 		  fEvRight = ThisEv;
 		  fEvLeft = fgEventQueue[0];
+		  fEvFirst = &fEvLeft;
+		  fEvSecond = &fEvRight;
 		}
 	      fgEventQueue.pop_front();
 	      PairMade = true;
@@ -195,6 +231,20 @@ const TaEvent&
 VaPair::GetLeft() const
 {
   return fEvLeft;
+}
+
+
+const TaEvent& 
+VaPair::GetFirst() const
+{
+  return *fEvFirst;
+}
+
+
+const TaEvent& 
+VaPair::GetSecond() const
+{
+  return *fEvSecond;
 }
 
 

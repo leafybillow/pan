@@ -45,6 +45,8 @@ public:
   virtual Bool_t Fill (TaEvent&, TaRun&);  // check for pair and fill
   const TaEvent& GetRight() const;
   const TaEvent& GetLeft() const;
+  const TaEvent& GetFirst() const;
+  const TaEvent& GetSecond() const;
   void QueuePrint() const;   
   void AddResult (const TaLabelledQuantity&); 
   Double_t GetDiff (Int_t) const;
@@ -81,6 +83,8 @@ protected:
   TaEvent fEvLeft;                       // "Left" helicity event
   TaEvent fEvRight;                      // "Right" helicity event
   vector<TaLabelledQuantity> fResults;   // Pair analysis results
+  TaEvent* fEvFirst;                     // (pointer to) first event
+  TaEvent* fEvSecond;                    // (pointer to) second event
   
 #ifdef DICT
   ClassDef( VaPair, 0 )  // Base class for helicity pairs
