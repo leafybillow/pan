@@ -11,16 +11,21 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
+#include "TF1.h"
+#include "TPaveText.h"
 #include "TaPanamADevice.hh"
 #include "VaPair.hh"
 #include "TaEvent.hh"
+#include "TDirectory.h"
 
 ClassImp(TaPanamADevice)
 
  TaPanamADevice::TaPanamADevice():TaPanamDevice(),
  fSAData(0),
  fSADataRMS(0), 
+ fSADataN(0), 
  fHAData(0),
+ fHADataN(0),
  fSANumOfChan(0),
  fSANumOfEvPerChan(0),
  fHAbins(0),
@@ -42,8 +47,11 @@ TaPanamADevice::TaPanamADevice(char* name, Int_t namekey,
                 xsmin,xsmax,xhmin,xhmax,color),
  fSAData(0),
  fSADataRMS(0), 
- fHAData(0)
+ fSADataN(0),
+ fHAData(0),
+ fHADataN(0)
 {
+  //cout<<"TaPanamADevice: creating object ="<<this<<endl; 
   fHArray.clear();
   fSANumOfChan      = SANumChan;
   fSANumOfEvPerChan = SANumEvperChan;
@@ -59,14 +67,34 @@ TaPanamADevice::TaPanamADevice(char* name, Int_t namekey,
 
 TaPanamADevice::~TaPanamADevice()
 {
-   delete fSAData; 
-   delete fSADataRMS; 
-   delete fHAData;
+  //cout<<"TaPanamADevice: deleting object ="<<this<<endl; 
+ cout<<"fSAData "<<fSAData<<endl;
+ cout<<"fSADataRMS "<<fSADataRMS<<endl;
+ cout<<"fSADataN "<<fSADataN<<endl;
+ cout<<"fHAData "<<fHAData<<endl;
+ cout<<"fHADataN "<<fHADataN<<endl;
+//    delete fSAData; 
+//    delete fSADataRMS ; 
+//    delete fSADataN; 
+// gDirectory->GetList()->Print();
+// TH1D *h = (TH1D*) gDirectory->GetList()->FindObject("H_bcm1_Asy");
+ //h->SetDirectory(0);
+ //cout<<"removed histo h with name"<<h->GetName()<<" from list "<<endl; 
+ //delete h;
+ //delete fHADataN;
+#ifdef LEAKING
+ ++fLeaKDelAHisto; 
+ ++fLeaKDelASC; 
+ ++fLeaKDelASCN; 
+ ++fLeaKDelASCRMS; 
+ ++fLeaKDelAHistoN; 
+#endif
 }
 
 TaPanamADevice::TaPanamADevice(const TaPanamADevice& md):TaPanamDevice(md)
 {
   fADataVal          = md.fADataVal;          
+  fADataNVal          = md.fADataNVal;          
   fHArray                = md.fHArray;
   fSANumOfChan           = md.fSANumOfChan;
   fSANumOfEvPerChan      = md.fSANumOfEvPerChan;
@@ -77,31 +105,33 @@ TaPanamADevice::TaPanamADevice(const TaPanamADevice& md):TaPanamDevice(md)
   fXHAmax                = md.fXHAmax;
   fAColor                = md.fAColor;
   fColor                 = md.fAColor;
-  if(md.fSAData) 
-     {         
-      fSAData   = new TaStripChart(md.fSAData->GetName(),
-                                   md.fSAData->GetDataName(),
-                                   fSANumOfChan,fSANumOfEvPerChan,
-                                   fXSAmin,fXSAmax); 
+//   if(md.fSAData) 
+//      {         
+//       fSAData   = new TaStripChart(md.fSAData->GetName(),
+//                                    md.fSAData->GetDataName(),
+//                                    fSANumOfChan,fSANumOfEvPerChan,
+//                                    fXSAmin,fXSAmax); 
       fSAData  = md.fSAData;
-     } 
-  else fSAData = NULL;
-  if(md.fSADataRMS) 
-     {         
-      fSADataRMS   = new TaStripChart(md.fSADataRMS->GetName(),
-                                      md.fSADataRMS->GetDataName(),
-                                      fSANumOfChan,fSANumOfEvPerChan,
-                                      fXSAmin,fXSAmax); 
+//      } 
+//   else fSAData = NULL;
+//   if(md.fSADataRMS) 
+//      {         
+//       fSADataRMS   = new TaStripChart(md.fSADataRMS->GetName(),
+//                                       md.fSADataRMS->GetDataName(),
+//                                       fSANumOfChan,fSANumOfEvPerChan,
+//                                       fXSAmin,fXSAmax); 
       fSADataRMS  = md.fSADataRMS;
-     } 
-  else fSADataRMS = NULL;
-  if(md.fHAData) 
-     {         
-      fHAData   = new TH1D(md.fHAData->GetName(),md.fHAData->GetTitle(),
-                           md.fHAbins,fXHAmin,fXHAmax); 
+//      } 
+//   else fSADataRMS = NULL;
+//   if(md.fHAData) 
+//      {         
+//       fHAData   = new TH1D(md.fHAData->GetName(),md.fHAData->GetTitle(),
+//                            md.fHAbins,fXHAmin,fXHAmax); 
       fHAData  = md.fHAData;
-     } 
-  else fHAData = NULL;
+//      } 
+//   else fHAData = NULL;
+  fSADataN = md.fSADataN;
+  fHADataN = md.fHADataN;
 }
 
 TaPanamADevice& TaPanamADevice::operator=(const TaPanamADevice &md)
@@ -109,9 +139,9 @@ TaPanamADevice& TaPanamADevice::operator=(const TaPanamADevice &md)
 if ( this != &md )
     {
      TaPanamDevice::operator=(md);
-     if(fSAData)        delete fSAData; 
-     if(fSADataRMS)    delete fSADataRMS; 
-     if(fHAData)        delete fHAData;
+//      if(fSAData)        delete fSAData; 
+//      if(fSADataRMS)    delete fSADataRMS; 
+//      if(fHAData)        delete fHAData;
      fADataVal          = md.fADataVal;          
      fHArray            = md.fHArray;
      fSANumOfChan       = md.fSANumOfChan;
@@ -122,29 +152,31 @@ if ( this != &md )
      fXHAmin            = md.fXHAmin;
      fXHAmax            = md.fXHAmax;
      fAColor            = md.fAColor;
-     if (md.fSAData) 
-       {         
-        fSAData   = new TaStripChart(md.fSAData->GetName(),md.fSAData->GetDataName(),
-                                    fSANumOfChan,fSANumOfEvPerChan,
-                                    fXSAmin,fXSAmax); 
+//      if (md.fSAData) 
+//        {         
+//         fSAData   = new TaStripChart(md.fSAData->GetName(),md.fSAData->GetDataName(),
+//                                     fSANumOfChan,fSANumOfEvPerChan,
+//                                     fXSAmin,fXSAmax); 
         fSAData  = md.fSAData;
-       } 
-     else fSAData = NULL;
-     if (md.fSADataRMS) 
-       {         
-        fSADataRMS   = new TaStripChart(md.fSADataRMS->GetName(),md.fSADataRMS->GetDataName(),
-                                       fSANumOfChan,fSANumOfEvPerChan,
-                                       fXSAmin,fXSAmax); 
+//        } 
+//      else fSAData = NULL;
+//      if (md.fSADataRMS) 
+//        {         
+//         fSADataRMS   = new TaStripChart(md.fSADataRMS->GetName(),md.fSADataRMS->GetDataName(),
+//                                        fSANumOfChan,fSANumOfEvPerChan,
+//                                        fXSAmin,fXSAmax); 
         fSADataRMS  = md.fSADataRMS;
-       } 
-     else fSADataRMS = NULL;
-     if(md.fHAData) 
-       {         
-        fHAData   = new TH1D(md.fHAData->GetName(),md.fHAData->GetTitle(),
-                            md.fHAbins,fXHAmax,fXHAmax); 
+//        } 
+//      else fSADataRMS = NULL;
+//      if(md.fHAData) 
+//        {         
+//         fHAData   = new TH1D(md.fHAData->GetName(),md.fHAData->GetTitle(),
+//                             md.fHAbins,fXHAmax,fXHAmax); 
         fHAData  = md.fHAData;
-       } 
-     else fHAData = NULL;
+//        } 
+//      else fHAData = NULL;
+     fSADataN = md.fSADataN;
+     fHADataN = md.fHADataN;
      return *this;     
     }
  else
@@ -171,10 +203,22 @@ TaPanamADevice::Init()
                                   fSANumOfChan,fSANumOfEvPerChan,
                                   fXSAmin,fXSAmax);
      fSCArray.push_back(fSADataRMS); 
+     dname = string("S_")+string(fName) + string("_AsyN"); 
+     fSADataN   = new TaStripChart((char*)dname.c_str(),(char*)dname.c_str(),
+                                   fSANumOfChan,fSANumOfEvPerChan,
+                                   fXSAmin,fXSAmax);   
+     fSCArray.push_back(fSADataN); 
      dname = string("H_")+string(fName) + string("_Asy"); 
      fHAData    = new TH1D((char*) dname.c_str(), (char*) dname.c_str(),
                             fHAbins,fXHAmin,fXHAmax); 
      fHArray.push_back(fHAData);
+     dname = string("H_")+string(fName) + string("_AsyN"); 
+     fHADataN   = new TH1D((char*) dname.c_str(), (char*) dname.c_str(),
+                            fHAbins,fXHAmin,fXHAmax); 
+     fHArray.push_back(fHADataN);
+#ifdef LEAKING
+ ++fLeaKNewAHisto;++fLeakNewASC;++fLeaKNewAHistoN;++fLeakNewASCN;++fLeakNewASCRMS; 
+#endif
     }
   else
     {
@@ -188,12 +232,25 @@ TaPanamADevice::Init()
                                   fSANumOfChan,fSANumOfEvPerChan,
                                   fXSAmin,fXSAmax);
      fSCArray.push_back(fSADataRMS); 
+     dname = string("S_")+string(fName) + string("_DiffN"); 
+     fSADataN   = new TaStripChart((char*)dname.c_str(),(char*)dname.c_str(),
+                                   fSANumOfChan,fSANumOfEvPerChan,
+                                   fXSAmin,fXSAmax);   
+     fSCArray.push_back(fSADataN); 
      dname = string("H_")+string(fName) + string("_Diff"); 
      fHAData    = new TH1D((char*) dname.c_str(), (char*) dname.c_str(),
                             fHAbins,fXHAmin,fXHAmax); 
      fHArray.push_back(fHAData);     
+     dname = string("H_")+string(fName) + string("_DiffN"); 
+     fHADataN    = new TH1D((char*) dname.c_str(), (char*) dname.c_str(),
+                            fHAbins,fXHAmin,fXHAmax); 
+     fHArray.push_back(fHADataN);     
+#ifdef LEAKING
+ ++fLeaKNewAHisto;++fLeakNewASC;++fLeaKNewAHistoN;++fLeakNewASCN;++fLeakNewASCRMS; 
+#endif
     }
 }
+
 void 
 TaPanamADevice::FillFromPair(VaPair& pair)
  {
@@ -234,8 +291,141 @@ TaPanamADevice::FillFromPair(VaPair& pair)
 }
 
 void 
-TaPanamADevice::DrawHPad(UInt_t plotidx)
+TaPanamADevice::FillFromPair(VaPair& pair, Int_t normdev)
+ {
+   if (fDevicekey !=0)
+     {
+       if (!fWhichData) 
+         {
+	   fADataVal = pair.GetAsy(fDevicekey)*1E6;
+	   fADataNVal = (pair.GetAsy(fDevicekey) - pair.GetAsy(normdev))*1E6;
+ 	  if (fSAData->DataSum(fADataVal))
+            { 
+ 	     fSAData->AddBinVal(fSAData->GetSumNorm());
+             fSAData->Fill();
+            }
+ 	  if (fSADataN->DataSum(fADataNVal))
+            { 
+ 	     fSADataN->AddBinVal(fSADataN->GetSumNorm());
+             fSADataN->Fill();
+            }
+          fHAData->Fill(fADataVal);
+          fHADataN->Fill(fADataNVal);
+	  if(fSADataRMS->DataSum(fHData->GetRMS()))
+            { 
+	     fSADataRMS->AddBinVal(fSDataRMS->GetSumNorm());
+             fSADataRMS->Fill();
+            }         
+	 }
+       else
+        {
+	  fADataVal = pair.GetDiff(fDevicekey)*1E3;
+	  fADataNVal = (pair.GetDiff(fDevicekey) - pair.GetDiff(normdev))*1E3;
+	  if (fSAData->DataSum(fADataVal))
+            { 
+	     fSAData->AddBinVal(fSAData->GetSumNorm());
+             fSAData->Fill();
+            }
+	  if (fSADataN->DataSum(fADataNVal))
+            { 
+	     fSADataN->AddBinVal(fSADataN->GetSumNorm());
+             fSADataN->Fill();
+            }
+          fHAData->Fill(fADataVal);
+          fHADataN->Fill(fADataNVal);
+	  if (fSADataRMS->DataSum(fHAData->GetRMS()))
+            { 
+	      fSADataRMS->AddBinVal(fSADataRMS->GetSumNorm());
+              fSADataRMS->Fill();
+            }         
+	}
+     }
+
+}
+
+
+void 
+TaPanamADevice::DrawHPad(UInt_t plotidx, UInt_t optionfit )
 {
-  if (plotidx <= (UInt_t)fHArray.size()) fHArray[plotidx]->Draw();
+  if (plotidx <= (UInt_t)fHArray.size())
+    { 
+     fHArray[plotidx]->Draw();
+     if ( optionfit ) 
+       {
+        fHArray[plotidx]->Fit("gaus");
+        fHArray[plotidx]->GetFunction("gaus")->SetLineColor(fHArray[plotidx]->GetLineColor());
+       } 
+    }  
   else cout<<" can't plot, index is bigger than array size!!! \n";
 }
+
+void 
+TaPanamADevice::InitAStat(Double_t  x1, Double_t y1, Double_t x2, Double_t y2,Int_t textfont=22, 
+                        Double_t textsize=0.04148)
+{
+ fAStat = new TPaveText(x1,y1,x2,y2,"brNDC");
+ fAStat->SetBorderSize(1);  fAStat->SetFillColor(10);
+ fAStat->SetTextAlign(12);  fAStat->SetTextFont(textfont);
+ fAStat->SetTextSize(textsize);
+ fANStat = new TPaveText(x1,y1,x2,y2,"brNDC");
+ fANStat->SetBorderSize(1);  fAStat->SetFillColor(10);
+ fANStat->SetTextAlign(12);  fAStat->SetTextFont(textfont);
+ fANStat->SetTextSize(textsize);
+}
+
+
+
+void 
+TaPanamADevice::UpdateAStat()
+{ 
+  fAStat->Clear();
+  //string gdname = string(GetName());
+  fAStat->SetTextColor(fHAData->GetLineColor());
+  if ( fHAData->GetEntries() > 0) fASigmaAverage = (fHAData->GetRMS())/(sqrt(fHAData->GetEntries()));
+  sprintf(fAMeanp,"<%s>= %2.2f",fHAData->GetName(),fHAData->GetMean());
+  sprintf(fASigAvep," +- %2.2f",fASigmaAverage);
+  strcat(fAMeanp,fASigAvep);
+  sprintf(fARMSp," rms  = %2.2f", fHAData->GetRMS());
+  fAStat->AddText(fAMeanp);
+  fAStat->AddText(fARMSp); 
+  fAStat->Draw(); 
+}
+
+void 
+TaPanamADevice::UpdateANStat()
+{ 
+  fANStat->Clear();
+  //string gdname = string(GetName());
+  fANStat->SetTextColor(fHADataN->GetLineColor());
+  if ( fHADataN->GetEntries() > 0) fASigmaAverage = (fHADataN->GetRMS())/(sqrt(fHADataN->GetEntries()));
+  sprintf(fAMeanp,"<%s>= %2.2f",fHADataN->GetName(),fHADataN->GetMean());
+  sprintf(fASigAvep," +- %2.2f",fASigmaAverage);
+  strcat(fAMeanp,fASigAvep);
+  sprintf(fARMSp," rms  = %2.2f", fHADataN->GetRMS());
+  fANStat->AddText(fAMeanp);
+  fANStat->AddText(fARMSp); 
+  fANStat->Draw(); 
+}
+
+#ifdef LEAKING
+void TaPanamADevice::Leaking()
+{
+  // Check for memory leaks in VaAnalysis
+  cout << "Memory leak test for TaPanamADevice:" << endl;
+  cout << "Histo new " << fLeaKNewAHisto
+       << " del " << fLeakDelAHisto
+       << " diff " <<fLeakNewAHisto-fLeakDelAHisto << endl;
+  cout << "SC  new " << fLeakNewASC
+       << " del " << fLeakDelASC
+       << " diff " <<fLeakNewASC-fLeakDelASC << endl;
+  cout << "SCRMS  new " << fLeakNewASCRMS
+       << " del " << fLeakDelASCRMS
+       << " diff " <<fLeakNewASCRMS-fLeakDelASCRMS << endl;
+  cout << "HistoN  new " << fLeakNewAHistoN
+       << " del " << fLeakDelASHistoN
+       << " diff " <<fLeakNewAHistoN-fLeakDelAHistoN << endl;
+  cout << "SCN  new " << fLeakNewASCN
+       << " del " << fLeakDelASCN
+       << " diff " <<fLeakNewASCN-fLeakDelASCN << endl;
+}
+#endif

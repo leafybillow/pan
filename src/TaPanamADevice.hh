@@ -17,10 +17,10 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+#include "TPaveText.h"
 #include "TaStripChart.hh"
 #include "TaPanamDevice.hh"
 #include "VaPair.hh"
-
 
 class TaPanamADevice : public TaPanamDevice {
   
@@ -43,33 +43,57 @@ public:
     
   Double_t  GetADataVal() const {return fADataVal;};
   TaStripChart* GetSAData() const {return fSAData;};
+  TaStripChart* GetSADataN() const {return fSADataN;};
   TaStripChart* GetSADataRMS() const {return fSADataRMS;};
   TH1D*   GetHAData() const { return fHAData;};
-  //void InitSCPad(UInt_t plotidx);
-  //  void DisplaySC(UInt_t plotidx);  
-  //  void DisplayH(UInt_t plotidx);  
+  TH1D*   GetHADataN() const { return fHADataN;};
   void FillFromPair(VaPair& pair);
-  void DrawHPad(UInt_t plotidx);
+  void FillFromPair(VaPair& pair,Int_t normdev);
+  void DrawHPad(UInt_t plotidx , UInt_t optionfit);
+  virtual void InitAStat(Double_t  x1, Double_t y1, Double_t x2, Double_t y2,Int_t textfont, Double_t textsize);
+  virtual void UpdateAStat();
+  virtual void UpdateANStat();
   //  TH1D*   GetPlot(char* const plotname, Int_t const plottype) const;
 
 protected:
 
   void Init();
    //data members 
-  vector<TH1D*>          fHArray;
-  TaStripChart*  fSAData;
+  vector<TH1D*>  fHArray;
+  TaStripChart*  fSAData;      
   TaStripChart*  fSADataRMS;
+  TaStripChart*  fSADataN;
   TH1D*          fHAData;
+  TH1D*          fHADataN;
   Double_t       fADataVal;          
-  Int_t         fSANumOfChan;
-  Int_t         fSANumOfEvPerChan;
-  Int_t         fHAbins;
-  Int_t         fAColor;
-  Float_t       fXSAmin;
-  Float_t       fXSAmax;  
-  Float_t       fXHAmin;
-  Float_t       fXHAmax;  
-  Bool_t        fWhichData;
+  Double_t       fADataNVal;          
+  TPaveText*     fATitle;
+  TPaveText*     fAStat;  
+  TPaveText*     fANStat;  
+  Char_t         fANeventp[50],fAMeanp[100],fARMSp[50],fASigAvep[50];
+  Double_t       fASigmaAverage;          
+  Int_t          fSANumOfChan;
+  Int_t          fSANumOfEvPerChan;
+  Int_t          fHAbins;
+  Int_t          fAColor;
+  Float_t        fXSAmin;
+  Float_t        fXSAmax;  
+  Float_t        fXHAmin;
+  Float_t        fXHAmax;  
+  Bool_t         fWhichData;
+#ifdef LEAKING
+  void Leaking();
+  static UInt_t fLeaKNewAHisto;    // count of histo allocations
+  static UInt_t fLeakDelAHisto;    // count of histo deallocations
+  static UInt_t fLeakNewASC;   // count of SC allocations
+  static UInt_t fLeakDelASC;   // count of SC deallocations
+  static UInt_t fLeaKNewAHistoN;    // count of histo allocations
+  static UInt_t fLeakDelAHistoN;    // count of histo deallocations
+  static UInt_t fLeakNewASCN;   // count of SC allocations
+  static UInt_t fLeakDelASCN;   // count of SC deallocations
+  static UInt_t fLeakNewASCRMS;   // count of SC allocations
+  static UInt_t fLeakDelASCRMS;   // count of SC deallocations
+#endif
      
   ClassDef( TaPanamADevice, 0 )  // Base class 
 };
