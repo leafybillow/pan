@@ -45,6 +45,7 @@
 #include "TaDevice.hh"
 #include "TaLabelledQuantity.hh"
 #include "TaStatistics.hh"
+#include "VaAnalysis.hh"
 #include "VaDataBase.hh"
 #include "VaPair.hh"
 #ifdef ONLINE
@@ -307,18 +308,21 @@ TaRun::AccumEvent(const TaEvent& ev)
   if (fESliceStats == 0 && lqres.size() > 0)
     {
       // Set up statistics
-#ifdef NOISY
-      clog << "Setting up event stats - " << lqres.size() << endl;
-#endif
-      fESliceStats = new TaStatistics (lqres.size(), false);
-      fERunStats = new TaStatistics (lqres.size(), false);
       for (vector<TaLabelledQuantity>::const_iterator i = lqres.begin();
 	   i != lqres.end();
 	   ++i )
 	{
-	  fEStatsNames.push_back (i->GetName());
-	  fEStatsUnits.push_back (i->GetUnits());
+	  if (!i->TestFlags(VaAnalysis::fgNO_STATS))
+	    {
+	      fEStatsNames.push_back (i->GetName());
+	      fEStatsUnits.push_back (i->GetUnits());
+	    }
 	}
+#ifdef NOISY
+      clog << "Setting up event stats - " << fEStatsNames.size() << endl;
+#endif
+      fESliceStats = new TaStatistics (fEStatsNames.size(), false);
+      fERunStats = new TaStatistics (fEStatsNames.size(), false);
     }
 
   if ( fCutList->OK(ev) )
@@ -330,7 +334,8 @@ TaRun::AccumEvent(const TaEvent& ev)
 	   i != lqres.end();
 	   ++i )
 	{
-	  vres.push_back (i->GetVal());
+	  if (!i->TestFlags(VaAnalysis::fgNO_STATS))
+	    vres.push_back (i->GetVal());
 	}
       fESliceStats->Update (vres);
     }
@@ -352,18 +357,21 @@ TaRun::AccumPair(const VaPair& pr)
   if (fPSliceStats == 0 && lqres.size() > 0)
     {
       // Set up statistics
-#ifdef NOISY
-      clog << "Setting up pair stats - " << lqres.size() << endl;
-#endif
-      fPSliceStats = new TaStatistics (lqres.size(), false);
-      fPRunStats = new TaStatistics (lqres.size(), false);
       for (vector<TaLabelledQuantity>::const_iterator i = lqres.begin();
 	   i != lqres.end();
 	   ++i )
 	{
-	  fPStatsNames.push_back (i->GetName());
-	  fPStatsUnits.push_back (i->GetUnits());
+	  if (!i->TestFlags(VaAnalysis::fgNO_STATS))
+	    {
+	      fPStatsNames.push_back (i->GetName());
+	      fPStatsUnits.push_back (i->GetUnits());
+	    }
 	}
+#ifdef NOISY
+      clog << "Setting up pair stats - " << fPStatsNames.size() << endl;
+#endif
+      fPSliceStats = new TaStatistics (fPStatsNames.size(), false);
+      fPRunStats = new TaStatistics (fPStatsNames.size(), false);
     }
 
   if ( fCutList->OK(pr.GetRight()) && fCutList->OK(pr.GetLeft()) )
@@ -375,7 +383,8 @@ TaRun::AccumPair(const VaPair& pr)
 	   i != lqres.end();
 	   ++i )
 	{
-	  vres.push_back (i->GetVal());
+	  if (!i->TestFlags(VaAnalysis::fgNO_STATS))
+	    vres.push_back (i->GetVal());
 	}
       fPSliceStats->Update (vres);
     }
@@ -392,12 +401,12 @@ TaRun::AccumPair(const VaPair& pr)
   if (evr >= fSliceLimit || evl >= fSliceLimit)
     {
       fSliceLimit += fgSLICELENGTH;
-      clog << "TaRun::AccumEvent(): At pair " << evr << "/" << evl
+      cout << "TaRun::AccumEvent(): At pair " << evr << "/" << evl
 	   << " of run " << fRunNumber << endl;
       if (fESliceStats != 0 || fPSliceStats != 0)
-	clog << "Stats for last " << fgSLICELENGTH
+	cout << "Stats for last " << fgSLICELENGTH
 	     << " events:";
-      clog << endl;
+      cout << endl;
       if (fESliceStats != 0)
 	{
 	  PrintStats (*fESliceStats, fEStatsNames, fEStatsUnits);
@@ -410,9 +419,9 @@ TaRun::AccumPair(const VaPair& pr)
 	  *fPRunStats += *fPSliceStats;
 	  fPSliceStats->Zero();
 	}
-      clog << endl;
-      fCutList->PrintTally(clog);
-      clog << endl;
+      cout << endl;
+      fCutList->PrintTally(cout);
+      cout << endl;
     }
 }
 
@@ -431,11 +440,11 @@ TaRun::Finish()
   // End of run.  Print last incremental statistics, cumulative
   // statistics, cumulative cut tally.
 
-  clog << "\nTaRun::Finish End of run " << fRunNumber << endl;
+  cout << "\nTaRun::Finish End of run " << fRunNumber << endl;
   size_t nSlice = fEventNumber - (fSliceLimit - fgSLICELENGTH);
   if ((fESliceStats != 0 || fPSliceStats != 0) && nSlice > 5)
-    clog<< "Stats for last " << nSlice << " events:";
-  clog << endl;
+    cout<< "Stats for last " << nSlice << " events:";
+  cout << endl;
 
   if (fESliceStats != 0 && nSlice > 5)
     PrintStats (*fESliceStats, fEStatsNames, fEStatsUnits);
@@ -448,7 +457,7 @@ TaRun::Finish()
     *fPRunStats += *fPSliceStats;
 
   if (fERunStats != 0 || fPRunStats != 0)
-    clog << "\nCumulative stats for " << fEventNumber 
+    cout << "\nCumulative stats for " << fEventNumber 
 	 << " events: "
 	 << endl;
 
@@ -457,9 +466,9 @@ TaRun::Finish()
   if (fPRunStats != 0)
     PrintStats (*fPRunStats, fPStatsNames, fPStatsUnits);
 
-  clog << endl;
-  fCutList->PrintTally(clog);
-  clog << endl;
+  cout << endl;
+  fCutList->PrintTally(cout);
+  cout << endl;
 }
 
 
@@ -542,36 +551,26 @@ void
 TaRun::PrintStats (TaStatistics s, vector<string> n, vector<string> u) const
 {
   // Print statistics, with given labels and units.
-
+  
   for (size_t j = 0; j < s.Size(); ++j)
     {
-      // Some quantities it doesn't make sense to do statistics on.
-      // For now we accumulate but don't do averages etc. on anything
-      // whose name starts with "Left" or "Right".  There's probably a
-      // better way but this will do at least for now.
-
-      size_t i = n[j].find(' ');
-      string firstword = string (n[j], 0, i);
-      if (firstword != "Right" && firstword != "Left")
+      cout.setf(ios::left,ios::adjustfield);
+      cout << setw(15) << n[j].c_str();
+      if (s.Neff(j) > 5)
 	{
-	  clog.setf(ios::left,ios::adjustfield);
-	  clog << setw(15) << n[j].c_str();
-	  if (s.Neff(j) > 5)
-	    {
-    // N.B. seem to need to convert to C-style string for setw to work.
-	      clog << " mean " << setw(10) << s.Mean(j)
-		   << " +- " << setw(10) << s.MeanErr(j)
-		   << " RMS " << setw(8) << s.DataRMS(j) 
-		   << " " << setw(6) << u[j].c_str()
-		   << endl;
-	      // Comment above line and uncomment this to get 
-	      // print of effective number of events:
-	      //   << s.Neff(j) << endl;
-	    }
-	  else
-	    {
-	      clog << " insufficient data" << endl;
-	    }
+	  // N.B. seem to need to convert to C-style string for setw to work.
+	  cout << " mean " << setw(10) << s.Mean(j)
+	       << " +- " << setw(10) << s.MeanErr(j)
+	       << " RMS " << setw(8) << s.DataRMS(j) 
+	       << " " << setw(6) << u[j].c_str()
+	       << endl;
+	  // Comment above line and uncomment this to get 
+	  // print of effective number of events:
+	  //   << s.Neff(j) << endl;
+	}
+      else
+	{
+	  cout << " insufficient data" << endl;
 	}
     }
 }
