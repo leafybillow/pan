@@ -6,6 +6,21 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on  30 May 2004
+--------------------------------------
+
+ParamSave.macro now does corrected asymmetries (modulation and
+regression).  For now the correction coefficients are hardwired -- or
+rather, a lack of them is hardwired, unless you define FAKETYFAKE in
+which case some completely bogus coefficients are loaded for testing
+purposes.  (I suppose I should have it print a warning message.)
+Later we will read correction coefficients out of postPan results
+files.  ParamSave will output corrected asymmetries, modulation and
+regression, if and only if it has coefficients for the detector in
+question.  prompt.macro has been updated with the requisite call to
+LoadCorrs(). 
+
+
 Changes by R. Holmes on  29 May 2004
 --------------------------------------
 
