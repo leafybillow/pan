@@ -72,5 +72,6 @@ ostream&
 operator<< (ostream& s, const TaCutInterval q)
 {
   s << int (q.fCut) << " " << q.fVal << " " << q.fBegin << " " << q.fEnd;
+  return s;
 }
 
