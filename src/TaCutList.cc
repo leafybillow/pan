@@ -15,6 +15,7 @@
 
 #include "TaCutList.hh"
 #include <iostream>
+#include <iomanip>
 #include "TaCutInterval.hh"
 
 #ifdef DICT
@@ -41,17 +42,19 @@ TaCutList::Init(const VaDataBase& db)
 {
   clog << "TaCutList::Init Cut list Initialization for run " 
        << fRunNumber << endl;
-
+  
   vector<Int_t> temp;
+
+  fLowExtension.resize (MaxCuts, 0);
+  fHighExtension.resize (MaxCuts, 0);
+  fTally.resize (MaxCuts, 0);
+  fCutNames.resize (MaxCuts, "");
 
   // Cut extensions 
 
   // These are specified in terms of helicity windows in the database
   // but stored in terms of events -- i.e. we multiply by the
   // oversample factor.
-
-  fLowExtension.resize (MaxCuts, 0);
-  fHighExtension.resize (MaxCuts, 0);
 
   SlotNumber_t os = db.GetOverSamp();
   temp = db.GetEvLo();
@@ -63,7 +66,7 @@ TaCutList::Init(const VaDataBase& db)
     fHighExtension[i] = temp[i] * os;
 
   // Cut values
-  for (size_t i = 0; i < db.GetNumBadEv(); ++i)
+  for (size_t i = 0; i < size_t (db.GetNumBadEv()); ++i)
     {
       temp = db.GetCutValues()[i];
       if (temp[2] >= 0 && temp[2] < MaxCuts)
@@ -77,6 +80,7 @@ TaCutList::Init(const VaDataBase& db)
 	cerr << "TaCutList::Init WARNING: Unknown cut type = " << temp[2]
 	     << " found in database -- ignoring" << endl;
     }
+  
 }
 
 
@@ -126,6 +130,7 @@ TaCutList::UpdateCutInterval (const ECutType cut, const Int_t val, const EventNu
 
   if ( val )
     {
+      ++fTally[cut];
       if ( oi != fIntervals.size() )
 	{
 	  // Found open cut interval for this cut
@@ -172,38 +177,79 @@ TaCutList::AddExtension (const ECutType cut, const UInt_t lex, const UInt_t hex)
   fHighExtension[cut] = hex;
 }
 
-// Private member functions
-
-ostream& 
-operator<< (ostream& s, const TaCutList q)
+void 
+TaCutList::AddName (const ECutType cut, const string& s)
+  // Add name to list
 {
-  s << endl;
-  s << "Run " << q.fRunNumber << endl;
+  fCutNames[cut] = s;
+}
+
+void
+TaCutList::printInt (ostream& s) const
+{
+  // Print intervals
   for (size_t i = 0;
-       i < q.fIntervals.size();
+       i < fIntervals.size();
        ++i)
     {
-      s << q.fIntervals[i];
+      s << fIntervals[i];
       list<size_t>::const_iterator j;
-      for (j = q.fOpenIntIndices.begin();
-	   (j != q.fOpenIntIndices.end()) && (*j != i);
+      for (j = fOpenIntIndices.begin();
+	   (j != fOpenIntIndices.end()) && (*j != i);
 	   ++j)
 	{}
-      if (j != q.fOpenIntIndices.end())
+      if (j != fOpenIntIndices.end())
 	s << "*";
       s << endl;
     }
+}
+
+void
+TaCutList::printExt (ostream& s) const
+{
+  // Print extensions
   s << "Low extensions:" << endl;
-  for (vector<UInt_t>::const_iterator k = q.fLowExtension.begin();
-       k != q.fLowExtension.end();
+  for (vector<UInt_t>::const_iterator k = fLowExtension.begin();
+       k != fLowExtension.end();
        ++k)
     s << " " << *k;
   s << endl;
   s << "High extensions:" << endl;
-  for (vector<UInt_t>::const_iterator k = q.fHighExtension.begin();
-       k != q.fHighExtension.end();
+  for (vector<UInt_t>::const_iterator k = fHighExtension.begin();
+       k != fHighExtension.end();
        ++k)
     s << " " << *k;
   s << endl;
+}
+
+void
+TaCutList::printTally (ostream& s) const
+{
+  // Print tally of events failing cuts
+  s << "Events failing cut conditions:" << endl;
+  for (size_t k = 0;
+       k != fTally.size();
+       ++k)
+    {
+      s << k << "  ";
+      clog.setf(ios::left,ios::adjustfield);
+      // N.B. seem to need to convert to C-style string for setw to work.
+      s << setw(15) << fCutNames[k].c_str() << " " ;
+      clog.setf(ios::right,ios::adjustfield);
+      s << setw(6) << fTally[k] << endl;
+    }
+}
+
+// Private member functions
+
+// Friend functions
+
+ostream& 
+operator<< (ostream& s, const TaCutList q)
+{
+  s << "Run " << q.fRunNumber << " cuts:" << endl;
+  q.printInt(s);
+  q.printExt(s);
+  q.printTally(s);
   return s;
 }
