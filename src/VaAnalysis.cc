@@ -1348,9 +1348,9 @@ VaAnalysis::ComputeData(EFeedbackType fdbk, UInt_t timescale, Int_t devicekey)
     fSum[fdbk].clear();
     if (fSend[fdbk]) 
       {
-       if (fdbk == IA) SendEPICS(IA);
-       if (fdbk == PITA) SendEPICS(PITA);
-       if (fdbk == PZTY) PZTSendEPICS();
+       if (fdbk == IA) SendEPICS(IA,1); // 0 = voltage value; 1 = asym value 
+       if (fdbk == PITA) SendEPICS(PITA,1);
+       if (fdbk == PZTY) PZTSendEPICS(1);
       }       
        
    }// end fNPair[fdbk] >= fTimeScale[fdbk]*900 
@@ -1425,41 +1425,50 @@ VaAnalysis::ComputeLastData(EFeedbackType fdbk, UInt_t timescale, Int_t deviceke
        fNPair[fdbk] = 0;
        fSum[fdbk].clear();
        if (fSend[fdbk]) {
-          if (fdbk == IA) SendEPICS(IA);
-          if (fdbk == PITA) SendEPICS(PITA);
-          if (fdbk == PZTY) PZTSendEPICS();
+          if (fdbk == IA) SendEPICS(IA,1);
+          if (fdbk == PITA) SendEPICS(PITA,1);
+          if (fdbk == PZTY) PZTSendEPICS(1);
        }       
       }  
 }
 
 void 
-VaAnalysis::SendEPICS(EFeedbackType fdbk)
+VaAnalysis::SendEPICS(EFeedbackType fdbk, Int_t EpicsOption)
 {  
-  // keep asym under 10 ppm for the moment...
+ char *commpath;
+ static char command[100],cinfo[100];
+ float setpoint;
  switch (fdbk)
   {
    case 0:
     // Send intensity(IA) feedback value to EPICS
-    if ( fabs(fResult[fdbk]) < 10 || fabs(fResult[fdbk]) > 10 && 
-         fabs(fResult[fdbk]/fResultError[fdbk]) > 2 ) 
-      {
 	clog<<" \n          *** Pan is sending EPICS values for "<<fFdbkName[fdbk]
             <<" *** "<<endl;
        GetLastSetPt();
-       static char command[100],cinfo[100];
-       char *commpath;
        commpath = getenv("EPICS_SCRIPTS");
        if (commpath == NULL) sprintf(command,"~apar/epics");
        else strcpy(command,commpath);
        strcat(command,"/epics_feedback");
-       float setpoint = 0;
+       setpoint = 0;
        if (fIAslope != 0) setpoint = fLast[0] + (fResult[fdbk])/fIAslope;
-       sprintf(cinfo," 1 %6.2f",setpoint);
-       strcat(command, cinfo);
-       clog << "Command for IA feedback "<<command<<endl;
-       if (fOnlFlag) system(command);
-       else clog << "Command not sent because not running online"<<endl;
-      }   
+       if ( EpicsOption == 0)
+         {
+	  clog<<"Computing VOLTAGE value for IA:"<<endl;
+          if (fIAslope != 0) setpoint = fLast[0] + (fResult[fdbk])/fIAslope;
+          sprintf(cinfo," 1 %6.2f",setpoint);
+          strcat(command, cinfo);
+          clog << "Command for IA feedback "<<command<<endl;
+	 }
+       else
+         {
+	  clog<<"Computing ASYMMETRY value for IA:"<<endl;
+          sprintf(cinfo," 1 %6.2f",fResult[fdbk]);
+          strcat(command, cinfo);
+          clog << "Command for IA feedback "<<command<<endl;
+          clog << "Voltage value for IA computed by PAN ="<<setpoint<<endl;
+         }
+       if (fOnlFlag && fSend[fdbk]) system(command);
+       else clog << "Command not sent because not running online"<<endl; 
     break;
 
   case 1:
@@ -1470,26 +1479,32 @@ VaAnalysis::SendEPICS(EFeedbackType fdbk)
    
    case 3:
     // Send intensity(PITA) feedback value to EPICS
-    if ( fabs(fResult[fdbk]) < 10 || fabs(fResult[fdbk]) > 10 && 
-         fabs(fResult[fdbk]/fResultError[fdbk]) > 2 ) 
-      {
-	clog<<" \n          *** Pan is sending EPICS values for "<<fFdbkName[fdbk]
+    clog<<" \n          *** Pan is sending EPICS values for "<<fFdbkName[fdbk]
             <<" *** "<<endl;
        GetLastSetPt(); 
-       static char command[100],cinfo[100];
-       char *commpath;
        commpath = getenv("EPICS_SCRIPTS");
        if (commpath == NULL) sprintf(command,"~apar/epics");
        else strcpy(command,commpath);
        strcat(command,"/epics_feedback");
-       float setpoint = 0;
+       setpoint = 0;
        if (fIAslope != 0) setpoint = fLast[3] + (fResult[fdbk])/fPITAslope;
-       sprintf(cinfo," 1 %6.2f",setpoint);
-       strcat(command, cinfo);
-       clog << "Command for PITA feedback "<<command<<endl;
+       if ( EpicsOption == 0)
+         {
+	  clog<<"Sending VOLTAGE value for PITA:"<<endl;
+          sprintf(cinfo," 1 %6.2f",setpoint);
+          strcat(command, cinfo);
+          clog << "Command for PITA feedback "<<command<<endl;
+	 }
+       else
+         {
+	  clog<<"Sending ASYMMETRY value for PITA:"<<endl;
+          sprintf(cinfo," 1 %6.2f",fResult[fdbk]);
+          strcat(command, cinfo);
+          clog << "Command for PITA feedback "<<command<<endl;
+          clog << "Voltage value for PITA computed by PAN ="<<setpoint<<endl;
+         }
        if (fOnlFlag && fSend[fdbk]) system(command);
-       else clog << "Command not sent because not running online or compute mode"<<endl;
-      }   
+       else clog << "Command not sent because not running online or compute mode"<<endl;  
     break;
     
   }    
@@ -1515,29 +1530,28 @@ void VaAnalysis::GetLastSetPt() {
   }
   static char strin[100],epicsvar[100];
   float epicsval;
-  for (int i = 0; i<3; i++){
+  //for (int i = 0; i<3; i++){
     if (fgets(strin,100,fd) != NULL) {
-       sscanf(strin,"%s %f",&epicsvar,&epicsval);
-        if (i==0) fLast[1] = epicsval;
-        if (i==1) fLast[2] = epicsval;
-        if (i==2) fLast[0] = epicsval;
-    }
+      //       sscanf(strin,"%s %f",&epicsvar,&epicsval);
+       sscanf(strin,"%f",&epicsval);
+       //if (i==0) fLast[1] = epicsval;
+        //if (i==1) fLast[2] = epicsval;
+	//        if (i==2) 
+        fLast[0] = epicsval;
+	// }
   }      
-  cout << "Check of last EPICS values "<<fLast[1]<<"  "<<fLast[2]<<"  "<<fLast[0]<<endl;
+    //  cout << "Check of last EPICS values "<<fLast[1]<<"  "<<fLast[2]<<"  "<<fLast[0]<<endl;
+  cout << "Check of last EPICS values "<<fLast[0]<<endl;
 }
 
 
 
-void VaAnalysis::PZTSendEPICS(){
+void VaAnalysis::PZTSendEPICS(Int_t EpicsOption){
   // keep this one aside to the other because the X and Y feedback 
   // are correlated.
   // Send position feedback value to EPICS
 
   // arbitrary values for now
-    if ( (fabs(fResult[1]) < 1000 || (fabs(fResult[1]) > 1000 && 
-         fabs(fResult[1]/fResultError[1]) > 2)) &&
-         (fabs(fResult[2]) < 1000 || (fabs(fResult[2]) > 1000 && 
-         fabs(fResult[2]/fResultError[2])) > 2)) {
 
       clog<<" \n             *** Pan is sending EPICS values for PZT *** "<<endl;
       GetLastSetPt();
@@ -1563,24 +1577,38 @@ void VaAnalysis::PZTSendEPICS(){
       }
       fdbk[0] = fLast[1] + pztinv[0]*(fResult[1]) + pztinv[1]*(fResult[2]);
       fdbk[1] = fLast[2] + pztinv[2]*(fResult[1]) + pztinv[3]*(fResult[2]);
-      sprintf(cinfo," 2 %6.2f",fdbk[0]);
+
+      if (EpicsOption == 0) 
+        {
+          sprintf(cinfo," 2 %6.2f",fdbk[0]);
+          clog<<" Sending VOLTAGE value for PZTX "<<endl<<flush; 
+        }
+      else 
+        {
+         sprintf(cinfo," 2 %6.2f",fResult[0]);
+         clog<<" Sending DIFFERENCE value  for PZTX "<<endl<<flush; 
+        }
+      strcpy(command,comm0);
       strcat(command, cinfo);
-      clog << "Command for PZT X feedback :  " << command<<endl;
-      if (fOnlFlag) {
-           system(command);
-      } else {
-  	   clog << "Command not sent because we are not running online"<<endl;
-      }
-      sprintf(cinfo," 3 %6.2f",fdbk[1]);
+      clog << "Command for PZT X feedback :  " << command<<endl<<flush;
+      if (fOnlFlag) system(command);
+      else clog << "Command not sent because we are not running online"<<endl;
+
+      if (EpicsOption == 0) 
+       {
+        sprintf(cinfo," 2 %6.2f",fdbk[1]);
+        clog<<" Sending DIFFERENCE value  for PZTY "<<endl<<flush; 
+       }
+     else
+       { 
+         sprintf(cinfo," 2 %6.2f",fResult[1]);
+         clog<<" Sending DIFFERENCE value  for PZTY "<<endl<<flush; 
+       }
       strcpy(command,comm0);
       strcat(command, cinfo);
       clog << "Command for PZT Y feedback :  " << command<<endl;
-      if (fOnlFlag) {
-           system(command);
-      } else {
-  	   clog << "Command not sent because we are not running online"<<endl;
-      }
-    }
+      if (fOnlFlag) system(command);
+      else  clog << "Command not sent because we are not running online"<<endl;
 }
 
 

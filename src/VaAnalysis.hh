@@ -211,7 +211,7 @@ protected:
 					    const UInt_t flags = 0);
   virtual void AutoPairAna();
   // virtual void SendVoltagePC();
-  virtual void PZTSendEPICS();
+  virtual void PZTSendEPICS(Int_t fdbkoption);
   virtual void SendVoltagePZT();
   virtual void GetLastSetPt();
   // new code 
@@ -220,7 +220,7 @@ protected:
   virtual void ProceedLastFeedback();
   virtual void ComputeData(EFeedbackType fdbk, UInt_t timescale, Int_t devicekey);
   virtual void ComputeLastData(EFeedbackType fdbk, UInt_t timescale, Int_t devicekey);
-  virtual void SendEPICS(EFeedbackType fdbk); 
+  virtual void SendEPICS(EFeedbackType fdbk, Int_t fdbkoption); 
 
 
   // Data members
