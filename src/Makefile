@@ -73,7 +73,7 @@ MAKEDEPEND    = g++
 
 ALL_LIBS = $(LIBS) $(LIBCODACLASS)
 
-DCDIR=$(HOME)/codaclass
+DCDIR=../codaclass
 INCLUDES += -I$(DCDIR)
 
 ifdef ONLINE
