@@ -809,7 +809,7 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"integtime",IINTEGTIME));
   fKeyToIdx.insert(make_pair((string)"integtime1",IINTEGTIME1));
   fKeyToIdx.insert(make_pair((string)"integtime2",IINTEGTIME2));
-  fKeyToIdx.insert(make_pair((string)"integtime3",IINTETTIME3));
+  fKeyToIdx.insert(make_pair((string)"integtime3",IINTEGTIME3));
 
   fKeyToIdx.insert(make_pair((string)"oversample",IOVERSAMPLE));
   fKeyToIdx.insert(make_pair((string)"oversample1",IOVERSAMPLE1));
