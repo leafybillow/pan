@@ -24,9 +24,6 @@ ClassImp(TaCutList)
 
 // Constructors/destructors/operators
 
-// For now we just set up empty cut lists and extension lists.  To be
-// done: Initialize cut list from database.
-
 TaCutList::TaCutList(RunNumber_t run): fRunNumber(run)
 {
 }
@@ -34,6 +31,35 @@ TaCutList::TaCutList(RunNumber_t run): fRunNumber(run)
 TaCutList::TaCutList()
 {
 }
+
+TaCutList::TaCutList (const TaCutList& copy)
+{
+  fRunNumber = copy.fRunNumber;
+  fIntervals = copy.fIntervals;
+  fOpenIntIndices = copy.fOpenIntIndices;
+  fLowExtension = copy.fLowExtension;
+  fHighExtension = copy.fHighExtension;
+  fTally = copy.fTally;
+  fCutNames = copy.fCutNames;
+}
+
+
+TaCutList& 
+TaCutList::operator= (const TaCutList& assign)
+{
+  if (this != &assign)
+    {
+      fRunNumber = assign.fRunNumber;
+      fIntervals = assign.fIntervals;
+      fOpenIntIndices = assign.fOpenIntIndices;
+      fLowExtension = assign.fLowExtension;
+      fHighExtension = assign.fHighExtension;
+      fTally = assign.fTally;
+      fCutNames = assign.fCutNames;
+    }
+  return *this;
+}
+
 
 // Major functions
 

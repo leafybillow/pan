@@ -32,6 +32,8 @@ public:
 		  const EventNumber_t e1 );
   TaCutInterval();
   virtual ~TaCutInterval();
+  TaCutInterval (const TaCutInterval& copy);
+  TaCutInterval& operator= (const TaCutInterval& assign);
 
   // Major functions
 

@@ -38,7 +38,30 @@ TaCutInterval::TaCutInterval() {}
 TaCutInterval::~TaCutInterval() {}
 
 
-  // Major functions
+TaCutInterval::TaCutInterval (const TaCutInterval& copy)
+{
+  fCut = copy.fCut;
+  fVal = copy.fVal;
+  fBegin = copy.fBegin;
+  fEnd = copy.fEnd;
+}
+
+
+TaCutInterval& 
+TaCutInterval::operator= (const TaCutInterval& assign)
+{
+  if (this != &assign)
+    {
+      fCut = assign.fCut;
+      fVal = assign.fVal;
+      fBegin = assign.fBegin;
+      fEnd = assign.fEnd;
+    }
+  return *this;
+}
+
+
+// Major functions
 
 Bool_t 
 TaCutInterval::Inside (const TaEvent& ev, 
@@ -51,7 +74,7 @@ TaCutInterval::Inside (const TaEvent& ev,
 }
 
 
-  // Access functions
+// Access functions
 
 void 
 TaCutInterval::SetEnd( const EventNumber_t e1 ) 

@@ -31,6 +31,8 @@ public:
   TaCutList(RunNumber_t run);
   TaCutList();
   virtual ~TaCutList() {}
+  TaCutList (const TaCutList& copy);
+  TaCutList& operator= (const TaCutList& assign);
 
   // Major functions
   void Init(const VaDataBase&);
