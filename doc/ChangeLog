@@ -4,6 +4,45 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 15 Oct 2002
+-----------------------------------
+
+I should've known we were going to want to be able to study
+ordering-dependent effects...
+
+Each event now has information about the helicity of the previous
+event -- both the in-time and the delayed helicity thereof.  These
+makes their way into the pair tree -- that is, the helicities for the
+event previous to the first event of the tree: prev_hel and
+prev_intime_hel.  So e.g. one can now plot asymmetries for LR pairs
+which were preceded by a R event, et cetera.
+
+I also changed the name of the pair tree "evt_helicity" branch to
+"evt_intime_helicity" to reduce confusion (after I got confused by
+"evt_helicity" myself).  Through an oversight I did not similarly
+rename "evt_helicity2" etc., and I probably should.
+
+TaEvent.{cc,hh}
+
+ o Storage and accessors for previous event's in-time and delayed
+   helicities. 
+
+TaRun.cc
+
+ o Get previous event's (in-time) helicity and set it in new event.
+
+VaAnalysis.{cc,hh}
+
+ o Previous event's (in-time and delayed) helicities -> tree.
+ o Get previous helicity of delayed event as and store as previous
+   delayed helicity.
+ o Rename pair tree "evt_helicity" leaf to "evt_intime_helicity".
+
+VaPair.{cc,hh}
+
+ o Pointers and accessors for first and second events.
+
+
 Changes by A. Vacheret on 25 Sept 2002
 -----------------------------------
 
