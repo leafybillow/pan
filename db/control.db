@@ -173,3 +173,9 @@
     cutnames Low_beam Beam_burp Evt_seq Pair_seq Startup
     extlo 10 10 25 25 0
     exthi 40 40 25 25 0
+#
+# List of EPICS variables to put to output trees 
+# The character ":" gets replaced by "_".
+epics IPM1H04A.XPOS IPM1H04A.YPOS IPM1H04B.XPOS
+epics IPM1H04B.YPOS
+epics HA:Q_ONOFF HA:Q_ASY HA:Q_STAMP HA:IA_SLOPE
