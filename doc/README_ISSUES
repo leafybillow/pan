@@ -25,6 +25,11 @@ I've looked into it and I don't think I am.  Strange.
 
 For now, I comment out delete fEvtree.
 
+TaAsciiDB needs fixes to delete its allocations.
+
+TaFdbkAna::SendEPICSInfo() needs to be rewritten to avoid passing a
+pointer. 
+
 
 Comments by R. Holmes, 10 Apr 2002
 ----------------------------------

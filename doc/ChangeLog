@@ -4,6 +4,56 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 20 May 2002
+-----------------------------------
+
+Makefile 
+ o Remove TaMapFile.cc from list of sources.
+
+TaADCCalib.{hh,cc}
+ o Add/change comments for THtml.
+
+TaEvent.{cc,hh} 
+ o Better handling of initialization.  There is a new RunInit routine
+   to be called at beginning of run.  Cut thresholds are stored in
+   static data members instead of being read from database every time.
+
+ o Errors and log messages to cerr and clog instead of cout.
+
+TaPairFromPair.{cc,hh}
+ o Add RunInit() to initialize static data members at start of run.
+
+ o Remove HSDEB code.
+
+TaRun.cc
+ o Call to TaEvent::RunInit().
+
+VaPair.{cc,hh}
+ o Change Init() into RunInit().
+
+
+Changes by R. Holmes on 17 May 2002
+-----------------------------------
+
+I observed that the removal of the exit from THaCodaFile didn't
+prevent Pan from crashing in flames when faced with a nonexistent
+input file.  The problem was that there was no way for Pan to check
+that the THaCodaFile constructor actually succeeded, so it would
+merrily proceed to try to read the nonexistent file and crash there.
+
+To fix this I added a data member to THaCodaData to store the status
+of the Coda calls, and an access function.  Now we can check status
+after the THaCodaFile constructor and if it's bad, bail.
+
+Making use of this, however, required changing some method types from
+void to Int_t in TaRun and TaAnalysisManager, so the error could be
+propagated up the calling chain.  (TaRun also has some changes
+intended to improve its self-documentation in the class index.)
+
+Finally, main.cc was changed to look for these errors and return 1
+when found -- likewise macro/run.macro.
+
+
 Changes by R. Holmes on 13 May 2002
 -----------------------------------
 
