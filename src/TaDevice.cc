@@ -38,6 +38,7 @@ TaDevice::TaDevice() {
 
 TaDevice::~TaDevice() {
   Uncreate();
+  fKeyToIdx.clear();
 }
 
 TaDevice::TaDevice(const TaDevice& rhs) 
