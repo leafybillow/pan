@@ -1,26 +1,32 @@
-//////////////////////////////////////////////////////////////////////////
+//**********************************************************************
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
-//       TaStatistics.hh  (header file)
-//       ^^^^^^^^^^^^^^^
+//       TaStatistics.cc  (implementation)
 //
-//    Authors :  R. Holmes, A. Vacheret, R. Michaels
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
 //
-//    Class for statistics -- means, widths, etc
+////////////////////////////////////////////////////////////////////////
+//
+//    A general purpose statistics class, allowing accumulation of
+//    sums for one value or a set of values, from which quantities
+//    such as means, widths, errors, etc. can be computed.
 //
 //    Note that this class permits a single-pass analysis with *no*
-//    attempt to reduce errors.  Such an analysis, using mathematically
-//    correct formulas, can still give badly erroneous results for RMS /
-//    variance / error due to roundoff problems.  In particular, when N
-//    is large and the variance is small, mean(x^2)-(mean(x))^2 is a
-//    difference of two large numbers and can have very poor precision.
-//    Results can be improved by making an estimate of mean(x) and
-//    subtracting this from each x_i, but automating such an estimate is
-//    difficult.  However, this class also allows 2-pass calculations to
-//    be made if desired, with greatly improved precision, and this is
-//    strongly recommended when feasible.  See for example _The American
-//    Statistician_ V. 37 p. 242 (1982).
+//    attempt to reduce errors on the computed quantities.  Such an
+//    analysis, using mathematically correct formulas, can still give
+//    badly erroneous results for RMS / variance / error due to
+//    roundoff problems.  In particular, when N is large and the
+//    variance is small, mean(x^2)-(mean(x))^2 is a difference of two
+//    large numbers and can have very poor precision.  Results can be
+//    improved by making an estimate of mean(x) and subtracting this
+//    from each x_i, but automating such an estimate is difficult.
+//
+//    However, this class also allows 2-pass calculations to be made
+//    if desired, with greatly improved precision, and this is
+//    strongly recommended when feasible.  See for example _The
+//    American Statistician_ V. 37 p. 242 (1982).
 //
 ////////////////////////////////////////////////////////////////////////
 
@@ -116,7 +122,5 @@ private:
 };
 
 // Non member functions
-
-ostream& operator<< (ostream& s, const TaStatistics q);
 
 #endif

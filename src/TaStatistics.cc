@@ -1,26 +1,32 @@
-//////////////////////////////////////////////////////////////////////////
+//**********************************************************************
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
 //       TaStatistics.cc  (implementation)
-//       ^^^^^^^^^^^^^^^
 //
-//    Authors :  R. Holmes, A. Vacheret, R. Michaels
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
 //
-//    Class for statistics -- means, widths, etc
+////////////////////////////////////////////////////////////////////////
+//
+//    A general purpose statistics class, allowing accumulation of
+//    sums for one value or a set of values, from which quantities
+//    such as means, widths, errors, etc. can be computed.
 //
 //    Note that this class permits a single-pass analysis with *no*
-//    attempt to reduce errors.  Such an analysis, using mathematically
-//    correct formulas, can still give badly erroneous results for RMS /
-//    variance / error due to roundoff problems.  In particular, when N
-//    is large and the variance is small, mean(x^2)-(mean(x))^2 is a
-//    difference of two large numbers and can have very poor precision.
-//    Results can be improved by making an estimate of mean(x) and
-//    subtracting this from each x_i, but automating such an estimate is
-//    difficult.  However, this class also allows 2-pass calculations to
-//    be made if desired, with greatly improved precision, and this is
-//    strongly recommended when feasible.  See for example _The American
-//    Statistician_ V. 37 p. 242 (1982).
+//    attempt to reduce errors on the computed quantities.  Such an
+//    analysis, using mathematically correct formulas, can still give
+//    badly erroneous results for RMS / variance / error due to
+//    roundoff problems.  In particular, when N is large and the
+//    variance is small, mean(x^2)-(mean(x))^2 is a difference of two
+//    large numbers and can have very poor precision.  Results can be
+//    improved by making an estimate of mean(x) and subtracting this
+//    from each x_i, but automating such an estimate is difficult.
+//
+//    However, this class also allows 2-pass calculations to be made
+//    if desired, with greatly improved precision, and this is
+//    strongly recommended when feasible.  See for example _The
+//    American Statistician_ V. 37 p. 242 (1982).
 //
 ////////////////////////////////////////////////////////////////////////
 
@@ -97,6 +103,8 @@ TaStatistics::operator= (const TaStatistics& s)
 void 
 TaStatistics::Zero ()
 {
+  // Zero all the sums.
+
   fN = 0;
   fN2 = 0;
   fSumWt = vector<Double_t>(fSumWt.size(),0);
@@ -110,17 +118,18 @@ TaStatistics::Zero ()
 }
 
 
-// The Update functions update the sums associated with a
-// statistic or set of statistics.  Third argument (weight) can be
-// omitted (or passed as zero), in which case weight = 1/xerr^2.
-// Second argument (xerr) is ignored, and can be omitted, if
-// statistics constructed with goodErrors = false.
-
 void 
 TaStatistics::Update (const vector<Double_t>& x,
 		      const vector<Double_t>& xerr,
 		      const vector<Double_t>& w)
 {
+  // Update the sums associated with a set of statistics.  Third
+  // argument (weight) can be omitted (or passed as zero), in which
+  // case weight = 1/xerr^2.  Second argument (xerr) is ignored, and
+  // can be omitted, if statistics object was constructed with
+  // goodErrors = false.  Different sums are made on first and second
+  // passes.
+
   if ( x.size() != fSumWt.size() || 
        ( fGoodErrors && xerr.size() != fSumWt.size() ) ||
        ( w.size() > 0 && w.size() != fSumWt.size() ) )
@@ -228,6 +237,13 @@ TaStatistics::Update (const Double_t x,
 		      const Double_t xerr = 0, 
 		      const Double_t w = 0) // Add a single quantity
 {
+  // Update the sums associated with a single statistic.  Third
+  // argument (weight) can be omitted (or passed as zero), in which
+  // case weight = 1/xerr^2.  Second argument (xerr) is ignored, and
+  // can be omitted, if statistics object was constructed with
+  // goodErrors = false.  Different sums are made on first and second
+  // passes.
+
   if ( fSumWt.size() != 1 )
     {
       cerr << "TaStatistics::Update ERROR: Expect vectors" << endl;
@@ -300,6 +316,9 @@ TaStatistics::Update (const Double_t x,
 TaStatistics& 
 TaStatistics::operator+= (const TaStatistics& s)
 {
+  // Sum two statistics objects (of the same size -- otherwise gives
+  // error and returns *this).
+
   if ( fSumWt.size() != s.fSumWt.size() )
     {
       cerr << "TaStatistics::operator+= ERROR: Cannot add stats of unlike size" 
@@ -325,22 +344,26 @@ TaStatistics::operator+= (const TaStatistics& s)
 
 // Functions to return results
 Int_t     
-TaStatistics::N() const                   // number of events in stats
+TaStatistics::N() const                   
 {
+  // Number of events in stats
   return fN;
 }
 
 
 size_t    
-TaStatistics::Size() const                // size of statistics vector (nquant)
+TaStatistics::Size() const                
 {
+  // Size of statistics vector (nquant)
   return fSumWt.size();
 }
 
 
 vector<Double_t> 
-TaStatistics::DataRMS() const      // vector of RMS of x
+TaStatistics::DataRMS() const      
 {
+  // Vector of RMS of x
+
   vector<Double_t> result(fSumWt.size(),0);
   if ( fN > 0 )
     {
@@ -358,8 +381,9 @@ TaStatistics::DataRMS() const      // vector of RMS of x
 
 
 vector<Double_t> 
-TaStatistics::Mean() const         // vector of means of x
+TaStatistics::Mean() const         
 {
+  // Vector of means of x
   vector<Double_t> result(fSumWt.size(),0);
   if ( fN > 0 )
     {
@@ -377,8 +401,9 @@ TaStatistics::Mean() const         // vector of means of x
 
 
 vector<Double_t> 
-TaStatistics::MeanVar() const      // vector of variances of means of x
+TaStatistics::MeanVar() const      
 {
+  // Vector of variances of means of x
   vector<Double_t> result(fSumWt.size(),0);
   if ( fN > 0 )
     {
@@ -396,8 +421,9 @@ TaStatistics::MeanVar() const      // vector of variances of means of x
 
 
 vector<Double_t> 
-TaStatistics::MeanErr() const      // vector of errors of means of x
+TaStatistics::MeanErr() const      
 {
+  // Vector of errors of means of x
   vector<Double_t> result(fSumWt.size(),0);
   if ( fN > 0 )
     {
@@ -415,8 +441,9 @@ TaStatistics::MeanErr() const      // vector of errors of means of x
 
 
 vector<pair<Double_t,Double_t> > 
-TaStatistics::MeanAndErr() const   // vector of means of x and their errors
+TaStatistics::MeanAndErr() const   
 {
+  // Vector of means of x and their errors
   vector<pair<Double_t,Double_t> > result(fSumWt.size(),pair<Double_t,Double_t>(0,0));
   if ( fN > 0 )
     {
@@ -435,8 +462,9 @@ TaStatistics::MeanAndErr() const   // vector of means of x and their errors
 
 
 vector<Double_t>
-TaStatistics::Neff() const // effective N for all x
+TaStatistics::Neff() const 
 {
+  // Effective N for all x
   vector<Double_t> result(fSumWt.size(),0);
   if ( fN > 0 )
     {
@@ -457,8 +485,9 @@ TaStatistics::Neff() const // effective N for all x
 
 
 Double_t 
-TaStatistics::DataRMS (size_t i) const      // RMS of one x
+TaStatistics::DataRMS (size_t i) const      
 {
+  // RMS of one x (with error checking)
   if ( fSumWt.size() > i )
     {
       if ( fN > 0 )
@@ -480,8 +509,9 @@ TaStatistics::DataRMS (size_t i) const      // RMS of one x
 
 
 Double_t 
-TaStatistics::Mean (size_t i) const         // means of one x
+TaStatistics::Mean (size_t i) const         
 {
+  // Mean of one x (with error checking)
   if ( fSumWt.size() > i )
     {
       if ( fN > 0 )
@@ -503,8 +533,9 @@ TaStatistics::Mean (size_t i) const         // means of one x
 
 
 Double_t 
-TaStatistics::MeanVar (size_t i) const      // variances of means of one x
+TaStatistics::MeanVar (size_t i) const      
 {
+  // Variance of mean of one x (with error checking)
   if ( fSumWt.size() > i )
     {
       if ( fN > 0 )
@@ -526,8 +557,9 @@ TaStatistics::MeanVar (size_t i) const      // variances of means of one x
 
 
 Double_t 
-TaStatistics::MeanErr (size_t i) const      // errors of means of one x
+TaStatistics::MeanErr (size_t i) const      
 {
+  // Error of mean of one x
   if ( fSumWt.size() > i )
     {
       if ( fN > 0 )
@@ -549,8 +581,9 @@ TaStatistics::MeanErr (size_t i) const      // errors of means of one x
 
 
 pair<Double_t,Double_t> 
-TaStatistics::MeanAndErr (size_t i) const   // mean of one x and its error
+TaStatistics::MeanAndErr (size_t i) const   
 {
+  // Mean of one x and its error
   if ( fSumWt.size() > i )
     {
       if ( fN > 0 )
@@ -573,8 +606,9 @@ TaStatistics::MeanAndErr (size_t i) const   // mean of one x and its error
 
 
 Double_t
-TaStatistics::Neff (size_t i) const // effective N for one x
+TaStatistics::Neff (size_t i) const 
 {
+  // Effective N for one x (with error checking)
   if ( fSumWt.size() > i )
     {
       if ( fN > 0 )
@@ -596,6 +630,9 @@ TaStatistics::Neff (size_t i) const // effective N for one x
 void
 TaStatistics::SetFirstPass (Bool_t fp)
 {
+  // Mark this as first or second pass depending on whether argument
+  // is true or not.
+
   fFirstPass = fp;
   if (!fp)
     {
@@ -610,6 +647,9 @@ TaStatistics::SetFirstPass (Bool_t fp)
 Double_t
 TaStatistics::PDataMS (size_t i) const
 {
+  // RMS of one x.  Computed differently depending on whether first or
+  // second pass.
+
   if ( fSumWt[i] > 0 )
     {
       Double_t ms;
@@ -648,6 +688,7 @@ TaStatistics::PDataMS (size_t i) const
 Double_t
 TaStatistics::PMean (size_t i) const
 {
+  // Mean of one x
   if ( fSumWt[i] > 0 )
     {
       return ( fSumWtX[i] / fSumWt[i] );
@@ -663,6 +704,7 @@ TaStatistics::PMean (size_t i) const
 Double_t
 TaStatistics::PMeanVar (size_t i) const
 {
+  // Variance of mean of one x
   if ( fSumWt[i] > 0 )
     {
       if ( fGoodErrors )
@@ -685,6 +727,7 @@ TaStatistics::PMeanVar (size_t i) const
 Double_t
 TaStatistics::PNeff (size_t i) const
 {
+  // Effective N for one x
   if ( fSumWt2[i] > 0 )
     {
       return ( fSumWt[i] / fSumWt2[i] * fSumWt[i] );
@@ -699,9 +742,3 @@ TaStatistics::PNeff (size_t i) const
 
 // Non member functions
 
-ostream& 
-operator<< (ostream &s, const TaStatistics q)
-{
-  // Not a very useful function for now -- fix it up or lose it
-  return s << q.Mean(0);
-}
