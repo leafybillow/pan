@@ -46,14 +46,17 @@ public:
   // Major functions
   void Init(const VaDataBase&);
   Bool_t OK (const TaEvent&) const;  // True if event not in any cut interval
-  vector<pair<ECutType,Int_t> > CutsFailed (const TaEvent&) const; // Cuts failed by event
-  void UpdateCutInterval (const ECutType, const Int_t, const EventNumber_t);  // Update interval for this cut type
-  void AddExtension (const ECutType, const UInt_t, const UInt_t);  // Add extensions to list
-  void AddName (const ECutType, const string&);  // Add name to list
-  const string& GetName (const ECutType) const;  // Get name from list
+  vector<pair<Cut_t,Int_t> > CutsFailed (const TaEvent&) const; // Cuts failed by event
+  void UpdateCutInterval (const Cut_t, const Int_t, const EventNumber_t);  // Update interval for this cut type
+  void AddExtension (const Cut_t, const UInt_t, const UInt_t);  // Add extensions to list
+  void AddName (const Cut_t, const string&);  // Add name to list
+  const string& GetName (const Cut_t) const;  // Get name from list
   void PrintInt (ostream&) const;  // Print intervals
   void PrintExt (ostream&) const;  // Print extensions
   void PrintTally (ostream&) const;  // Print tally of events failing cuts
+
+  // Access functions
+  UInt_t GetNumCuts () const {return fNumCuts;} // Number of cuts defined
 
   friend ostream& operator<< (ostream& s, const TaCutList q);
 
@@ -63,6 +66,7 @@ private:
   RunNumber_t fRunNumber;            // Run number associated with this list
   vector<TaCutInterval> fIntervals;  // List of cut intervals
   list<size_t> fOpenIntIndices;      // Indices of open interval (if any) for each cut type
+  UInt_t fNumCuts;                   // Number of cuts defined
   vector<UInt_t> fLowExtension;      // Low-end extension for each cut type
   vector<UInt_t> fHighExtension;     // High-end extension for each cut type
   vector<UInt_t> fTally;             // tally of cut condition failures
