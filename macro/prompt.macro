@@ -1,4 +1,4 @@
- // -*- c++ -*-
+// -*- c++ -*-
 
 //**********************************************************************
 //
@@ -6,17 +6,28 @@
 //
 //           prompt.macro
 //
-// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// Author:  R. Holmes <http://mep1.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>, K.Paschke
 // @(#)pan/src:$Name$:$Id$
 //
 ////////////////////////////////////////////////////////////////////////
 //
 //  Prompt analysis macro
 //
+//  Produces plots of monitor differences, monitor double differences,
+//  raw detector asymmetries, and corrected detector asymmetries.
+//
+//  Outputs a text file with means, errors, and widths of the above.
+//
+//  Most of this is a class definition.  At the end is a short macro 
+//  to invoke the class and produce the plots and output.
+//
 ////////////////////////////////////////////////////////////////////////
 
 #include "TStyle.h"
 #include <iostream>
+#include <iomanip>
+#include <stdlib.h>
+#include <cmath>
 
 void prompt (Int_t run);
 void style ();
@@ -28,7 +39,8 @@ public:
   void ~Prompt ();
 
   void Monitors ();
-  void Detectors (bool corrected);
+  void Detectors (UInt_t corrected);
+  void Print ();
 
 private:
   Int_t fRun;               // run number
@@ -37,7 +49,8 @@ private:
   Int_t fNDDif;             // number of double differences to compute/display
   Int_t fNDetAsy;           // number of detector asyms to compute/display
   Int_t fNMod;              // number of modulation objects
-  Int_t fNDimCor;           // number of monitors and mod objects to use in corrections
+  Int_t fNDimRegCor;        // number of monitors to use in regression corrections
+  Int_t fNDimModCor;        // number of monitors and mod objects to use in modulation corrections
   Double_t*  fDifM;         // mean (monitor) differences
   Double_t*  fDifME;        // errors on mean differences
   Double_t*  fDifW;         // RMS widths of differences
@@ -45,26 +58,33 @@ private:
   Double_t*  fAsyM;         // mean (detector) asymmetries
   Double_t*  fAsyME;        // errors on mean asymmetries
   Double_t*  fAsyW;         // RMS widths of asymmetries
-  Double_t*  fCAsyM;        // mean (detector) corrected asymmetries
-  Double_t*  fCAsyME;       // errors on mean corrected asymmetries
-  Double_t*  fCAsyW;        // RMS widths of corrected asymmetries
+  Double_t*  fRCAsyM;       // mean (detector) regression corrected asymmetries
+  Double_t*  fRCAsyME;      // errors on mean regression corrected asymmetries
+  Double_t*  fRCAsyW;       // RMS widths of regression corrected asymmetries
+  Double_t*  fMCAsyM;       // mean (detector) modulation corrected asymmetries
+  Double_t*  fMCAsyME;      // errors on mean modulation corrected asymmetries
+  Double_t*  fMCAsyW;       // RMS widths of modulation corrected asymmetries
   Double_t** fMonSlope;     // Monitor slopes
   Double_t** fDetSlope;     // Detector slopes
-  Double_t** fDetCoef;      // Detector coefficients
+  Double_t** fDetRCoef;     // Detector regression coefficients
+  Double_t** fDetRCoefE;    // Detector regression coefficient errors
+  Double_t** fDetMCoef;     // Detector modulation coefficients
+  Double_t** fDetMCoefE;    // Detector modulation coefficient errors
   TString* fMonTag;         // tag for monitor
   TString* fModTag;         // tag for modulation object
   Int_t*   fMonType;        // type of monitor: 0 = BCM, 1 = BPM
   Int_t*   fDifMon;         // list of monitor indices for differences
   Int_t*   fDDifMon0;       // list of monitor indices for double differences
   Int_t*   fDDifMon1;       // list of monitor indices for double differences
-  Int_t*   fCorMon;         // list of monitors for corrections
-  Int_t*   fCorMod;         // list of modulation objects for corrections
+  Int_t*   fRegCorMon;      // list of monitors for modulation corrections
+  Int_t*   fModCorMon;      // list of monitors for modulation corrections
+  Int_t*   fModCorMod;      // list of modulation objects for corrections
   TString* fDifExp;         // TTree::Draw expression for monitor differences
   TString* fDDifExp;        // TTree::Draw expression for double differences
+  TString* fAsyTag;         // tag for detector combination
   TString* fAsyExp;         // TTree::Draw expression for detector asymmetries
-  TString* fCorExp;         // TTree::Draw expression for corrected detector asymmetries
-  // N.B. For whatever reason, output stream must be allocated dynamically
-  ofstream* fFile;           // output file
+  TString* fRegCorExp;      // TTree::Draw expression for modulation corrected detector asymmetries
+  TString* fModCorExp;      // TTree::Draw expression for modulation corrected detector asymmetries
 };
 
 
@@ -74,9 +94,11 @@ Prompt::Prompt (Int_t run): fRun(run)
   fNMon     = 8;
   fNDif     = 8;
   fNDDif    = 4;
-  fNDetAsy  = 10;
+  //  fNDetAsy  = 10;
+  fNDetAsy  = 6;
   fNMod     = 8;
-  fNDimCor  = 5;
+  fNDimRegCor  = 5;
+  fNDimModCor  = 5;
   fDifM     = new Double_t[fNDif];
   fDifME    = new Double_t[fNDif];
   fDifW     = new Double_t[fNDif];
@@ -84,9 +106,12 @@ Prompt::Prompt (Int_t run): fRun(run)
   fAsyM     = new Double_t[fNDetAsy];
   fAsyME    = new Double_t[fNDetAsy];
   fAsyW     = new Double_t[fNDetAsy];
-  fCAsyM    = new Double_t[fNDetAsy];
-  fCAsyME   = new Double_t[fNDetAsy];
-  fCAsyW    = new Double_t[fNDetAsy];
+  fRCAsyM    = new Double_t[fNDetAsy];
+  fRCAsyME   = new Double_t[fNDetAsy];
+  fRCAsyW    = new Double_t[fNDetAsy];
+  fMCAsyM    = new Double_t[fNDetAsy];
+  fMCAsyME   = new Double_t[fNDetAsy];
+  fMCAsyW    = new Double_t[fNDetAsy];
 
   fMonSlope = new Double_t*[fNMon];
   UInt_t imon;
@@ -102,24 +127,39 @@ Prompt::Prompt (Int_t run): fRun(run)
       fDetSlope[iasy] = new Double_t[fNMod];
     }
 
-  fDetCoef  = new Double_t*[fNDetAsy];
+  fDetRCoef  = new Double_t*[fNDetAsy];
+  fDetRCoefE  = new Double_t*[fNDetAsy];
   for (iasy = 0; iasy < fNDetAsy; ++iasy)
     {
-      fDetCoef[iasy] = new Double_t[fNDimCor];
+      fDetRCoef[iasy] = new Double_t[fNDimRegCor];
+      fDetRCoefE[iasy] = new Double_t[fNDimRegCor];
     }
 
-  fMonTag   = new TString[fNMon];
-  fModTag   = new TString[fNMod];
-  fMonType  = new Int_t[fNMon];
-  fDifMon   = new Int_t[fNDif];
-  fDDifMon0 = new Int_t[fNDDif];
-  fDDifMon1 = new Int_t[fNDDif];
-  fCorMon   = new Int_t[fNDimCor];
-  fCorMod   = new Int_t[fNDimCor];
-  fDifExp   = new TString[fNDif];
-  fDDifExp  = new TString[fNDDif];
-  fAsyExp   = new TString[fNDetAsy];
-  fCorExp   = new TString[fNDetAsy];
+  fDetMCoef  = new Double_t*[fNDetAsy];
+  fDetMCoefE  = new Double_t*[fNDetAsy];
+  for (iasy = 0; iasy < fNDetAsy; ++iasy)
+    {
+      fDetMCoef[iasy] = new Double_t[fNDimModCor];
+      fDetMCoefE[iasy] = new Double_t[fNDimModCor];
+    }
+
+  fMonTag    = new TString[fNMon];
+  fModTag    = new TString[fNMod];
+  fMonType   = new Int_t[fNMon];
+  fDifMon    = new Int_t[fNDif];
+  fDDifMon0  = new Int_t[fNDDif];
+  fDDifMon1  = new Int_t[fNDDif];
+  fRegCorMon = new Int_t[fNDimRegCor];
+  fModCorMon = new Int_t[fNDimModCor];
+  fModCorMod = new Int_t[fNDimModCor];
+  fDifExp    = new TString[fNDif];
+  fDDifExp   = new TString[fNDDif];
+  fAsyTag    = new TString[fNDetAsy];
+  fAsyExp    = new TString[fNDetAsy];
+  fRegCorExp = new TString[fNDetAsy];
+  fModCorExp = new TString[fNDetAsy];
+
+  // Tags for the monitors -- matching the tags used in the analyzer
 
   fMonTag[0] = "bcm1";
   fMonTag[1] = "bcm2";
@@ -130,6 +170,8 @@ Prompt::Prompt (Int_t run): fRun(run)
   fMonTag[6] = "bpm4bx";
   fMonTag[7] = "bpm4by";
 
+  // Types -- 0 for BCMs, 1 for BPMs
+  
   fMonType[0] = 0;
   fMonType[1] = 0;
   fMonType[2] = 1;
@@ -138,6 +180,8 @@ Prompt::Prompt (Int_t run): fRun(run)
   fMonType[5] = 1;
   fMonType[6] = 1;
   fMonType[7] = 1;
+
+  // Monitors for which we want to see differences
 
   fDifMon[0] = 0;
   fDifMon[1] = 1;
@@ -148,10 +192,22 @@ Prompt::Prompt (Int_t run): fRun(run)
   fDifMon[6] = 6;
   fDifMon[7] = 7;
 
+  // Monitor pairs for which we want to see double differences
+
   fDDifMon0[0] = 0;  fDDifMon1[0] = 1;
   fDDifMon0[1] = 2;  fDDifMon1[1] = 3;
   fDDifMon0[2] = 4;  fDDifMon1[2] = 6;
   fDDifMon0[3] = 5;  fDDifMon1[3] = 7;
+
+  // Monitors used in regression corrections
+
+  fRegCorMon[0] = 3;
+  fRegCorMon[1] = 4;
+  fRegCorMon[2] = 5;
+  fRegCorMon[3] = 6;
+  fRegCorMon[4] = 7;
+
+  // Tags for modulation objects
 
   fModTag[0] = "MAT1C01H";
   fModTag[1] = "MAT1C02V";
@@ -162,17 +218,23 @@ Prompt::Prompt (Int_t run): fRun(run)
   fModTag[6] = "MAT1C07V";
   fModTag[7] = "VERNIER";
 
-  fCorMon[0] = 3;
-  fCorMon[1] = 4;
-  fCorMon[2] = 5;
-  fCorMon[3] = 6;
-  fCorMon[4] = 7;
+  // Monitors used in modulation corrections
 
-  fCorMod[0] = 0;
-  fCorMod[1] = 1;
-  fCorMod[2] = 4;
-  fCorMod[3] = 5;
-  fCorMod[4] = 7;
+  fModCorMon[0] = 3;
+  fModCorMon[1] = 4;
+  fModCorMon[2] = 5;
+  fModCorMon[3] = 6;
+  fModCorMon[4] = 7;
+
+  // Modulation objects used in modulation corrections
+
+  fModCorMod[0] = 0;
+  fModCorMod[1] = 1;
+  fModCorMod[2] = 4;
+  fModCorMod[3] = 5;
+  fModCorMod[4] = 7;
+
+  // Here we build the expressions used to plot monitor differences
 
   TString xa = "asym_";
   TString xd = "diff_";
@@ -183,6 +245,8 @@ Prompt::Prompt (Int_t run): fRun(run)
 	(fMonType[fDifMon[idif]] == 0 ? xa : xd) + fMonTag[fDifMon[idif]];
     }
 
+  // Expressions for monitor double differences
+
   for (UInt_t iddif = 0; iddif < fNDDif; ++iddif)
     {
       fDDifExp[iddif] =
@@ -192,57 +256,80 @@ Prompt::Prompt (Int_t run): fRun(run)
 	fMonTag[fDDifMon1[iddif]];
     }
 
-  fAsyExp[0] = "asym_n_det1";
-  fAsyExp[1] = "asym_n_det2";
-  fAsyExp[2] = "asym_n_det3";
-  fAsyExp[3] = "asym_n_det4";
-  fAsyExp[4] = "asym_n_det_l";
-  fAsyExp[5] = "asym_n_det_r";
-  fAsyExp[6] = "asym_n_det_hi";
-  fAsyExp[7] = "asym_n_det_lo";
-  fAsyExp[8] = "asym_n_det_all";
-  fAsyExp[9] = "asym_n_det_ave";
+  // Tags for raw asymmetries
+
+  fAsyTag[0] = "det1";
+  fAsyTag[1] = "det2";
+  fAsyTag[2] = "det3";
+  fAsyTag[3] = "det4";
+//   fAsyTag[4] = "det_l";
+//   fAsyTag[5] = "det_r";
+//   fAsyTag[6] = "det_hi";
+//   fAsyTag[7] = "det_lo";
+//   fAsyTag[8] = "det_all";
+//   fAsyTag[9] = "det_ave";
+  fAsyTag[4] = "det_all";
+  fAsyTag[5] = "det_ave";
+
+  // Expressions for raw asymmetries
+
+  xa = "asym_n_";
+  for (iasy = 0; iasy < fNDetAsy; ++iasy)
+    {
+      fAsyExp[iasy] = xa + fAsyTag[iasy];
+    }
+
+
+  // For now, since there are no regression or modulation analyses,
+  // set these coefs to zero
 
   for (iasy = 0; iasy < fNDetAsy; ++iasy)
-    for (UInt_t jdim = 0; jdim < fNDimCor; ++jdim)
+    for (UInt_t jdim = 0; jdim < fNDimRegCor; ++jdim)
       {
-	fDetCoef[iasy][jdim] = 0.;
+	fDetRCoef[iasy][jdim] = 0.1230;
+	fDetRCoefE[iasy][jdim] = 0.01;
       }
 
   for (iasy = 0; iasy < fNDetAsy; ++iasy)
+    for (UInt_t jdim = 0; jdim < fNDimModCor; ++jdim)
+      {
+	fDetMCoef[iasy][jdim] = 0.3450;
+	fDetMCoefE[iasy][jdim] = 0.01;
+      }
+
+  // Expressions for regression and modulation corrected asymmetries
+
+  for (iasy = 0; iasy < fNDetAsy; ++iasy)
     {
-      fCorExp[iasy] = fAsyExp[iasy] + "-(";
-      for (UInt_t idim = 0; idim < fNDimCor; ++idim)
+      fRegCorExp[iasy] = fAsyExp[iasy] + "-(";
+      for (UInt_t idim = 0; idim < fNDimRegCor; ++idim)
 	{
 	  if (idim != 0)
-	    fCorExp[iasy] += "+";
-	  Double_t foo(3.14);
-	  fCorExp[iasy] += fDetCoef[iasy][idim];
-	  fCorExp[iasy] += "*";
-	  fCorExp[iasy] +=  fDifExp[fCorMon[idim]];
+	    fRegCorExp[iasy] += "+";
+	  fRegCorExp[iasy] += fDetRCoef[iasy][idim];
+	  fRegCorExp[iasy] += "*";
+	  fRegCorExp[iasy] +=  fDifExp[fRegCorMon[idim]];
 	}
-	fCorExp[iasy] += ")";
-	clog << iasy << " " << fCorExp[iasy] << endl;
-    }
+	fRegCorExp[iasy] += ")";
+	//	clog << iasy << " " << fRegCorExp[iasy] << endl;
 
-  TaFileName fn("output", "macro", "txt");
-  fFile = new ofstream (fn.C_str());
-  if (!(*fFile))
-    {
-      cerr << "Prompt ERROR: Cannot open output file " << fn.C_str() << endl;
-      exit (1);
+      fModCorExp[iasy] = fAsyExp[iasy] + "-(";
+      for (UInt_t idim = 0; idim < fNDimModCor; ++idim)
+	{
+	  if (idim != 0)
+	    fModCorExp[iasy] += "+";
+	  fModCorExp[iasy] += fDetMCoef[iasy][idim];
+	  fModCorExp[iasy] += "*";
+	  fModCorExp[iasy] +=  fDifExp[fModCorMon[idim]];
+	}
+	fModCorExp[iasy] += ")";
+	//	clog << iasy << " " << fModCorExp[iasy] << endl;
     }
-  else
-    clog << "Output file is " << fn.C_str() << endl;
-
-  *fFile << "Prompt macro output for run " << run << endl;
-  *fFile << "================================" << endl;
 }
 
 void
 Prompt::~Prompt ()
 {
-  fFile->close();
   delete[] fDifM;
   delete[] fDifME;
   delete[] fDifW;
@@ -250,9 +337,12 @@ Prompt::~Prompt ()
   delete[] fAsyM;
   delete[] fAsyME;
   delete[] fAsyW;
-  delete[] fCAsyM;
-  delete[] fCAsyME;
-  delete[] fCAsyW;
+  delete[] fRCAsyM;
+  delete[] fRCAsyME;
+  delete[] fRCAsyW;
+  delete[] fMCAsyM;
+  delete[] fMCAsyME;
+  delete[] fMCAsyW;
 
   UInt_t imon;
   for (imon = 0; imon < fNMon; ++imon)
@@ -270,28 +360,45 @@ Prompt::~Prompt ()
 
   for (iasy = 0; iasy < fNDetAsy; ++iasy)
     {
-      delete[] fDetCoef[iasy];
+      delete[] fDetRCoef[iasy];
+      delete[] fDetRCoefE[iasy];
     }
-  delete[] fDetCoef;
+  delete[] fDetRCoef;
+  delete[] fDetRCoefE;
+
+  for (iasy = 0; iasy < fNDetAsy; ++iasy)
+    {
+      delete[] fDetMCoef[iasy];
+      delete[] fDetMCoefE[iasy];
+    }
+  delete[] fDetMCoef;
+  delete[] fDetMCoefE;
 
   delete[] fMonTag;
+  delete[] fModTag;
   delete[] fMonType;
   delete[] fDifMon;
   delete[] fDDifMon0;
   delete[] fDDifMon1;
+  delete[] fRegCorMon;
+  delete[] fModCorMon;
+  delete[] fModCorMod;
   delete[] fDifExp;
   delete[] fDDifExp;
+  delete[] fAsyTag;
   delete[] fAsyExp;
+  delete[] fRegCorExp;
+  delete[] fModCorExp;
 }
 
 void 
 Prompt::Monitors ()
 {
-  style ();
+  // Plot monitor differences and double differences, and write means,
+  // errors, and widths to text file
 
-  gROOT->LoadMacro ("frame.macro");
   TString can_name ("MonitorDiffs");
-  TString can_title ("Monitor differences");
+  TString can_title ("Monitor Differences");
   TCanvas* can_mon1 = frame (fRun, can_name, can_title);
   TPad* pad_mon1 = gPad;
 
@@ -306,17 +413,38 @@ Prompt::Monitors ()
       pad_mon1->cd (idif%np+1);
       prtree->Draw (fDifExp[idif], "ok_cut");
 
-      fDifM[idif] = htemp->GetMean();
-      fDifW[idif] = htemp->GetRMS();
-      fDifME[idif] = fDifW[idif] / sqrt (htemp->GetEntries()-1);
+      // NOTE: Provided we're not using an axis sub-range, ROOT's mean
+      // and RMS for a histogram created by TTree::Draw come from the
+      // *data*, not the histogram (but using only data within
+      // histogram limits) -- so should be accurate (provided there
+      // are no underflows/overflows).  For our "width" we want the
+      // estimated variance, i.e. with sqrt (n-1) in the denominator,
+      // rather than RMS with sqrt (n).
 
-      htemp->Fit("gaus");
+      Double_t n = htemp->GetEntries();
+      if (n > 1)
+	{
+	  fDifM[idif] = htemp->GetMean();
+	  fDifME[idif] = htemp->GetRMS() / sqrt (n-1);
+	  fDifW[idif] = fDifME[idif] * sqrt (n);
+	}
+      else
+	{
+	  // This should never happen but if n <= 1, fill in something
+	  // ridiculous.
+	  fDifM[idif] = 1e99;
+	  fDifME[idif] = 1e99;
+	  fDifW[idif] = 1e99;
+	}
+	  
+
+      htemp->Fit ("gaus","Q");
       pad_mon1->Update();
     }
-  can_mon1.Print("");
+  can_mon1.Print (TaFileName ("output", can_name, "ps").C_str());
 
   can_name = "MonitorDblDiffs";
-  can_title = "Monitor double differences";
+  can_title = "Monitor Double Differences";
   TCanvas* can_mon2 = frame (fRun, can_name, can_title);
   TPad* pad_mon2 = gPad;
 
@@ -329,42 +457,42 @@ Prompt::Monitors ()
     {
       pad_mon2->cd (iddif+1);
       prtree->Draw (fDDifExp[iddif], "ok_cut");
+      
+      Double_t n = htemp->GetEntries();
+      if (n > 1)
+	{
+	  fDDifW[iddif] = htemp->GetRMS() * sqrt (n / (n-1));
+	}
+      else
+	{
+	  // This should never happen but if n <= 1, fill in something
+	  // ridiculous.
+	  fDDifW[iddif] = 1e99;
+	}
 
-      fDDifW[iddif] = htemp->GetRMS();
-
-      htemp->Fit("gaus");
+      htemp->Fit ("gaus", "Q");
       pad_mon2->Update();
     }
-  can_mon2.Print("");
+  can_mon2.Print (TaFileName ("output", can_name, "ps").C_str());
 
-  *fFile << "\nMonitor differences (asymmetries):" << endl;
-  for (Int_t idif = 0; idif < fNDif; ++idif)
-    {
-      *fFile << fMonTag[fDifMon[idif]]
-	     << " Mean " << fDifM[idif]
-	     << " +- " << fDifME[idif]
-	     << "  Width " << fDifW[idif]
-	     << endl;
-    }
-
-  *fFile << "\nMonitor double differences:" << endl;
-  for (Int_t iddif = 0; iddif < fNDDif; ++iddif)
-    {
-      *fFile << fMonTag[fDDifMon0[iddif]]
-	     << " - " << fMonTag[fDDifMon1[iddif]]
-	     << "  Width " << fDDifW[iddif]
-	     << endl;
-    }
 }
 
 void 
-Prompt::Detectors (bool corrected)
+Prompt::Detectors (UInt_t corrected)
 {
-  style ();
+  // Plot detector distributions -- uncorrected (corrected = 0),
+  // regression corrected (corrected = 1), or modulation corrected
+  // (corrected = 2) -- and write means, errors, and widths to text
+  // file
 
-  gROOT->LoadMacro ("frame.macro");
-  TString can_name (corrected ? "CorrectedDetectorAsyms" : "DetectorAsyms");
-  TString can_title (corrected ? "Corrected Detector Asymmetriess" : "Detector asymmetries");
+  TString name0 = (corrected == 0 ? "" 
+		   : (corrected == 1 ? "RegCorrected"
+		      : "ModCorrected"));
+  TString title0 = (corrected == 0 ? "" 
+		   : (corrected == 1 ? "Regression Corrected "
+		      : "Modulation Corrected "));
+  TString can_name (name0 + "DetectorAsyms");
+  TString can_title (title0 + "Detector Asymmetries");
   TCanvas* can_det1 = frame (fRun, can_name, can_title);
   TPad* pad_det1 = gPad;
 
@@ -376,47 +504,154 @@ Prompt::Detectors (bool corrected)
   Double_t* asym;
   Double_t* asyw;
   Double_t* asyme;
+  TString* fexp;
 
-  if (corrected)
-    {
-      asym = fCAsyM;
-      asyw = fCAsyW;
-      asyme = fCAsyME;
-    }
-  else
+  if (corrected == 0)
     {
       asym = fAsyM;
       asyw = fAsyW;
       asyme = fAsyME;
+      fexp = fAsyExp;
+    }
+  else if (corrected == 1)
+    {
+      asym = fRCAsyM;
+      asyw = fRCAsyW;
+      asyme = fRCAsyME;
+      fexp = fRegCorExp;
+    }
+  else
+    {
+      asym = fMCAsyM;
+      asyw = fMCAsyW;
+      asyme = fMCAsyME;
+      fexp = fModCorExp;
     }
 
   TTree *prtree = (TTree*)gROOT.FindObject("P");
   for (Int_t iasy = 0; iasy < fNDetAsy; ++iasy)
     {
       pad_det1->cd (iasy%np+1);
-      prtree->Draw (corrected ? fCorExp[iasy] : fAsyExp[iasy], "ok_cut");
+      prtree->Draw (fexp[iasy], "ok_cut");
+      if (corrected)
+	htemp->SetNameTitle ("htemp", title0 + fAsyExp[iasy]);
 
-      asym[iasy] = htemp->GetMean();
-      asyw[iasy] = htemp->GetRMS();
-      asyme[iasy] = fAsyW[iasy] / sqrt (htemp->GetEntries()-1);
+      Double_t n = htemp->GetEntries();
+      if (n > 1)
+	{
+	  asym[iasy] = htemp->GetMean();
+	  asyme[iasy] = htemp->GetRMS() / sqrt (n-1);
+	  asyw[iasy] = asyme[iasy] * sqrt (n);
+	}
+      else
+	{
+	  // This should never happen but if n <= 1, fill in something
+	  // ridiculous.
+	  asym[iasy] = 1e99;
+	  asyme[iasy] = 1e99;
+	  asyw[iasy] = 1e99;
+	}
 
-      htemp->Fit("gaus");
+      htemp->Fit ("gaus", "Q");
       pad_det1->Update();
     }
-  can_det1.Print("");
+  can_det1.Print (TaFileName ("output", can_name, "ps").C_str());
 
-  if (corrected)
-    *fFile << "\nCorrected detector asymmetries:" << endl;
+}
+
+void
+Prompt::Print()
+{
+  // Print prompt analysis results
+
+  TaFileName fn ("output", "macro", "txt");
+  ofstream fFile(fn.C_str());
+  if (!fFile)
+    {
+      cerr << "Prompt ERROR: Cannot open output file " << fn.C_str() << endl;
+      exit (1);
+    }
   else
-    *fFile << "\nDetector asymmetries:" << endl;
+    clog << "Output file is " << fn.C_str() << endl;
+
+  fFile << "Prompt macro output for run " << fRun << endl;
+  fFile << "================================" << endl;
+
+  fFile.setf(ios::left,ios::adjustfield);
+
+  fFile << "\nMonitor differences (asymmetries):" << endl;
+  Int_t idif;
+  for (idif = 0; idif < fNDif; ++idif)
+    {
+      fFile << setw(8) << fMonTag[fDifMon[idif]]
+	    << " Mean " 
+	    << setw(8) << fDifM[idif]
+	    << " +- " << setw(8) << fDifME[idif]
+	    << "  Width " 
+	    << setw(8) << fDifW[idif]
+	    << endl;
+    }
+
+  fFile << "\nMonitor double differences:" << endl;
+  for (Int_t iddif = 0; iddif < fNDDif; ++iddif)
+    {
+      fFile << setw(8) << fMonTag[fDDifMon0[iddif]]
+	    << " - " << setw(8) << fMonTag[fDDifMon1[iddif]]
+	    << "  Width " 
+	    << setw(8) << fDDifW[iddif]
+	    << endl;
+    }
+
+
+  fFile << "\nDetector Asymmetries:" << endl;
+  UInt_t idim;
   for (Int_t iasy = 0; iasy < fNDetAsy; ++iasy)
     {
-      *fFile << fAsyExp[iasy]
-	     << " Mean " << asym[iasy]
-	     << " +- " << asyme[iasy]
-	     << "  Width " << asyw[iasy]
-	     << endl;
+      fFile << setw(8) << fAsyTag[iasy]
+	    << " Raw " 
+	    << " Mean " 
+	    << setw(8) << fAsyM[iasy]
+	    << " +- " << setw(8) << fAsyME[iasy]
+	    << "  Width " 
+	    << "   " << setw(8) << fAsyW[iasy] << endl;
+      fFile << "        "
+	    << " Reg " 
+	    << " Mean " 
+	    << setw(8) << fRCAsyM[iasy]
+	    << " +- " << setw(8) << fRCAsyME[iasy]
+	    << "  Width " 
+	    << "   " << setw(8) << fRCAsyW[iasy] << endl;
+      for (idim = 0; idim < fNDimRegCor; ++idim)
+	{
+	  UInt_t jdif = fRegCorMon[idim];
+	  fFile << "             " << setw(8) << fMonTag[jdif]
+		<< " " << setw(8) << fDetRCoef[iasy][idim]
+		<< " +- " << setw(8) << fDetRCoefE[iasy][idim]
+		<< " " << setw(8) << fabs (fDetRCoef[iasy][idim]) * fDifW[jdif]
+		<< " " << setw(8) << fDetRCoef[iasy][idim] * fDifM[jdif]
+		<< endl;
+	}
+      fFile << "        "
+	    << " Mod " 
+	    << " Mean " 
+	    << setw(8) << fMCAsyM[iasy]
+	    << " +- " << setw(8) << fMCAsyME[iasy]
+	    << "  Width " 
+	    << "   " << setw(8) << fMCAsyW[iasy]
+	    << endl;
+      for (idim = 0; idim < fNDimModCor; ++idim)
+	{
+	  UInt_t jdif = fModCorMon[idim];
+	  fFile << "             " << setw(8) << fMonTag[jdif]
+		<< " " << setw(8) << fDetMCoef[iasy][idim]
+		<< " +- " << setw(8) << fDetMCoefE[iasy][idim]
+		<< " " << setw(8) << fabs (fDetMCoef[iasy][idim]) * fDifW[jdif]
+		<< " " << setw(8) << fDetMCoef[iasy][idim] * fDifM[jdif]
+		<< endl;
+	}
     }
+
+  fFile.close();
 }
 
 void 
@@ -439,6 +674,7 @@ void
 prompt (Int_t run)
 {
   gROOT->Reset();
+  gROOT->LoadMacro ("frame.macro");
 
   if (run <= 0)
     {
@@ -457,8 +693,12 @@ prompt (Int_t run)
   f = new TFile(file);
   //  TTree *evtree = (TTree*)gROOT.FindObject("R");
 
+  style ();
+
   pr.Monitors ();
-  pr.Detectors (false);
-  pr.Detectors (true);
-  
+  pr.Detectors (0);
+  pr.Detectors (1);
+  pr.Detectors (2);
+  pr.Print ();
+
 }
