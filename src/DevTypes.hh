@@ -24,9 +24,12 @@
 //
 //////////////////////////////////////////////////////////////////////////
  
-#define   MAXKEYS        617
+#define   MAXKEYS        707
 #define   ADCREADOUT     1
 #define   SCALREADOUT    2
+#define   SCALREADOUT    2
+#define   TBDREADOUT     3
+#define   TIRREADOUT     4
 
 // Keys for getting data from devices.
 // They keys are mapped to devices automatically.
@@ -268,7 +271,7 @@
 // First the raw data
 
 #define   ADCOFF     154     // Raw ADCs start here
-#define   ADCNUM     15     // number of ADCs defined below
+#define   ADCNUM     23     // number of ADCs defined below
 
 #define   IADC0_0     154
 #define   IADC0_1     155
@@ -330,508 +333,609 @@
 #define   IADC14_1     211
 #define   IADC14_2     212
 #define   IADC14_3     213
+#define   IADC15_0     214
+#define   IADC15_1     215
+#define   IADC15_2     216
+#define   IADC15_3     217
+#define   IADC16_0     218
+#define   IADC16_1     219
+#define   IADC16_2     220
+#define   IADC16_3     221
+#define   IADC17_0     222
+#define   IADC17_1     223
+#define   IADC17_2     224
+#define   IADC17_3     225
+#define   IADC18_0     226
+#define   IADC18_1     227
+#define   IADC18_2     228
+#define   IADC18_3     229
+#define   IADC19_0     230
+#define   IADC19_1     231
+#define   IADC19_2     232
+#define   IADC19_3     233
+#define   IADC20_0     234
+#define   IADC20_1     235
+#define   IADC20_2     236
+#define   IADC20_3     237
+#define   IADC21_0     238
+#define   IADC21_1     239
+#define   IADC21_2     240
+#define   IADC21_3     241
+#define   IADC22_0     242
+#define   IADC22_1     243
+#define   IADC22_2     244
+#define   IADC22_3     245
 
 // Now the calibrated data
 
-#define   ACCOFF     214     // Calibrated ADCs start here
+#define   ACCOFF     246     // Calibrated ADCs start here
 
-#define   IADC0_0_CAL     214
-#define   IADC0_1_CAL     215
-#define   IADC0_2_CAL     216
-#define   IADC0_3_CAL     217
-#define   IADC1_0_CAL     218
-#define   IADC1_1_CAL     219
-#define   IADC1_2_CAL     220
-#define   IADC1_3_CAL     221
-#define   IADC2_0_CAL     222
-#define   IADC2_1_CAL     223
-#define   IADC2_2_CAL     224
-#define   IADC2_3_CAL     225
-#define   IADC3_0_CAL     226
-#define   IADC3_1_CAL     227
-#define   IADC3_2_CAL     228
-#define   IADC3_3_CAL     229
-#define   IADC4_0_CAL     230
-#define   IADC4_1_CAL     231
-#define   IADC4_2_CAL     232
-#define   IADC4_3_CAL     233
-#define   IADC5_0_CAL     234
-#define   IADC5_1_CAL     235
-#define   IADC5_2_CAL     236
-#define   IADC5_3_CAL     237
-#define   IADC6_0_CAL     238
-#define   IADC6_1_CAL     239
-#define   IADC6_2_CAL     240
-#define   IADC6_3_CAL     241
-#define   IADC7_0_CAL     242
-#define   IADC7_1_CAL     243
-#define   IADC7_2_CAL     244
-#define   IADC7_3_CAL     245
-#define   IADC8_0_CAL     246
-#define   IADC8_1_CAL     247
-#define   IADC8_2_CAL     248
-#define   IADC8_3_CAL     249
-#define   IADC9_0_CAL     250
-#define   IADC9_1_CAL     251
-#define   IADC9_2_CAL     252
-#define   IADC9_3_CAL     253
-#define   IADC10_0_CAL     254
-#define   IADC10_1_CAL     255
-#define   IADC10_2_CAL     256
-#define   IADC10_3_CAL     257
-#define   IADC11_0_CAL     258
-#define   IADC11_1_CAL     259
-#define   IADC11_2_CAL     260
-#define   IADC11_3_CAL     261
-#define   IADC12_0_CAL     262
-#define   IADC12_1_CAL     263
-#define   IADC12_2_CAL     264
-#define   IADC12_3_CAL     265
-#define   IADC13_0_CAL     266
-#define   IADC13_1_CAL     267
-#define   IADC13_2_CAL     268
-#define   IADC13_3_CAL     269
-#define   IADC14_0_CAL     270
-#define   IADC14_1_CAL     271
-#define   IADC14_2_CAL     272
-#define   IADC14_3_CAL     273
+#define   IADC0_0_CAL     246
+#define   IADC0_1_CAL     247
+#define   IADC0_2_CAL     248
+#define   IADC0_3_CAL     249
+#define   IADC1_0_CAL     250
+#define   IADC1_1_CAL     251
+#define   IADC1_2_CAL     252
+#define   IADC1_3_CAL     253
+#define   IADC2_0_CAL     254
+#define   IADC2_1_CAL     255
+#define   IADC2_2_CAL     256
+#define   IADC2_3_CAL     257
+#define   IADC3_0_CAL     258
+#define   IADC3_1_CAL     259
+#define   IADC3_2_CAL     260
+#define   IADC3_3_CAL     261
+#define   IADC4_0_CAL     262
+#define   IADC4_1_CAL     263
+#define   IADC4_2_CAL     264
+#define   IADC4_3_CAL     265
+#define   IADC5_0_CAL     266
+#define   IADC5_1_CAL     267
+#define   IADC5_2_CAL     268
+#define   IADC5_3_CAL     269
+#define   IADC6_0_CAL     270
+#define   IADC6_1_CAL     271
+#define   IADC6_2_CAL     272
+#define   IADC6_3_CAL     273
+#define   IADC7_0_CAL     274
+#define   IADC7_1_CAL     275
+#define   IADC7_2_CAL     276
+#define   IADC7_3_CAL     277
+#define   IADC8_0_CAL     278
+#define   IADC8_1_CAL     279
+#define   IADC8_2_CAL     280
+#define   IADC8_3_CAL     281
+#define   IADC9_0_CAL     282
+#define   IADC9_1_CAL     283
+#define   IADC9_2_CAL     284
+#define   IADC9_3_CAL     285
+#define   IADC10_0_CAL     286
+#define   IADC10_1_CAL     287
+#define   IADC10_2_CAL     288
+#define   IADC10_3_CAL     289
+#define   IADC11_0_CAL     290
+#define   IADC11_1_CAL     291
+#define   IADC11_2_CAL     292
+#define   IADC11_3_CAL     293
+#define   IADC12_0_CAL     294
+#define   IADC12_1_CAL     295
+#define   IADC12_2_CAL     296
+#define   IADC12_3_CAL     297
+#define   IADC13_0_CAL     298
+#define   IADC13_1_CAL     299
+#define   IADC13_2_CAL     300
+#define   IADC13_3_CAL     301
+#define   IADC14_0_CAL     302
+#define   IADC14_1_CAL     303
+#define   IADC14_2_CAL     304
+#define   IADC14_3_CAL     305
+#define   IADC15_0_CAL     306
+#define   IADC15_1_CAL     307
+#define   IADC15_2_CAL     308
+#define   IADC15_3_CAL     309
+#define   IADC16_0_CAL     310
+#define   IADC16_1_CAL     311
+#define   IADC16_2_CAL     312
+#define   IADC16_3_CAL     313
+#define   IADC17_0_CAL     314
+#define   IADC17_1_CAL     315
+#define   IADC17_2_CAL     316
+#define   IADC17_3_CAL     317
+#define   IADC18_0_CAL     318
+#define   IADC18_1_CAL     319
+#define   IADC18_2_CAL     320
+#define   IADC18_3_CAL     321
+#define   IADC19_0_CAL     322
+#define   IADC19_1_CAL     323
+#define   IADC19_2_CAL     324
+#define   IADC19_3_CAL     325
+#define   IADC20_0_CAL     326
+#define   IADC20_1_CAL     327
+#define   IADC20_2_CAL     328
+#define   IADC20_3_CAL     329
+#define   IADC21_0_CAL     330
+#define   IADC21_1_CAL     331
+#define   IADC21_2_CAL     332
+#define   IADC21_3_CAL     333
+#define   IADC22_0_CAL     334
+#define   IADC22_1_CAL     335
+#define   IADC22_2_CAL     336
+#define   IADC22_3_CAL     337
 
 // DAC noise.
 
-#define   DACOFF     274     // DACs start here
-#define   DACNUM     15     // number of DACs defined below
+#define   DACOFF     338     // DACs start here
+#define   DACNUM     23     // number of DACs defined below
 
-#define   IDAC0      274
-#define   IDAC1      275
-#define   IDAC2      276
-#define   IDAC3      277
-#define   IDAC4      278
-#define   IDAC5      279
-#define   IDAC6      280
-#define   IDAC7      281
-#define   IDAC8      282
-#define   IDAC9      283
-#define   IDAC10      284
-#define   IDAC11      285
-#define   IDAC12      286
-#define   IDAC13      287
-#define   IDAC14      288
+#define   IDAC0      338
+#define   IDAC1      339
+#define   IDAC2      340
+#define   IDAC3      341
+#define   IDAC4      342
+#define   IDAC5      343
+#define   IDAC6      344
+#define   IDAC7      345
+#define   IDAC8      346
+#define   IDAC9      347
+#define   IDAC10      348
+#define   IDAC11      349
+#define   IDAC12      350
+#define   IDAC13      351
+#define   IDAC14      352
+#define   IDAC15      353
+#define   IDAC16      354
+#define   IDAC17      355
+#define   IDAC18      356
+#define   IDAC19      357
+#define   IDAC20      358
+#define   IDAC21      359
+#define   IDAC22      360
 
 // CSRs
 
-#define   CSROFF     289     // CSRs start here
-#define   CSRNUM     15     // number of CSRs defined below
+#define   CSROFF     361     // CSRs start here
+#define   CSRNUM     23     // number of CSRs defined below
 
-#define   ICSR0      289
-#define   ICSR1      290
-#define   ICSR2      291
-#define   ICSR3      292
-#define   ICSR4      293
-#define   ICSR5      294
-#define   ICSR6      295
-#define   ICSR7      296
-#define   ICSR8      297
-#define   ICSR9      298
-#define   ICSR10      299
-#define   ICSR11      300
-#define   ICSR12      301
-#define   ICSR13      302
-#define   ICSR14      303
+#define   ICSR0      361
+#define   ICSR1      362
+#define   ICSR2      363
+#define   ICSR3      364
+#define   ICSR4      365
+#define   ICSR5      366
+#define   ICSR6      367
+#define   ICSR7      368
+#define   ICSR8      369
+#define   ICSR9      370
+#define   ICSR10      371
+#define   ICSR11      372
+#define   ICSR12      373
+#define   ICSR13      374
+#define   ICSR14      375
+#define   ICSR15      376
+#define   ICSR16      377
+#define   ICSR17      378
+#define   ICSR18      379
+#define   ICSR19      380
+#define   ICSR20      381
+#define   ICSR21      382
+#define   ICSR22      383
 
 // Raw scalers
 
-#define   SCAOFF     304     // Raw SCALERs start here
+#define   SCAOFF     384     // Raw SCALERs start here
 #define   SCANUM     4     // number of SCALERs defined below
 
-#define   ISCALER0_0     304
-#define   ISCALER0_1     305
-#define   ISCALER0_2     306
-#define   ISCALER0_3     307
-#define   ISCALER0_4     308
-#define   ISCALER0_5     309
-#define   ISCALER0_6     310
-#define   ISCALER0_7     311
-#define   ISCALER0_8     312
-#define   ISCALER0_9     313
-#define   ISCALER0_10     314
-#define   ISCALER0_11     315
-#define   ISCALER0_12     316
-#define   ISCALER0_13     317
-#define   ISCALER0_14     318
-#define   ISCALER0_15     319
-#define   ISCALER0_16     320
-#define   ISCALER0_17     321
-#define   ISCALER0_18     322
-#define   ISCALER0_19     323
-#define   ISCALER0_20     324
-#define   ISCALER0_21     325
-#define   ISCALER0_22     326
-#define   ISCALER0_23     327
-#define   ISCALER0_24     328
-#define   ISCALER0_25     329
-#define   ISCALER0_26     330
-#define   ISCALER0_27     331
-#define   ISCALER0_28     332
-#define   ISCALER0_29     333
-#define   ISCALER0_30     334
-#define   ISCALER0_31     335
+#define   ISCALER0_0     384
+#define   ISCALER0_1     385
+#define   ISCALER0_2     386
+#define   ISCALER0_3     387
+#define   ISCALER0_4     388
+#define   ISCALER0_5     389
+#define   ISCALER0_6     390
+#define   ISCALER0_7     391
+#define   ISCALER0_8     392
+#define   ISCALER0_9     393
+#define   ISCALER0_10     394
+#define   ISCALER0_11     395
+#define   ISCALER0_12     396
+#define   ISCALER0_13     397
+#define   ISCALER0_14     398
+#define   ISCALER0_15     399
+#define   ISCALER0_16     400
+#define   ISCALER0_17     401
+#define   ISCALER0_18     402
+#define   ISCALER0_19     403
+#define   ISCALER0_20     404
+#define   ISCALER0_21     405
+#define   ISCALER0_22     406
+#define   ISCALER0_23     407
+#define   ISCALER0_24     408
+#define   ISCALER0_25     409
+#define   ISCALER0_26     410
+#define   ISCALER0_27     411
+#define   ISCALER0_28     412
+#define   ISCALER0_29     413
+#define   ISCALER0_30     414
+#define   ISCALER0_31     415
 
-#define   ISCALER1_0     336
-#define   ISCALER1_1     337
-#define   ISCALER1_2     338
-#define   ISCALER1_3     339
-#define   ISCALER1_4     340
-#define   ISCALER1_5     341
-#define   ISCALER1_6     342
-#define   ISCALER1_7     343
-#define   ISCALER1_8     344
-#define   ISCALER1_9     345
-#define   ISCALER1_10     346
-#define   ISCALER1_11     347
-#define   ISCALER1_12     348
-#define   ISCALER1_13     349
-#define   ISCALER1_14     350
-#define   ISCALER1_15     351
-#define   ISCALER1_16     352
-#define   ISCALER1_17     353
-#define   ISCALER1_18     354
-#define   ISCALER1_19     355
-#define   ISCALER1_20     356
-#define   ISCALER1_21     357
-#define   ISCALER1_22     358
-#define   ISCALER1_23     359
-#define   ISCALER1_24     360
-#define   ISCALER1_25     361
-#define   ISCALER1_26     362
-#define   ISCALER1_27     363
-#define   ISCALER1_28     364
-#define   ISCALER1_29     365
-#define   ISCALER1_30     366
-#define   ISCALER1_31     367
+#define   ISCALER1_0     416
+#define   ISCALER1_1     417
+#define   ISCALER1_2     418
+#define   ISCALER1_3     419
+#define   ISCALER1_4     420
+#define   ISCALER1_5     421
+#define   ISCALER1_6     422
+#define   ISCALER1_7     423
+#define   ISCALER1_8     424
+#define   ISCALER1_9     425
+#define   ISCALER1_10     426
+#define   ISCALER1_11     427
+#define   ISCALER1_12     428
+#define   ISCALER1_13     429
+#define   ISCALER1_14     430
+#define   ISCALER1_15     431
+#define   ISCALER1_16     432
+#define   ISCALER1_17     433
+#define   ISCALER1_18     434
+#define   ISCALER1_19     435
+#define   ISCALER1_20     436
+#define   ISCALER1_21     437
+#define   ISCALER1_22     438
+#define   ISCALER1_23     439
+#define   ISCALER1_24     440
+#define   ISCALER1_25     441
+#define   ISCALER1_26     442
+#define   ISCALER1_27     443
+#define   ISCALER1_28     444
+#define   ISCALER1_29     445
+#define   ISCALER1_30     446
+#define   ISCALER1_31     447
 
-#define   ISCALER2_0     368
-#define   ISCALER2_1     369
-#define   ISCALER2_2     370
-#define   ISCALER2_3     371
-#define   ISCALER2_4     372
-#define   ISCALER2_5     373
-#define   ISCALER2_6     374
-#define   ISCALER2_7     375
-#define   ISCALER2_8     376
-#define   ISCALER2_9     377
-#define   ISCALER2_10     378
-#define   ISCALER2_11     379
-#define   ISCALER2_12     380
-#define   ISCALER2_13     381
-#define   ISCALER2_14     382
-#define   ISCALER2_15     383
-#define   ISCALER2_16     384
-#define   ISCALER2_17     385
-#define   ISCALER2_18     386
-#define   ISCALER2_19     387
-#define   ISCALER2_20     388
-#define   ISCALER2_21     389
-#define   ISCALER2_22     390
-#define   ISCALER2_23     391
-#define   ISCALER2_24     392
-#define   ISCALER2_25     393
-#define   ISCALER2_26     394
-#define   ISCALER2_27     395
-#define   ISCALER2_28     396
-#define   ISCALER2_29     397
-#define   ISCALER2_30     398
-#define   ISCALER2_31     399
+#define   ISCALER2_0     448
+#define   ISCALER2_1     449
+#define   ISCALER2_2     450
+#define   ISCALER2_3     451
+#define   ISCALER2_4     452
+#define   ISCALER2_5     453
+#define   ISCALER2_6     454
+#define   ISCALER2_7     455
+#define   ISCALER2_8     456
+#define   ISCALER2_9     457
+#define   ISCALER2_10     458
+#define   ISCALER2_11     459
+#define   ISCALER2_12     460
+#define   ISCALER2_13     461
+#define   ISCALER2_14     462
+#define   ISCALER2_15     463
+#define   ISCALER2_16     464
+#define   ISCALER2_17     465
+#define   ISCALER2_18     466
+#define   ISCALER2_19     467
+#define   ISCALER2_20     468
+#define   ISCALER2_21     469
+#define   ISCALER2_22     470
+#define   ISCALER2_23     471
+#define   ISCALER2_24     472
+#define   ISCALER2_25     473
+#define   ISCALER2_26     474
+#define   ISCALER2_27     475
+#define   ISCALER2_28     476
+#define   ISCALER2_29     477
+#define   ISCALER2_30     478
+#define   ISCALER2_31     479
 
-#define   ISCALER3_0     400
-#define   ISCALER3_1     401
-#define   ISCALER3_2     402
-#define   ISCALER3_3     403
-#define   ISCALER3_4     404
-#define   ISCALER3_5     405
-#define   ISCALER3_6     406
-#define   ISCALER3_7     407
-#define   ISCALER3_8     408
-#define   ISCALER3_9     409
-#define   ISCALER3_10     410
-#define   ISCALER3_11     411
-#define   ISCALER3_12     412
-#define   ISCALER3_13     413
-#define   ISCALER3_14     414
-#define   ISCALER3_15     415
-#define   ISCALER3_16     416
-#define   ISCALER3_17     417
-#define   ISCALER3_18     418
-#define   ISCALER3_19     419
-#define   ISCALER3_20     420
-#define   ISCALER3_21     421
-#define   ISCALER3_22     422
-#define   ISCALER3_23     423
-#define   ISCALER3_24     424
-#define   ISCALER3_25     425
-#define   ISCALER3_26     426
-#define   ISCALER3_27     427
-#define   ISCALER3_28     428
-#define   ISCALER3_29     429
-#define   ISCALER3_30     430
-#define   ISCALER3_31     431
+#define   ISCALER3_0     480
+#define   ISCALER3_1     481
+#define   ISCALER3_2     482
+#define   ISCALER3_3     483
+#define   ISCALER3_4     484
+#define   ISCALER3_5     485
+#define   ISCALER3_6     486
+#define   ISCALER3_7     487
+#define   ISCALER3_8     488
+#define   ISCALER3_9     489
+#define   ISCALER3_10     490
+#define   ISCALER3_11     491
+#define   ISCALER3_12     492
+#define   ISCALER3_13     493
+#define   ISCALER3_14     494
+#define   ISCALER3_15     495
+#define   ISCALER3_16     496
+#define   ISCALER3_17     497
+#define   ISCALER3_18     498
+#define   ISCALER3_19     499
+#define   ISCALER3_20     500
+#define   ISCALER3_21     501
+#define   ISCALER3_22     502
+#define   ISCALER3_23     503
+#define   ISCALER3_24     504
+#define   ISCALER3_25     505
+#define   ISCALER3_26     506
+#define   ISCALER3_27     507
+#define   ISCALER3_28     508
+#define   ISCALER3_29     509
+#define   ISCALER3_30     510
+#define   ISCALER3_31     511
 
 
 // Calibrated scalers
 
-#define   SCCOFF     432     // Calibrated SCALERs start here
+#define   SCCOFF     512     // Calibrated SCALERs start here
 
-#define   ISCALER0_0_CAL     432
-#define   ISCALER0_1_CAL     433
-#define   ISCALER0_2_CAL     434
-#define   ISCALER0_3_CAL     435
-#define   ISCALER0_4_CAL     436
-#define   ISCALER0_5_CAL     437
-#define   ISCALER0_6_CAL     438
-#define   ISCALER0_7_CAL     439
-#define   ISCALER0_8_CAL     440
-#define   ISCALER0_9_CAL     441
-#define   ISCALER0_10_CAL     442
-#define   ISCALER0_11_CAL     443
-#define   ISCALER0_12_CAL     444
-#define   ISCALER0_13_CAL     445
-#define   ISCALER0_14_CAL     446
-#define   ISCALER0_15_CAL     447
-#define   ISCALER0_16_CAL     448
-#define   ISCALER0_17_CAL     449
-#define   ISCALER0_18_CAL     450
-#define   ISCALER0_19_CAL     451
-#define   ISCALER0_20_CAL     452
-#define   ISCALER0_21_CAL     453
-#define   ISCALER0_22_CAL     454
-#define   ISCALER0_23_CAL     455
-#define   ISCALER0_24_CAL     456
-#define   ISCALER0_25_CAL     457
-#define   ISCALER0_26_CAL     458
-#define   ISCALER0_27_CAL     459
-#define   ISCALER0_28_CAL     460
-#define   ISCALER0_29_CAL     461
-#define   ISCALER0_30_CAL     462
-#define   ISCALER0_31_CAL     463
+#define   ISCALER0_0_CAL     512
+#define   ISCALER0_1_CAL     513
+#define   ISCALER0_2_CAL     514
+#define   ISCALER0_3_CAL     515
+#define   ISCALER0_4_CAL     516
+#define   ISCALER0_5_CAL     517
+#define   ISCALER0_6_CAL     518
+#define   ISCALER0_7_CAL     519
+#define   ISCALER0_8_CAL     520
+#define   ISCALER0_9_CAL     521
+#define   ISCALER0_10_CAL     522
+#define   ISCALER0_11_CAL     523
+#define   ISCALER0_12_CAL     524
+#define   ISCALER0_13_CAL     525
+#define   ISCALER0_14_CAL     526
+#define   ISCALER0_15_CAL     527
+#define   ISCALER0_16_CAL     528
+#define   ISCALER0_17_CAL     529
+#define   ISCALER0_18_CAL     530
+#define   ISCALER0_19_CAL     531
+#define   ISCALER0_20_CAL     532
+#define   ISCALER0_21_CAL     533
+#define   ISCALER0_22_CAL     534
+#define   ISCALER0_23_CAL     535
+#define   ISCALER0_24_CAL     536
+#define   ISCALER0_25_CAL     537
+#define   ISCALER0_26_CAL     538
+#define   ISCALER0_27_CAL     539
+#define   ISCALER0_28_CAL     540
+#define   ISCALER0_29_CAL     541
+#define   ISCALER0_30_CAL     542
+#define   ISCALER0_31_CAL     543
 
-#define   ISCALER1_0_CAL     464
-#define   ISCALER1_1_CAL     465
-#define   ISCALER1_2_CAL     466
-#define   ISCALER1_3_CAL     467
-#define   ISCALER1_4_CAL     468
-#define   ISCALER1_5_CAL     469
-#define   ISCALER1_6_CAL     470
-#define   ISCALER1_7_CAL     471
-#define   ISCALER1_8_CAL     472
-#define   ISCALER1_9_CAL     473
-#define   ISCALER1_10_CAL     474
-#define   ISCALER1_11_CAL     475
-#define   ISCALER1_12_CAL     476
-#define   ISCALER1_13_CAL     477
-#define   ISCALER1_14_CAL     478
-#define   ISCALER1_15_CAL     479
-#define   ISCALER1_16_CAL     480
-#define   ISCALER1_17_CAL     481
-#define   ISCALER1_18_CAL     482
-#define   ISCALER1_19_CAL     483
-#define   ISCALER1_20_CAL     484
-#define   ISCALER1_21_CAL     485
-#define   ISCALER1_22_CAL     486
-#define   ISCALER1_23_CAL     487
-#define   ISCALER1_24_CAL     488
-#define   ISCALER1_25_CAL     489
-#define   ISCALER1_26_CAL     490
-#define   ISCALER1_27_CAL     491
-#define   ISCALER1_28_CAL     492
-#define   ISCALER1_29_CAL     493
-#define   ISCALER1_30_CAL     494
-#define   ISCALER1_31_CAL     495
+#define   ISCALER1_0_CAL     544
+#define   ISCALER1_1_CAL     545
+#define   ISCALER1_2_CAL     546
+#define   ISCALER1_3_CAL     547
+#define   ISCALER1_4_CAL     548
+#define   ISCALER1_5_CAL     549
+#define   ISCALER1_6_CAL     550
+#define   ISCALER1_7_CAL     551
+#define   ISCALER1_8_CAL     552
+#define   ISCALER1_9_CAL     553
+#define   ISCALER1_10_CAL     554
+#define   ISCALER1_11_CAL     555
+#define   ISCALER1_12_CAL     556
+#define   ISCALER1_13_CAL     557
+#define   ISCALER1_14_CAL     558
+#define   ISCALER1_15_CAL     559
+#define   ISCALER1_16_CAL     560
+#define   ISCALER1_17_CAL     561
+#define   ISCALER1_18_CAL     562
+#define   ISCALER1_19_CAL     563
+#define   ISCALER1_20_CAL     564
+#define   ISCALER1_21_CAL     565
+#define   ISCALER1_22_CAL     566
+#define   ISCALER1_23_CAL     567
+#define   ISCALER1_24_CAL     568
+#define   ISCALER1_25_CAL     569
+#define   ISCALER1_26_CAL     570
+#define   ISCALER1_27_CAL     571
+#define   ISCALER1_28_CAL     572
+#define   ISCALER1_29_CAL     573
+#define   ISCALER1_30_CAL     574
+#define   ISCALER1_31_CAL     575
 
-#define   ISCALER2_0_CAL     496
-#define   ISCALER2_1_CAL     497
-#define   ISCALER2_2_CAL     498
-#define   ISCALER2_3_CAL     499
-#define   ISCALER2_4_CAL     500
-#define   ISCALER2_5_CAL     501
-#define   ISCALER2_6_CAL     502
-#define   ISCALER2_7_CAL     503
-#define   ISCALER2_8_CAL     504
-#define   ISCALER2_9_CAL     505
-#define   ISCALER2_10_CAL     506
-#define   ISCALER2_11_CAL     507
-#define   ISCALER2_12_CAL     508
-#define   ISCALER2_13_CAL     509
-#define   ISCALER2_14_CAL     510
-#define   ISCALER2_15_CAL     511
-#define   ISCALER2_16_CAL     512
-#define   ISCALER2_17_CAL     513
-#define   ISCALER2_18_CAL     514
-#define   ISCALER2_19_CAL     515
-#define   ISCALER2_20_CAL     516
-#define   ISCALER2_21_CAL     517
-#define   ISCALER2_22_CAL     518
-#define   ISCALER2_23_CAL     519
-#define   ISCALER2_24_CAL     520
-#define   ISCALER2_25_CAL     521
-#define   ISCALER2_26_CAL     522
-#define   ISCALER2_27_CAL     523
-#define   ISCALER2_28_CAL     524
-#define   ISCALER2_29_CAL     525
-#define   ISCALER2_30_CAL     526
-#define   ISCALER2_31_CAL     527
+#define   ISCALER2_0_CAL     576
+#define   ISCALER2_1_CAL     577
+#define   ISCALER2_2_CAL     578
+#define   ISCALER2_3_CAL     579
+#define   ISCALER2_4_CAL     580
+#define   ISCALER2_5_CAL     581
+#define   ISCALER2_6_CAL     582
+#define   ISCALER2_7_CAL     583
+#define   ISCALER2_8_CAL     584
+#define   ISCALER2_9_CAL     585
+#define   ISCALER2_10_CAL     586
+#define   ISCALER2_11_CAL     587
+#define   ISCALER2_12_CAL     588
+#define   ISCALER2_13_CAL     589
+#define   ISCALER2_14_CAL     590
+#define   ISCALER2_15_CAL     591
+#define   ISCALER2_16_CAL     592
+#define   ISCALER2_17_CAL     593
+#define   ISCALER2_18_CAL     594
+#define   ISCALER2_19_CAL     595
+#define   ISCALER2_20_CAL     596
+#define   ISCALER2_21_CAL     597
+#define   ISCALER2_22_CAL     598
+#define   ISCALER2_23_CAL     599
+#define   ISCALER2_24_CAL     600
+#define   ISCALER2_25_CAL     601
+#define   ISCALER2_26_CAL     602
+#define   ISCALER2_27_CAL     603
+#define   ISCALER2_28_CAL     604
+#define   ISCALER2_29_CAL     605
+#define   ISCALER2_30_CAL     606
+#define   ISCALER2_31_CAL     607
 
-#define   ISCALER3_0_CAL     528
-#define   ISCALER3_1_CAL     529
-#define   ISCALER3_2_CAL     530
-#define   ISCALER3_3_CAL     531
-#define   ISCALER3_4_CAL     532
-#define   ISCALER3_5_CAL     533
-#define   ISCALER3_6_CAL     534
-#define   ISCALER3_7_CAL     535
-#define   ISCALER3_8_CAL     536
-#define   ISCALER3_9_CAL     537
-#define   ISCALER3_10_CAL     538
-#define   ISCALER3_11_CAL     539
-#define   ISCALER3_12_CAL     540
-#define   ISCALER3_13_CAL     541
-#define   ISCALER3_14_CAL     542
-#define   ISCALER3_15_CAL     543
-#define   ISCALER3_16_CAL     544
-#define   ISCALER3_17_CAL     545
-#define   ISCALER3_18_CAL     546
-#define   ISCALER3_19_CAL     547
-#define   ISCALER3_20_CAL     548
-#define   ISCALER3_21_CAL     549
-#define   ISCALER3_22_CAL     550
-#define   ISCALER3_23_CAL     551
-#define   ISCALER3_24_CAL     552
-#define   ISCALER3_25_CAL     553
-#define   ISCALER3_26_CAL     554
-#define   ISCALER3_27_CAL     555
-#define   ISCALER3_28_CAL     556
-#define   ISCALER3_29_CAL     557
-#define   ISCALER3_30_CAL     558
-#define   ISCALER3_31_CAL     559
+#define   ISCALER3_0_CAL     608
+#define   ISCALER3_1_CAL     609
+#define   ISCALER3_2_CAL     610
+#define   ISCALER3_3_CAL     611
+#define   ISCALER3_4_CAL     612
+#define   ISCALER3_5_CAL     613
+#define   ISCALER3_6_CAL     614
+#define   ISCALER3_7_CAL     615
+#define   ISCALER3_8_CAL     616
+#define   ISCALER3_9_CAL     617
+#define   ISCALER3_10_CAL     618
+#define   ISCALER3_11_CAL     619
+#define   ISCALER3_12_CAL     620
+#define   ISCALER3_13_CAL     621
+#define   ISCALER3_14_CAL     622
+#define   ISCALER3_15_CAL     623
+#define   ISCALER3_16_CAL     624
+#define   ISCALER3_17_CAL     625
+#define   ISCALER3_18_CAL     626
+#define   ISCALER3_19_CAL     627
+#define   ISCALER3_20_CAL     628
+#define   ISCALER3_21_CAL     629
+#define   ISCALER3_22_CAL     630
+#define   ISCALER3_23_CAL     631
+#define   ISCALER3_24_CAL     632
+#define   ISCALER3_25_CAL     633
+#define   ISCALER3_26_CAL     634
+#define   ISCALER3_27_CAL     635
+#define   ISCALER3_28_CAL     636
+#define   ISCALER3_29_CAL     637
+#define   ISCALER3_30_CAL     638
+#define   ISCALER3_31_CAL     639
 
 
 // TIR data from various crates
 
-#define   TIROFF     560     // TIRs start here
+#define   TIROFF     640     // TIRs start here
 #define   TIRNUM     4     // number of TIRs defined below
 
-#define   ITIRDATA        560
-#define   ITIRDATA1       561
-#define   ITIRDATA2       562
-#define   ITIRDATA3       563
+#define   ITIRDATA        640
+#define   ITIRDATA1       641
+#define   ITIRDATA2       642
+#define   ITIRDATA3       643
 
 // Helicity info from various crates
 
-#define   HELOFF     564     // Helicities start here
+#define   HELOFF     644     // Helicities start here
 #define   HELNUM     4     // number of HELs defined below
 
-#define   IHELICITY        564
-#define   IHELICITY1       565
-#define   IHELICITY2       566
-#define   IHELICITY3       567
+#define   IHELICITY        644
+#define   IHELICITY1       645
+#define   IHELICITY2       646
+#define   IHELICITY3       647
 
 // Timeslot info from various crates
 
-#define   TIMOFF     568     // Timeslots start here
+#define   TIMOFF     648     // Timeslots start here
 #define   TIMNUM     4     // number of timeslots defined below
 
-#define   ITIMESLOT        568
-#define   ITIMESLOT1       569
-#define   ITIMESLOT2       570
-#define   ITIMESLOT3       571
+#define   ITIMESLOT        648
+#define   ITIMESLOT1       649
+#define   ITIMESLOT2       650
+#define   ITIMESLOT3       651
 
 // Pairsynch info from various crates
 
-#define   PAROFF     572     // Pairsynchs start here
+#define   PAROFF     652     // Pairsynchs start here
 #define   PARNUM     4     // number of pairsynchs defined below
 
-#define   IPAIRSYNCH        572
-#define   IPAIRSYNCH1       573
-#define   IPAIRSYNCH2       574
-#define   IPAIRSYNCH3       575
+#define   IPAIRSYNCH        652
+#define   IPAIRSYNCH1       653
+#define   IPAIRSYNCH2       654
+#define   IPAIRSYNCH3       655
 
 // Quadsynch info from various crates
 
-#define   QUDOFF     576     // Quadsynchs start here
+#define   QUDOFF     656     // Quadsynchs start here
 #define   QUDNUM     4     // number of quadsynchs defined below
 
-#define   IQUADSYNCH        576
-#define   IQUADSYNCH1       577
-#define   IQUADSYNCH2       578
-#define   IQUADSYNCH3       579
+#define   IQUADSYNCH        656
+#define   IQUADSYNCH1       657
+#define   IQUADSYNCH2       658
+#define   IQUADSYNCH3       659
 
 // Timeboard data from various crates
 
-#define   TBDOFF     580     // Timeboards start here
+#define   TBDOFF     660     // Timeboards start here
 #define   TBDNUM     4     // number of timeboards defined below
 
-#define   ITIMEBOARD        580
-#define   ITIMEBOARD1       581
-#define   ITIMEBOARD2       582
-#define   ITIMEBOARD3       583
+#define   ITIMEBOARD        660
+#define   ITIMEBOARD1       661
+#define   ITIMEBOARD2       662
+#define   ITIMEBOARD3       663
 
-#define   IRAMPDELAY        584
-#define   IRAMPDELAY1       585
-#define   IRAMPDELAY2       586
-#define   IRAMPDELAY3       587
+#define   IRAMPDELAY        664
+#define   IRAMPDELAY1       665
+#define   IRAMPDELAY2       666
+#define   IRAMPDELAY3       667
 
-#define   IINTEGTIME        588
-#define   IINTEGTIME1       589
-#define   IINTEGTIME2       590
-#define   IINTEGTIME3       591
+#define   IINTEGTIME        668
+#define   IINTEGTIME1       669
+#define   IINTEGTIME2       670
+#define   IINTEGTIME3       671
 
-#define   IOVERSAMPLE        592
-#define   IOVERSAMPLE1       593
-#define   IOVERSAMPLE2       594
-#define   IOVERSAMPLE3       595
+#define   IOVERSAMPLE        672
+#define   IOVERSAMPLE1       673
+#define   IOVERSAMPLE2       674
+#define   IOVERSAMPLE3       675
 
-#define   IPRECDAC        596
-#define   IPRECDAC1       597
-#define   IPRECDAC2       598
-#define   IPRECDAC3       599
+#define   IPRECDAC        676
+#define   IPRECDAC1       677
+#define   IPRECDAC2       678
+#define   IPRECDAC3       679
 
-#define   IPITADAC        600
+#define   IPITADAC        680
+#define   IPITADAC1       681
+#define   IPITADAC2       682
+#define   IPITADAC3       683
 
 // Lumi detectors
 
-#define   LMIOFF     601     // Lumis start here
+#define   LMIOFF     684     // Lumis start here
 #define   LMINUM     4     // number of lumis defined below
 
 // R = raw data; "" = calibrated data
 
-#define   ILUMI1R     601
-#define   ILUMI1      602
+#define   ILUMI1R     684
+#define   ILUMI1      685
 
-#define   ILUMI2R     603
-#define   ILUMI2      604
+#define   ILUMI2R     686
+#define   ILUMI2      687
 
-#define   ILUMI3R     605
-#define   ILUMI3      606
+#define   ILUMI3R     688
+#define   ILUMI3      689
 
-#define   ILUMI4R     607
-#define   ILUMI4      608
+#define   ILUMI4R     690
+#define   ILUMI4      691
 
 
 // V2f_Clocks
 
-#define   V2FCLKOFF     609     // V2F clocks start here
+#define   V2FCLKOFF     692     // V2F clocks start here
 #define   V2FCLKNUM     4     // number of V2F clocks defined below
 
-#define   IV2F_CLK0      609
-#define   IV2F_CLK1      610
-#define   IV2F_CLK2      611
-#define   IV2F_CLK3      612
+#define   IV2F_CLK0      692
+#define   IV2F_CLK1      693
+#define   IV2F_CLK2      694
+#define   IV2F_CLK3      695
+
+// Quad photodiodes
+
+#define   QPDOFF     696     // Quad photodiodes start here
+#define   QPDNUM     1     // number of quad photodiodes defined below
+
+// PP, PM, MP, MM = diodes (x side, y side); X, Y = calibrated position;
+// SUM = X, Y, and total diode sum
+
+// Quad photodiodes 
+#define   IQPD1PP   696
+#define   IQPD1PM   697
+#define   IQPD1MP   698
+#define   IQPD1MM   699
+#define   IQPD1X    700
+#define   IQPD1Y    701
+#define   IQPD1SUM  702
+
 
 // bmw words
 
-#define   BMWOFF     613     // bmw words start here
+#define   BMWOFF     703     // bmw words start here
 #define   BMWNUM     4     // number of bmw words defined below
 
-#define   IBMW_CLN      613
-#define   IBMW_OBJ      614
-#define   IBMW_VAL      615
-#define   IBMW_CYC      616
+#define   IBMW_CLN      703
+#define   IBMW_OBJ      704
+#define   IBMW_VAL      705
+#define   IBMW_CYC      706
 

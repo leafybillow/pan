@@ -215,6 +215,7 @@ void VaEvent::Decode(TaDevice& devices) {
 // we MUST have a line devices.SetUsed(cook_key) if we want it.
 
   Int_t i,j,key,idx,ixp,ixm,iyp,iym,ix,iy,icra;
+  Int_t ixpyp,ixpym,ixmyp,ixmym;
   Double_t sum,xval,yval;
   memset(fData, 0, MAXKEYS*sizeof(Double_t));
   if ( IsPhysicsEvent() )  {
@@ -311,6 +312,41 @@ void VaEvent::Decode(TaDevice& devices) {
     if (idx < 0) continue;
     fData[key] = fData[idx];
     if (devices.IsUsed(key)) devices.SetUsed(key);
+  }
+
+// Quad photodiode
+  for (i = 0; i < QPDNUM; i++) {
+    key = QPDOFF + 9*i;
+    ixpyp = devices.GetCalIndex(key);
+    ixpym = devices.GetCalIndex(key+1);
+    ixmyp = devices.GetCalIndex(key+2);
+    ixmym = devices.GetCalIndex(key+3);
+    if (ixpyp < 0 || ixpym < 0 || ixmyp < 0 || ixmym < 0) continue;
+    ix  = key + 4;
+    iy  = key + 5;
+    sum = fData[ixpyp] + fData[ixpym] + fData[ixmyp] + fData[ixmym];
+    fData[key + 6] = sum;
+    if (devices.IsUsed(key)) devices.SetUsed(key+6);
+    xval = 0;
+    yval = 0;
+    if ( sum > 0 ) { 
+      xval = 
+	(fData[ixpyp] + fData[ixpym] - fData[ixmyp]- fData[ixmym])/ sum;
+      yval = 
+	(fData[ixpyp] - fData[ixpym] + fData[ixmyp]- fData[ixmym])/ sum;
+    }
+    if (devices.IsRotated(ix)) {
+       fData[ix] = Rotate (xval, yval, 1);
+    } else {
+       fData[ix] = xval;
+    }
+    if (devices.IsUsed(key)) devices.SetUsed(ix);
+    if (devices.IsRotated(iy)) {
+       fData[iy] = Rotate (xval, yval, 2);
+    } else {
+       fData[iy] = yval;
+    }
+    if (devices.IsUsed(key)) devices.SetUsed(iy);
   }
 
 // Stripline BPMs

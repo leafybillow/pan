@@ -58,9 +58,12 @@ void TaStandardAna::EventAnalysis()
   fEvt->AddResult ( TaLabelledQuantity ( "bcm1",
 					 fEvt->GetData(IBCM1), 
 					 "chan" ) );
-  fEvt->AddResult ( TaLabelledQuantity ( "bcm2",
-					 fEvt->GetData(IBCM2), 
-					 "chan" ) );
+  if (fRun->GetDevices().IsUsed(IBCM2))
+    {
+      fEvt->AddResult ( TaLabelledQuantity ( "bcm2",
+					     fEvt->GetData(IBCM2), 
+					     "chan" ) );
+    }
   if (fRun->GetDevices().IsUsed(IDET1R))
     {
       fEvt->AddResult ( TaLabelledQuantity ( "det1",
@@ -137,13 +140,27 @@ TaStandardAna::InitChanLists ()
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("bpm", "~y", "um", fgDIFF + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("qpd", "~x", "um", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("qpd", "~y", "um", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   // Channels for which to store asymmetries
+//    f = ChanList ("bpm", "~xws", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+//    f = ChanList ("bpm", "~yws", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+//    f = ChanList ("bpm", "~ws", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("bcm", "~", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lumi", "~", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   // Channels for which to store normalized asymmetries
   f = ChanList ("lumi", "~", "ppm", fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("qpd", "~sum", "ppm", fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   f = ChanList ("det", "~", "ppm", fgNO_BEAM_NO_ASY + fgASYN + fgBLIND);
@@ -165,6 +182,13 @@ TaStandardAna::InitChanLists ()
   vector<Int_t> keys(0);
   vector<Double_t> wts(0);
 
+  if (fRun->GetDevices().IsUsed(ILUMI1R) &&
+      fRun->GetDevices().IsUsed(ILUMI2R))
+    {
+      keys.push_back(ILUMI1);  keys.push_back(ILUMI2);
+      fTreeList.push_back (AnaList ("lumi_sum", keys, wts, "ppm", 
+				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
+    }
   if (fRun->GetDevices().IsUsed(IDET1R) &&
       fRun->GetDevices().IsUsed(IDET2R))
     {

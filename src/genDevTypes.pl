@@ -35,6 +35,8 @@
 @lumilist =      qw / ILUMI1 ILUMI2 ILUMI3 ILUMI4 /;
 # V2F clocks
 @v2fclocklist =  qw / IV2F_CLK0 IV2F_CLK1 IV2F_CLK2 IV2F_CLK3 /;
+# quad photodiode
+@qpdlist = qw / IQPD1 /;
 # BMW words
 @bmwlist = qw / IBMW_CLN IBMW_OBJ IBMW_VAL IBMW_CYC /;
 # Number of ADC modules, scaler modules, and crates
@@ -56,6 +58,7 @@ $out = "";   # output being built
 &do_timeboards();
 &do_lumis();
 &do_v2fclocks();
+&do_qpds();
 &do_bmwwords();
 
 print << "END";
@@ -636,6 +639,48 @@ sub add_v2fclock
     my ($v2fclock) = @_;
     my ($ret);
     $ret = "\#define   ${v2fclock}      $p\n"; $p++;
+    return $ret;
+}
+
+
+sub do_qpds
+{
+# Quad photodiodes
+
+    $qpdoff = $p;
+    $qpdnum = scalar (@qpdlist);
+    $out1 = "// Quad photodiodes \n";
+    foreach $qpd (@qpdlist)
+    {
+	$out1 .= &add_qpd ($qpd);
+    }
+    
+    $out .= << "ENDQPDCOM";
+// Quad photodiodes
+
+\#define   QPDOFF     $qpdoff     // Quad photodiodes start here
+\#define   QPDNUM     $qpdnum     // number of quad photodiodes defined below
+
+// PP, PM, MP, MM = diodes (x side, y side); X, Y = calibrated position;
+// SUM = X, Y, and total diode sum
+
+$out1
+ENDQPDCOM
+}
+
+sub add_qpd
+{
+    my ($qpd) = @_;
+    my ($ret);
+    $ret = "";
+    $ret .= "\#define   ${qpd}PP   $p\n"; $p++;
+    $ret .= "\#define   ${qpd}PM   $p\n"; $p++;
+    $ret .= "\#define   ${qpd}MP   $p\n"; $p++;
+    $ret .= "\#define   ${qpd}MM   $p\n"; $p++;
+    $ret .= "\#define   ${qpd}X    $p\n"; $p++;
+    $ret .= "\#define   ${qpd}Y    $p\n"; $p++;
+    $ret .= "\#define   ${qpd}SUM  $p\n"; $p++;
+    $ret .= "\n";
     return $ret;
 }
 
