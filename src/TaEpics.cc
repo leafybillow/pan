@@ -72,8 +72,8 @@ Bool_t TaEpics::Init(const TaDataBase& db)
   fTreeKey = db.GetEpicsKeys();
   if (fTreeKey.size() == 0) return kFALSE;
 // The last two are always timestamp and evnum
-  fTreeKey.push_back("timestamp");
-  fTreeKey.push_back("evnum");
+  fTreeKey.push_back("epics_timestamp");
+  fTreeKey.push_back("epics_evnum");
   if (fTreeKey.size() < fgINSANE_MAX) { 
     fTreeVal = new Double_t[fTreeKey.size()];
   } else {
