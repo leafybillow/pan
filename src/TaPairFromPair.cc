@@ -61,6 +61,7 @@ void TaPairFromPair::CheckSequence( TaEvent& ThisEv )
   const Int_t HELSAME   = 0x4;
   const Int_t HELWRONG  = 0x5;
 
+  Int_t val = 0;
   if ( ThisEv.GetTimeSlot() == 1 )
     { 
       // start of new window.
@@ -75,7 +76,7 @@ void TaPairFromPair::CheckSequence( TaEvent& ThisEv )
 	      cout << "TaPairFromPair::CheckSequence ERROR: Event " 
 		   << ThisEv.GetEvNumber() 
 		   << " pair synch unchanged" << endl;
-	      ThisEv.AddCut (SequenceCut, PSSAME);
+	      val = PSSAME;
 	    }
 	     
 	  if ( ThisEv.GetPairSynch() == FirstPS )
@@ -92,7 +93,7 @@ void TaPairFromPair::CheckSequence( TaEvent& ThisEv )
 		  cout << "TaPairFromPair::CheckEvent ERROR: Event " 
 		       << ThisEv.GetEvNumber() 
 		       << " helicity sequence error" << endl;
-		  ThisEv.AddCut (SequenceCut, HELWRONG);
+		  val = HELWRONG;
 		}	      
 	    } 
 	  else
@@ -102,7 +103,7 @@ void TaPairFromPair::CheckSequence( TaEvent& ThisEv )
 		cout << "TaPairFromPair::CheckSequence ERROR: Event " 
 		     << ThisEv.GetEvNumber() 
 		     << " helicity unchanged" << endl;
-		ThisEv.AddCut (SequenceCut, HELSAME);
+		val = HELSAME;
 	      }
 	}
     }
@@ -117,7 +118,7 @@ void TaPairFromPair::CheckSequence( TaEvent& ThisEv )
 	      cout << "TaPairFromPair::CheckSequence ERROR: Event " 
 		   << ThisEv.GetEvNumber()
 		   << " pairsynch change in mid window\n";
-	      ThisEv.AddCut (SequenceCut, PSCHANGE);
+	      val = PSCHANGE;
 	    }
 	  // See if helicity stayed the same
 	  if ( ThisEv.GetDelHelicity() != fgThisWinEv.GetDelHelicity() )
@@ -125,10 +126,11 @@ void TaPairFromPair::CheckSequence( TaEvent& ThisEv )
 	      cout << "TaPairFromPair::CheckSequence ERROR: Event " 
 		   << ThisEv.GetEvNumber()
 		   << " helicity change in mid window\n";
-	      ThisEv.AddCut (SequenceCut, HELCHANGE);
+	      val = HELCHANGE;
 	    }
 	}
     }
+  
 #ifdef NOISY
   clog << "This Event  " << ThisEv.GetEvNumber()
        << " hel/ps/ts " << (UInt_t)ThisEv.GetHelicity() 
@@ -145,6 +147,8 @@ void TaPairFromPair::CheckSequence( TaEvent& ThisEv )
           << " " << fgLastWinEv.GetTimeSlot() << endl;
   }
 #endif
+
+  ThisEv.AddCut (SequenceCut, val);
 }
 
 

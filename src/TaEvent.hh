@@ -70,8 +70,9 @@ public:
   EHelicity GetHelicity() const;     // (in time) helicity
   EHelicity GetDelHelicity() const;  // delayed helicity
   EPairSynch GetPairSynch() const;   // pair synch
-  const vector < TaLabelledQuantity > & GetResults() const;
-  const vector <pair<ECutType,Int_t> > & GetCuts() const;
+  const vector < TaLabelledQuantity > & GetResults() const; // results for event
+  const vector <pair<ECutType,Int_t> > & GetCuts() const; // cut conditions failed by event
+  const vector <pair<ECutType,Int_t> > & GetCutsPassed() const; // cut conditions passed by event
   void RawDump() const;      // dump raw data for debugging.
   void DeviceDump() const;   // dump device data for debugging.
 
@@ -96,7 +97,8 @@ private:
   UInt_t fEvType;
   EventNumber_t fEvNum;
   UInt_t fEvLen,fSizeConst;
-  vector<pair<ECutType,Int_t> > fCut;
+  vector<pair<ECutType,Int_t> > fCutFail;
+  vector<pair<ECutType,Int_t> > fCutPass;
   vector<TaLabelledQuantity> fResults;
   map <string, string> fKeyDev;
   map <string, int> fKeyUni;

@@ -47,7 +47,8 @@ TaEvent::TaEvent():
 {
   fEvBuffer = new Int_t[fgMaxEvLen];
   memset(fEvBuffer, 0, fgMaxEvLen*sizeof(Int_t));
-  fCut.clear();
+  fCutFail.clear();
+  fCutPass.clear();
   fResults.clear();
 }
 
@@ -130,6 +131,8 @@ void TaEvent::InitDevices( map<string, VaDevice* >& dev) {
 
 void TaEvent::Load (const Int_t* buff) {
   // Put a raw event into the buffer, and pull out event type and number.
+  fCutFail.clear();
+  fCutPass.clear();
   fEvLen = buff[0] + 1;
   if (fEvLen >= fgMaxEvLen) {
       cout << "TaEvent::Load Warning, event is anomalously large"<<endl;
@@ -168,24 +171,36 @@ const vector<pair<ECutType,Int_t> >& TaEvent::CheckEvent(const TaRun& run)
 
   Double_t current = GetData("bcm1");
 
+  Int_t val = 0;
   if ( current < run.GetDataBase()->GetCutValue("lobeam") )
     {
 #ifdef NOISY
       clog << "Event " << fEvNum << " failed lobeam cut, "
 	   << current << " < " << run.GetDataBase()->GetCutValue("lobeam") << endl;
 #endif
-      AddCut (LowBeamCut, 1);
+      val = 1;
     }
+  AddCut (LowBeamCut, val);
 
   if ( fgLastEv.GetEvNumber() != 0 )
     {
       // Not the first event, so check event-to-event differences
       
       // Beam burp -- current change greater than limit?
+      val = 0;
       if (abs (current-fgLastEv.GetData("bcm1")) > 
 	  run.GetDataBase()->GetCutValue("burpcut") )
-	AddCut (BeamBurpCut, 1);
-      
+	{
+#ifdef NOISY
+	  clog << "Event " << fEvNum << " failed beam burp cut, "
+	       << abs (current-fgLastEv.GetData("bcm1")) << " > " << run.GetDataBase()->GetCutValue("burpcut") << endl;
+#endif
+	  val = 1;
+	}
+      AddCut (BeamBurpCut, val);
+
+      // Check time slot sequence
+      val = 0;
       if ( run.GetOversample() > 0 )
 	{ 
 	  if ( GetTimeSlot() != 
@@ -198,21 +213,25 @@ const vector<pair<ECutType,Int_t> >& TaEvent::CheckEvent(const TaRun& run)
 		   << " to " 
 		   << GetTimeSlot() 
 		   << endl;
-	      AddCut (OversampleCut, 1);       
+	      val = 1;
 	    } 
 	}
+      AddCut (OversampleCut, val);
     }
   
   fgLastEv = *this;
 
-  return fCut;
+  return fCutFail;
 };
 
 
 void TaEvent::AddCut (const ECutType cut, const Int_t val)
 {
-  // Store information about any cut conditions failed by this event.
-  fCut.push_back (make_pair (cut, val));
+  // Store information about cut conditions passed or failed by this event.
+  if (val == 0)
+    fCutPass.push_back (make_pair (cut, val));
+  else
+    fCutFail.push_back (make_pair (cut, val));
 };
 
 
@@ -320,7 +339,7 @@ Double_t TaEvent::GetADCData(const Int_t& slot, const Int_t& chan) const {
 
 
 Bool_t TaEvent::CutStatus() const {
-  return (fCut.size() > 0);    
+  return (fCutFail.size() > 0);    
 };
 
 Bool_t TaEvent::IsPrestartEvent() const {
@@ -380,7 +399,13 @@ const vector < TaLabelledQuantity > & TaEvent::GetResults() const
 
 const vector <pair<ECutType,Int_t> > & TaEvent::GetCuts() const
 { 
-  return fCut; 
+  return fCutFail; 
+};
+
+const vector <pair<ECutType,Int_t> > & 
+TaEvent::GetCutsPassed() const
+{ 
+  return fCutPass; 
 };
 
 void TaEvent::RawDump() const {
@@ -463,7 +488,8 @@ void TaEvent::Create(const TaEvent& rhs)
  fEvNum = rhs.fEvNum;
  fEvLen = rhs.fEvLen;
  fSizeConst = rhs.fSizeConst;
- fCut = rhs.fCut;
+ fCutFail = rhs.fCutFail;
+ fCutPass = rhs.fCutPass;
  fResults = rhs.fResults;
  fKeyDev = rhs.fKeyDev;
  fKeyUni = rhs.fKeyUni; 

@@ -147,7 +147,7 @@ TaRun::Init()
   fDataBase = new TaAsciiDB();
   fDataBase->Load(fRunNumber);
   fCutList = new TaCutList(fRunNumber);
-  fCutList->Init();
+  fCutList->Init(*fDataBase);
   InitDevices();
   fOversamp = fDataBase->GetOverSamp();
   if (fOversamp == 0)
@@ -259,6 +259,10 @@ TaRun::AccumEvent(const TaEvent& ev)
 	}
       fESliceStats->Update (vres);
     }
+#ifdef NOISY
+  else
+    clog << "Event " << ev.GetEvNumber() << " is in cut interval" << endl;
+#endif
 }
 
 
@@ -296,6 +300,12 @@ TaRun::AccumPair(const VaPair& pr)
 	}
       fPSliceStats->Update (vres);
     }
+#ifdef NOISY
+  else
+    clog << "Pair " << pr.GetRight().GetEvNumber() 
+	 << "/" <<  pr.GetLeft().GetEvNumber() 
+	 << " is in cut interval" << endl;
+#endif
 
   // Print a slice and reset its statistics
   if (fEvent->GetEvNumber() >= fSliceLimit)
@@ -331,9 +341,11 @@ TaRun::AddCuts()
   for ( vector< pair<ECutType,Int_t> >::const_iterator i = fEvent->GetCuts().begin();
 	i != fEvent->GetCuts().end();
 	++i )
-    {
-      fCutList->UpdateCutInterval ( i->first, i->second, fEvent->GetEvNumber() );
-    }
+    fCutList->UpdateCutInterval ( i->first, i->second, fEvent->GetEvNumber() );
+  for ( vector< pair<ECutType,Int_t> >::const_iterator i = fEvent->GetCutsPassed().begin();
+	i != fEvent->GetCutsPassed().end();
+	++i )
+    fCutList->UpdateCutInterval ( i->first, i->second, fEvent->GetEvNumber() );
 }
 
 void TaRun::SendEPICSInfo( pair< char* , Double_t> value)
