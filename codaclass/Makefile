@@ -50,7 +50,7 @@ ifeq ($(OSNAME),SunOS)
 # all this needed for ET...  up to comment below
    ET_AC_FLAGS = -D_REENTRANT -D_POSIX_THREAD_SEMANTICS
    ET_CFLAGS = -mt -fast -xO5  $(ET_AC_FLAGS) -DSUNVERS
-   CODA = /adaqfs/coda/2.2
+   CODA = /adaqfs/halla/apar/coda/2.2.1
    LIBET = $(CODA)/SunOS/lib/libet.so
    ONLIBS = $(LIBET) -lposix4 -lnsl -lsocket -lresolv
    LIBS = $(EVIO_LIB) $(GLIB)
