@@ -4,6 +4,16 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 15 Oct 2002
+-----------------------------------
+
+In TaPairFromQuad.cc, added a check on pairsynch -- should be first of
+pair if first or third of quad, second of pair if second or fourth of
+quad.
+
+In TaDataBase.{cc,hh}, added #ifdef DICT/#endif where needed.
+
+
 Changes by R. Michaels on Oct 21, 2002
 --------------------------------------
 
@@ -49,7 +59,7 @@ ordering-dependent effects...
 
 Each event now has information about the helicity of the previous
 event -- both the in-time and the delayed helicity thereof.  These
-makes their way into the pair tree -- that is, the helicities for the
+make their way into the pair tree -- that is, the helicities for the
 event previous to the first event of the tree: prev_hel and
 prev_intime_hel.  So e.g. one can now plot asymmetries for LR pairs
 which were preceded by a R event, et cetera.
