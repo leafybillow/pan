@@ -1536,7 +1536,7 @@ VaAnalysis::SendEPICS(EFeedbackType fdbk, Int_t EpicsOption)
        else strcpy(command,commpath);
        strcat(command,"/epics_feedback");
        setpoint = 0;
-       if (fIAslope != 0) setpoint = fLast[0] + (fResult[fdbk])/fIAslope;
+       if (fIAslope != 0) setpoint = fLast[0] - (fResult[fdbk])/fIAslope;
        if ( EpicsOption == 0)
          {
 #ifdef FBCALCDELTA
@@ -1544,7 +1544,6 @@ VaAnalysis::SendEPICS(EFeedbackType fdbk, Int_t EpicsOption)
 #else
 	  clog<<"Sending VOLTAGE value for IA:"<<endl<<flush;
 #endif
-          if (fIAslope != 0) setpoint = fLast[0] + (fResult[fdbk])/fIAslope;
           sprintf(cinfo," 1 %6.2f",setpoint);
           strcat(command, cinfo);
           clog << "Command for IA feedback "<<command<<endl;
@@ -1579,7 +1578,7 @@ VaAnalysis::SendEPICS(EFeedbackType fdbk, Int_t EpicsOption)
     else strcpy(command,commpath);
     strcat(command,"/epics_feedback");
     setpoint = 0;
-    if (fIAslope != 0) setpoint = fLast[3] + (fResult[fdbk])/fPITAslope;
+    if (fPITAslope != 0) setpoint = fLast[3] - (fResult[fdbk])/fPITAslope;
     if ( EpicsOption == 0)
       {
 #ifdef FBCALCDELTA
@@ -1616,7 +1615,7 @@ VaAnalysis::SendEPICS(EFeedbackType fdbk, Int_t EpicsOption)
        strcat(command,"/epics_feedback");
        setpoint = 0;
        if (fIAHallCslope != 0) setpoint = fLast[4] 
-	 + (fResult[fdbk])/fIAHallCslope;
+	 - (fResult[fdbk])/fIAHallCslope;
        if ( EpicsOption == 0)
          {
 #ifdef FBCALCDELTA
@@ -1624,8 +1623,6 @@ VaAnalysis::SendEPICS(EFeedbackType fdbk, Int_t EpicsOption)
 #else
 	  clog<<"Sending VOLTAGE value for IAHallC:"<<endl<<flush;
 #endif
-          if (fIAHallCslope != 0) setpoint = fLast[4] 
-	    + (fResult[fdbk])/fIAslope;
           sprintf(cinfo," 5 %6.2f",setpoint);
           strcat(command, cinfo);
           clog << "Command for IA for HallC feedback "<<command<<endl;
@@ -1720,8 +1717,8 @@ void VaAnalysis::PZTSendEPICS(Int_t EpicsOption){
         pztinv[2] = -1*fPZTMatrix[2]/determ;
         pztinv[3] = fPZTMatrix[0]/determ;
       }
-      fdbk[0] = fLast[1] + pztinv[0]*(fResult[1]) + pztinv[1]*(fResult[2]);
-      fdbk[1] = fLast[2] + pztinv[2]*(fResult[1]) + pztinv[3]*(fResult[2]);
+      fdbk[0] = fLast[1] - (pztinv[0]*(fResult[1]) + pztinv[1]*(fResult[2]));
+      fdbk[1] = fLast[2] - (pztinv[2]*(fResult[1]) + pztinv[3]*(fResult[2]));
 
       if (EpicsOption == 0) 
         {
@@ -1734,7 +1731,7 @@ void VaAnalysis::PZTSendEPICS(Int_t EpicsOption){
         }
       else 
         {
-         sprintf(cinfo," 2 %6.2f",fResult[0]);
+         sprintf(cinfo," 2 %6.2f",fResult[1]);
          clog<<" Sending DIFFERENCE value for PZTX "<<endl<<flush; 
         }
       strcpy(command,comm0);
@@ -1754,7 +1751,7 @@ void VaAnalysis::PZTSendEPICS(Int_t EpicsOption){
 	}
       else
 	{ 
-	  sprintf(cinfo," 3 %6.2f",fResult[1]);
+	  sprintf(cinfo," 3 %6.2f",fResult[2]);
 	  clog<<" Sending DIFFERENCE value for PZTY "<<endl<<flush; 
 	}
       strcpy(command,comm0);
@@ -1764,7 +1761,7 @@ void VaAnalysis::PZTSendEPICS(Int_t EpicsOption){
       else  clog << "Command not sent because we are not running online"<<endl;
 
       if(fPZTQcoupling) {
-	Double_t IAcorrect = fLast[0] + 
+	Double_t IAcorrect = fLast[0] -
 	  ((fdbk[0]-fLast[1])*fPZTQslopes[0]
 	   + (fdbk[1]-fLast[2])*fPZTQslopes[1])/fIAslope;
 	
