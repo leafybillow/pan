@@ -15,6 +15,18 @@ none of -r, -f, -o is found) we go to the interactive version, and we
 ignore any other options and pass them on to TRint.  This means you
 can do e.g. "pan -b -q macro.C" as with regular ROOT.
 
+panguin/prompt.cfg is an early version of an online.C config file for
+prompt analysis.  These are whole-run plots the shift personnel should
+look at and save to Postscript after prompt Pan/postPan analysis.
+
+macro/prompt.macro has been discarded and replaced with something
+entirely different, though with similar effects to the original.  It's
+intended for noninteractive processing of prompt Pan/postPan analysis
+results.  The present (early) version gets distribution parameters
+(means and widths of differences, double differences, asymmetries) and
+writes them to a text output file.  It relies on a new macro,
+macro/ParamSave.macro.
+
 
 Changes by R. Michaels on  26 May 2004
 --------------------------------------
