@@ -4,6 +4,16 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 15 Mar 2002
+----------------------------------------
+
+TaRun.cc
+
+  o Various improvements to stats printouts.  Stats are printed when
+    pair containing event n*1000 is analyzed, not when that event is
+    read.  Printout headers suppressed if there are no stats.  Slice
+    stats are printed at end of run, before cumulative stats.
+
 Changes by R. Holmes on 13 Mar 2002
 ----------------------------------------
 
