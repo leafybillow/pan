@@ -72,11 +72,13 @@ int main(int argc, char **argv)
 	      return 1;
 	    }
 	}
-      else if (strcasecmp(argv[i],"-o") == 0)
+      else if (strcasecmp(argv[i],"-o") == 0) 
 	choice = 3;
-      else if (strcasecmp(argv[i],"-2") == 0)
+      else if (strcasecmp(argv[i],"-t") == 0) 
 	twopass = true;
+  
       else if (strcasecmp(argv[i],"-D") == 0) {
+// Pre-parse the database command line.
         if (i > argc-1) {
            usage();
            return 1;
@@ -86,11 +88,14 @@ int main(int argc, char **argv)
         for (int j = 0; j < n; j++) {
           ++k;
           if (strstr(argv[k],"-") != NULL) {
-            goto cont1;
-          } else {
-            dbcommand.push_back(argv[k]);
-            ++i;
-	  }
+// Put all the other "-" cases here.  Add them here if you invent more.
+            if (strcasecmp(argv[k],"-r") == 0 ||
+                strcasecmp(argv[k],"-f") == 0 || 
+                strcasecmp(argv[k],"-o") == 0 ||
+                strcasecmp(argv[k],"-t") == 0) goto cont1;
+          }
+          dbcommand.push_back(argv[k]);
+          ++i;
 	}
       }
       else
@@ -101,7 +106,7 @@ int main(int argc, char **argv)
 cont1:
       ++i;
     }
-  
+
   if (twopass && (choice == 0 || choice == 3))
     {
       usage();
@@ -167,7 +172,7 @@ cont1:
 void usage() {
 // Prints usage instructions
 
-  cerr << "Usage:  pan [data source specifier] [-2] [-D data]" << endl;
+  cerr << "Usage:  pan [data source specifier] [-t] [-D data]" << endl;
   cerr << "" << endl;
   cerr << "  where data source specifier is" << endl;
   cerr << "    -r runnum   to analyze run number <runnum>" << endl;
@@ -181,11 +186,11 @@ void usage() {
   cerr << "  Interactive prompt will be given if no data source is specified." << endl;
   cerr << "" << endl;
   cerr << "  Other options:" << endl;
-  cerr << "    -2             Do 2-pass analysis (with -r or -f only)." << endl;
+  cerr << "    -t             Do 2-pass analysis (with -r or -f only)." << endl;
   cerr << "    -D table data  Database command line override" << endl;
   cerr << "" << endl;
   cerr << "  Valid examples:" << endl;
-  cerr << "     ./pan -r 1824 -2" << endl;
+  cerr << "     ./pan -r 1824 -t" << endl;
   cerr << "     ./pan -f /work/halla/parity/rom/parity01_1824.dat" << endl;
 #ifdef ONLINE
   cerr << "     ./pan -o " << endl;
