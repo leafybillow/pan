@@ -2,9 +2,10 @@
 
 #include <string>
 
-void prompt (UInt_t run)
+void prompt (UInt_t run, UInt_t batch)
 {
-  // Noninteractive prompt analysis tasks
+  // Prompt analysis tasks for ROOT.  Noninteractive tasks are done
+  // first; if batch is zero, we call the online macro as well.
 
   open (run, "standard");
   TTree* tt = (TTree*) (gROOT->FindObject("P"));
@@ -37,4 +38,7 @@ void prompt (UInt_t run)
   ps->PutDetAsymn("blumi_sum", *tt, "ok_cut");
 
   ps->Print();
+
+  if (!batch)
+    online ("prompt", run);
 }
