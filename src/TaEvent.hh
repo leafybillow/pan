@@ -75,6 +75,7 @@ public:
   const vector <pair<ECutType,Int_t> > & GetCutsPassed() const; // cut conditions passed by event
   void RawDump() const;      // dump raw data for debugging.
   void DeviceDump() const;   // dump device data for debugging.
+  void DumpBits (const Bool_t) const;     // dump trigger, helicity, timeslot, and pairsynch for debugging
 
 private:
 

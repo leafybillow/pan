@@ -467,16 +467,32 @@ void TaEvent::DeviceDump() const {
     cout << scalers[i] << "  = 0x"<<hex<<(Int_t)GetData(scalers[i])<<"   ";
   }
   cout <<endl;
-  cout << "tirdata = 0x"<<hex<<(Int_t)GetData("tirdata");  
-  cout << "   helicity = "<<dec<<(Int_t)GetData("helicity");
-  cout << "   timeslot = "<<(Int_t)GetData("timeslot");
-  cout << "   pairsynch = "<<(Int_t)GetData("pairsynch")<<endl;
+  DumpBits (false);
   cout << "Data by ADC  (hex Int_t)"<<endl;
   for (int adc = 0; adc < 10; adc++) {
     cout << "ADC "<<dec<<adc<<"  = "<<hex;
     for (int chan = 0; chan < 4; chan++) cout << "  "<<(Int_t)GetADCData(adc,chan);
     cout << endl;
   }
+}
+
+
+void
+TaEvent::DumpBits (const Bool_t showEvNum = true) const
+{
+  // Diagnostic dump of trigger, helicity, timeslot, and pairsynch for
+  // debugging purposes
+
+  Int_t timeslot = (Int_t) GetData ("timeslot");
+  if (showEvNum)
+    cout << "Event " << GetEvNumber() << "   ";
+  cout << "tirdata = 0x" << hex << (Int_t) GetData ("tirdata");  
+  cout << "   helicity = " << dec << (Int_t) GetData ("helicity");
+  cout << "   timeslot = " << timeslot;
+  cout << "   pairsynch = " << (Int_t) GetData ("pairsynch");
+  if (timeslot == 1)
+    cout << " *** ";
+  cout <<endl;
 }
 
 
