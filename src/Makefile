@@ -154,7 +154,6 @@ PANLIBS = libpan.a
 # Make the dictionary
 ifdef MAKENODICTIONARY
   OBJS = $(SRC:.cc=_NODICT.o)
-  CXXFLAGS += -DNODICT
 else
   OBJS = $(SRC:.cc=.o)
   OBJS += TaDict.o
