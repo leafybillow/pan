@@ -32,6 +32,7 @@ TDBTools::TDBTools(const char *dbDATABASE){
   fUSERNAME = "dbmanager";
   fPASSWORD = "parity";
   SetDbVersion("DEV");
+  SetDebugMode(0x0);
 }
 
 TDBTools::TDBTools(const char *dbHOSTNAME, const char *dbDATABASE,const char *dbUSERNAME){
@@ -637,7 +638,7 @@ void   TDBTools::GetItemValueEx(TSQLServer *fbConn, TItem tDBItem, Int_t fcRunNu
   
   fQuery.Reset();
   if(strstr(fcAuthor,"*") != NULL){
-    cout << "Getting Thigs Ordered by time " << endl;
+    //    cout << "Getting Thigs Ordered by time " << endl;
     fQuery << "select * from " << fItemValueVersion.Data() << " where itemId=" << tDBItem.fItemId 
 	   << " AND RunNumber=" << fcRunNum
 	   << " ORDER BY time" ;
@@ -701,12 +702,12 @@ void    TDBTools::SetDbVersion(const char *fVersion){
   //
   if(strcmp(fVersion,"DEV") == 0){
     fItemValueVersion = "RunIndex";
-    cout << "SetGbVersion: Set Database version to Development. Table \"" 
-	 << fItemValueVersion.Data() <<"\" will be used" << endl;
+    //cout << "SetGbVersion: Set Database version to Development. Table \"" 
+    // << fItemValueVersion.Data() <<"\" will be used" << endl;
   }
   if(strcmp(fVersion,"PROD") == 0){
     fItemValueVersion = "RunIndex";
-    cout << "SetGbVersion: Set Database version to Production. Table \"" 
-	 << fItemValueVersion.Data() <<"\" will be used" << endl;
+    //    cout << "SetGbVersion: Set Database version to Production. Table \"" 
+    // << fItemValueVersion.Data() <<"\" will be used" << endl;
   }
 }
