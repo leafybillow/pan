@@ -153,6 +153,13 @@ TaStandardAna::InitChanLists ()
 //    f = ChanList ("bpm", "~ws", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
 //    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("bcm", "~", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
+  for (vector<AnaList>::iterator i_f = f.begin();
+       i_f < f.end();
+       ++i_f)
+    {
+      if (i_f->fVarStr == "bcm1")
+	i_f->fFlagInt += fgORDERED;
+    }
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("lumi", "~", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
