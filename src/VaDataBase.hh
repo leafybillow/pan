@@ -42,7 +42,9 @@
 /////////////////////////////////////////////////////////////////////
 
 #define MAXADC  20
+#define MAXSCAL 6
 #define MAXCHAN 10
+#define MAXSCALCHAN 32
 #define DMAPSIZE 6
 
 #include "Rtypes.h"
@@ -91,17 +93,19 @@ public:
   TaKeyMap() { type == ""; }
   ~TaKeyMap() { }
   TaKeyMap(const TaKeyMap& copy) {
-    type   = copy.type;
-    adc    = copy.adc;
-    chan   = copy.chan;
-    evboff = copy.evboff;
+    type    = copy.type;
+    readout = copy.readout;
+    devnum  = copy.devnum;
+    chan    = copy.chan;
+    evboff  = copy.evboff;
   };
   TaKeyMap &TaKeyMap::operator=(const TaKeyMap& rhs) {
     if (this != &rhs) {
-      type   = rhs.type;
-      adc    = rhs.adc;
-      chan   = rhs.chan;
-      evboff = rhs.evboff;
+      type    = rhs.type;
+      readout = rhs.readout;
+      devnum  = rhs.devnum;
+      chan    = rhs.chan;
+      evboff  = rhs.evboff;
     }
     return *this;
   }
@@ -112,16 +116,32 @@ public:
       type = t; 
     } 
   };
-  void LoadData(string key, int adcn, int chann, int evboffn) {
+  void LoadData(string key, string read, int devnumn, int chann, int evboffn) {
     pair<string, int> psi;  
     psi.first = key;
-    psi.second = adcn;  adc.insert(psi);
+    psi.second = devnumn;  devnum.insert(psi);
     psi.second = chann;  chan.insert(psi);
     psi.second = evboffn;  evboff.insert(psi);    
+    pair<string,string> pstst;
+    pstst.first = key;
+    pstst.second = read;  readout.insert(pstst);
   };
   string GetType() { return type; };
+  string GetReadOut(const string& key) { return readout[key]; };
+  Bool_t IsAdc(const string& key) {
+    if (GetReadOut(key) == "adc") return kTRUE;
+    return kFALSE;
+  };     
+  Bool_t IsScaler(const string& key) {
+    if (GetReadOut(key) == "scaler") return kTRUE;
+    return kFALSE;
+  };     
   Int_t GetAdc(const string& key) {
-    if (adc.find(key) != adc.end() ) return adc[key];
+    if (IsAdc(key)) return devnum[key];
+    return 0;
+  };
+  Int_t GetDevNum(const string& key) {
+    if (devnum.find(key) != devnum.end() ) return devnum[key];
     return -1;
   };
   Int_t GetChan(const string& key) {
@@ -134,7 +154,7 @@ public:
   };
   vector<string> GetKeys() {
     vector<string> result;
-    for(map<string, int>::iterator i = adc.begin(); i != adc.end(); i++) {
+    for(map<string, int>::iterator i = devnum.begin(); i != devnum.end(); i++) {
       result.push_back(i->first);
     }
     return result;
@@ -145,13 +165,15 @@ public:
     for (vector<string>::iterator ikey = keys.begin(); 
 	 ikey != keys.end();  ikey++) {
       string key = *ikey;
-      cout << "key "<<key<<"  adc "<<GetAdc(key)<<" channel "<<GetChan(key);
+      cout << "key "<<key<<"  device number "<<GetDevNum(key)<<" channel "<<GetChan(key);
       cout <<"  event buffer offset "<<GetEvOffset(key)<<endl;
+      cout << " Readout type "<<GetReadOut(key)<<endl;
     }
   };
 private:
   string type;
-  map<string, Int_t> adc, chan, evboff;
+  map<string, Int_t> devnum, chan, evboff;
+  map<string, string> readout;
 };
 
 
@@ -182,7 +204,9 @@ public:
   virtual Double_t GetDacNoise(const Int_t& adc, const Int_t& chan, 
        const string& key)const =0;  
 // Get Pedestals for adc, chan
-  virtual Double_t GetPedestal(const Int_t& adc, const Int_t& chan) const =0;
+  virtual Double_t GetAdcPed(const Int_t& adc, const Int_t& chan) const =0;
+// Get Pedestals for scaler, chan
+  virtual Double_t GetScalPed(const Int_t& adc, const Int_t& chan) const =0;
 // Get Headers for decoding (needed by datamap)
   virtual UInt_t GetHeader(const string& device) const =0;
 // Get Masks for decoding (needed by datamap)

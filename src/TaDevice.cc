@@ -23,18 +23,22 @@ TaDevice::TaDevice() {
    fNumRaw = 0;
    fRawKeys = new Int_t[MAXKEYS];
    fEvPointer = new Int_t[MAXKEYS];
-   fPedestal = new Double_t[4*ADCNUM];
+   fReadOut = new Int_t[MAXKEYS];
+   fAdcPed = new Double_t[4*ADCNUM];
    fDacInt = new Double_t[4*ADCNUM];
    fDacSlope = new Double_t[4*ADCNUM];
-   fAdcNum = new Int_t[MAXKEYS];
+   fDevNum = new Int_t[MAXKEYS];
    fChanNum = new Int_t[MAXKEYS];
+   fScalPed = new Double_t[32*SCANUM];
    memset(fRawKeys, 0, MAXKEYS*sizeof(Int_t));
    memset(fEvPointer, 0, MAXKEYS*sizeof(Int_t));
-   memset(fPedestal, 0, 4*ADCNUM*sizeof(Double_t));
+   memset(fReadOut, 0, MAXKEYS*sizeof(Int_t));
+   memset(fAdcPed, 0, 4*ADCNUM*sizeof(Double_t));
    memset(fDacInt, 0, 4*ADCNUM*sizeof(Double_t));
    memset(fDacSlope, 0, 4*ADCNUM*sizeof(Double_t));
-   memset(fAdcNum, 0, MAXKEYS*sizeof(Int_t));
+   memset(fDevNum, 0, MAXKEYS*sizeof(Int_t));
    memset(fChanNum, 0, MAXKEYS*sizeof(Int_t));
+   memset(fScalPed, 0, 32*SCANUM*sizeof(Int_t));
 }
 
 TaDevice::~TaDevice() {
@@ -67,7 +71,7 @@ void TaDevice::Init(VaDataBase& db) {
 // The database defines the channel mapping, but the
 // keys in the database must match the fKeyToIdx map.
 
-   Int_t key,iadc,ichan;
+   Int_t key,iadc,isca,ichan;
    string keystr;
    InitKeyList();
    TaKeyMap keymap;
@@ -82,15 +86,23 @@ void TaDevice::Init(VaDataBase& db) {
            key = AddRawKey(keystr);
            if (key < 0) continue;
            fEvPointer[key] = keymap.GetEvOffset(keystr);
-           fAdcNum[key]  = keymap.GetAdc(keystr);
+           fReadOut[key] = -1;
+           if (keymap.IsAdc(keystr)) fReadOut[key] = ADCREADOUT;
+           if (keymap.IsScaler(keystr)) fReadOut[key] = SCALREADOUT;
+           fDevNum[key]  = keymap.GetAdc(keystr);
            fChanNum[key] = keymap.GetChan(keystr);
       }
    }
    for (iadc = 0; iadc < ADCNUM; iadc++) {
      for (ichan = 0; ichan < 4; ichan++) {
-        fPedestal[iadc*4 + ichan] = db.GetPedestal(iadc, ichan);
+        fAdcPed[iadc*4 + ichan] = db.GetAdcPed(iadc, ichan);
         fDacSlope[iadc*4 + ichan] = db.GetDacNoise(iadc, ichan, "slope");
         fDacInt[iadc*4 + ichan] = db.GetDacNoise(iadc, ichan, "int");
+     }
+   }
+   for (isca = 0; isca < SCANUM; isca++) {
+     for (ichan = 0;  ichan < 32; ichan++) {
+       fScalPed[isca*32 + ichan] = db.GetScalPed(isca, ichan);
      }
    }
 };
@@ -141,6 +153,48 @@ string TaDevice::GetKey(Int_t key) const {
   }
   return nothing;
 }
+
+Double_t TaDevice::GetPedestal(const Int_t& key) const {
+  Int_t index;
+  if (fReadOut[key] == ADCREADOUT) {
+     index = key - ADCOFF;
+     if (index >= 0 && index < 4*ADCNUM) return fAdcPed[index];
+  }  
+  if (fReadOut[key] == SCALREADOUT) {
+     index = key - SCAOFF;
+     if (index >= 0 && index < 32*SCANUM) return fScalPed[index];
+  }  
+  return 0;
+}
+
+Int_t TaDevice::GetRawIndex(const Int_t& key) const {
+// Return a pointer to the raw ADC or SCALER data corresponding to key
+  Int_t index = -1;
+  if (fReadOut[key] == ADCREADOUT) {
+     index = ADCOFF + 4*GetDevNum(key) + GetChanNum(key);
+     return index;
+  }  
+  if (fReadOut[key] == SCALREADOUT) {
+     index = SCAOFF + 32*GetDevNum(key) + GetChanNum(key);
+     return index;
+  }  
+  return index;
+}
+
+Int_t TaDevice::GetCalIndex(const Int_t& key) const {
+// Return a pointer to the calibrated ADC or SCALER data corresponding to key
+  Int_t index = -1;
+  if (fReadOut[key] == ADCREADOUT) {
+     index = ACCOFF + 4*GetDevNum(key) + GetChanNum(key);
+     return index;
+  }  
+  if (fReadOut[key] == SCALREADOUT) {
+     index = SCCOFF + 32*GetDevNum(key) + GetChanNum(key);
+     return index;
+  }  
+  return index;  
+}
+
 
 void TaDevice::InitKeyList() {
 // Initialize the mapping between key names and integers.
@@ -622,27 +676,26 @@ void TaDevice::Create(const TaDevice& rhs)
    memcpy(fRawKeys, rhs.fRawKeys, MAXKEYS*sizeof(Int_t));
    fEvPointer = new Int_t[MAXKEYS];
    memcpy(fEvPointer, rhs.fEvPointer, MAXKEYS*sizeof(Int_t));
-   fPedestal = new Double_t[4*ADCNUM];
-   memcpy(fPedestal, rhs.fPedestal, 4*ADCNUM*sizeof(Double_t));
+   fAdcPed = new Double_t[4*ADCNUM];
+   memcpy(fAdcPed, rhs.fAdcPed, 4*ADCNUM*sizeof(Double_t));
    fDacInt = new Double_t[4*ADCNUM];
    memcpy(fDacInt, rhs.fDacInt, 4*ADCNUM*sizeof(Double_t));
    fDacSlope = new Double_t[4*ADCNUM];
    memcpy(fDacSlope, rhs.fDacSlope, 4*ADCNUM*sizeof(Double_t));
-   fAdcNum = new Int_t[MAXKEYS];
-   memcpy(fAdcNum, rhs.fAdcNum, MAXKEYS*sizeof(Int_t));
+   fDevNum = new Int_t[MAXKEYS];
+   memcpy(fDevNum, rhs.fDevNum, MAXKEYS*sizeof(Int_t));
    fChanNum = new Int_t[MAXKEYS];
    memcpy(fChanNum, rhs.fChanNum, MAXKEYS*sizeof(Int_t));
-
- };
+};
 
 void TaDevice::Uncreate()
 {
    delete [] fRawKeys;
    delete [] fEvPointer;
-   delete [] fPedestal;
+   delete [] fAdcPed;
    delete [] fDacInt;
    delete [] fDacSlope;
-   delete [] fAdcNum;
+   delete [] fDevNum;
    delete [] fChanNum;
 };
 

@@ -26,16 +26,20 @@ TaAsciiDB::TaAsciiDB() {
      // Use pointers for these flags so we can change them without
      // violating const
      fFirstgdn = new Bool_t(kTRUE);
-     fFirstped = new Bool_t(kTRUE);
+     fFirstAdcPed = new Bool_t(kTRUE);
+     fFirstScalPed = new Bool_t(kTRUE);
      dacparam = new Double_t[2*MAXADC*MAXCHAN];     
      memset(dacparam,0,2*MAXADC*MAXCHAN*sizeof(Double_t));
-     pedvalue = new Double_t[MAXADC*MAXCHAN];
-     memset(pedvalue,0,MAXADC*MAXCHAN*sizeof(Double_t));
+     adcped = new Double_t[MAXADC*MAXCHAN];
+     memset(adcped,0,MAXADC*MAXCHAN*sizeof(Double_t));
+     scalped = new Double_t[MAXSCAL*MAXSCALCHAN];
+     memset(scalped,0,MAXSCAL*MAXSCALCHAN*sizeof(Double_t));
 }
 
 TaAsciiDB::~TaAsciiDB() {
      delete [] dacparam;
-     delete [] pedvalue;
+     delete [] adcped;
+     delete [] scalped;
      tables.clear();
      for (multimap<string, vector<dtype*> >::iterator im = database.begin();
 	  im != database.end();  im++) {
@@ -278,19 +282,19 @@ Double_t TaAsciiDB::GetDacNoise(const Int_t& adc, const Int_t& chan, const strin
   return 0;
 };
 
-Double_t TaAsciiDB::GetPedestal(const Int_t& adc, const Int_t& chan) const {
+Double_t TaAsciiDB::GetAdcPed(const Int_t& adc, const Int_t& chan) const {
 // Get Pedestals for adc, chan 
   if (!didinit)
     {
-      cerr << "TaAsciiDB::GetPedestal ERROR: Database not initialized\n";
+      cerr << "TaAsciiDB::GetAdcPed ERROR: Database not initialized\n";
       return 0;
     }
   int idx;
-  if (*fFirstped) {
-    *fFirstped = kFALSE;
+  if (*fFirstAdcPed) {
+    *fFirstAdcPed = kFALSE;
     vector<string> keys;
     keys.clear();
-    keys.push_back("adc");   
+    keys.push_back("adc");   // this must match a string in database
     keys.push_back("chan");
     keys.push_back("value");
     vector<Double_t> data = GetData("ped",keys);
@@ -302,7 +306,7 @@ Double_t TaAsciiDB::GetPedestal(const Int_t& adc, const Int_t& chan) const {
         ichan= (int)data[index+1];
         idx = iadc*MAXCHAN+ichan;
         if (idx < MAXADC*MAXCHAN) {
-           pedvalue[idx] = data[index+2];
+           adcped[idx] = data[index+2];
          }
       }
       index += keys.size();
@@ -310,10 +314,50 @@ Double_t TaAsciiDB::GetPedestal(const Int_t& adc, const Int_t& chan) const {
   }
   idx = adc*MAXCHAN+chan;
   if (idx >=0 && idx < MAXADC*MAXCHAN) {
-     return pedvalue[idx];
+     return adcped[idx];
   } else {
-     cerr << "WARNING: TaAsciiDB::GetPedestal:";
+     cerr << "WARNING: TaAsciiDB::GetAdcPed:";
      cerr << "  illegal combination of adc and channel #"<<endl;
+     return 0;
+  }
+};
+
+Double_t TaAsciiDB::GetScalPed(const Int_t& scal, const Int_t& chan) const {
+// Get Pedestals for scaler, chan 
+  if (!didinit)
+    {
+      cerr << "TaAsciiDB::GetScalPed ERROR: Database not initialized\n";
+      return 0;
+    }
+  int idx;
+  if (*fFirstScalPed) {
+    *fFirstScalPed = kFALSE;
+    vector<string> keys;
+    keys.clear();
+    keys.push_back("scaler");   // this must match a string in the database
+    keys.push_back("chan");
+    keys.push_back("value");
+    vector<Double_t> data = GetData("ped",keys);
+    int iscal,ichan;
+    int index = 0;
+    while (index < (long)data.size()) {
+      if ((index+(long)keys.size()-1) < (long)data.size()) {
+        iscal = (int)data[index];
+        ichan= (int)data[index+1];
+        idx = iscal*MAXSCALCHAN+ichan;
+        if (idx < MAXSCAL*MAXSCALCHAN) {
+           scalped[idx] = data[index+2];
+         }
+      }
+      index += keys.size();
+    }
+  }
+  idx = scal*MAXSCALCHAN+chan;
+  if (idx >=0 && idx < MAXSCAL*MAXSCALCHAN) {
+     return scalped[idx];
+  } else {
+     cerr << "WARNING: TaAsciiDB::GetScalPed:";
+     cerr << "  illegal combination of scaler and channel #"<<endl;
      return 0;
   }
 };
@@ -607,7 +651,7 @@ void TaAsciiDB::InitDB() {
        for (int k = 0; k < 3; k++) columns.push_back(new dtype("s"));
     }
     if (i == 9) { // datamap
-       for (k = 0; k < 2; k++) columns.push_back(new dtype("s"));
+       for (k = 0; k < 3; k++) columns.push_back(new dtype("s"));
        for (k = 0; k < 3; k++) columns.push_back(new dtype("i"));
        for (k = 0; k < 10; k++) columns.push_back(new dtype("s"));
     }
@@ -757,8 +801,8 @@ TaKeyMap TaAsciiDB::GetKeyMap(string devicename) const {
 
 void TaAsciiDB::InitDataMap() {
   static pair<string, vector<dtype*> > sdt;
-  int adc, chan, evb;
-  string key;
+  int devnum, chan, evb;
+  string key,readout;
   if ( !didinit ) {
     cerr << "TaAsciiDB:: ERROR: Cannot init datamap without first init DB"<<endl;
     return;
@@ -778,14 +822,15 @@ void TaAsciiDB::InitDataMap() {
      TaKeyMap keymap;
      if (dm != datamap.end()) keymap = dm->second;
      keymap.LoadType(datav[0]->GetS());
-     adc  = datav[2]->GetI();
-     chan = datav[3]->GetI();
-     evb  = datav[4]->GetI();
-     int istart = 5;
+     readout = datav[2]->GetS();
+     devnum  = datav[3]->GetI();
+     chan = datav[4]->GetI();
+     evb  = datav[5]->GetI();
+     int istart = 6;
      for (int k = istart; k < (long)datav.size(); k++) {
        if ( !datav[k]->IsLoaded() ) continue;
        key = datav[k]->GetS();
-       keymap.LoadData( key, adc, chan + k - istart, evb + k - istart);
+       keymap.LoadData( key, readout, devnum, chan + k - istart, evb + k - istart);
      }
      pair<string, TaKeyMap > skm;
      skm.first = devname;  skm.second = keymap;
@@ -797,8 +842,8 @@ void TaAsciiDB::InitDataMap() {
   }
   dmapiter = datamap.begin();
   initdm = kTRUE;
-// Comment: should CHECK datamap, in case of typo errors.
-//  PrintDataMap();   // DEBUG
+// Comment: Can CHECK datamap here, in case of typo errors.
+  PrintDataMap();   // DEBUG
 };
 
 void TaAsciiDB::PrintDataMap() {

@@ -3,7 +3,7 @@
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
 //           DevTypes.hh  (definition file)
-//           ^^^^^^^^^^
+//           ^^^^^^^^^^^
 //
 //    Authors :  R. Holmes, A. Vacheret, R. Michaels
 //
@@ -17,7 +17,9 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-#define MAXKEYS  550
+#define MAXKEYS  715
+#define ADCREADOUT     1
+#define SCALREADOUT    2
 
 // Keys for getting data from devices.
 // They keys are mapped to devices automatically.
@@ -27,91 +29,112 @@
 #define   STRNUM        7         // number of striplines defined below
 
 #define   IBPM8XP       1         // BPM8 XP antenna
-#define   IBPM8XM       2
-#define   IBPM8YP       3
-#define   IBPM8YM       4
+#define   IBPM8XM       2         // BPM8 XM antenna
+#define   IBPM8YP       3         // BPM8 YP antenna
+#define   IBPM8YM       4         // BPM8 YM antenna
 #define   IBPM8X        5         // calibrated X position
 #define   IBPM8Y        6         // calibrated Y position
+#define   IBPM8XWS      7         // X wiresum
+#define   IBPM8YWS      8         // Y wiresum
+#define   IBPM8WS       9         // wiresum
 
-#define   IBPM10XP      7          
-#define   IBPM10XM      8
-#define   IBPM10YP      9
-#define   IBPM10YM     10
-#define   IBPM10X      11          
-#define   IBPM10Y      12          
+#define   IBPM10XP     10          
+#define   IBPM10XM     11
+#define   IBPM10YP     12
+#define   IBPM10YM     13
+#define   IBPM10X      14          
+#define   IBPM10Y      15          
+#define   IBPM10XWS    16         
+#define   IBPM10YWS    17         
+#define   IBPM10WS     18         
 
-#define   IBPM12XP     13          
-#define   IBPM12XM     14
-#define   IBPM12YP     15
-#define   IBPM12YM     16
-#define   IBPM12X      17          
-#define   IBPM12Y      18          
+#define   IBPM12XP     19          
+#define   IBPM12XM     20
+#define   IBPM12YP     21
+#define   IBPM12YM     22
+#define   IBPM12X      23          
+#define   IBPM12Y      24          
+#define   IBPM12XWS    25         
+#define   IBPM12YWS    26         
+#define   IBPM12WS     27         
 
-#define   IBPM4AXP     19          
-#define   IBPM4AXM     20
-#define   IBPM4AYP     21
-#define   IBPM4AYM     22
-#define   IBPM4AX      23          
-#define   IBPM4AY      24          
+#define   IBPM4AXP     28          
+#define   IBPM4AXM     29
+#define   IBPM4AYP     30
+#define   IBPM4AYM     31
+#define   IBPM4AX      32          
+#define   IBPM4AY      33          
+#define   IBPM4AXWS    34         
+#define   IBPM4AYWS    35         
+#define   IBPM4AWS     36         
 
-#define   IBPM4BXP     25          
-#define   IBPM4BXM     26
-#define   IBPM4BYP     27
-#define   IBPM4BYM     28
-#define   IBPM4BX      29          
-#define   IBPM4BY      30          
+#define   IBPM4BXP     37          
+#define   IBPM4BXM     38
+#define   IBPM4BYP     39
+#define   IBPM4BYM     40
+#define   IBPM4BX      41          
+#define   IBPM4BY      42          
+#define   IBPM4BXWS    43         
+#define   IBPM4BYWS    44         
+#define   IBPM4BWS     45         
 
 // Injector striplines
-#define   IBPMIN1XP    31          
-#define   IBPMIN1XM    32
-#define   IBPMIN1YP    33
-#define   IBPMIN1YM    34
-#define   IBPMIN1X     35          
-#define   IBPMIN1Y     36          
+#define   IBPMIN1XP    46          
+#define   IBPMIN1XM    47
+#define   IBPMIN1YP    48
+#define   IBPMIN1YM    49
+#define   IBPMIN1X     50          
+#define   IBPMIN1Y     51          
+#define   IBPMIN1XWS   52         
+#define   IBPMIN1YWS   53         
+#define   IBPMIN18WS   54         
 
-#define   IBPMIN2XP    37
-#define   IBPMIN2XM    38
-#define   IBPMIN2YP    39
-#define   IBPMIN2YM    40
-#define   IBPMIN2X     41          
-#define   IBPMIN2Y     42          
+#define   IBPMIN2XP    55
+#define   IBPMIN2XM    56
+#define   IBPMIN2YP    57
+#define   IBPMIN2YM    58
+#define   IBPMIN2X     59          
+#define   IBPMIN2Y     60          
+#define   IBPMIN2XWS   61         
+#define   IBPMIN2YWS   62         
+#define   IBPMIN2WS    63         
 
-// Cavitiy BPMs
-#define   CAVOFF       55          // Cavities start here
+// Cavity BPMs
+#define   CAVOFF       65          // Cavities start here
 #define   CAVNUM        4          // number of cavities
 
-#define   IBPMCAV1XR   55          // Cavity 1  X  raw data
-#define   IBPMCAV1YR   56
-#define   IBPMCAV1X    57          // Cavity 1  X calibrated position
-#define   IBPMCAV1Y    58          
+#define   IBPMCAV1XR   65          // Cavity 1  X  raw data
+#define   IBPMCAV1YR   66
+#define   IBPMCAV1X    67          // Cavity 1  X calibrated position
+#define   IBPMCAV1Y    68          
 
-#define   IBPMCAV2XR   59 
-#define   IBPMCAV2YR   60
-#define   IBPMCAV2X    61 
-#define   IBPMCAV2Y    62          
+#define   IBPMCAV2XR   69 
+#define   IBPMCAV2YR   70
+#define   IBPMCAV2X    71 
+#define   IBPMCAV2Y    72          
 
-#define   IBPMCAV3XR   63 
-#define   IBPMCAV3YR   64
-#define   IBPMCAV3X    65 
-#define   IBPMCAV3Y    66          
+#define   IBPMCAV3XR   73 
+#define   IBPMCAV3YR   74
+#define   IBPMCAV3X    75 
+#define   IBPMCAV3Y    76          
 
-#define   IBPMCAV4XR   67 
-#define   IBPMCAV4YR   68
-#define   IBPMCAV4X    69 
-#define   IBPMCAV4Y    70          
+#define   IBPMCAV4XR   77 
+#define   IBPMCAV4YR   78
+#define   IBPMCAV4X    79 
+#define   IBPMCAV4Y    80          
 
 // Old cavities (Happex 1 era) for current
-#define   BCMOFF       79
+#define   BCMOFF       83
 #define   BCMNUM        3
 
-#define   IBCM1R       79          // raw bcm1  (note the "R" for raw)
-#define   IBCM1        80          // calibrated bcm1
+#define   IBCM1R       83          // raw bcm1  (note the "R" for raw)
+#define   IBCM1        84          // calibrated bcm1
 
-#define   IBCM2R       81          
-#define   IBCM2        82          
+#define   IBCM2R       85          
+#define   IBCM2        86          
 
-#define   IBCM3R       83          
-#define   IBCM3        84          
+#define   IBCM3R       87          
+#define   IBCM3        88          
 
 // G0 cavities BCMs
 #define   CCMOFF       89
@@ -328,9 +351,9 @@
 #define   ICSR13      313
 #define   ICSR14      314
 
-// Scalers 
+// Raw Scalers 
 #define   SCAOFF      340
-#define   SCANUM      128       // 4 units of 32 channels
+#define   SCANUM        4       // 4 units of 32 channels
 
 #define   ISCALER0_0   340      // first scaler
 #define   ISCALER0_1   341
@@ -464,69 +487,217 @@
 #define   ISCALER3_30  466
 #define   ISCALER3_31  467
 
+// Calibrated Scalers 
+#define   SCCOFF       480
+
+#define   ICALSCA0_0   480      // first scaler
+#define   ICALSCA0_1   481
+#define   ICALSCA0_2   482
+#define   ICALSCA0_3   483
+#define   ICALSCA0_4   484
+#define   ICALSCA0_5   485
+#define   ICALSCA0_6   486
+#define   ICALSCA0_7   487
+#define   ICALSCA0_8   488
+#define   ICALSCA0_9   489
+#define   ICALSCA0_10  490
+#define   ICALSCA0_11  491
+#define   ICALSCA0_12  492
+#define   ICALSCA0_13  493
+#define   ICALSCA0_14  494
+#define   ICALSCA0_15  495
+#define   ICALSCA0_16  496
+#define   ICALSCA0_17  497
+#define   ICALSCA0_18  498
+#define   ICALSCA0_19  499
+#define   ICALSCA0_20  500
+#define   ICALSCA0_21  501
+#define   ICALSCA0_22  502
+#define   ICALSCA0_23  503
+#define   ICALSCA0_24  504
+#define   ICALSCA0_25  505
+#define   ICALSCA0_26  506
+#define   ICALSCA0_27  507
+#define   ICALSCA0_28  508
+#define   ICALSCA0_29  509
+#define   ICALSCA0_30  510
+#define   ICALSCA0_31  511
+
+#define   ICALSCA1_0   512     // second scaler
+#define   ICALSCA1_1   513
+#define   ICALSCA1_2   514
+#define   ICALSCA1_3   515
+#define   ICALSCA1_4   516
+#define   ICALSCA1_5   517
+#define   ICALSCA1_6   518
+#define   ICALSCA1_7   519
+#define   ICALSCA1_8   520
+#define   ICALSCA1_9   521
+#define   ICALSCA1_10  522
+#define   ICALSCA1_11  523
+#define   ICALSCA1_12  524
+#define   ICALSCA1_13  525
+#define   ICALSCA1_14  526
+#define   ICALSCA1_15  527
+#define   ICALSCA1_16  528
+#define   ICALSCA1_17  529
+#define   ICALSCA1_18  530
+#define   ICALSCA1_19  531
+#define   ICALSCA1_20  532
+#define   ICALSCA1_21  533
+#define   ICALSCA1_22  534
+#define   ICALSCA1_23  535
+#define   ICALSCA1_24  536
+#define   ICALSCA1_25  537
+#define   ICALSCA1_26  538
+#define   ICALSCA1_27  539
+#define   ICALSCA1_28  540
+#define   ICALSCA1_29  541
+#define   ICALSCA1_30  542
+#define   ICALSCA1_31  543
+
+#define   ICALSCA2_0   544     // third scaler
+#define   ICALSCA2_1   545
+#define   ICALSCA2_2   546
+#define   ICALSCA2_3   547
+#define   ICALSCA2_4   548
+#define   ICALSCA2_5   549
+#define   ICALSCA2_6   550
+#define   ICALSCA2_7   551
+#define   ICALSCA2_8   552
+#define   ICALSCA2_9   553
+#define   ICALSCA2_10  554
+#define   ICALSCA2_11  555
+#define   ICALSCA2_12  556
+#define   ICALSCA2_13  557
+#define   ICALSCA2_14  558
+#define   ICALSCA2_15  559
+#define   ICALSCA2_16  560
+#define   ICALSCA2_17  561
+#define   ICALSCA2_18  562
+#define   ICALSCA2_19  563
+#define   ICALSCA2_20  564
+#define   ICALSCA2_21  565
+#define   ICALSCA2_22  566
+#define   ICALSCA2_23  567
+#define   ICALSCA2_24  568
+#define   ICALSCA2_25  569
+#define   ICALSCA2_26  570
+#define   ICALSCA2_27  571
+#define   ICALSCA2_28  572
+#define   ICALSCA2_29  573
+#define   ICALSCA2_30  574
+#define   ICALSCA2_31  575
+
+#define   ICALSCA3_0   576      // fourth scaler
+#define   ICALSCA3_1   577
+#define   ICALSCA3_2   578
+#define   ICALSCA3_3   579
+#define   ICALSCA3_4   580
+#define   ICALSCA3_5   581
+#define   ICALSCA3_6   582
+#define   ICALSCA3_7   583
+#define   ICALSCA3_8   584
+#define   ICALSCA3_9   585
+#define   ICALSCA3_10  586
+#define   ICALSCA3_11  587
+#define   ICALSCA3_12  588
+#define   ICALSCA3_13  589
+#define   ICALSCA3_14  590
+#define   ICALSCA3_15  591
+#define   ICALSCA3_16  592
+#define   ICALSCA3_17  593
+#define   ICALSCA3_18  594
+#define   ICALSCA3_19  595
+#define   ICALSCA3_20  596
+#define   ICALSCA3_21  597
+#define   ICALSCA3_22  598
+#define   ICALSCA3_23  599
+#define   ICALSCA3_24  600
+#define   ICALSCA3_25  601
+#define   ICALSCA3_26  602
+#define   ICALSCA3_27  603
+#define   ICALSCA3_28  604
+#define   ICALSCA3_29  605
+#define   ICALSCA3_30  606
+#define   ICALSCA3_31  607
+
+
 // TIR data from various crates
-#define   TIROFF      480
+#define   TIROFF      610
 #define   TIRNUM        4
-#define   ITIRDATA    480        // TIRDATA
-#define   ITIRDATA1   481        // TIRDATA  - 2nd crate
-#define   ITIRDATA2   482        // TIRDATA  - 3rd crate
-#define   ITIRDATA3   483        // TIRDATA  - 4th crate
+#define   ITIRDATA    610        // TIRDATA
+#define   ITIRDATA1   611        // TIRDATA  - 2nd crate
+#define   ITIRDATA2   612        // TIRDATA  - 3rd crate
+#define   ITIRDATA3   613        // TIRDATA  - 4th crate
 
 // Helicity info from various crates
-#define   HELOFF      490
+#define   HELOFF      620
 #define   HELNUM        4
-#define   IHELICITY   490        // Helicity
-#define   IHELICITY1  491        // helicity from 2nd crate
-#define   IHELICITY2  492
-#define   IHELICITY3  493
+#define   IHELICITY   620        // Helicity
+#define   IHELICITY1  621        // helicity from 2nd crate
+#define   IHELICITY2  622
+#define   IHELICITY3  623
 
 // Timeslot info from various crates
-#define   TIMOFF      500
+#define   TIMOFF      630
 #define   TIMNUM        4
-#define   ITIMESLOT   500        // timeslot
-#define   ITIMESLOT1  501        // timeslot from 2nd crate
-#define   ITIMESLOT2  502
-#define   ITIMESLOT3  503
+#define   ITIMESLOT   630        // timeslot
+#define   ITIMESLOT1  631        // timeslot from 2nd crate
+#define   ITIMESLOT2  632
+#define   ITIMESLOT3  633
 
 // Pairsynch info from various crates
-#define   PAROFF       510
+#define   PAROFF       640
 #define   PARNUM         4
-#define   IPAIRSYNCH   510        // pairsync
-#define   IPAIRSYNCH1  511        // pairsync from 2nd crate
-#define   IPAIRSYNCH2  512
-#define   IPAIRSYNCH3  513
+#define   IPAIRSYNCH   640        // pairsync
+#define   IPAIRSYNCH1  641        // pairsync from 2nd crate
+#define   IPAIRSYNCH2  642
+#define   IPAIRSYNCH3  643
 
 // Timeboard data
-#define   TBDOFF       520
+#define   TBDOFF       650
 #define   TBDNUM         4
 
-#define   ITIMEBOARD   520
-#define   ITIMEBOARD1  521
-#define   ITIMEBOARD2  522
-#define   ITIMEBOARD3  523
+#define   ITIMEBOARD   660
+#define   ITIMEBOARD1  661
+#define   ITIMEBOARD2  662
+#define   ITIMEBOARD3  663
 
-#define   IRAMPDELAY   524
-#define   IRAMPDELAY1  525
-#define   IRAMPDELAY2  526
-#define   IRAMPDELAY3  527
+#define   IRAMPDELAY   674
+#define   IRAMPDELAY1  675
+#define   IRAMPDELAY2  676
+#define   IRAMPDELAY3  677
 
-#define   IINTEGTIME   528
-#define   IINTEGTIME1  529
-#define   IINTEGTIME2  530
-#define   IINTETTIME3  531
+#define   IINTEGTIME   680
+#define   IINTEGTIME1  681
+#define   IINTEGTIME2  682
+#define   IINTETTIME3  683
 
-#define   IOVERSAMPLE  532
-#define   IOVERSAMPLE1 533
-#define   IOVERSAMPLE2 534
-#define   IOVERSAMPLE3 535
+#define   IOVERSAMPLE  690
+#define   IOVERSAMPLE1 691
+#define   IOVERSAMPLE2 692
+#define   IOVERSAMPLE3 693
 
-#define   IPRECDAC     536
-#define   IPRECDAC1    537
-#define   IPRECDAC2    538
-#define   IPRECDAC3    539
+#define   IPRECDAC     694
+#define   IPRECDAC1    695
+#define   IPRECDAC2    696
+#define   IPRECDAC3    697
 
-#define   IPITADAC     540
+#define   IPITADAC     700
 
+// LUMI data
+#define   LMIOFF       705
+#define   LMINUM         4
+
+#define   ILUMI1R      705
+#define   ILUMI1       706
+#define   ILUMI2R      707
+#define   ILUMI2       708
+#define   ILUMI3R      709
+#define   ILUMI3       710
+#define   ILUMI4R      711
+#define   ILUMI4       712
 
 
 

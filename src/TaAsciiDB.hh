@@ -55,7 +55,9 @@ public:
 // Get Dac noise parameters for adc,chan with key = 'slope' or 'intercept'
   Double_t GetDacNoise(const Int_t& adc, const Int_t& chan, const string& key) const;  
 // Get Pedestals for adc, chan
-  Double_t GetPedestal(const Int_t& adc, const Int_t& chan) const;
+  Double_t GetAdcPed(const Int_t& adc, const Int_t& chan) const;
+// Get Pedestals for scaler, chan
+  Double_t GetScalPed(const Int_t& adc, const Int_t& chan) const;
 // Get Headers for decoding (needed by datamap)
   UInt_t GetHeader(const string& device) const ;
 // Get Masks for decoding (needed by datamap)
@@ -156,9 +158,9 @@ private:
   map<string, TaKeyMap >::iterator dmapiter;
   map<string, int> dbinit,colsize;
   Bool_t didinit,initdm,firstiter;
-  Double_t *dacparam,*pedvalue;
+  Double_t *dacparam,*adcped,*scalped;
   Bool_t *fFirstgdn;
-  Bool_t *fFirstped;
+  Bool_t *fFirstAdcPed, *fFirstScalPed;
 
 #ifdef DICT
 ClassDef(TaAsciiDB,0)  // Ascii database or control file

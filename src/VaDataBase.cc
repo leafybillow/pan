@@ -74,9 +74,17 @@ VaDataBase::Checkout()
     cout << "\n\n-----  For ADC " << adc << endl;
     for (int chan = 0; chan < 4; chan++) {
       cout << "\n  channel " << chan;
-      cout << "   ped = " << GetPedestal(adc,chan);
+      cout << "   ped = " << GetAdcPed(adc,chan);
       cout << "   dac slope = " << GetDacNoise(adc,chan,"slope");
       cout << "   dac int = " << GetDacNoise(adc,chan,"int");
+    }
+  }  
+  cout << "\n\nPedestal parameters for a few scalers : " << endl;
+  for (int scal = 0; scal < 2 ; scal++) {
+    cout << "\n\n-----  For Scaler " << scal << endl;
+    for (int chan = 0; chan < 8; chan++) {
+      cout << "\n  channel " << chan;
+      cout << "   ped = " << GetScalPed(scal,chan);
     }
   }  
   cout << "\n\nNumber of cuts " << GetNumCuts() << endl;
