@@ -23,7 +23,7 @@ For csh/tcsh:
 
 You are basically done. To check out the repository, do
 
-% cvs -d ":ext:user@jlabs1.jlab.org:/group/halla/parity/cvs" checkout espace
+% cvs -d ":ext:user@jlabs1.jlab.org:/group/halla/parity/cvs" checkout pan
 
 Of course, replace "user" in the above command with your CUE username.
 You can now use CVS as usual.  
