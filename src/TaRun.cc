@@ -28,7 +28,7 @@
 //#define NOISY
 //#define CHECKOUT
 //#define FAKEDEAD
-#define PANAMTEST
+//#define PANAMTEST
 
 #include "TaRun.hh"
 #include <iostream>
