@@ -1,11 +1,10 @@
-// Macro Class BTREE    R. Michaels     Mar 2002
+// Macro Class BTREE    R. Michaels     Apr 2003
 //
-// Purpose :  To plot things from tree "T" which is externally defined.
-// Used by :  bplot package, which runs under root CINT.
+// Purpose : To plot things from tree "T" which is externally defined.
+// Used by : bplot package, which runs under root CINT.
 // There are N plots (N <= MAXPLOT) arranged in nx by ny
 // zones, where nx*ny = N.
-// For i = 1,N we plot
-//    data[i]  subject to  condition[i]
+// For i = 1,N we plot data[i]  subject to  condition[i]
 // where data[i] = string indicating variable
 // condition[i] = string indicating cut (if applicable)
 // A postscript file is produced of the canvas.
@@ -18,201 +17,70 @@ class btree
 #include <stdio.h>
 #include "TString.h"
 #include "TTree.h"
-#define MAXPLOT 8
+#define MAXPLOT 4
 
 
 public:
 
 
-// Constructors
+// Constructor
 
 // tree = name of tree to deal with.
 // ct = name of canvas which gets created.
 // ps = name of postscript file which gets crated (has '.ps' appended).
+// For up to 4 plots.
+// cuts, options, liny/logy optionally specified
 
-// for nplot=1, no cuts, no options
- btree(char *tree, char *ct, char *ps, int x, int y, char *d1) {
-      treename = new char[strlen(tree)+1];  strcpy(treename,tree);
-      nplot = 1;
-      setup(ct,ps);
-      nxzone = x;  nyzone = y; 
-      if(chkzone(nplot)==ERROR) return ERROR;
-      plot[0].data=new char[strlen(d1)+1];
-      strcpy(plot[0].data,d1);
-      plot[0].cut=new char[5]; strcpy(plot[0].cut,"");
-      plot[0].opt=new char[5]; strcpy(plot[0].opt,"");
-      plot[0].llog=new char[5]; strcpy(plot[0].llog,"");
-      plot[0].fhist=0;
- };
-// for nplot=1, and cut but no option
- btree(char *tree, char *ct, char *ps, int x, int y, char *d1, char *c1) {
-      treename = new char[strlen(tree)+1];  strcpy(treename,tree);
-      nplot = 1;
-      setup(ct,ps);
-      nxzone = x;  nyzone = y; 
-      if(chkzone(nplot)==ERROR) return ERROR;
-      plot[0].data=new char[strlen(d1)+1];
-      strcpy(plot[0].data,d1);
-      plot[0].cut=new char[strlen(c1)+1];
-      strcpy(plot[0].cut,c1);
-      plot[0].opt=new char[5]; strcpy(plot[0].opt,"");
-      plot[0].llog=new char[5]; strcpy(plot[0].llog,"");
-      plot[0].fhist=0;
- };
-// for nplot=1, and cut and option
- btree(char *tree, char *ct, char *ps, int x, int y, 
-      char *d1, char *c1, char *opt1) {
-      treename = new char[strlen(tree)+1];  strcpy(treename,tree);
-      nplot = 1;
-      setup(ct,ps);
-      nxzone = x;  nyzone = y; 
-      if(chkzone(nplot)==ERROR) return ERROR;
-      plot[0].data=new char[strlen(d1)+1];
-      strcpy(plot[0].data,d1);
-      plot[0].cut=new char[strlen(c1)+1];
-      strcpy(plot[0].cut,c1);
-      plot[0].opt=new char[strlen(opt1)+1];
-      strcpy(plot[0].opt,opt1);
-      plot[0].llog=new char[5]; strcpy(plot[0].llog,"");
-      plot[0].fhist=0;
- };
-// for nplot=1, and cut and option and lin/log
- btree(char *tree, char *ct, char *ps, int x, int y, 
-      char *d1, char *c1, char *opt1, char *llog1) {
-      treename = new char[strlen(tree)+1];  strcpy(treename,tree);
-      nplot = 1;
-      setup(ct,ps);
-      nxzone = x;  nyzone = y; 
-      if(chkzone(nplot)==ERROR) return ERROR;
-      plot[0].data=new char[strlen(d1)+1];
-      strcpy(plot[0].data,d1);
-      plot[0].cut=new char[strlen(c1)+1];
-      strcpy(plot[0].cut,c1);
-      plot[0].opt=new char[strlen(opt1)+1];
-      strcpy(plot[0].opt,opt1);
-      plot[0].llog=new char[strlen(llog1)+1]; 
-      strcpy(plot[0].llog,llog1);
-      plot[0].fhist=0;
- };
-// for nplot=2, cuts, options, liny/logy always specified
- btree(char *tree, char *ct, char *ps, int x, int y, 
-       char *d1, char *c1, char *opt1, char *llog1,
-       char *d2, char *c2, char *opt2, char *llog2) {
-      treename = new char[strlen(tree)+1];  strcpy(treename,tree);
-      nplot = 2;
-      setup(ct,ps);
-      nxzone = x;  nyzone = y; 
-      if(chkzone(nplot)==ERROR) return ERROR;
-      plot[0].data=new char[strlen(d1)+1];
-      strcpy(plot[0].data,d1);
-      plot[0].cut=new char[strlen(c1)+1];
-      strcpy(plot[0].cut,c1);
-      plot[0].opt=new char[strlen(opt1)+1];
-      strcpy(plot[0].opt,opt1);
-      plot[0].llog=new char[strlen(llog1)+1]; 
-      strcpy(plot[0].llog,llog1);
-      plot[0].fhist=0;
-      plot[1].data=new char[strlen(d2)+1];
-      strcpy(plot[1].data,d2);
-      plot[1].cut=new char[strlen(c2)+1];
-      strcpy(plot[1].cut,c2);
-      plot[1].opt=new char[strlen(opt2)+1];
-      strcpy(plot[1].opt,opt2);
-      plot[1].llog=new char[strlen(llog2)+1]; 
-      strcpy(plot[1].llog,llog2);
-      plot[1].fhist=0;
-};
-// for nplot=3, cuts, options, liny/logy always specified
- btree(char *tree, char *ct, char *ps, int x, int y, 
-       char *d1, char *c1, char *opt1, char *llog1,
-       char *d2, char *c2, char *opt2, char *llog2,
-       char *d3, char *c3, char *opt3, char *llog3) {
-      treename = new char[strlen(tree)+1];  strcpy(treename,tree);
-      nplot = 3;
-      setup(ct,ps);
-      nxzone = x;  nyzone = y; 
-      if(chkzone(nplot)==ERROR) return ERROR;
-      plot[0].data=new char[strlen(d1)+1];
-      strcpy(plot[0].data,d1);
-      plot[0].cut=new char[strlen(c1)+1];
-      strcpy(plot[0].cut,c1);
-      plot[0].opt=new char[strlen(opt1)+1];
-      strcpy(plot[0].opt,opt1);
-      plot[0].llog=new char[strlen(llog1)+1]; 
-      strcpy(plot[0].llog,llog1);
-      plot[0].fhist=0;
-      plot[1].data=new char[strlen(d2)+1];
-      strcpy(plot[1].data,d2);
-      plot[1].cut=new char[strlen(c2)+1];
-      strcpy(plot[1].cut,c2);
-      plot[1].opt=new char[strlen(opt2)+1];
-      strcpy(plot[1].opt,opt2);
-      plot[1].llog=new char[strlen(llog2)+1]; 
-      strcpy(plot[1].llog,llog2);
-      plot[1].fhist=0;
-      plot[2].data=new char[strlen(d3)+1];
-      strcpy(plot[2].data,d3);
-      plot[2].cut=new char[strlen(c3)+1];
-      strcpy(plot[2].cut,c3);
-      plot[2].opt=new char[strlen(opt3)+1];
-      strcpy(plot[2].opt,opt3);
-      plot[2].llog=new char[strlen(llog3)+1]; 
-      strcpy(plot[2].llog,llog3);
-      plot[2].fhist=0;
-};
-// for nplot=4, cuts, options, liny/logy always specified
- btree(char *tree, char *ct, char *ps, int x, int y, 
-       char *d1, char *c1, char *opt1, char *llog1,
-       char *d2, char *c2, char *opt2, char *llog2,
-       char *d3, char *c3, char *opt3, char *llog3,
-       char *d4, char *c4, char *opt4, char *llog4) {
-      treename = new char[strlen(tree)+1];  strcpy(treename,tree);
-      nplot = 4;
-      setup(ct,ps);
-      nxzone = x;  nyzone = y; 
-      if(chkzone(nplot)==ERROR) return ERROR;
-      plot[0].data=new char[strlen(d1)+1];
-      strcpy(plot[0].data,d1);
-      plot[0].cut=new char[strlen(c1)+1];
-      strcpy(plot[0].cut,c1);
-      plot[0].opt=new char[strlen(opt1)+1];
-      strcpy(plot[0].opt,opt1);
-      plot[0].llog=new char[strlen(llog1)+1]; 
-      strcpy(plot[0].llog,llog1);
-      plot[0].fhist=0;
-      plot[1].data=new char[strlen(d2)+1];
-      strcpy(plot[1].data,d2);
-      plot[1].cut=new char[strlen(c2)+1];
-      strcpy(plot[1].cut,c2);
-      plot[1].opt=new char[strlen(opt2)+1];
-      strcpy(plot[1].opt,opt2);
-      plot[1].llog=new char[strlen(llog2)+1]; 
-      strcpy(plot[1].llog,llog2);
-      plot[1].fhist=0;
-      plot[2].data=new char[strlen(d3)+1];
-      strcpy(plot[2].data,d3);
-      plot[2].cut=new char[strlen(c3)+1];
-      strcpy(plot[2].cut,c3);
-      plot[2].opt=new char[strlen(opt3)+1];
-      strcpy(plot[2].opt,opt3);
-      plot[2].llog=new char[strlen(llog3)+1]; 
-      strcpy(plot[2].llog,llog3);
-      plot[2].fhist=0;
-      plot[3].data=new char[strlen(d4)+1];
-      strcpy(plot[3].data,d4);
-      plot[3].cut=new char[strlen(c4)+1];
-      strcpy(plot[3].cut,c4);
-      plot[3].opt=new char[strlen(opt4)+1];
-      strcpy(plot[3].opt,opt4);
-      plot[3].llog=new char[strlen(llog4)+1]; 
-      strcpy(plot[3].llog,llog4);
-      plot[3].fhist=0;
+
+btree(TString tree, TString ct, TString ps, int x, int y,
+      TString data0, TString cut0, TString opt0, TString llog0,
+   TString data1="", TString cut1="", TString opt1="", TString llog1="",
+   TString data2="", TString cut2="", TString opt2="", TString llog2="",
+   TString data3="", TString cut3="", TString opt3="", TString llog3="") {
+
+   treename = new char[strlen(tree.Data())+1];
+   strcpy(treename,tree.Data());
+
+   nplot = 4;
+   if (data3 == "") nplot = 3;
+   if (data2 == "") nplot = 2;
+   if (data1 == "") nplot = 1;
+
+   setup(ct,ps);
+   nxzone = x;  nyzone = y;
+   chkzone(nplot);
+
+   LoadPlot(0, data0.Data(), cut0.Data(), opt0.Data(), llog0.Data());
+   LoadPlot(1, data1.Data(), cut1.Data(), opt1.Data(), llog1.Data());
+   LoadPlot(2, data2.Data(), cut2.Data(), opt2.Data(), llog2.Data());
+   LoadPlot(3, data3.Data(), cut3.Data(), opt3.Data(), llog3.Data());
+
+   for (Int_t i=0; i<4; i++) plot[i].fhist = 0;
+
 };
 
+void LoadPlot(Int_t ip, char* dat, char* ct, char* op, char* ll) 
+{
+
+   if (ip < 0  || ip > MAXPLOT) return;
+
+   plot[ip].data = new char[strlen(dat)+1];
+   strcpy(plot[ip].data,dat);
+
+   plot[ip].cut = new char[strlen(ct)+1];
+   strcpy(plot[ip].cut,ct);
+
+   plot[ip].opt = new char[strlen(op)+1];
+   strcpy(plot[ip].opt,op);
+
+   plot[ip].llog = new char[strlen(ll)+1];
+   strcpy(plot[ip].llog,ll);
+
+};
 
 void forcehisto(int pnum, char* name, char* title,
-              int nbinx, float xlo, float xhi,
-              int nbiny, float ylo, float yhi)
+                int nbinx, float xlo, float xhi,
+                int nbiny, float ylo, float yhi)
 {
 // This method will cause the plot #pnum to be forced into
 // a particular histogram whose parameters are defined here.
@@ -222,8 +90,11 @@ void forcehisto(int pnum, char* name, char* title,
       } else {
          return;
       }
-      hist[pnum].name = name;
-      hist[pnum].title = title;
+
+      hist[pnum].name = new char[strlen(name)+1];
+      strcpy(hist[pnum].name,name);
+      hist[pnum].title = new char[strlen(title)+1];
+      strcpy(hist[pnum].title,title);
       hist[pnum].nbinx = nbinx;
       hist[pnum].xlo = xlo;
       hist[pnum].xhi = xhi;
@@ -235,9 +106,13 @@ void forcehisto(int pnum, char* name, char* title,
 void plot() {
 
    Int_t i,ntot;
-   TString cinst;
+   char cinst[100];
 
    TTree *T = (TTree*)gROOT.FindObject(treename);
+   if (!T) {
+     cout << "plot:ERROR: Cannot find tree "<<treename<<endl;
+     return;
+   }
 
    c1 = new TCanvas("bob",canvas_title,800,600);
    c1->SetFillColor(42);
@@ -247,9 +122,8 @@ void plot() {
 
    if(DOPOSTSCRIPT) TPostScript ps(postscript_name,type);
  
-
    if((nxzone==1)&&(nyzone==1))  {
-      plot[0].pad = new TPad("pad1","",0.03,0.5,0.98,0.95,18);
+      plot[0].pad = new TPad("pad1","",0.03,0.02,0.98,0.95,18);
    }
    if((nxzone==1)&&(nyzone==2))  {
       plot[0].pad = new TPad("pad1","",0.03,0.5,0.98,0.95,18);
@@ -262,7 +136,6 @@ void plot() {
       plot[3].pad = new TPad("pad2","",0.52,0.02,0.98,0.45,18);
    }
 
-
    gStyle->SetOptStat(1111);
    gStyle->SetStatH(0.30);
    gStyle->SetStatW(0.35);
@@ -272,14 +145,13 @@ void plot() {
    gStyle->SetLabelSize(0.05,"y");
    gROOT->ForceStyle();
 
-
    for (i = 0; i < nplot; i++) {
 
-
-     if(plot[i].fhist == 1) {  // If forcing into a histogram
+      if(plot[i].fhist == 1) {  // If forcing into a histogram
        plot[i].pad->cd();
-       cinst = plot[i].data;
-       cinst = cinst + ">>" + hist[i].name;
+       strcpy(cinst,plot[i].data);
+       strcat(cinst,">>");
+       strcat(cinst,hist[i].name);
        if(hist[i].nbiny == 0) {
          hist[i].h1d = 
            new TH1F(hist[i].name,hist[i].title,
@@ -290,7 +162,7 @@ void plot() {
               hist[i].nbinx,hist[i].xlo,hist[i].xhi,
               hist[i].nbiny,hist[i].ylo,hist[i].yhi);
        }
-       T->Draw(cinst.Data(),plot[i].cut,plot[i].opt);
+       T->Draw(cinst,plot[i].cut,plot[i].opt);
      }
    }
 
@@ -303,22 +175,27 @@ void plot() {
    for (i = 0; i < nplot; i++) {
 
      plot[i].pad->cd();
-             
-     if(strcmp(plot[i].llog,"logx")==0) plot[i].pad->SetLogx(1);
-     if(strcmp(plot[i].llog,"logy")==0) plot[i].pad->SetLogy(1);
-     if(strcmp(plot[i].llog,"logz")==0) plot[i].pad->SetLogz(1);
 
-     if( !plot[i].fhist ) {
+    if(strstr(plot[i].llog,"logx") != NULL)  
+       plot[i].pad->SetLogx(1);
 
-       T->Draw(plot[i].data,plot[i].cut,plot[i].opt);
+    if(strstr(plot[i].llog,"logy") != NULL)  
+       plot[i].pad->SetLogy(1);
 
-     } else {
+    if(strstr(plot[i].llog,"logz") != NULL)  
+       plot[i].pad->SetLogz(1);
+
+     if( plot[i].fhist ) {  
 
        if(hist[i].nbiny == 0) {
           hist[i].h1d.Draw(plot[i].opt);
        } else {
           hist[i].h2d.Draw(plot[i].opt);
        }
+
+     } else {
+
+       T->Draw(plot[i].data,plot[i].cut,plot[i].opt);
 
      }
 
@@ -334,15 +211,15 @@ private:
     enum { ERROR = -1 };
     enum { DOPOSTSCRIPT = 1 }; // do postscript(1) or not(0)
 
-    char *treename;
-    char *canvas_title;
-    char *postscript_name;
+    char* treename;
+    char* canvas_title;
+    char* postscript_name;
     int nplot,nxzone,nyzone;
     struct plotdefine {
-        char *data;
-        char *cut;
-        char *opt;
-        char *llog;
+        char* data;
+        char* cut;
+        char* opt;
+        char* llog;
         int  fhist;
         TPad *pad;
     } plot[MAXPLOT];
@@ -357,14 +234,15 @@ private:
     } hist[MAXPLOT];
 
 
-    void setup (char *ct, char *ps)
-   {
-      canvas_title = new char[strlen(ct)];
-      strcpy(canvas_title,ct);
-      postscript_name = new char[strlen(ps)+5];
-      strcpy(postscript_name,ps);
-      strcat(postscript_name,".ps");
-   };
+    void setup (TString ct, TString ps)  
+    {
+      TString str;
+      canvas_title = new char[strlen(ct.Data())+1];
+      strcpy(canvas_title,ct.Data());
+      str = ps + ".ps";
+      postscript_name = new char[strlen(str.Data())+1];
+      strcpy(postscript_name,str.Data());
+    };
 
    int chkzone(int N) 
    {
