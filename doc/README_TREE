@@ -24,18 +24,23 @@ run by run or slug by slug.
 The raw tree contains a leaf for each event.  There are the following
 branches:
 
+(*) - Variables included if "calvar true" is set in the database.
+
   Data for each ADC or scaler:
   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    adc<n>_<m> ........ Raw values read from ADC <m> in ADC board <n>.
-                        <m> ranges from 0 to 3; <n> from 0 to (number
-                        of boards - 1).
-    adc<n>_<m>_cal .... Same data after DAC noise and pedestal
-                        subtraction.
+    adc<n>_<m> .........  Raw values read from ADC <m> in ADC board <n>.
+                          <m> ranges from 0 to 3; <n> from 0 to (number
+                          of boards - 1).
+(*) adc<n>_<m>_dacsub ..  Same data after DAC noise subtraction.
+    adc<n>_<m>_cal .....  Same data after DAC noise AND pedestal
+                          subtraction.
 
-    scaler<n>_<m> ..... Raw values read from scaler <m> in scaler board
-                        <n>.  <m> ranges from 0 to 31; <n> from 0 to
-                        (number of boards - 1).
-    scaler<n>_<m>_cal . Same data after pedestal subtraction.  
+    scaler<n>_<m> ......  Raw values read from scaler <m> in scaler board
+                          <n>.  <m> ranges from 0 to 31; <n> from 0 to
+                          (number of boards - 1).
+(*) scaler<n>_<m>_clkdiv  Same data after v/f clock division.
+    scaler<n>_<m>_cal ..  Same data after v/f clock division 
+	                  AND pedestal subtraction.
 
   Additional ADC data:
   ^^^^^^^^^^^^^^^^^^^^
@@ -61,10 +66,14 @@ branches:
     bcm<n> ............ HAPPEX-I style beam current monitors; <n>
                         ranges from 1.  (Pedestal/DAC noise
                         subtracted.)
-    bcm<n>r ........... Same, before subtraction.
+(*) bcm<n>c ........... Same, before pedestal subtraction.
+    bcm<n>r ........... Same, before DAC noise/clock calibration and 
+                        pedestal subtraction
 
     bcmcav<n> ......... G0 style beam current monitors; <n> ranges
                         from 1.  (Pedestal/DAC noise subtracted.)
+(*) bcmcav<n>c ........ Same, before DAC noise/clock calibration and 
+                        pedestal subtraction
     bcmcav<n>r ........ Same, before subtraction.
 
     bpm<n><xxxx> ...... Data for stripline position monitor BPM<n>.
@@ -76,13 +85,18 @@ branches:
                               subtracted.)
                         x ... x position (in mm, rotation applied if 
                               appropriate).
+                   (*)  xmc . x- wire value (Pedestal
+                              not subtracted.)
                         xm .. x- wire value (Pedestal/DAC noise
                               not subtracted.)
+                   (*)  xpc . Same for x+ wire.
                         xp .. Same for x+ wire.
                         xws . x wire sum for BPM<n> (Pedestal/DAC noise
                               subtracted.)
                         y ... Same as x, for y position. 
+                   (*)  ymc . Same as xmc, for y. 
                         ym .. Same as xm, for y. 
+                   (*)  ypc . Same as xpc, for y. 
                         yp .. Same as xp, for y. 
                         yws . Same as xws, for y. 
 
@@ -91,16 +105,20 @@ branches:
                         1, 2, 3, 4.  <xxxx> may be 
 
                         x ... x position (in mm).
+                   (*)  xc .. x position data before pedestal subtraction.
                         xr .. x position data before calibration.
                         y ... Same as x, for y position.
+                   (*)  yc .. Same as x, for y.
                         yr .. Same as x, for y.
 
     det<n> ............ Cherenkov detectors; <n> ranges from 1.
                         (Pedestal/DAC noise subtracted.) 
+(*) det<n>c ........... Same, before pedestal subtraction.
     det<n>r ........... Same, before subtraction.
 
     lumi<n> ........... Luminosity monitors; <n> ranges from 1.  
                         (Pedestal/DAC noise subtracted.)
+(*) lumi<n>c .......... Same, before pedestal subtraction.
     lumi<n>r .......... Same, before subtraction.
 
   Sequencing/helicity information for the window containing this event:

@@ -6,6 +6,45 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by B. Moffit on   2 Feb 2004
+------------------------------------
+
+Update VaEvent to include tree variables that are corrected (ADC
+dacnoise subtracted or SCALER v/f-clock divided) but are not pedestal
+subtracted.  Created a new option for the database to trigger these
+variables (calvar):
+   if "calvar true" is in the Database... include them.
+
+Also updated pedestal subtraction for scalers.  Pedestals for scalers
+should now be v/f-clocked divided.  This is useful because the
+pedestals shouldn't change when the integration gate is changed.
+This'll screw up all previous databases where scaler pedestals were
+not clock divided... but... the calibrated scaler results from this
+analysis should show obvious problems with those pedestals.
+
+TaDataBase.{cc,hh}
+
+ o new calvar table in db allows to turn on calibration tree variables
+
+TaDevice.{cc,hh}, genDevTypes.pl
+
+ o Include calibration variables for adcs, scalers, and all devices
+ (bcms, bpms, lumis,...)
+
+VaEvent.{cc,hh}
+
+ o Boolean flag to trigger the calibration decode (CalibDecode)
+ fgCalib true if it's true in the database.
+
+ o CalibDecode(TaDevice&) - Decoding without pedestal subtraction
+
+ o Change scaler pedestal subtraction method.
+
+README_TREE
+
+ o Update to include calibrated raw tree variables.
+
+
 Changes by R. Holmes on  14 Jul 2003
 ------------------------------------
 

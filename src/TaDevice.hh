@@ -64,6 +64,7 @@ class TaDevice {
     Int_t GetChanNum(const Int_t& index) const;
     Int_t GetRawIndex(const Int_t& key) const;
     Int_t GetCalIndex(const Int_t& key) const;
+    Int_t GetCorrIndex(const Int_t& key) const;
     Bool_t IsUsed(const Int_t& key) const;
     Bool_t IsRotated(const Int_t& key) const;
     Bool_t IsAdc(const Int_t& key) const;

@@ -134,6 +134,29 @@ sub do_striplines
 
 $out1
 ENDSTRCOM
+
+    $strcorroff = $p;
+    $out1 = "// Hall A stripline wires (before pedestal subtraction)\n";
+    foreach $str (@halla_strlist)
+    {
+	$out1 .= &add_strcorr ($str);
+    }
+    $out1 .= "// Injector stripline wires (before pedestal subtraction)\n";
+    foreach $str (@inj_strlist)
+    {
+	$out1 .= &add_strcorr ($str);
+    }
+    
+    $out .= << "ENDSTRCORRCOM";
+// Stripline wires before pedestal subtraction
+
+\#define   STRCORROFF     $strcorroff     // Corrected Stripline wires
+
+// XPC, XMC, YPC, YMC = corrected antennas (before pedestal subtraction);
+
+$out1
+ENDSTRCORRCOM
+
 }
 
 sub add_str
@@ -150,6 +173,20 @@ sub add_str
     $ret .= "\#define   ${str}XWS   $p\n"; $p++;
     $ret .= "\#define   ${str}YWS   $p\n"; $p++;
     $ret .= "\#define   ${str}WS    $p\n"; $p++;
+    $ret .= "\n";
+    return $ret;
+}
+
+sub add_strcorr
+{
+# Stripline wires.. after dacnoise subtraction or clock division
+    my ($str) = @_;
+    my ($ret);
+    $ret = "";
+    $ret .= "\#define   ${str}XPC    $p\n"; $p++;
+    $ret .= "\#define   ${str}XMC    $p\n"; $p++;
+    $ret .= "\#define   ${str}YPC    $p\n"; $p++;
+    $ret .= "\#define   ${str}YMC    $p\n"; $p++;
     $ret .= "\n";
     return $ret;
 }
@@ -175,6 +212,23 @@ sub do_cavities
 
 $out1
 ENDCAVCOM
+
+    $cavcorroff = $p;
+    $out1 = "";
+    foreach $cavcorr (@cavlist)
+    {
+	$out1 .= &add_cavcorr ($cavcorr);
+    }
+    
+    $out .= << "ENDCAVCORRCOM";
+// Cavity BPMs (before pedestal subtraction)
+\#define   CAVCORROFF     $cavcorroff     // Cavity BPMs (before peds)
+
+// XC, YC = data before pedestal subtraction
+
+$out1
+ENDCAVCORRCOM
+
 }
 
 sub add_cav
@@ -186,6 +240,17 @@ sub add_cav
     $ret .= "\#define   ${cav}YR    $p\n"; $p++;
     $ret .= "\#define   ${cav}X     $p\n"; $p++;
     $ret .= "\#define   ${cav}Y     $p\n"; $p++;
+    $ret .= "\n";
+    return $ret;
+}
+
+sub add_cavcorr
+{
+    my ($cav) = @_;
+    my ($ret);
+    $ret = "";
+    $ret .= "\#define   ${cav}XC    $p\n"; $p++;
+    $ret .= "\#define   ${cav}YC    $p\n"; $p++;
     $ret .= "\n";
     return $ret;
 }
@@ -212,6 +277,22 @@ sub do_bcms
 $out1
 ENDBCMCOM
 
+    $bcmcorroff = $p;
+    $out1 = "";
+    foreach $bcm (@old_bcmlist)
+    {
+	$out1 .= &add_bcmcorr ($bcm);
+    }
+    $out .= << "ENDBCMCORRCOM";
+// Old (HAPPEX-I era) BCMs (before pedestal subtraction)
+
+\#define   BCMCORROFF     $bcmcorroff     // Old BCMs start here
+
+// C = data before pedestal subtraction
+
+$out1
+ENDBCMCORRCOM
+
     $ccmoff = $p;
     $ccmnum = scalar (@g0_bcmlist);
     $out1 = "";
@@ -230,6 +311,23 @@ ENDBCMCOM
 
 $out1
 ENDCCMCOM
+
+    $ccmcorroff = $p;
+    $out1 = "";
+    foreach $bcm (@g0_bcmlist)
+    {
+	$out1 .= &add_bcmcorr ($bcm);
+    }
+    
+    $out .= << "ENDCCMCORRCOM";
+// G0 BCMs (before pedestal subtraction)
+
+\#define   CCMCORROFF     $ccmcorroff     // G0 BCMs (before peds)
+
+// C = data before pedestal subtraction
+
+$out1
+ENDCCMCORRCOM
 }
 
 sub add_bcm
@@ -239,6 +337,16 @@ sub add_bcm
     $ret = "";
     $ret .= "\#define   ${bcm}R     $p\n"; $p++;
     $ret .= "\#define   ${bcm}      $p\n"; $p++;
+    $ret .= "\n";
+    return $ret;
+}
+
+sub add_bcmcorr
+{
+    my ($bcm) = @_;
+    my ($ret);
+    $ret = "";
+    $ret .= "\#define   ${bcm}C     $p\n"; $p++;
     $ret .= "\n";
     return $ret;
 }
@@ -293,6 +401,22 @@ sub do_dets
 
 $out1
 ENDDETCOM
+
+    $detcorroff = $p;
+    $out1 = "";
+    foreach $det (@detlist)
+    {
+	$out1 .= &add_detcorr ($det);
+    }
+    $out .= << "ENDDETCORRCOM";
+// Detectors (before pedestal subtraction)
+
+\#define   DETCORROFF     $detcorroff     // Detectors (before peds)
+
+// C = data before pedestal subtraction
+
+$out1
+ENDDETCORRCOM
 }
 
 sub add_det
@@ -302,6 +426,16 @@ sub add_det
     $ret = "";
     $ret .= "\#define   ${det}R     $p\n"; $p++;
     $ret .= "\#define   ${det}      $p\n"; $p++;
+    $ret .= "\n";
+    return $ret;
+}
+
+sub add_detcorr
+{
+    my ($det) = @_;
+    my ($ret);
+    $ret = "";
+    $ret .= "\#define   ${det}C     $p\n"; $p++;
     $ret .= "\n";
     return $ret;
 }
@@ -329,6 +463,21 @@ sub do_adcs
 
 $out1
 ENDADCCOM
+
+    $adcdacsuboff = $p;
+    $out1 = "";
+    for $iadcdacsub (0..$adcnum-1)
+    {
+	$adcdacsub = "IADC$iadcdacsub";
+	$out1 .= &add_adcdacsub ($adcdacsub);
+    }
+    $out .= << "ENDADCDACSUBCOM";
+// Now the dacnoise subtracted data
+
+\#define   ADCDACSUBOFF     $adcdacsuboff     // Dacnoise Subtracted ADCs start here
+
+$out1
+ENDADCDACSUBCOM
 
     $accoff = $p;
     $out1 = "";
@@ -392,6 +541,18 @@ sub add_adc
     return $ret;
 }
 
+sub add_adcdacsub
+{
+    my ($adc) = @_;
+    my ($ret);
+    $ret = "";
+    $ret .= "\#define   ${adc}_0_DACSUB    $p\n"; $p++;
+    $ret .= "\#define   ${adc}_1_DACSUB    $p\n"; $p++;
+    $ret .= "\#define   ${adc}_2_DACSUB    $p\n"; $p++;
+    $ret .= "\#define   ${adc}_3_DACSUB    $p\n"; $p++;
+    return $ret;
+}
+
 sub add_adccal
 {
     my ($adc) = @_;
@@ -432,6 +593,21 @@ sub do_scalers
 $out1
 ENDSCALERCOM
 
+    $scaclkdivoff = $p;
+    $out1 = "";
+    for $iscaclkdiv (0..$scanum-1)
+    {
+	$sclkdiv = "ISCALER$iscaclkdiv";
+	$out1 .= &add_scalerclkdiv ($sclkdiv);
+    }
+    $out .= << "ENDSCACLKDIVCOM";
+// Clock Divided scalers (before pedestal subtraction)
+
+\#define   SCACLKDIVOFF     $scaclkdivoff     // Clock Divided SCALERs start here
+
+$out1
+ENDSCACLKDIVCOM
+
     $sccoff = $p;
     $out1 = "";
     for $iscc (0..$scanum-1)
@@ -456,6 +632,20 @@ sub add_scaler
     for $i (0..31)
     {
 	$ret .= "\#define   ${scaler}_$i     $p\n"; $p++;
+    }
+    $ret .= "\n";
+    return $ret;
+}
+
+sub add_scalerclkdiv
+{
+    my ($scaler) = @_;
+    my ($clkdiv) = "_CLKDIV";
+    my ($ret);
+    $ret = "";
+    for $i (0..31)
+    {
+	$ret .= "\#define   ${scaler}_$i${clkdiv}     $p\n"; $p++;
     }
     $ret .= "\n";
     return $ret;
@@ -603,6 +793,22 @@ sub do_lumis
 
 $out1
 ENDLUMICOM
+
+    $lmicorroff = $p;
+    $out1 = "";
+    foreach $lumi (@lumilist)
+    {
+	$out1 .= &add_lumicorr ($lumi);
+    }
+    $out .= << "ENDLUMICORRCOM";
+// Lumi detectors (before pedestal subtraction)
+
+\#define   LMICORROFF     $lmicorroff     // Lumis (before peds)
+
+// C = data before pedestal subtraction
+
+$out1
+ENDLUMICORRCOM
 }
 
 sub add_lumi
@@ -612,6 +818,16 @@ sub add_lumi
     $ret = "";
     $ret .= "\#define   ${lumi}R     $p\n"; $p++;
     $ret .= "\#define   ${lumi}      $p\n"; $p++;
+    $ret .= "\n";
+    return $ret;
+}
+
+sub add_lumicorr
+{
+    my ($lumi) = @_;
+    my ($ret);
+    $ret = "";
+    $ret .= "\#define   ${lumi}C     $p\n"; $p++;
     $ret .= "\n";
     return $ret;
 }
@@ -652,7 +868,7 @@ sub do_qpds
 
     $qpdoff = $p;
     $qpdnum = scalar (@qpdlist);
-    $out1 = "// Quad photodiodes \n";
+    $out1 = "";
     foreach $qpd (@qpdlist)
     {
 	$out1 .= &add_qpd ($qpd);
@@ -669,6 +885,23 @@ sub do_qpds
 
 $out1
 ENDQPDCOM
+
+    $qpdcorroff = $p;
+    $out1 = "";
+    foreach $qpd (@qpdlist)
+    {
+	$out1 .= &add_qpdcorr ($qpd);
+    }
+    
+    $out .= << "ENDQPDCORRCOM";
+// Quad photodiodes (before pedestal subtraction)
+
+\#define   QPDCORROFF     $qpdcorroff     // Quad photodiodes (before peds)
+
+// PPC, PMC, MPC, MMC = diodes (x side, y side) before pedestal subtraction
+
+$out1
+ENDQPDCORRCOM
 }
 
 sub add_qpd
@@ -687,6 +920,19 @@ sub add_qpd
     return $ret;
 }
 
+sub add_qpdcorr
+{
+    my ($qpd) = @_;
+    my ($ret);
+    $ret = "";
+    $ret .= "\#define   ${qpd}PPC   $p\n"; $p++;
+    $ret .= "\#define   ${qpd}PMC   $p\n"; $p++;
+    $ret .= "\#define   ${qpd}MPC   $p\n"; $p++;
+    $ret .= "\#define   ${qpd}MMC   $p\n"; $p++;
+    $ret .= "\n";
+    return $ret;
+}
+
 
 sub do_scans
 {
@@ -694,14 +940,14 @@ sub do_scans
 
     $scanoff = $p;
     $scannum = scalar (@scanlist);
-    $out1 = "// Q2 Scanners \n";
+    $out1 = "";
     foreach $scan (@scanlist)
     {
 	$out1 .= &add_scan ($scan);
     }
     
     $out .= << "ENDSCANCOM";
-// Quad photodiodes
+// Q2 Scanners
 
 \#define   SCANOFF     $scanoff     // Q2 scanners start here
 \#define   SCANNUM     $scannum     // number of Q2 scanners defined below
@@ -711,6 +957,24 @@ sub do_scans
 
 $out1
 ENDSCANCOM
+
+    $scancorroff = $p;
+    $out1 = "";
+    foreach $scan (@scanlist)
+    {
+	$out1 .= &add_scancorr ($scan);
+    }
+    
+    $out .= << "ENDSCANCORRCOM";
+// Q2 Scanners (before pedestal subtraction)
+
+\#define   SCANCORROFF     $scancorroff     // Q2 scanners (before peds)
+
+// XENCC, YENCC = encoder values before pedestal subtraction
+// DETC = integrated PMT signal before pedestal subtraction
+
+$out1
+ENDSCANCORRCOM
 }
 
 sub add_scan
@@ -720,9 +984,21 @@ sub add_scan
     $ret = "";
     $ret .= "\#define   ${scan}XENC   $p\n"; $p++;
     $ret .= "\#define   ${scan}YENC   $p\n"; $p++;
-    $ret .= "\#define   ${scan}X   $p\n"; $p++;
-    $ret .= "\#define   ${scan}Y   $p\n"; $p++;
-    $ret .= "\#define   ${scan}DET   $p\n"; $p++;
+    $ret .= "\#define   ${scan}X      $p\n"; $p++;
+    $ret .= "\#define   ${scan}Y      $p\n"; $p++;
+    $ret .= "\#define   ${scan}DET    $p\n"; $p++;
+    $ret .= "\n";
+    return $ret;
+}
+
+sub add_scancorr
+{
+    my ($scan) = @_;
+    my ($ret);
+    $ret = "";
+    $ret .= "\#define   ${scan}XENCC   $p\n"; $p++;
+    $ret .= "\#define   ${scan}YENCC   $p\n"; $p++;
+    $ret .= "\#define   ${scan}DETC    $p\n"; $p++;
     $ret .= "\n";
     return $ret;
 }

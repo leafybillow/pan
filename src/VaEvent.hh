@@ -100,6 +100,7 @@ public:
   void AddToTree (TaDevice& dev, 
 		  const TaCutList& cutlist, 
 		  TTree &tree);    // Add data to root Tree
+  void SetCalib(Bool_t);
 
 protected:
   // protected  methods
@@ -116,6 +117,7 @@ private:
   Double_t Rotate(Double_t x, Double_t y, Int_t xy); 
   void DecodeCook( TaDevice& devices );   // Called by AddToTree
   Int_t DecodeCrates( TaDevice& devices );   
+  void CalibDecode(TaDevice& devices); // Called if indicated in database
 
   // Constants
   static const UInt_t fgMaxEvLen = 2000;    // Maximum length for event buffer
@@ -138,6 +140,7 @@ private:
   static UInt_t fgCurMon;      // index to current monitor for cuts
   static UInt_t fgSizeConst;   // size of first physics event should be size of all
   static UInt_t fgNCuts;       // Length of cut array
+  static Bool_t fgCalib;       // True to include calibration variables
 
   // Data members
   Int_t *fEvBuffer;            // Raw event data

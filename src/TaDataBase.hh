@@ -353,6 +353,8 @@ public:
   string GetPairType() const;  // returns 'pair' or 'quad', etc.
 // Get current monitor to use for cuts and normalizations for this run
   string GetCurMon() const;   // returns 'bcm1', etc.
+// True if calibration variables in the raw data tree.
+  Bool_t GetCalVar() const;
 // Get a cut value for 'cutname'.  e.g. cutname = 'lowbeam', 'burpcut' 
   Double_t GetCutValue(const string& cutname) const;
 // Get number of cuts 

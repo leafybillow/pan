@@ -53,7 +53,7 @@ UInt_t VaEvent::fgOversample;
 UInt_t VaEvent::fgCurMon;
 UInt_t VaEvent::fgSizeConst;
 UInt_t VaEvent::fgNCuts;
-
+Bool_t VaEvent::fgCalib;
 
 VaEvent::VaEvent(): 
   fEvType(0),  
@@ -187,6 +187,8 @@ VaEvent::RunInit(const TaRun& run)
   for(vector<Double_t>::iterator iconst = qpd1const.begin();
       iconst != qpd1const.end(); iconst++)  fQPD1Pars[ip++] = *iconst;
 
+  fgCalib = run.GetDataBase().GetCalVar();
+
   return fgTAEVT_OK;
 
 }
@@ -220,7 +222,9 @@ void VaEvent::DecodeCook(TaDevice& devices) {
   Decode(devices);
 };
 
-void VaEvent::Decode(TaDevice& devices) {
+void 
+VaEvent::Decode(TaDevice& devices) 
+{
 // Decodes all the raw data and applies all the calibrations and BPM
 // rotations.  Note: This assumes the event structure remains
 // constant.  We check this by verifying a constant event length.
@@ -288,12 +292,13 @@ void VaEvent::Decode(TaDevice& devices) {
   for (i = 0;  i < ADCNUM; i++) {
     for (j = 0; j < 4; j++) {
       key = i*4 + j;
-      fData[ACCOFF + key] = fData[ADCOFF + key] - devices.GetPedestal(ADCOFF + key)
-       - (fData[DACOFF + i]-ADC_MinDAC) * devices.GetDacSlope(key);
+      fData[ACCOFF + key] = fData[ADCOFF + key] 
+	- devices.GetPedestal(ADCOFF + key)
+	- (fData[DACOFF + i]-ADC_MinDAC) * devices.GetDacSlope(key);
       if (devices.IsUsed(ADCOFF+key)) devices.SetUsed(ACCOFF+key);
     }
   }
-  
+
   // Calibrate Scalers for use with v2fs
   // Only one V2F is allowed per scaler.  Sorry.
   Int_t clockkey;
@@ -312,8 +317,7 @@ void VaEvent::Decode(TaDevice& devices) {
       for (j = 0; j < 32; j++) {
 	key = j + i*32;
 	fData[SCCOFF + key] = 
-	  (fData[SCAOFF + key] 
-	   - devices.GetPedestal(SCAOFF + key))/clock;
+	  (fData[SCAOFF + key])/clock - devices.GetPedestal(SCAOFF + key);
         if (devices.IsUsed(SCAOFF+key)) devices.SetUsed(SCCOFF+key);
       }
     }
@@ -509,7 +513,149 @@ void VaEvent::Decode(TaDevice& devices) {
   //   }
   if (devices.IsUsed(IOVERSAMPLE)) devices.SetUsed(ITIMESLOT);
 
+  if(fgCalib) 
+    CalibDecode(devices);
+
 };
+
+void
+VaEvent::CalibDecode(TaDevice& devices)
+{
+  // Analysis to include data not corrected for pedestal.
+  //  Can be turned on with fgCalib.
+  //  Much of this looks like VaEvent::Decode...
+  //   BUT DON'T BE FOOLED!
+  Int_t i,j,key,corrkey,idx,ixp,ixm,iyp,iym;
+  Int_t ixpyp,ixpym,ixmyp,ixmym;
+
+
+// Calibrate the ADCs first (no pedestal subtraction here!)
+  for (i = 0;  i < ADCNUM; i++) {
+    for (j = 0; j < 4; j++) {
+      key = i*4 + j;
+      corrkey = ADCDACSUBOFF + key;
+      fData[corrkey] = fData[ADCOFF + key] 
+	- (fData[DACOFF + i]-ADC_MinDAC) * devices.GetDacSlope(key);
+      if (devices.IsUsed(ADCOFF+key)) devices.SetUsed(corrkey);
+    }
+  }
+
+  // Calibrate Scalers for use with v2fs (no pedestal subtraction here!)
+  // Only one V2F is allowed per scaler.  Sorry.
+  Int_t clockkey;
+  for (i = 0; i < V2FCLKNUM; i++) {
+    clockkey = i + V2FCLKOFF;
+    // If there's no clock... then there's no calibration.
+    if (fData[clockkey] == 0) {
+      for (j = 0; j < 32; j++) {
+	key = j + i*32;
+	corrkey = SCACLKDIVOFF + key;
+	fData[corrkey] = 0;
+        if (devices.IsUsed(SCAOFF+key)) devices.SetUsed(corrkey);
+      }
+    } else {
+      // HA! There IS a clock!
+      Double_t clock = fData[clockkey];
+      for (j = 0; j < 32; j++) {
+	key = j + i*32;
+	corrkey = SCACLKDIVOFF + key;
+	fData[corrkey] = (fData[SCAOFF + key])/clock;
+        if (devices.IsUsed(SCAOFF+key)) devices.SetUsed(corrkey);
+      }
+    }
+  }  
+
+// Quad photodiode (no pedestal subtraction here!)
+  for (i = 0; i < QPDNUM; i++) {
+    key = QPDOFF + 9*i;
+    corrkey = QPDCORROFF + 4*i;
+    ixpyp = devices.GetCorrIndex(key);
+    ixpym = devices.GetCorrIndex(key+1);
+    ixmyp = devices.GetCorrIndex(key+2);
+    ixmym = devices.GetCorrIndex(key+3);
+    if (ixpyp < 0 || ixpym < 0 || ixmyp < 0 || ixmym < 0) continue;
+    if (i==0) {  
+      fData[corrkey]   = fData[ixpyp]*fQPD1Pars[0];
+      fData[corrkey+1] = fData[ixpym]*fQPD1Pars[1];
+      fData[corrkey+2] = fData[ixmyp]*fQPD1Pars[2];
+      fData[corrkey+3] = fData[ixmym]*fQPD1Pars[3];
+    }
+    if (devices.IsUsed(key)) {
+      devices.SetUsed(corrkey);
+      devices.SetUsed(corrkey+1);
+      devices.SetUsed(corrkey+2);
+      devices.SetUsed(corrkey+3);
+    }
+  }
+
+//  Stripline BPMs (no pedestal subtraction here!)
+    for (i = 0; i < STRNUM; i++) {
+      key = STROFF + 9*i;
+      corrkey = STRCORROFF + 4*i;
+      ixp = devices.GetCorrIndex(key);
+      ixm = devices.GetCorrIndex(key+1);
+      iyp = devices.GetCorrIndex(key+2);
+      iym = devices.GetCorrIndex(key+3);
+      if (ixp < 0 || ixm < 0 || iyp < 0 || iym < 0) continue;
+      fData[corrkey]   = fData[ixp];
+      fData[corrkey+1] = fData[ixm];
+      fData[corrkey+2] = fData[iyp];
+      fData[corrkey+3] = fData[iym];
+      if (devices.IsUsed(key)) {
+	devices.SetUsed(corrkey);
+	devices.SetUsed(corrkey+1);
+	devices.SetUsed(corrkey+2);
+	devices.SetUsed(corrkey+3);
+      }
+    }
+
+// Cavity BPM monitors (when they exist) (no pedestal subtraction here!)
+  for (i = 0; i < CAVNUM; i++) {
+    for (j = 0; j < 2; j++) {
+       key = CAVOFF + 4*i + j;
+       corrkey = CAVCORROFF + 2*i;
+       if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+       idx = devices.GetCorrIndex(key);
+       if (idx < 0) continue;
+       fData[corrkey] = fData[idx];
+       if (devices.IsUsed(key)) devices.SetUsed(corrkey);
+    }
+  }
+
+// Happex-1 era BCMs (no pedestal subtraction here!)
+  for (i = 0; i < BCMNUM; i++) {
+    key = BCMOFF + 2*i;
+    corrkey = BCMCORROFF + i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCorrIndex(key);
+    if (idx < 0) continue;
+    fData[corrkey] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(corrkey);
+  }
+
+// Lumi monitors (no pedestal subtraction here!)
+  for (i = 0; i < LMINUM; i++) {
+    key = LMIOFF + 2*i;
+    corrkey = LMICORROFF + i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCorrIndex(key);
+    if (idx < 0) continue;
+    fData[corrkey] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(corrkey);
+  }
+
+// Detectors (no pedestal subtraction here!)
+  for (i = 0; i < DETNUM; i++) {
+    key = DETOFF + 2*i;
+    corrkey = DETCORROFF + i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCorrIndex(key);
+    if (idx < 0) continue;
+    fData[corrkey] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(corrkey);
+  }
+
+}
 
 void
 VaEvent::CheckEvent(TaRun& run)
@@ -1039,6 +1185,12 @@ VaEvent::AddToTree (TaDevice& devices,
 		       tinfo, 
 		       bufsize);
       }	
+};
+
+void
+VaEvent::SetCalib(Bool_t flag)
+{
+  fgCalib = flag;
 };
 
 // Private methods

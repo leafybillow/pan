@@ -1120,6 +1120,17 @@ string TaDataBase::GetCurMon() const
   return cm;
 };
 
+Bool_t TaDataBase::GetCalVar() const
+{
+// Return true if calibration variables (not pedestal subtracted) are
+// to be included in the raw data tree (default=false)
+  TaString cv = GetString ("calvar");
+  if (cv.CmpNoCase("true")==0) {
+    return kTRUE;
+  }
+  return kFALSE;
+}
+
 Double_t TaDataBase::GetValue(const string& table) const {
 // Return single value from table "table".  This assumes the data
 // are in a pair  "table   value" where table is a unique string and
@@ -1320,6 +1331,7 @@ void TaDataBase::InitDB() {
   tables.push_back("randomheli");    //  24
   tables.push_back("curmon");        //  25
   tables.push_back("qpd1const");     //  26
+  tables.push_back("calvar");        //  27
 
   pair<string, int> sipair;
   int k;
@@ -1430,6 +1442,8 @@ void TaDataBase::InitDB() {
       columns.push_back(new dtype("s"));
       columns.push_back(new dtype("d"));
     }
+    if (i == 27)    // calvar
+      columns.push_back(new dtype("s"));
 
     sipair.second = columns.size(); 
     colsize.insert(sipair);
