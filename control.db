@@ -93,7 +93,7 @@
     datamap   adc        adc7       7    0       85    adc7_1  adc7_2  adc7_3  adc7_4
     datamap   adc        adc8       8    0       91    adc8_1  adc8_2  adc8_3  adc8_4
     datamap   adc        adc9       9    0       97    adc9_1  adc9_2  adc9_3  adc9_4
-    datamap   timeboard  timeboard  0    0      106  rampdelay integtime oversample precdac 
+    datamap   timeboard  timeboard  0    0      106  tbdata rampdelay integtime oversample precdac 
     datamap   scaler     scaler1    0    0       10  scaler1_1 scaler1_2 scaler1_3 scaler1_4
     datamap   scaler     scaler1    0    4       14  scaler1_5 scaler1_6 scaler1_7 scaler1_8
     datamap   scaler     scaler1    0    8       18  scaler1_9 scaler1_10 scaler1_11 scaler1_12

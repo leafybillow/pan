@@ -5,7 +5,7 @@
 //           TaTB.cc   (implementation)
 //           ^^^^^^^
 //
-//    Authors :  R. Holmes, A. Vacheret, R. Michaels
+//    Authors :  R. Holmes, A. Vacheret, R. Michaels, K.Paschke
 //
 //    Timing board data.  
 //
@@ -26,13 +26,6 @@ TaTB::TaTB(string name) : VaDevice(name) {
 TaTB::~TaTB() {
 }
 
-void TaTB::Init(const VaDataBase& db) { 
-  VaDevice::Init(db);
-  fType  = "timeboard";
-  header = db.GetHeader(fType);
-  mask   = db.GetMask(fType);
-}
-
 TaTB::TaTB(const TaTB& rhs) : VaDevice(rhs) {
   keys = rhs.keys;
   fData = rhs.fData;
@@ -47,10 +40,29 @@ TaTB &TaTB::operator=(const TaTB &rhs) {
  return *this;
 }
     
-void TaTB::Decode(const TaEvent& event) {
-  VaDevice::Decode(event); 
+void TaTB::Init(const VaDataBase& db) { 
+  VaDevice::Init(db);
+  fType  = "timeboard";
+  keys.push_back("oversample_bin");
+  header = db.GetHeader(fType);
+  mask   = db.GetMask(fType);
 }
 
+void TaTB::Decode(const TaEvent& event) {
+  VaDevice::Decode(event); 
+  ExtractSignal(event); 
+  VaDevice::DataCopy();
+}
+
+
+void TaTB::ExtractSignal( const TaEvent& event) {
+  if (! inited) {
+    cout<<"TaTB:: ERROR: calibration not set up. Must Init(db)"<<endl;
+    fData.clear();
+    return;
+  }
+  fData["oversample_bin"]  = ((Int_t)GetData("oversample") & 0xFF00) >> 8;   // time slot in os cycle  
+};
 
 
 

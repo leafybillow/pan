@@ -30,6 +30,7 @@ class TaTB : public VaDevice {
 
     void Init(const VaDataBase& db);  // initialize Timing Board with database info
     void Decode(const TaEvent& event); // get data from database
+    void ExtractSignal( const TaEvent& event ); // extract oversample_bin from oversample
 
 
 #ifdef DICT

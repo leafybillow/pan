@@ -363,7 +363,14 @@ UInt_t TaEvent::GetEvType() const {
 };
 
 SlotNumber_t TaEvent::GetTimeSlot() const {
-  return (SlotNumber_t)GetData("timeslot");
+  // In all cases, it appears that this function has been used
+  // with the idea that it returns the value of the
+  // current oversampling period.
+  // Remember: the TIR timeslot has nothing to do with oversampling
+  // We should probably rename this function to avoid future confusion
+
+  //  return (SlotNumber_t)GetData("timeslot");  
+  return (SlotNumber_t)GetData("oversample_bin");
 };
 
 void TaEvent::SetDelHelicity(EHelicity h)
@@ -484,13 +491,15 @@ TaEvent::DumpBits (const Bool_t showEvNum = true) const
   // debugging purposes
 
   Int_t timeslot = (Int_t) GetData ("timeslot");
+  Int_t OSslot = (Int_t) GetData ("oversample_bin");
   if (showEvNum)
     cout << "Event " << GetEvNumber() << "   ";
   cout << "tirdata = 0x" << hex << (Int_t) GetData ("tirdata");  
   cout << "   helicity = " << dec << (Int_t) GetData ("helicity");
   cout << "   timeslot = " << timeslot;
   cout << "   pairsynch = " << (Int_t) GetData ("pairsynch");
-  if (timeslot == 1)
+  cout << "   oversample_slot = " << OSslot;
+  if (OSslot == 1)
     cout << " *** ";
   cout <<endl;
 }
