@@ -160,8 +160,11 @@ void TaPairFromPair::CheckSequence( VaEvent& ThisEv, TaRun& run )
   }
 #endif
 
-  ThisEv.AddCut (fgSequenceNo, val);
-  run.UpdateCutList (fgSequenceNo, val, ThisEv.GetEvNumber());
+  if (fgSequenceNo < fgNCuts)
+    {
+      ThisEv.AddCut (fgSequenceNo, val);
+      run.UpdateCutList (fgSequenceNo, val, ThisEv.GetEvNumber());
+    }
 }
 
 
