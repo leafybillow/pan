@@ -4,6 +4,35 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 22 May 2002
+-----------------------------------
+
+TaCutList.{cc,hh} TaEvent.{cc,hh} TaLabelledQuantity.hh
+TaPairFromPair.hh TaString.{hh,cc} VaPair.{cc,hh} 
+
+ o Comments for THtml
+
+TaRun.{cc,hh}
+
+ o Comments for THtml
+
+ o Remove unused or no-op functions AddCutToEvent(), AddCuts()
+
+ o Remove unused static data members fgPHYSICSMAX and fgPRESTART
+
+TaStatistics.{cc,hh}
+
+ o Comments for THtml
+
+ o Remove useless operator<<()
+
+VaAnalysis.{cc,hh}
+
+ o Comments for THtml
+
+ o Remove call to no-op (now deleted) AddCuts()" 
+
+
 Changes by R. Holmes on 21 May 2002
 -----------------------------------
 
