@@ -6,7 +6,24 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
-Ignore this line, testing.
+
+Changes by R. Holmes on 12 Dec 2002
+-----------------------------------
+
+Added a timestamp to the database.  This is filled in by the database
+creation script at start of run.  It's not yet used by anything in
+Pan, except that it's printed to clog from TaRun::Init, but it does
+allow the possibility of e.g. querying the database for runs in a
+given time period.  The format is a string "yyyy-mm-dd hh:mm:ss"
+(actually stored in the database as two strings, which are then
+concatenated in GetTimestamp()) which can be used to init a TDatime
+object; then TDatime methods can be used to convert to other
+representations, if needed.
+
+TaDataBase.{hh,cc} TaRun.cc
+
+ o Timestamp in database.
+
 
 Changes by R. Holmes on 10 Dec 2002
 -----------------------------------
