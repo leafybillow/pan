@@ -103,6 +103,7 @@ private:
   // Data members
   RunNumber_t fRunNumber;        // Number of this run
   Int_t fEventNumber;            // Number of the recently read event
+  Int_t fAccumEventNumber;       // Number of the event being accumulated
   VaDataBase* fDataBase;         // Database for this run
   TaCutList* fCutList;           // Cut list for this run
   SlotNumber_t fOversamp;        // Oversample value for this run
@@ -112,6 +113,7 @@ private:
   string fComputer;              // Computer to ask for online data
   string fSession;               // CODA session for online data
   TaEvent* fEvent;               // The most recently read event
+  TaEvent* fAccumEvent;          // Event being accumulated
   TaDevice* fDevices;            // Device map for this run
   TFile* fRootFile;              // Root file for analysis results
   TTree *fEvtree;                // Event tree for Root file

@@ -72,6 +72,7 @@ TaRun::TaRun():
   fCoda(0),
   fCodaFileName ("online"),
   fEvent(0),
+  fAccumEvent(0),
   fDevices(0),
   fRootFile(0),
   fEvtree(0),
@@ -99,6 +100,7 @@ TaRun::TaRun(const Int_t& run) :
   fCutList(0),
   fCoda(0),
   fEvent(0),
+  fAccumEvent(0),
   fDevices(0),
   fEvtree(0),
   fESliceStats(0),
@@ -119,6 +121,7 @@ TaRun::TaRun(const string& filename):
   fCoda(0),
   fCodaFileName(filename),
   fEvent(0),
+  fAccumEvent(0),
   fDevices(0),
   fEvtree(0),
   fESliceStats(0),
@@ -169,9 +172,6 @@ TaRun::Init()
   clog << "TaRun::Init Initialization for run, analyzing " 
        << fCodaFileName << endl;
   
-  fEvtree = new TTree("R","Event data DST");
-  fEvtree->Branch ("ev_num", &fEventNumber, "ev_num/I", 5000); // event number
-
   // Get first event
   // For a data file this will normally be a PRESTART event.
 
@@ -203,7 +203,7 @@ TaRun::Init()
   fDevices->Init(*fDataBase);
   fCutList = new TaCutList(fRunNumber);
   fCutList->Init(*fDataBase);
-  InitTree();
+
   fOversamp = fDataBase->GetOverSamp();
   if (fOversamp == 0)
     {
@@ -212,13 +212,27 @@ TaRun::Init()
       return fgTARUN_ERROR;
     }
 
+  if (TaEvent::RunInit(*this) != 0)
+    return fgTARUN_ERROR;
+
+  // Delete and recreate fEvent, now that we have done RunInit,
+  // so we are able to set up cut array therein;
+  // also create fAccumEvent now.
+
+  delete fEvent;
+  fEvent = new TaEvent();
+  fAccumEvent = new TaEvent();
+
   // Open the Root file
   TaFileName::Setup (fRunNumber, fDataBase->GetAnaType());
   TaFileName rootFileName ("root");
   fRootFile = new TFile(rootFileName.String().c_str(),"RECREATE");
   fRootFile->SetCompressionLevel(0);
+  fEvtree = new TTree("R","Event data DST");
+  fEvtree->Branch ("ev_num", &fAccumEventNumber, "ev_num/I", 5000); // event number
+  InitTree();
   
-  return TaEvent::RunInit(*this);
+  return fgTARUN_OK;
 
 }
  
@@ -348,6 +362,8 @@ TaRun::AccumEvent(const TaEvent& ev)
   // Update event statistics with the results in this event, if it
   // passes cuts.
 
+  fAccumEvent->CopyInPlace(ev);
+  fAccumEventNumber = fAccumEvent->GetEvNumber();
   vector<TaLabelledQuantity> lqres = ev.GetResults();
   if (fESliceStats == 0 && lqres.size() > 0)
     {
@@ -451,7 +467,7 @@ TaRun::AccumPair(const VaPair& pr)
       fSliceLimit += fgSLICELENGTH;
       if (fFirstPass)
 	{
-	  cout << "TaRun::AccumEvent(): At pair " << evr << "/" << evl
+	  cout << "TaRun::AccumPair(): At pair " << evr << "/" << evl
 	       << " of run " << fRunNumber << endl;
 	  if (fESliceStats != 0 || fPSliceStats != 0)
 	    cout << "Stats for last " << fgSLICELENGTH
@@ -542,6 +558,7 @@ TaRun::Uncreate()
   //  delete fEvtree;
   delete fCoda;
   delete fEvent;
+  delete fAccumEvent;
   delete fDataBase;
   delete fDevices;
   delete fCutList;
@@ -552,6 +569,7 @@ TaRun::Uncreate()
   fCutList = 0;
   fCoda = 0;
   fEvent = 0;
+  fAccumEvent = 0;
 }
 
 Int_t 
@@ -585,7 +603,7 @@ TaRun::InitTree() {
     cout << " fCutList before adding to tree"<<endl;
     return;
   }
-  fEvent->AddToTree(*fDevices, *fCutList, *fEvtree);
+  fAccumEvent->AddToTree(*fDevices, *fCutList, *fEvtree);
 };
 
 Int_t 
@@ -627,4 +645,5 @@ TaRun::PrintStats (const TaStatistics& s, const vector<string>& n, const vector<
 	  cout << " insufficient data" << endl;
 	}
     }
+  //  cout << *fCutList << endl;
 }
