@@ -137,7 +137,8 @@ SRC = $(LSRC) TaAnalysisManager.cc  \
       TaRun.cc  TaStandardAna.cc TaFeedbackAna.cc\
       VaAnalysis.cc VaPair.cc TaADCCalib.cc 
 
-LOBJS = $(LSRC:.cc=_NODICT.o)
+LOBJS_NODICT = $(LSRC:.cc=_NODICT.o)
+LOBJS = $(LSRC:.cc=.o)
 LHEAD = $(LSRC:.cc=.hh) 
 LHEAD += PanTypes.hh
 LHEAD += DevTypes.hh
@@ -150,6 +151,7 @@ HEAD += DevTypes.hh
 
 PROGS = pan
 PANLIBS = libpan.a
+PANLIBS_NODICT = libpan_NODICT.a
 
 # Make the dictionary
 ifdef MAKENODICTIONARY
@@ -167,6 +169,10 @@ all: $(PROGS) $(PANLIBS)
 $(PROGS): main.o $(OBJS) $(SRC) $(HEAD) 
 	rm -f $@
 	$(LD) $(CXXFLAGS) -o $@ main.o $(OBJS) $(ALL_LIBS)
+
+$(PANLIBS_NODICT): $(LOBJS_NODICT) $(LSRC) $(LHEAD)
+	rm -f $@
+	ar cr $@ $(LOBJS)
 
 $(PANLIBS): $(LOBJS) $(LSRC) $(LHEAD)
 	rm -f $@
