@@ -346,6 +346,9 @@ public:
   string GetString(const string& table) const;
 // Return cut number for name
   Cut_t GetCutNumber (TaString s) const;  
+  // Return value of checksum
+  UInt_t GetCksum () const { return fCksum; }
+
 // -------------------------------------------------
 // Put() methods to modify the database.
 // Only certain data can be modified by the analyzer,
@@ -375,6 +378,8 @@ private:
   void Mysql(string action);  // MYSQL interface (action = "read", "write")
   void PutData(string table, vector<dtype *> dvect);
   void ToRoot();
+  void LoadCksum (const string);
+
   vector<string> tables;
   multimap<string, vector<dtype*> > database;
   TaRootRep *rootdb;   // ROOT representation
@@ -390,6 +395,7 @@ private:
   Double_t *dacparam, *adcped, *scalped;
   Bool_t *fFirstgdn, *fFirstAdcPed, *fFirstScalPed;
   Int_t nbadev;
+  UInt_t fCksum;  // checksum
 
   TaDataBase(const TaDataBase &fn);
   TaDataBase& operator=(const TaDataBase &fn);

@@ -156,6 +156,9 @@ void TaDataBase::Read(int run, const vector<string>& dbcomm) {
     LoadTable(FindTable(strvect[0]), datavect);
   }
   didread = kTRUE;
+
+  LoadCksum (dbFileName.String());
+
 // Command-line over-ride
   SetDbCommand();
   ToRoot();
@@ -1521,3 +1524,20 @@ void TaDataBase::InitDataMap() {
 };
 
 
+void
+TaDataBase::LoadCksum (const string filename)
+{
+  string tfilename = filename;
+  
+  for (string::iterator i = tfilename.begin(); i != tfilename.end(); ++i)
+    if (*i == '/')
+      *i = '_';
+
+  tfilename = string ("/tmp/db_cksum_") + tfilename;
+  string ckscmd = string ("cksum ") + filename + " > " + tfilename;
+  system (ckscmd.c_str());
+
+  ifstream ifile (tfilename.c_str());
+  if (ifile != 0)
+    ifile >> fCksum;
+}
