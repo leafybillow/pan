@@ -70,6 +70,7 @@ const UInt_t VaAnalysis::fgDIFF           = 0x8;
 const UInt_t VaAnalysis::fgASY            = 0x10;
 const ErrCode_t VaAnalysis::fgVAANA_ERROR = -1;  // returned on error
 const ErrCode_t VaAnalysis::fgVAANA_OK = 0;      // returned on success
+const UInt_t VaAnalysis::fgMatrixSize     = 4;
 
 #ifdef LEAKCHECK
 UInt_t VaAnalysis::fLeakNewEvt(0);
@@ -98,13 +99,17 @@ VaAnalysis::VaAnalysis():
   fTreeSpace(0),
   fOnlFlag(0),
   fPairType(FromPair),
-  fFirstPass(true)
+  fFirstPass(true),
+  fIAslope(0),
+  fIAint(0)
 { 
   fEHelDeque.clear(); 
   fEDeque.clear(); 
   fPDeque.clear();
   fTreeList.clear();
   fEvt = new TaEvent();
+  fPZTMatrix = new Double_t[fgMatrixSize];
+  memset(fPZTMatrix, 0, fgMatrixSize*sizeof(Double_t));
 #ifdef LEAKCHECK
   ++fLeakNewEvt;
 #endif
@@ -129,6 +134,7 @@ VaAnalysis::~VaAnalysis()
   delete fPair;
   delete fPairTree;
   delete[] fTreeSpace;
+  delete[] fPZTMatrix;
 #ifdef LEAKCHECK
   ++fLeakDelEvt;
   ++fLeakDelPair;
@@ -199,6 +205,32 @@ VaAnalysis::RunIni(TaRun& run)
            << endl;
       return fgVAANA_ERROR;
     }
+
+  // Extract the feedback parameters (if doing online feedback)
+  if (fOnlFlag) {
+     vector<string> mykey;
+     vector<Double_t> dtmp;
+     mykey.clear();
+     mykey.push_back("slope");
+     mykey.push_back("int");
+     dtmp = fRun->GetDataBase().GetData("IAparam",mykey);
+     if (dtmp.size() == 2) {
+         fIAslope = dtmp[0];     
+         fIAint = dtmp[1];
+     }
+     mykey.clear();
+     mykey.push_back("M11");
+     mykey.push_back("M12");
+     mykey.push_back("M21");
+     mykey.push_back("M22");
+     dtmp = fRun->GetDataBase().GetData("PZTparam",mykey);
+     if (dtmp.size() == fgMatrixSize) {
+         for (int kk = 0; kk < (long)fgMatrixSize; kk++) {
+              fPZTMatrix[kk] = dtmp[kk];     
+	 }
+     }
+  }
+
   
   fPairTree = 0;
   fPairTree = new TTree("P","Pair data DST");
@@ -998,33 +1030,22 @@ void VaAnalysis::QasySendEPICS(){
         // CRITERIA are OK.  
       //      clog<<" fQasy and fQasy/fQasyEr :"<<fQasy<<" "<< abs(Int_t(fQasy)/(Int_t(fQasyEr)))<<endl;
       clog<<" \n             *** Pan is sending EPICS values for PC *** "<<endl;
-
-      char* thevar[2];   
-      thevar[0]= "HA:Q_ASY"; 
-      thevar[1]= "HA:DQ_ASY";   
-      char* thevalue[2];   
-      char* command[2];
-      for (Int_t i=0; i<2; i++){ 
-      thevalue[i] = new char[100];
-      command[i] = new char[100];
-      }        
-      sprintf(thevalue[0],"%6.0f",fQasy);
-      sprintf(thevalue[1],"%6.0f",fQasyEr);
-       for (Int_t i=0; i<2; i++){ 
-        sprintf(command[i],"/pathtothescript/PITAfeedback_script ");
-         strcat( command[i],thevar[i]);
-         strcat(command[i]," ");
-         strcat(command[i],thevalue[i]);
-         
-         clog << "   SHELL command = "<<command[i]<<endl;
-#ifdef ONLINE
-         //system(command[i]);
-#endif            
-         // delete thevar[i]; 
-       delete thevalue[i];  
-      delete command[i];           
-      } 
-   }
+      static char command[100],cinfo[100];
+      char *commpath;
+      commpath = getenv("EPICS_SCRIPTS");
+      if (commpath == NULL) {
+	sprintf(command,"~apar/epics");
+      } else {
+        strcpy(command,commpath);
+      }
+      strcat(command,"/epics_feedback");
+      float setpoint = 0;
+      if (fIAslope != 0) setpoint = (fQasy - fIAint)/fIAslope;
+      sprintf(cinfo," 1 %6.2f",setpoint);
+      strcat(command, cinfo);
+      clog << "Command for IA feedback "<<command<<endl;
+      system(command);
+    }
 }
 
 void VaAnalysis::PZTRunFeedback(){
@@ -1225,37 +1246,40 @@ void VaAnalysis::PZTSendEPICS(){
          abs(Int_t(fZ4Bdiff[1])/(Int_t(fZ4BdiffEr[1]))) > 2)) {
 
       clog<<" \n             *** Pan is sending EPICS values for PZT *** "<<endl;
-      char* thevar[4];   
-      thevar[0]= "HA:PZT_4BX"; 
-      thevar[1]= "HA:PZT_D4BX";   
-      thevar[2]= "HA:PZT_4BY"; 
-      thevar[3]= "HA:PZT_D4BY";   
-      char* thevalue[4];   
-      char* command[4];
-      for (Int_t i=0; i<4; i++){ 
-      thevalue[i] = new char[100];
-      command[i] = new char[100];
-      }        
-      sprintf(thevalue[0],"%6.0f",fZ4Bdiff[0]);
-      sprintf(thevalue[1],"%6.0f",fZ4BdiffEr[0]);      
-      sprintf(thevalue[2],"%6.0f",fZ4Bdiff[1]);
-      sprintf(thevalue[3],"%6.0f",fZ4BdiffEr[1]);
-       for (Int_t i=0; i<4; i++){ 
-        sprintf(command[i],"/pathtothescript/PZTfeedback_script ");
-         strcat( command[i],thevar[i]);
-         strcat(command[i]," ");
-         strcat(command[i],thevalue[i]);
-         
-         clog << "   SHELL command = "<<command[i]<<endl;
-#ifdef ONLINE
-         //system(command[i]);
-#endif            
-         // delete thevar[i]; 
-       delete thevalue[i];  
-      delete command[i];            
-       }
+      static char comm0[100],command[100],cinfo[100];
+      static Double_t pztinv[4],fdbk[2];
+      char *commpath;
+      commpath = getenv("EPICS_SCRIPTS");
+      if (commpath == NULL) {
+	sprintf(comm0,"~apar/epics");
+      } else {
+        strcpy(comm0,commpath);
+      }
+      strcat(comm0,"/epics_feedback");
+      strcpy(command,comm0);
+// Invert the matrix
+      Double_t determ = fPZTMatrix[0]*fPZTMatrix[3] - fPZTMatrix[1]*fPZTMatrix[2];
+      memset(pztinv,0,4*sizeof(Double_t));
+      if (determ != 0) {
+        pztinv[0] = fPZTMatrix[3]/determ;
+        pztinv[1] = -1*fPZTMatrix[1]/determ;
+        pztinv[2] = -1*fPZTMatrix[2]/determ;
+        pztinv[3] = fPZTMatrix[0]/determ;
+      }
+      fdbk[0] = pztinv[0]*fZ4Bdiff[0] + pztinv[1]*fZ4Bdiff[1];
+      fdbk[1] = pztinv[2]*fZ4Bdiff[0] + pztinv[3]*fZ4Bdiff[1];
+      sprintf(cinfo," 2 %6.2f",fdbk[0]);
+      strcat(command, cinfo);
+      clog << "Command for PZT X feedback :  " << command<<endl;
+      system(command);
+      sprintf(cinfo," 3 %6.2f",fdbk[1]);
+      strcpy(command,comm0);
+      strcat(command, cinfo);
+      clog << "Command for PZT Y feedback :  " << command<<endl;
+      system(command);
     }
 }
+
 
 
 void VaAnalysis::SendVoltagePZT(){

@@ -112,6 +112,7 @@ public:
   static const UInt_t fgASY;
   static const ErrCode_t fgVAANA_ERROR;  // returned on error
   static const ErrCode_t fgVAANA_OK;      // returned on success
+  static const UInt_t fgMatrixSize;
 
 protected:
 
@@ -215,6 +216,8 @@ protected:
   Double_t fZ4BRMS[2];          // feedback data
   Double_t fZ4Bdiff[2];         // feedback data
   Double_t fZ4BdiffEr[2];       // feedback data
+  Double_t fIAslope,fIAint;     // slope and intercept of IA feedback
+  Double_t *fPZTMatrix;         // PZT matrix
 
   // Define LEAKCHECK to check that new = del
 #define LEAKCHECK
