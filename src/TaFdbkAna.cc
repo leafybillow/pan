@@ -60,7 +60,7 @@ TaFdbkAna::InitChanLists ()
   // devices like TaBeamAna.
 
   // Initialize the lists of devices to analyze
-  vector<pair<string,string> > f;
+  vector<AnaList* > f;
 
   // List of channels for which to store left and right values
   fCopyList = ChanList ("tir", "helicity", "");
@@ -118,16 +118,16 @@ void TaFdbkAna::EventAnalysis()
   // Just for demo purposes for now we hard code four results, the
   // values of bcm1 and bcm2 like in TaBeamAna
   fEvt->AddResult ( TaLabelledQuantity ( "bcm1 raw",
-					 fEvt->GetData("bcm1r"), 
+					 fEvt->GetData(IBCM1R), 
 					 "chan" ) );
   fEvt->AddResult ( TaLabelledQuantity ( "bcm1",
-					 fEvt->GetData("bcm1"), 
+					 fEvt->GetData(IBCM1), 
 					 "chan" ) );
   fEvt->AddResult ( TaLabelledQuantity ( "bcm2 raw",
-					 fEvt->GetData("bcm2r"), 
+					 fEvt->GetData(IBCM2R), 
 					 "chan" ) );
   fEvt->AddResult ( TaLabelledQuantity ( "bcm2",
-					 fEvt->GetData("bcm2"), 
+					 fEvt->GetData(IBCM2), 
 					 "chan" ) );
   // put here what is needed for GUI EVENT DISPLAY
  
@@ -181,10 +181,10 @@ void TaFdbkAna::QasymRunFeedback(){
   // increment number of good pairs and store values of Qasym
   if ( !fPair->GetRight().CutStatus() && !fPair->GetLeft().CutStatus()){
     fNQpair++;
-    fQasym.push_back(fPair->GetAsy("bcm1")*1E6);
-    fQasymMean1+=fPair->GetAsy("bcm1")*1E6;
+    fQasym.push_back(fPair->GetAsy(IBCM1)*1E6);
+    fQasymMean1+=fPair->GetAsy(IBCM1)*1E6;
 #ifdef FDBK
-    clog <<" QasymRunFeedBack() compute QASYM : bcm1asy "<<fPair->GetAsy("bcm1")*1E6
+    clog <<" QasymRunFeedBack() compute QASYM : bcm1asy "<<fPair->GetAsy(IBCM1)*1E6
          <<" Npair "<<fNQpair<<" sum "<<fQasymMean1<<" current Mean "<<fQasymMean1/fNQpair<<endl; 
 #endif
   }

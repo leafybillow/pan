@@ -27,6 +27,18 @@ class TaRun;
 class TaEvent;
 class VaPair;
 
+class AnaList {
+// Utility class of variable info
+// (Rich, feel free to rewrite this; it replaces the pair<string, string>
+// in Diff lists, etc, since we needed also the integer equivalents of keys)
+public: 
+  AnaList(string svar, Int_t ivar, string sun) :
+        varstr(svar), varint(ivar), unistr(sun) { }
+  string varstr; 
+  Int_t varint;
+  string unistr;
+};
+
 class VaAnalysis
 {
   // Base class for analysis.  
@@ -86,7 +98,7 @@ protected:
   void NewPrePair();
   virtual void InitChanLists ();
   virtual void InitTree ();
-  virtual vector<pair<string,string> > ChanList (const string& devtype, 
+  virtual vector<AnaList* > ChanList (const string& devtype, 
 						 const string& channel, 
 						 const string& other);
   virtual void AutoPairAna();
@@ -109,9 +121,9 @@ protected:
   size_t fEHelDequeMax;
   size_t fEDequeMax;
   size_t fPDequeMax;
-  vector<pair<string,string> > fCopyList;
-  vector<pair<string,string> > fDiffList;
-  vector<pair<string,string> > fAsymList;
+  vector<AnaList* > fCopyList;
+  vector<AnaList* > fDiffList;
+  vector<AnaList* > fAsymList;
   TTree* fPairTree;
   Int_t fTreeREvNum; // right ev number for tree
   Int_t fTreeLEvNum; // left ev number for tree
