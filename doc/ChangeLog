@@ -10,10 +10,13 @@ Changes by R. Michaels on 7 Aug 2002
 
 To avoid "tree bloat", I modifed TaEvent::AddToTree to
 only add devices that are defined in datamap (which is
-a part of database).  This also required modifying TaDevice so 
-that it knows and can report which devices were defined.
-	
-	
+a part of database).  AddToTree calls Decode() to allow it
+to tell devices the correspondence of cooked to raw data, 
+so that cooked data are also added to tree.  This required 
+modifying TaDevice so that it can manage info about which 
+devices are to be written to tree.
+
+		
 Changes by R. Holmes on 7 Aug 2002
 -----------------------------------
 
