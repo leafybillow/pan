@@ -124,6 +124,7 @@ VaAnalysis::RunIni(TaRun& run)
   ++fLeakNewEvt;
 #endif
   NewPrePair();
+  fPrePair->RunInit();
   fPair = 0;
 
 // Define CHECKOUT if you want a printout of the database.  This might be worth
@@ -257,7 +258,6 @@ VaAnalysis::ProcessRun()
   while ( fRun->NextEvent() )
     {
       PreProcessEvt();
-      //      cout << ">>2 " << (fRun->GetEvent().CutStatus() ? "Y" : "N") << endl;
       fRun->AddCuts(); // revise cut intervals
       if ( fEDeque.size() == fEDequeMax )
 	{
@@ -546,7 +546,7 @@ VaAnalysis::InitTree ()
 			   fCopyList.size()*2+
 			   fDiffList.size()+
 			   fAsymList.size()];
-#define TREEPRINT
+  //#define TREEPRINT
 #ifdef TREEPRINT
   clog << "Adding to pair tree:" << endl;
   clog << "r_ev_num" << endl;
