@@ -1405,6 +1405,8 @@ void TaDataBase::InitDB() {
   tables.push_back("qpd1const");     //  26
   tables.push_back("calvar");        //  27
   tables.push_back("epics");         //  28
+  tables.push_back("PZTQcoupling");  //  29
+  tables.push_back("IAHallCparam");  //  30
 
   pair<string, int> sipair;
   int k;
@@ -1520,6 +1522,16 @@ void TaDataBase::InitDB() {
     if (i == 28) {  // EPICS
       for (int k=0; k < 20; k++) 
         columns.push_back(new dtype("s"));
+    }
+    if (i == 29) {   // PZT Charge Coupling slopes
+       columns.push_back(new dtype("s"));
+       columns.push_back(new dtype("d"));
+       columns.push_back(new dtype("s"));
+       columns.push_back(new dtype("d"));
+    }
+    if (i == 30) {   // Hall-C IA slope 
+       columns.push_back(new dtype("s"));
+       columns.push_back(new dtype("d"));
     }
     sipair.second = columns.size(); 
     colsize.insert(sipair);

@@ -45,6 +45,7 @@
 #define FDBK1
 //#define FDBK
 //TEST#define DB_PUT_TEST
+#define FBCALCDELTA
 
 #include "TaBlind.hh"
 #include "TaCutList.hh"
@@ -1137,7 +1138,7 @@ VaAnalysis::AutoPairAna()
 void 
 VaAnalysis::InitFeedback()
 {
-  for ( Int_t i=0;i<4;i++)
+  for ( Int_t i=0;i<5;i++)
     {
      fSwitch[i] = kFALSE;
      fNPair[i]=0;
@@ -1148,10 +1149,12 @@ VaAnalysis::InitFeedback()
      fStopPair[i]=0;
      fStartPair[i]=0;
     }
+  fPZTQcoupling=kFALSE;
   fFdbkName[0]="IA";
   fFdbkName[1]="pztX";
   fFdbkName[2]="pztY";
   fFdbkName[3]="PITA";
+  fFdbkName[3]="IAHallC";
   vector<string> mykey;
   vector<Double_t> dtmp;
 
@@ -1217,6 +1220,24 @@ VaAnalysis::InitFeedback()
      fSwitch[2] = kTRUE;
     }
 
+  if (fRun->GetDataBase().GetFdbkSwitch("IAHallC") == "on"){
+    //cout<<" IA for HallC feedback on "<<endl; 
+    fMonitor[4] =fRun->GetDataBase().GetFdbkMonitor("IAHallC");
+    fMonitorKey[4] = fRun->GetKey(fMonitor[4]);
+    //  cout<<" monitor IA HallC string :"<<fMonitor[4]<<" key :"<<fMonitorKey[4]<<endl;
+    fSwitch[4] = kTRUE;
+    fSend[4]   = kTRUE;
+    }
+
+  if (fRun->GetDataBase().GetFdbkSwitch("IAHallC") == "onc")
+    {
+      //cout<<" IA for HallC feedback compute mode "<<endl; 
+     fMonitor[4] =fRun->GetDataBase().GetFdbkMonitor("IAHallC");
+     fMonitorKey[4] = fRun->GetKey(fMonitor[4]);
+     // cout<<" monitor IA for HallC string :"<<fMonitor[4]<<" key :"<<fMonitorKey[4]<<endl;     
+     fSwitch[4] = kTRUE;
+    }
+
   //  if (fRun->GetDataBase().GetFdbkSwitch("PZT") == "X")
   //    {
   //    fSwitch[1] = kTRUE;   
@@ -1266,7 +1287,26 @@ VaAnalysis::InitFeedback()
                                           <<"  "<<fPZTMatrix[2]<<"  "<<fPZTMatrix[3]
                                           <<endl;
      }
-
+   if ((fSwitch[0]) && (fSwitch[1] || fSwitch[2]) ) 
+     {
+       mykey.clear();
+       mykey.push_back("QX");
+       mykey.push_back("QY");
+       dtmp = fRun->GetDataBase().GetData("PZTQcoupling",mykey);
+       if (dtmp.size() == 2) {
+	 fPZTQcoupling = kTRUE;
+	 for(int kk = 0; kk < 2; kk++) {
+	   fPZTQslopes[kk] = dtmp[kk];
+	 }
+	 clog << "VaAnalysis::RunIni() PZT Charge Coupling Slopes:" << endl;
+	 clog << "    QX = " <<fPZTQslopes[0] << endl;
+	 clog << "    QY = " <<fPZTQslopes[1] << endl;
+       } else {
+	 fPZTQcoupling = kFALSE;
+	 clog << "VaAnalysis::RunIni() No PZT Charge Couple Slopes indicated"
+	      << endl;
+       }
+     }
    if (fSwitch[3])
      {
       fTimeScale[3] = fRun->GetDataBase().GetFdbkTimeScale("PITA"); 
@@ -1277,6 +1317,20 @@ VaAnalysis::InitFeedback()
       if (dtmp.size() == 1) fPITAslope = dtmp[0];     
       cout << "fPITAslope = "<<fPITAslope<<endl;
      }  
+   if (fSwitch[4])
+     {
+      fTimeScale[4] = fRun->GetDataBase().GetFdbkTimeScale("IAHallC"); 
+      clog <<" VaAnalysis::RunIni() IA for HallC timescale " 
+	   << fTimeScale[4] <<endl;
+      mykey.clear();
+      mykey.push_back("slope");
+      dtmp = fRun->GetDataBase().GetData("IAHallCparam",mykey);
+      if (dtmp.size() == 1) {
+         fIAHallCslope = dtmp[0];     
+      }
+      cout << "fIAHallCslope = "<<fIAHallCslope<<endl;
+   }
+  
 }
 
 void 
@@ -1378,9 +1432,10 @@ VaAnalysis::ComputeData(EFeedbackType fdbk, UInt_t timescale, Int_t devicekey)
     fSum[fdbk].clear();
     if (fSend[fdbk]) 
       {
-       if (fdbk == IA) SendEPICS(IA,1); // 0 = voltage value; 1 = asym value 
-       if (fdbk == PITA) SendEPICS(PITA,1);
-       if (fdbk == PZTY) PZTSendEPICS(1);
+       if (fdbk == IA) SendEPICS(IA,0); // 0 = voltage value; 1 = asym value 
+       if (fdbk == PITA) SendEPICS(PITA,0);
+       if (fdbk == PZTY) PZTSendEPICS(0);
+       if (fdbk == IAHALLC) SendEPICS(IAHALLC,0); // 0 = voltage value; 1 = asym value 
       }       
        
    }// end fNPair[fdbk] >= fTimeScale[fdbk]*900 
@@ -1455,9 +1510,10 @@ VaAnalysis::ComputeLastData(EFeedbackType fdbk, UInt_t timescale, Int_t deviceke
        fNPair[fdbk] = 0;
        fSum[fdbk].clear();
        if (fSend[fdbk]) {
-          if (fdbk == IA) SendEPICS(IA,1);
-          if (fdbk == PITA) SendEPICS(PITA,1);
-          if (fdbk == PZTY) PZTSendEPICS(1);
+          if (fdbk == IA) SendEPICS(IA,0);
+          if (fdbk == PITA) SendEPICS(PITA,0);
+          if (fdbk == PZTY) PZTSendEPICS(0);
+          if (fdbk == IA) SendEPICS(IAHALLC,0);
        }       
       }  
 }
@@ -1483,7 +1539,11 @@ VaAnalysis::SendEPICS(EFeedbackType fdbk, Int_t EpicsOption)
        if (fIAslope != 0) setpoint = fLast[0] + (fResult[fdbk])/fIAslope;
        if ( EpicsOption == 0)
          {
-	  clog<<"Computing VOLTAGE value for IA:"<<endl;
+#ifdef FBCALCDELTA
+	  clog<<"Sending VOLTAGE DIFFERENCE value for IA:"<<endl<<flush;
+#else
+	  clog<<"Sending VOLTAGE value for IA:"<<endl<<flush;
+#endif
           if (fIAslope != 0) setpoint = fLast[0] + (fResult[fdbk])/fIAslope;
           sprintf(cinfo," 1 %6.2f",setpoint);
           strcat(command, cinfo);
@@ -1495,7 +1555,9 @@ VaAnalysis::SendEPICS(EFeedbackType fdbk, Int_t EpicsOption)
           sprintf(cinfo," 1 %6.2f",fResult[fdbk]);
           strcat(command, cinfo);
           clog << "Command for IA feedback "<<command<<endl;
+#ifndef FBCALCDELTA
           clog << "Voltage value for IA computed by PAN ="<<setpoint<<endl;
+#endif
          }
        if (fOnlFlag && fSend[fdbk]) system(command);
        else clog << "Command not sent because not running online"<<endl; 
@@ -1507,35 +1569,82 @@ VaAnalysis::SendEPICS(EFeedbackType fdbk, Int_t EpicsOption)
   case 2:
     break;
    
-   case 3:
+  case 3:
     // Send intensity(PITA) feedback value to EPICS
     clog<<" \n          *** Pan is sending EPICS values for "<<fFdbkName[fdbk]
+	<<" *** "<<endl;
+    GetLastSetPt(); 
+    commpath = getenv("EPICS_SCRIPTS");
+    if (commpath == NULL) sprintf(command,"~apar/epics");
+    else strcpy(command,commpath);
+    strcat(command,"/epics_feedback");
+    setpoint = 0;
+    if (fIAslope != 0) setpoint = fLast[3] + (fResult[fdbk])/fPITAslope;
+    if ( EpicsOption == 0)
+      {
+#ifdef FBCALCDELTA
+	clog<<"Sending VOLTAGE DIFFERENCE value for PITA:"<<endl<<flush;
+#else
+	clog<<"Sending VOLTAGE value for PITA:"<<endl<<flush;
+#endif
+	sprintf(cinfo," 4 %6.2f",setpoint);
+	strcat(command, cinfo);
+	clog << "Command for PITA feedback "<<command<<endl;
+      }
+    else
+      {
+	clog<<"Sending ASYMMETRY value for PITA:"<<endl<<flush;
+	sprintf(cinfo," 4 %6.2f",fResult[fdbk]);
+	strcat(command, cinfo);
+	clog << "Command for PITA feedback "<<command<<endl;
+#ifndef FBCALCDELTA
+	clog << "Voltage value for PITA computed by PAN ="<<setpoint<<endl;
+#endif
+      }
+    if (fOnlFlag && fSend[fdbk]) system(command);
+    else clog << "Command not sent because not running online or compute mode"<<endl;  
+    break;
+
+   case 4:
+    // Send intensity(IA) for HallC feedback value to EPICS
+	clog<<" \n          *** Pan is sending EPICS values for "<<fFdbkName[fdbk]
             <<" *** "<<endl;
-       GetLastSetPt(); 
+       GetLastSetPt();
        commpath = getenv("EPICS_SCRIPTS");
        if (commpath == NULL) sprintf(command,"~apar/epics");
        else strcpy(command,commpath);
        strcat(command,"/epics_feedback");
        setpoint = 0;
-       if (fIAslope != 0) setpoint = fLast[3] + (fResult[fdbk])/fPITAslope;
+       if (fIAHallCslope != 0) setpoint = fLast[4] 
+	 + (fResult[fdbk])/fIAHallCslope;
        if ( EpicsOption == 0)
          {
-	  clog<<"Sending VOLTAGE value for PITA:"<<endl;
-          sprintf(cinfo," 1 %6.2f",setpoint);
+#ifdef FBCALCDELTA
+	  clog<<"Sending VOLTAGE DIFFERENCE value for IAHallC:"<<endl<<flush;
+#else
+	  clog<<"Sending VOLTAGE value for IAHallC:"<<endl<<flush;
+#endif
+          if (fIAHallCslope != 0) setpoint = fLast[4] 
+	    + (fResult[fdbk])/fIAslope;
+          sprintf(cinfo," 5 %6.2f",setpoint);
           strcat(command, cinfo);
-          clog << "Command for PITA feedback "<<command<<endl;
+          clog << "Command for IA for HallC feedback "<<command<<endl;
 	 }
        else
          {
-	  clog<<"Sending ASYMMETRY value for PITA:"<<endl;
-          sprintf(cinfo," 1 %6.2f",fResult[fdbk]);
+	  clog<<"Computing ASYMMETRY value for IAHallC:"<<endl;
+          sprintf(cinfo," 5 %6.2f",fResult[fdbk]);
           strcat(command, cinfo);
-          clog << "Command for PITA feedback "<<command<<endl;
-          clog << "Voltage value for PITA computed by PAN ="<<setpoint<<endl;
+          clog << "Command for IAHallC feedback "<<command<<endl;
+#ifndef FBCALCDELTA
+          clog << "Voltage value for IAHallC computed by PAN ="
+	       << setpoint <<endl;
+#endif
          }
        if (fOnlFlag && fSend[fdbk]) system(command);
-       else clog << "Command not sent because not running online or compute mode"<<endl;  
+       else clog << "Command not sent because not running online"<<endl; 
     break;
+
     
   }    
 }
@@ -1552,6 +1661,10 @@ VaAnalysis::SendEPICS(EFeedbackType fdbk, Int_t EpicsOption)
 //}
 
 void VaAnalysis::GetLastSetPt() {
+
+#ifdef FBCALCDELTA
+  for(UInt_t i=0;i<5;i++) fLast[i] = 0;
+#else
   FILE *fd;
   fd = fopen("/adaqfs/halla/apar/feedback/latest.value","r");
   if (fd == NULL) {
@@ -1573,6 +1686,7 @@ void VaAnalysis::GetLastSetPt() {
   }      
     //  cout << "Check of last EPICS values "<<fLast[1]<<"  "<<fLast[2]<<"  "<<fLast[0]<<endl;
   cout << "Check of last EPICS values "<<fLast[0]<<endl;
+#endif
 }
 
 
@@ -1612,34 +1726,74 @@ void VaAnalysis::PZTSendEPICS(Int_t EpicsOption){
       if (EpicsOption == 0) 
         {
           sprintf(cinfo," 2 %6.2f",fdbk[0]);
+#ifdef FBCALCDELTA
+	  clog<<"Sending VOLTAGE DIFFERENCE value for PZTX:"<<endl<<flush;
+#else
           clog<<" Sending VOLTAGE value for PZTX "<<endl<<flush; 
+#endif
         }
       else 
         {
          sprintf(cinfo," 2 %6.2f",fResult[0]);
-         clog<<" Sending DIFFERENCE value  for PZTX "<<endl<<flush; 
+         clog<<" Sending DIFFERENCE value for PZTX "<<endl<<flush; 
         }
       strcpy(command,comm0);
       strcat(command, cinfo);
       clog << "Command for PZT X feedback :  " << command<<endl<<flush;
       if (fOnlFlag) system(command);
       else clog << "Command not sent because we are not running online"<<endl;
-
+      
       if (EpicsOption == 0) 
-       {
-        sprintf(cinfo," 2 %6.2f",fdbk[1]);
-        clog<<" Sending DIFFERENCE value  for PZTY "<<endl<<flush; 
-       }
-     else
-       { 
-         sprintf(cinfo," 2 %6.2f",fResult[1]);
-         clog<<" Sending DIFFERENCE value  for PZTY "<<endl<<flush; 
-       }
+	{
+	  sprintf(cinfo," 3 %6.2f",fdbk[1]);
+#ifdef FBCALCDELTA
+	  clog<<"Sending VOLTAGE DIFFERENCE value for PZTY:"<<endl<<flush;
+#else
+	  clog<<" Sending VOLTAGE value for PZTY "<<endl<<flush; 
+#endif
+	}
+      else
+	{ 
+	  sprintf(cinfo," 3 %6.2f",fResult[1]);
+	  clog<<" Sending DIFFERENCE value for PZTY "<<endl<<flush; 
+	}
       strcpy(command,comm0);
       strcat(command, cinfo);
       clog << "Command for PZT Y feedback :  " << command<<endl;
       if (fOnlFlag) system(command);
       else  clog << "Command not sent because we are not running online"<<endl;
+
+      if(fPZTQcoupling) {
+	Double_t IAcorrect = fLast[0] + 
+	  ((fdbk[0]-fLast[1])*fPZTQslopes[0]
+	   + (fdbk[1]-fLast[2])*fPZTQslopes[1])/fIAslope;
+	
+	if (EpicsOption == 0) 
+	  {
+	    sprintf(cinfo," 1 %6.2f",IAcorrect);
+#ifdef FBCALCDELTA
+	    clog<<"Sending VOLTAGE DIFFERENCE value for IA (PZT Q coupling):"
+		<<endl<<flush;
+#else
+	    clog<<" Sending VOLTAGE value for IA (PZT Q coupling)"
+		<<endl<<flush; 
+#endif
+	    strcpy(command,comm0);
+	    strcat(command, cinfo);
+	    clog << "Command for IA (PZT Q coupling) feedback :  " << command
+		 <<endl;
+	    if (fOnlFlag) system(command);
+	    else  clog << "Command not sent because we are not running online"
+		       <<endl;
+	  }
+	else
+	  { 
+	    // This isnt implimented for sending the asymmetry...
+	    clog <<" Dont know how to send asymmetry value for IA (PZT Q coupling).  Sorry. "
+		<<endl
+		<<flush; 
+	  }
+      }
 }
 
 
@@ -1661,6 +1815,7 @@ void VaAnalysis::ProceedFeedback()
        ComputeData(PZTY,fTimeScale[2],fMonitorKey[2]); // 41 is 'IBPM4BY' 
       } 
     if (fSwitch[3]) ComputeData(PITA,fTimeScale[3],fMonitorKey[3]); // 81 is 'IBCM1' 
+    if (fSwitch[4])  ComputeData(IAHALLC,fTimeScale[4],fMonitorKey[4]);
    }   
 }
 
@@ -1674,6 +1829,7 @@ void VaAnalysis::ProceedLastFeedback()
      ComputeLastData(PZTY,fTimeScale[2],fMonitorKey[2]); 
    }  
  if (fSwitch[3]) ComputeLastData(PITA,fTimeScale[3],fMonitorKey[3]);     
+ if (fSwitch[4]) ComputeLastData(IAHALLC,fTimeScale[4],fMonitorKey[4]);
 }
 
 

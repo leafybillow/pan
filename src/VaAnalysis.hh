@@ -279,30 +279,32 @@ protected:
   Int_t fRunNum;                // current run number 
   
   // new feedback code 
-  // array of size 4 is used for feedback type: 1 is IA,2 is PZTX,3 is PZTY, 4 is PITA.
+  // array of size 5 is used for feedback type: 1 is IA,2 is PZTX,3 is PZTY, 4 is PITA, 5 is IAHALLC.
   
-  string fFdbkName[4];           // Feedback name
-  string fMonitor[4];            // Current/postion Monitor name used for feedback                  
-  Bool_t fSwitch[4];             // Enable compute vlaue for feedback
-  Bool_t fSend[4];               // Enable send voltage value for feedback 
-  UInt_t fTimeScale[4];          // Timescale of feedback
-  UInt_t fMonitorKey[4];      // Current/position Monitor key   
-  UInt_t fNPair[4];              // Number of pair for type i feedback  
-  Int_t  fStartPair[4];          // Feedback pair start 
-  Int_t  fStopPair[4];           // IA feedback pair stop
-  Int_t  fFeedNum[4];            // feedback number
-  vector<Double_t> fSum[4];      // Sum of value for feedback i 
-  Double_t fMean1[4];            // Feedback Mean value 1st pass  
-  Double_t fMean2[4];            // Feedback Mean value 2st pass  
-  Double_t fRMS[4];              // Feedback RMS
-  Double_t fResult[4];           // (asy or diff) result for feedback i  
-  Double_t fResultError[4];      // (asy or diff) result error for feedback i 
+  string fFdbkName[5];           // Feedback name
+  string fMonitor[5];            // Current/postion Monitor name used for feedback                  
+  Bool_t fSwitch[5];             // Enable compute vlaue for feedback
+  Bool_t fSend[5];               // Enable send voltage value for feedback 
+  UInt_t fTimeScale[5];          // Timescale of feedback
+  UInt_t fMonitorKey[5];      // Current/position Monitor key   
+  UInt_t fNPair[5];              // Number of pair for type i feedback  
+  Int_t  fStartPair[5];          // Feedback pair start 
+  Int_t  fStopPair[5];           // IA feedback pair stop
+  Int_t  fFeedNum[5];            // feedback number
+  vector<Double_t> fSum[5];      // Sum of value for feedback i 
+  Double_t fMean1[5];            // Feedback Mean value 1st pass  
+  Double_t fMean2[5];            // Feedback Mean value 2st pass  
+  Double_t fRMS[5];              // Feedback RMS
+  Double_t fResult[5];           // (asy or diff) result for feedback i  
+  Double_t fResultError[5];      // (asy or diff) result error for feedback i 
   Double_t fIAslope;             // IA feedback calibration slope
+  Double_t fIAHallCslope;        // IA feedback calibration slope for Hall-C
   Double_t fPITAslope;           // PITA feedback calibration slope
   Double_t *fPZTMatrix;          // PZT matrix
-  Double_t fLast[4];              // Last value of the voltage for feeback i  
+  Double_t fLast[5];              // Last value of the voltage for feeback i  
   UInt_t fCurMon;                // Index for current monitor for normalization
-
+  Bool_t fPZTQcoupling;          // Enable correction for PZT Q coupling
+  Double_t fPZTQslopes[2];       // PZT Q coupling slopes
 
   // Define LEAKCHECK to check that new = del
   //#define LEAKCHECK
