@@ -151,9 +151,10 @@ void TaEvent::Decode(const TaDevice& devices) {
         fgFirstDecode = false;
     }
     if ( fgSizeConst != (UInt_t)GetEvLength() ) {
-        cerr << "TaEvent:: WARNING: Event structure is changing !!"<<endl;
+        cerr << "TaEvent:: FATAL ERROR: Event structure is changing !!"<<endl;
 	cerr << "Size was " << fgSizeConst << " now is " << (UInt_t)GetEvLength() << endl;
-        cerr << "As a result, decoding may fail."<<endl;
+        cerr << "As a result, decoding will fail."<<endl;
+        exit(0);  // This should never happen, but if it does Bob needs to fix some stuff !
     }
   }
   for (i = 0; i < devices.GetNumRaw(); i++) {
