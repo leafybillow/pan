@@ -41,7 +41,7 @@ ifeq ($(OSNAME),SunOS)
    ET_AC_FLAGS = -D_REENTRANT -D_POSIX_THREAD_SEMANTICS
    ET_CFLAGS = -mt -fast -xO5 -KPIC $(ET_AC_FLAGS) -DSUNVERS
 # Typically CODA is an environment variable,e.g.
-#   CODA = /adaqfs/coda/2.2
+#   CODA = /adaqfs/coda/2.2.1
    LIBET = $(CODA)/SunOS/lib/libet.so
    ONLIBS = $(LIBET) -lposix4 -lnsl -lsocket -lresolv
    LIBS = $(GLIB)
@@ -65,7 +65,7 @@ ifeq ($(OSNAME),Linux)
    ET_AC_FLAGS = -D_REENTRANT -D_POSIX_PTHREAD_SEMANTICS
    ET_CFLAGS = -02 -fPIC -I. $(ET_AC_FLAGS) -DLINUXVERS
 # Typically CODA is an environment variable,e.g.
-#   CODA = /adaqfs/coda/2.2
+#   CODA = /adaqfs/coda/2.2.1
    LIBET = $(CODA)/Linux/lib/libet.so
    ONLIBS = $(LIBET) -lieee -lpthread -ldl -lresolv
    LIBS = $(GLIBS) $(ROOTLIBS) $(ROOTGLIBS)
@@ -103,11 +103,14 @@ endif
 # libz.so is a compression library used by libMySQL.so
 # and can be found at CUE in /apps/lib/
 #
+# libDBTools.a is created in ../pandb/DBTools/
+#
 
 ifdef MYSQLDB
 MYSQL_INCLUDE = /apps/mysql/PRO/include/mysql
-INCLUDES      +=-I$(MYSQL_INCLUDE) 
-MYSQL_LIBS    = $(ROOTSYS)/lib/libMySQL.so /apps/lib/libz.so 
+INCLUDES      +=-I$(MYSQL_INCLUDE) -I../pandb/DBTools
+MYSQL_LIBS     = $(ROOTSYS)/lib/libMySQL.so /apps/lib/libz.so \
+                 libDBTools.a
 ALL_LIBS += $(MYSQL_LIBS)
 endif
 
@@ -129,8 +132,9 @@ endif
 DEPS = $(SRC:.cc=.d)
 OBJS = $(SRC:.cc=.o)
 DEP  = $(SRC:.cc=.d)
-HEAD = $(SRC:.cc=.hh)
+HEAD = $(SRC:.cc=.hh) 
 HEAD += PanTypes.hh
+
 
 ifdef ONLINE
   SRC += THaEtClient.cc
