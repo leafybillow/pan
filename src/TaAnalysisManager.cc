@@ -107,15 +107,22 @@ TaAnalysisManager::End()
   fRootFile->Write();
   fRootFile->Close();
   // Move the generic root file to 'pan_%d.root' where %d is the run number.
-  char syscommand[50];
+  char syscommand[200];
   string anatype;
   anatype = fRun->GetDataBase()->GetAnaType();
-  sprintf(syscommand,"mv pan.root pan_%d.root",fRun->GetRunNumber());
+  char *path;
+  path = getenv("ROOT_OUTPUT");
+  if (path == NULL) {
+    sprintf(syscommand,"mv pan.root pan_%d.root",fRun->GetRunNumber());
+  } else {
+    sprintf(syscommand,"mv %s/pan.root %s/pan_%d.root",path,path,fRun->GetRunNumber());
+  }
   system(syscommand);
 
   delete fAnalysis;
   delete fRun;
   delete fRootFile;
+  return;
 }
 
 
@@ -128,7 +135,16 @@ TaAnalysisManager::InitCommon()
   // Common setup for overall management of analysis
 
   // Make the ROOT output file, generic at first since we don't know run number yet.
-  fRootFile = new TFile("pan.root","RECREATE");
+
+  char rootfile[50];
+  char *path;
+  path = getenv("ROOT_OUTPUT");
+  if (path == NULL) {
+    sprintf(rootfile,"pan.root");
+  } else {
+    sprintf(rootfile,"%s/pan.root",path);
+  }
+  fRootFile = new TFile(rootfile,"RECREATE");
 
   // Initialize the run
   fRun->Init();
