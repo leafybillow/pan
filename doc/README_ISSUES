@@ -1,3 +1,10 @@
+Comments by R. Holmes, 7 Aug 2002
+----------------------------------
+
+Quadsynch needs to be loaded in TaEvent::Load once that signal exists
+in hardware.
+
+
 Comments by R. Holmes, 30 Jul 2002
 ----------------------------------
 
