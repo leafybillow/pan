@@ -41,6 +41,9 @@ void prompt (UInt_t run, UInt_t batch)
       ps->PutMonDDDiff("bpm4ax", "bpm4bx", *tt, "ok_cut");
       ps->PutMonDDDiff("bpm4ay", "bpm4by", *tt, "ok_cut");
       
+      ps->PutDetAsymn("flumi1", *tt, "ok_cut");
+      ps->PutDetAsymn("flumi2", *tt, "ok_cut");
+
       ps->PutDetAsymn("blumi1", *tt, "ok_cut");
       ps->PutDetAsymn("blumi2", *tt, "ok_cut");
       ps->PutDetAsymn("blumi3", *tt, "ok_cut");
@@ -53,7 +56,9 @@ void prompt (UInt_t run, UInt_t batch)
       ps->PutDetAsymn("blumi_sum", *tt, "ok_cut");
 
       ps->PutDetAsymn("det1", *tt, "ok_cut");
+      ps->PutDetAsymn("det2", *tt, "ok_cut");
       ps->PutDetAsymn("det3", *tt, "ok_cut");
+      ps->PutDetAsymn("det4", *tt, "ok_cut");
       ps->PutDetAsymn("det_lo", *tt, "ok_cut");
       
       ps->Print();
