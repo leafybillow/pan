@@ -106,6 +106,7 @@ VaAnalysis::VaAnalysis():
   fTreeMEvNum(0),
   fTreeOKCond(0),
   fTreeOKCut(0),
+  fTreeOKCCut(0),
   fTreePrevROHel(-1),
   fTreePrevHel(-1),
   fTreeSpace(0),
@@ -751,6 +752,7 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
   clog << "m_ev_num" << endl;
   clog << "ok_cond"  << endl;
   clog << "ok_cut"   << endl;
+  clog << "ok_cutC"   << endl;
   clog << "prev_hel"   << endl;
   clog << "prev_readout_hel"   << endl;
 #endif
@@ -759,6 +761,7 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
   fPairTree->Branch ("m_ev_num", &fTreeMEvNum, "m_ev_num/D",  bufsize); 
   fPairTree->Branch ("ok_cond",  &fTreeOKCond, "ok_cond/I",   bufsize); 
   fPairTree->Branch ("ok_cut",   &fTreeOKCut,  "ok_cut/I",    bufsize); 
+  fPairTree->Branch ("ok_cutC",  &fTreeOKCCut, "ok_cutC/I",   bufsize); 
   fPairTree->Branch ("prev_hel", &fTreePrevHel, "prev_hel/I", bufsize); 
   fPairTree->Branch ("prev_readout_hel", &fTreePrevROHel, "prev_readout_hel/I", bufsize); 
   
@@ -976,6 +979,7 @@ VaAnalysis::AutoPairAna()
 		     fPair->GetLeft().GetEvNumber())*0.5;
       fTreeOKCond = (fPair->PassedCuts() ? 1 : 0);
       fTreeOKCut  = (fPair->PassedCutsInt(fRun->GetCutList()) ? 1 : 0);
+      fTreeOKCCut = (fPair->PassedCCutsInt(fRun->GetCutList()) ? 1 : 0);
       EHelicity proh = fPair->GetFirst().GetPrevROHelicity();
       fTreePrevROHel = (proh == RightHeli) ? 0 : ((proh == LeftHeli) ? 1 : -1);
       EHelicity ph = fPair->GetFirst().GetPrevHelicity();
@@ -1816,17 +1820,20 @@ void VaAnalysis::SendVoltagePZT(){
 
 void VaAnalysis::ProceedFeedback()
 {
- if ( fPair->PassedCuts() && fPair->PassedCutsInt(fRun->GetCutList()) )
-   {
-    if (fSwitch[0])  ComputeData(IA,fTimeScale[0],fMonitorKey[0]);   // 81 is 'IBCM1'
-    if (fSwitch[1] || fSwitch[2]) 
-      {
-       ComputeData(PZTX,fTimeScale[1],fMonitorKey[1]); // 41 is 'IBPM4BX' 
-       ComputeData(PZTY,fTimeScale[2],fMonitorKey[2]); // 41 is 'IBPM4BY' 
-      } 
-    if (fSwitch[3]) ComputeData(PITA,fTimeScale[3],fMonitorKey[3]); // 81 is 'IBCM1' 
-    if (fSwitch[4])  ComputeData(IAHALLC,fTimeScale[4],fMonitorKey[4]);
-   }   
+  if ( fSwitch[4] && fPair->PassedCCutsInt(fRun->GetCutList()) ) {
+    ComputeData(IAHALLC,fTimeScale[4],fMonitorKey[4]);
+  }
+  
+  if ( fPair->PassedCuts() && fPair->PassedCutsInt(fRun->GetCutList()) )
+    {
+      if (fSwitch[0])  ComputeData(IA,fTimeScale[0],fMonitorKey[0]);   // 81 is 'IBCM1'
+      if (fSwitch[1] || fSwitch[2]) 
+	{
+	  ComputeData(PZTX,fTimeScale[1],fMonitorKey[1]); // 41 is 'IBPM4BX' 
+	  ComputeData(PZTY,fTimeScale[2],fMonitorKey[2]); // 41 is 'IBPM4BY' 
+	} 
+      if (fSwitch[3]) ComputeData(PITA,fTimeScale[3],fMonitorKey[3]); // 81 is 'IBCM1' 
+    }   
 }
 
 void VaAnalysis::ProceedLastFeedback()

@@ -404,6 +404,14 @@ VaPair::PassedCutsInt(const TaCutList& cl) const
   return ( cl.OK(GetLeft()) && cl.OK(GetRight()) );
 }
 
+Bool_t 
+VaPair::PassedCCutsInt(const TaCutList& cl) const
+{
+// True if neither event is in cut interval (for hall C)
+
+  return ( cl.OKC(GetLeft()) && cl.OKC(GetRight()) );
+}
+
 const vector<TaLabelledQuantity>& 
 VaPair::GetResults() const
 {

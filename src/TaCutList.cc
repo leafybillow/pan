@@ -138,9 +138,10 @@ TaCutList::Init(const TaDataBase& db)
 	     << " found in database -- ignoring" << endl;
     }
 
-  // Store the cut type for lobeamc
-
+  // Store some selected beam cut types
   fLoBeamCNo = db.GetCutNumber (TaString ("Low_beam_c"));
+  fLoBeamNo  = db.GetCutNumber (TaString ("Low_beam"));
+  fBurpNo    = db.GetCutNumber (TaString ("Beam_burp"));
 
 }
 
@@ -158,6 +159,26 @@ TaCutList::OK (const VaEvent& ev) const
     {
       if (c->GetCut() != fLoBeamCNo &&
 	  c->Inside(ev, fLowExtension[c->GetCut()], fHighExtension[c->GetCut()]) && 
+	  c->GetVal() != 0)
+	oksofar = false;
+    }
+    return oksofar;
+}
+
+Bool_t 
+TaCutList::OKC (const VaEvent& ev) const   
+{
+  // Return true if event not in any cut interval of this list which
+  // has nonzero value.  This is for hall C only.
+
+  Bool_t oksofar = true;
+  for (vector<TaCutInterval>::const_iterator c = fIntervals->begin();
+       oksofar && (c != fIntervals->end()); 
+       ++c )
+    {
+      if (c->GetCut() != fLoBeamNo && c->GetCut() != fBurpNo &&
+	  c->Inside(ev, fLowExtension[c->GetCut()], 
+		    fHighExtension[c->GetCut()]) && 
 	  c->GetVal() != 0)
 	oksofar = false;
     }

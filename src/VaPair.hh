@@ -57,6 +57,7 @@ public:
   Double_t GetAsyAve (vector<Int_t>, vector<Double_t> = vector<Double_t>(0)) const;
   Bool_t PassedCuts() const; // True if neither event has cut condition
   Bool_t PassedCutsInt(const TaCutList& cl) const; // True if neither event is in cut interval
+  Bool_t PassedCCutsInt(const TaCutList& cl) const; // True if neither event is in cut interval (hallC)
   const vector<TaLabelledQuantity>& GetResults() const;
   
 protected:

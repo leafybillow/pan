@@ -52,6 +52,7 @@ public:
   // Major functions
   void Init(const TaDataBase&);
   Bool_t OK (const VaEvent&) const;  // True if event not in any cut interval
+  Bool_t OKC (const VaEvent&) const;  // True if event not in any cut interval (hallC)
   vector<pair<Cut_t,Int_t> > CutsFailed (const VaEvent&) const; // Cuts failed by event
   void UpdateCutInterval (const Cut_t, const Int_t, const EventNumber_t);  // Update interval for this cut type
   void AddExtension (const Cut_t, const UInt_t, const UInt_t);  // Add extensions to list
@@ -82,7 +83,9 @@ private:
   vector<UInt_t> fTally;             // tally of cut condition failures
   vector<string> fCutNames;          // names of cuts
   static const size_t fgMaxEvent = 1000000; // Probably should be available from VaEvent, really
-  Cut_t fLoBeamCNo;                  // cut number for low beam C
+  Cut_t fLoBeamCNo;                  // cut number for hallC low beam
+  Cut_t fLoBeamNo;                   // cut number for low beam 
+  Cut_t fBurpNo;                     // cut number for burp beam
 
 #ifndef NODICT
   ClassDef(TaCutList, 0)   // List of cuts
