@@ -60,14 +60,13 @@ class TaEvent;
 class VaPair;
 class AnaList {
 // Utility class of variable info
-// (Rich, feel free to rewrite this; it replaces the pair<string, string>
-// in Diff lists, etc, since we needed also the integer equivalents of keys)
 public: 
-  AnaList(string svar, Int_t ivar, string sun) :
-        varstr(svar), varint(ivar), unistr(sun) { }
-  string varstr; 
-  Int_t varint;
-  string unistr;
+  AnaList(string svar, Int_t ivar, string sun, UInt_t iflag) :
+        fVarStr(svar), fVarInt(ivar), fUniStr(sun), fFlagInt(iflag) { }
+  string fVarStr; 
+  Int_t fVarInt;
+  string fUniStr;
+  UInt_t fFlagInt;
 };
 
 class VaAnalysis
@@ -104,6 +103,13 @@ public:
   // Data access functions
   size_t PairsLeft() const { return fPDeque.size(); }
 
+  // Constants
+  static const UInt_t fgNO_STATS;
+  static const UInt_t fgNO_BEAM_NO_ASY;
+  static const UInt_t fgCOPY;
+  static const UInt_t fgDIFF;
+  static const UInt_t fgASY;
+
 protected:
 
   // Protected member functions
@@ -130,8 +136,9 @@ protected:
   virtual void InitChanLists ();
   virtual void InitTree ();
   virtual vector<AnaList* > ChanList (const string& devtype, 
-						 const string& channel, 
-						 const string& other);
+				      const string& channel, 
+				      const string& other,
+				      const UInt_t flags = 0);
   virtual void AutoPairAna();
 
   virtual void QasyRunFeedback();
@@ -162,9 +169,7 @@ protected:
   size_t fEHelDequeMax;         // Max size of helicity delay event deque
   size_t fEDequeMax;            // Max size of cut delay event deque
   size_t fPDequeMax;            // Max size of cut delay pair deque
-  vector<AnaList* > fCopyList;  // Quantities to copy to the pair tree
-  vector<AnaList* > fDiffList;  // Quantities to have difference in pair tree
-  vector<AnaList* > fAsymList;  // Quantities to have asymmetry in pair tree
+  vector<AnaList* > fTreeList;  // Quantities to put in the pair results and pair tree
   TTree* fPairTree;             // Pair tree for Root file
   Int_t fTreeREvNum;            // Right ev number for tree
   Int_t fTreeLEvNum;            // Left ev number for tree
