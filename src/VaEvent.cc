@@ -457,9 +457,27 @@ void VaEvent::Decode(TaDevice& devices) {
     if (devices.IsUsed(key)) devices.SetUsed(key+1);
   }
 
-  fData[IQUADSYNCH] = (Double_t)(((int)GetData(ITIRDATA) & 0x20) >> 5);
-  fData[IHELICITY] = (Double_t)(((int)GetData(ITIRDATA) & 0x40) >> 6);
-  fData[IPAIRSYNCH] = (Double_t)(((int)GetData(ITIRDATA) & 0x80) >> 7);
+  // Helicity signals
+  for (i = 0; i < TIRNUM; i++) {
+    key = TIROFF + i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    // Quadsynch
+    fData[QUDOFF + i] = (Double_t)(((int)GetData(key) & 0x20) >> 5);
+    // Helicity
+    fData[HELOFF + i] = (Double_t)(((int)GetData(key) & 0x40) >> 6);
+    // Pairsynch
+    fData[PAROFF + i] = (Double_t)(((int)GetData(key) & 0x80) >> 7);
+    if (devices.IsUsed(key)) {
+      devices.SetUsed(QUDOFF + i);
+      devices.SetUsed(HELOFF + i);
+      devices.SetUsed(PAROFF + i);
+    }
+  }
+
+  // Old scheme for getting helicity.  Save it just in case I messed up.
+  //   fData[IQUADSYNCH] = (Double_t)(((int)GetData(ITIRDATA) & 0x20) >> 5);
+  //   fData[IHELICITY] = (Double_t)(((int)GetData(ITIRDATA) & 0x40) >> 6);
+  //   fData[IPAIRSYNCH] = (Double_t)(((int)GetData(ITIRDATA) & 0x80) >> 7);
 
 //  // Correction for inverted Pairsynch polarity
 //    Int_t fakeps = (((int)GetData(ITIRDATA) & 0x80) >> 7);
@@ -481,12 +499,13 @@ void VaEvent::Decode(TaDevice& devices) {
 //         << " " << fData[IQUADSYNCH]
 //         << " " << fData[ITIMESLOT] << endl;
 
-// Remember to set the "used" flag (to use for root output).
-  if (devices.IsUsed(ITIRDATA)) {  
-     devices.SetUsed(IHELICITY);
-     devices.SetUsed(IPAIRSYNCH); 
-     devices.SetUsed(IQUADSYNCH); 
-  }
+  // Old scheme for getting helicity.  Save it just in case I messed up.
+  // Remember to set the "used" flag (to use for root output).
+  //   if (devices.IsUsed(ITIRDATA)) {  
+  //      devices.SetUsed(IHELICITY);
+  //      devices.SetUsed(IPAIRSYNCH); 
+  //      devices.SetUsed(IQUADSYNCH); 
+  //   }
   if (devices.IsUsed(IOVERSAMPLE)) devices.SetUsed(ITIMESLOT);
 
 };
