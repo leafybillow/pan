@@ -1172,7 +1172,9 @@ void OnlineGUI::TreeDraw(vector <TString> command) {
     errcode = fRootTree[iTree]->Draw(var,cut,drawopt,
 				     1000000000,fTreeEntries[iTree]);
     TObject *hobj = (TObject*)gROOT->FindObject("htemp");
-    if(errcode!=0) {
+    if(errcode==-1) {
+      BadDraw(var+" not found");
+    } else if (errcode!=0) {
       if(!command[3].IsNull()) {
 	TH1* thathist = (TH1*)hobj;
 	thathist->SetTitle(command[3]);
