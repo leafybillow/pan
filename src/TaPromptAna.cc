@@ -145,22 +145,22 @@ TaPromptAna::InitChanLists ()
   vector<Double_t> wts(0);
 
   keys.push_back(IDET1);  keys.push_back(IDET2);
-  fTreeList.push_back (AnaList ("det-l", keys, wts, "ppm", 
+  fTreeList.push_back (AnaList ("det_l", keys, wts, "ppm", 
 				fgNO_BEAM_NO_ASY + fgASYN));
   keys.clear(); keys.push_back(IDET3);  keys.push_back(IDET4);
-  fTreeList.push_back (AnaList ("det-r", keys, wts, "ppm", 
+  fTreeList.push_back (AnaList ("det_r", keys, wts, "ppm", 
 				fgNO_BEAM_NO_ASY + fgASYN));
   keys.clear(); keys.push_back(IDET1);  keys.push_back(IDET3);
-  fTreeList.push_back (AnaList ("det-lo", keys, wts, "ppm", 
+  fTreeList.push_back (AnaList ("det_lo", keys, wts, "ppm", 
 				fgNO_BEAM_NO_ASY + fgASYN));
   keys.clear(); keys.push_back(IDET2);  keys.push_back(IDET4);
-  fTreeList.push_back (AnaList ("det-hi", keys, wts, "ppm", 
+  fTreeList.push_back (AnaList ("det_hi", keys, wts, "ppm", 
 				fgNO_BEAM_NO_ASY + fgASYN));
   keys.clear(); keys.push_back(IDET1);  keys.push_back(IDET2);
   keys.push_back(IDET3);  keys.push_back(IDET4);
-  fTreeList.push_back (AnaList ("det-all", keys, wts, "ppm", 
+  fTreeList.push_back (AnaList ("det_all", keys, wts, "ppm", 
 				fgNO_BEAM_NO_ASY + fgASYN));
-  fTreeList.push_back (AnaList ("det-ave", keys, wts, "ppm", 
+  fTreeList.push_back (AnaList ("det_ave", keys, wts, "ppm", 
 				fgNO_BEAM_NO_ASY + fgASYN + fgAVE));
 
 }
