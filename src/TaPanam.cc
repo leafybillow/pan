@@ -224,8 +224,8 @@ Int_t TaPanam::CheckOptionConfig()
      fShowFDBK =kTRUE;
      fPZT      =kTRUE;
     }
- if (fDITHCheck[0]->GetState() == kButtonDown) fShowDITH = kTRUE;
- if (fDITHCheck[1]->GetState() == kButtonDown) fShowDITH = kTRUE;
+ // if (fDITHCheck[0]->GetState() == kButtonDown) fShowDITH = kTRUE;
+ // if (fDITHCheck[1]->GetState() == kButtonDown) fShowDITH = kTRUE;
 
  return 1;
 }
@@ -275,7 +275,7 @@ Int_t TaPanam::CheckCanvasConfig()
   for (Int_t i=0; i<2; i++)
    {
      if (fFCurCheck[i]->GetState()     == kButtonDown)   fShowFDBK  == kTRUE;
-     if (fDITHCheck[i]->GetState()     == kButtonDown)   fShowDITH  == kTRUE;
+     //     if (fDITHCheck[i]->GetState()     == kButtonDown)   fShowDITH  == kTRUE;
    }
   for (Int_t i=0; i<4; i++)
    {
@@ -355,13 +355,13 @@ Int_t TaPanam::HandleCheckButton(Long_t parm1)
     case 40:  CheckChoice2(fADCOptCheck[5],fADCOptCheck[6],fADCSCorH);  break;
 
       // BCM folder
-    case 41:  UpdateDevListWithButton(fInjBPMWSCheck[0],string("bpmin1ws"),2); break;
-    case 42:  UpdateDevListWithButton(fInjBPMWSCheck[1],string("bpmin2ws"),2); break;
+      //    case 41:  UpdateDevListWithButton(fInjBPMWSCheck[0],string("bpmin1ws"),2); break;
+      //    case 42:  UpdateDevListWithButton(fInjBPMWSCheck[1],string("bpmin2ws"),2); break;
     case 43:  UpdateDevListWithButton(fBCMCheck[0],string("bcm1"),2); break;
     case 44:  UpdateDevListWithButton(fBCMCheck[1],string("bcm2"),2); break;
     case 45:  UpdateDevListWithButton(fBCMCheck[2],string("bcm3"),2); break;
-    case 50:  UpdateDevListWithButton(fBCMCavCheck[0],string("bcmcav1"),2); break;
-    case 51:  UpdateDevListWithButton(fBCMCavCheck[1],string("bcmcav2"),2); break;
+      //    case 50:  UpdateDevListWithButton(fBCMCavCheck[0],string("bcmcav1"),2); break;
+      //    case 51:  UpdateDevListWithButton(fBCMCavCheck[1],string("bcmcav2"),2); break;
     case 52:  DisplayThis(fBCMDCheck[0],fShowBCM);   break;
     case 53:  DisplayThis(fBCMDCheck[1],fShowBCMCAV); break;
     case 54:  CheckChoice3(fBCMDispCheck[0],fBCMDispCheck[1],fBCMDispCheck[2],fBCMplot);break;
@@ -378,8 +378,8 @@ Int_t TaPanam::HandleCheckButton(Long_t parm1)
     case 75:  UpdateBPMListWithButton(fBPMCheck[3],string("bpm4a"),2); break;
     case 76:  UpdateBPMListWithButton(fBPMCheck[4],string("bpm4b"),2); break;
     case 77:  break;
-    case 78:  UpdateBPMListWithButton(fBPMCavCheck[0],string("bpmcav1"),2); break;
-    case 79:  UpdateBPMListWithButton(fBPMCavCheck[1],string("bpmcav2"),2); break;
+      //    case 78:  UpdateBPMListWithButton(fBPMCavCheck[0],string("bpmcav1"),2); break;
+      //    case 79:  UpdateBPMListWithButton(fBPMCavCheck[1],string("bpmcav2"),2); break;
     case 80:  DisplayThis(fBPMDCheck[0],fShowINBPM); break;
     case 81:  DisplayThis(fBPMDCheck[1],fShowBPM); break;
     case 82:  DisplayThis(fBPMDCheck[2],fShowBPMCAV); break;
@@ -428,7 +428,7 @@ Int_t TaPanam::HandleMenuBar(Long_t parm1)
         fAnaMan = new TaAnalysisManager();
         //cout<<"sending list to analyzer"<<endl;
         if (InitListOfAllPlots()) cout<<" InitListOfAllPlots() : Device list filled "<<endl;
-        fAnaMan->SetMonitorList(fAllDeviceList);
+        fAnaMan->SetMonitorList(fAllDeviceList); 
         if (CheckOptionConfig()) cout<<" CheckOptionConfig() : User Config Initialized "<<endl;
         //DumpOptionState();           
 #ifdef CODAFILETEST 
@@ -1499,7 +1499,7 @@ Int_t TaPanam::InitCanvasPads()
   UpdateCanDITH();
   UpdateCanvas("LUMI",fLUMIidx,3,kFALSE); 
   //InitGraphs(1);
- InitGraphs(2);
+  //InitGraphs(2);
  return 1;
 }
 
@@ -1517,7 +1517,7 @@ Int_t TaPanam::UpdatePads()
  UpdateCanDITH(); 
  UpdateCanvas("LUMI",fLUMIidx,3,kFALSE); 
   //UpdateGraphs(1);
- UpdateGraphs(2);
+ //UpdateGraphs(2);
   return 1;
 }
 
