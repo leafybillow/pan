@@ -90,24 +90,32 @@ TaBeamAna::InitChanLists ()
   // Initialize the lists of devices to analyze
   vector<AnaList> f;
 
-  // List of channels for which to store left and right values
-  fTreeList = ChanList ("tir", "helicity", "", fgNO_STATS + fgCOPY);
-  f = ChanList ("tir", "pairsynch", "", fgNO_STATS + fgCOPY);
+  // Channels for which to store left and right values
+  fTreeList = ChanListFromName ("helicity", "", fgNO_STATS + fgCOPY);
+  f = ChanListFromName ("pairsynch", "", fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanListFromName ("batt", "chan", fgNO_STATS + fgCOPY);
+  f = ChanListFromName ("timeslot", "", fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  fTreeList.push_back (AnaList("timeslot", 
-			       fRun->GetKey("timeslot"), 
-			       "", 
-			       fgNO_STATS + fgCOPY));
+  f = ChanListFromName ("pitadac", "", fgNO_STATS + fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("batt", "~", "chan", fgNO_STATS + fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("bpm", "~x", "mm", fgNO_STATS + fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("bpm", "~y", "mm", fgNO_STATS + fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("bcm", "~", "chan", fgNO_STATS + fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
-  // List of channels for which to store differences
+  // Channels for which to store differences
+  f = ChanList ("batt", "~", "mchan", fgDIFF);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("bpm", "~x", "um", fgDIFF);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("bpm", "~y", "um", fgDIFF);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
-  // List of channels for which to store asymmetries
+  // Channels for which to store asymmetries
   f = ChanList ("bcm", "~", "ppm", fgNO_BEAM_NO_ASY + fgASY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
