@@ -162,10 +162,11 @@ public:
   // Data access functions
   size_t PairsLeft() const { return fPDeque.size(); }
   // Monitoring related methods
+#ifdef PANAM
   virtual vector<string> GetHistoForListBox() const; 
   virtual void InitDevicesList(vector<string> monlist);
   virtual void DefineADCStacks( Bool_t opt);
-
+#endif
   // Constants
 
   // Flags for results

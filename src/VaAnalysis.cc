@@ -1663,6 +1663,7 @@ void VaAnalysis::LeakCheck()
 }
 #endif
 
+#ifdef PANAM
 vector<string>
 VaAnalysis::GetHistoForListBox() const
 {
@@ -1679,3 +1680,6 @@ void VaAnalysis::DefineADCStacks(Bool_t opt)
 {
   // overwrite this member function in TaPanamAna
 }
+#endif
+
+
