@@ -4,6 +4,63 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 24 May 2002
+-----------------------------------
+
+Today's changes are in two general categories:
+
+First, as a way to address two outstanding issues (error messages
+printed about zeroes in the denominator of asymmetry when beam is off,
+and kludgey approach to deciding which statistics to print based on
+stats name) I added a new data member to TaLabelledQuantity to store
+flags.  These flags can be used to govern how the labelled quantities
+are used.  (Their meanings are purely externally defined -- the
+TaLabelledQuantity class merely stores the flags and provides a method
+to test them.  It's up to other classes to define their meaning.)
+Correspondingly, flags were added to the AnaList utility class in
+VaAnalysis.  Two flags were used to tag quantities for which
+statistics should not be printed (copies of the helicity and
+pairsynch) and for which asymmetries should not be calculated if
+either event of the pair fails the low beam cut condition.  (This
+should produce no change in the results, if cuts are imposed; it just
+stops those annoying error messages.  Doing this for just the flagged
+quantities, rather than for all quantities, allows us to compute
+asymmetries for e.g. batteries even when beam is off, which is a
+perfectly reasonable thing to want to do.)  Three more flags enabled
+me to replace the three analysis lists -- copy, diff, and asy -- with
+a single list.
+
+Second, I did some cleanup of error / log / output messages.  Some
+things that should go to the cerr or clog streams were being sent to
+cout.  On the other hand, I decided the statistics which were being
+sent to clog should go to cout.  Finally, I silenced the complaint
+about lack of feedback info in the database, figuring this shouldn't
+be an error -- it should be interpreted the same as if the database
+entry were present but with "off" indicated.
+
+TaAsciiDB.cc
+ o Various cout --> cerr
+ o commented out error message in GetFdbkSwitch
+
+TaBeamAna.cc
+ o Copy, diff, and asy lists --> tree list with flags
+
+TaEvent.{cc,hh}
+ o Add BeamCut() method
+
+TaLabelledQuantity.{cc,hh}
+ o Add flags storage and a method to test flags 
+
+TaRun.cc 
+ o Stats iff NO_STATS flag not set
+ o Some clog --> cout
+
+VaAnalysis.{cc,hh} 
+ o Copy, diff, and asy lists --> tree list with flags
+ o Get asymmetries iff beam cut passed when NO_BEAM_NO_ASY flag set
+ o Some cout --> clog 
+
+
 Changes by R. Holmes on 22 May 2002
 -----------------------------------
 

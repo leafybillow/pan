@@ -165,22 +165,6 @@ version results.
 Comments by R. Holmes, 13 March 2002
 ---------------------------------
 
-I've changed the code whose intent is to prevent Pan from trying to
-compute and print statistics on things like the helicity bit, which
-gives errors since the distribution's width is zero.  It's still a
-kludge; Pan still accumulates sums for all quantities, but computes
-averages and widths and prints them only for quantities whose
-description doesn't start with "Left" or "Right".  I'm open to
-suggestions of a better way to handle this, which might involve some
-major changes to the way results are stored in pairs.
-
-The present code attempts to compute and store in the tree differences
-and asymmetries for all pairs, even if they fail cuts.  This is in
-keeping with our philosophy of putting everything in the tree and
-letting the user decide what's useful (based on cut markers etc.) but
-it does give rise to error messages when beam is off and the
-denominator of an asymmetry ends up being zero.
-
 I've changed the cuts code so that it multiplies the cut extensions
 from the database by the oversample factor; that means the extensions
 in the database should be regarded as a number of helicity windows,
