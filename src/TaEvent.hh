@@ -33,6 +33,7 @@
 
 class TaDevice;
 class TTree;
+class TaCutList;
 class TaLabelledQuantity;
 class TaRun;
 class VaDataBase;
@@ -51,7 +52,7 @@ public:
   static void RunInit(const TaRun& run);    // initialization at start of run
   void Load ( const Int_t *buffer );
   void Decode( const TaDevice& devices );             // decode the event 
-  const vector<pair<ECutType,Int_t> >& CheckEvent(TaRun& run);
+  void CheckEvent(TaRun& run);
   void AddCut (const ECutType, const Int_t); // store cut conditions
   void AddResult( const TaLabelledQuantity& result);
 
@@ -77,12 +78,12 @@ public:
   EHelicity GetDelHelicity() const;  // delayed helicity
   EPairSynch GetPairSynch() const;   // pair synch
   const vector < TaLabelledQuantity > & GetResults() const; // results for event
-  const vector <pair<ECutType,Int_t> > & GetCuts() const; // cut conditions failed by event
-  const vector <pair<ECutType,Int_t> > & GetCutsPassed() const; // cut conditions passed by event
   void RawDump() const;      // dump raw data for debugging.
   void DeviceDump() const;   // dump device data for debugging.
 
-  void AddToTree(const TaDevice& dev, TTree &tree);    // Add data to root Tree
+  void AddToTree (const TaDevice& dev, 
+		  const TaCutList& cutlist, 
+		  TTree &tree);    // Add data to root Tree
 
 private:
 
@@ -109,8 +110,8 @@ private:
   UInt_t fEvType;              // Event type: 17 = prestart, 1-11 = physics
   EventNumber_t fEvNum;        // Event number from data stream
   UInt_t fEvLen;               // Length of event data
-  vector<pair<ECutType,Int_t> > fCutFail;  // List of cuts failed
-  vector<pair<ECutType,Int_t> > fCutPass;  // List of cuts passed
+  Int_t* fCutArray;            // Array of cut values
+  Bool_t fFailedACut;          // True iff a cut failed
   vector<TaLabelledQuantity> fResults;     // Results of event analysis
   EHelicity fDelHel;           // Delayed helicity filled from later event
   Double_t *fData;             // Decoded/corrected data

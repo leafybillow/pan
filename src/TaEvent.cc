@@ -20,6 +20,7 @@
 //#define NOISY
 //#define DEBUG
 
+#include "TaCutList.hh"
 #include "TaEvent.hh"
 #include "TaLabelledQuantity.hh"
 #include "TaRun.hh"
@@ -42,14 +43,14 @@ Double_t TaEvent::fgBurpCut;
 UInt_t TaEvent::fgSizeConst;
 
 TaEvent::TaEvent(): 
-  fEvType(0),  fEvNum(0),  fEvLen(0), fDelHel(UnkHeli)
+  fEvType(0),  fEvNum(0),  fEvLen(0), fFailedACut(false), fDelHel(UnkHeli)
 {
   fEvBuffer = new Int_t[fgMaxEvLen];
   memset(fEvBuffer, 0, fgMaxEvLen*sizeof(Int_t));
   fData = new Double_t[MAXKEYS];
   memset(fData, 0, MAXKEYS*sizeof(Double_t));
-  fCutFail.clear();
-  fCutPass.clear();
+  fCutArray = new Int_t[MaxCuts];
+  memset(fCutArray, 0, MaxCuts*sizeof(Int_t));
   fResults.clear();
 }
 
@@ -92,8 +93,8 @@ TaEvent::Load (const Int_t* buff)
 {
   // Put a raw event into the buffer, and pull out event type and number.
 
-  fCutFail.clear();
-  fCutPass.clear();
+  memset(fCutArray, 0, MaxCuts*sizeof(Int_t));
+  fFailedACut = false;
   fEvLen = buff[0] + 1;
   if (fEvLen >= fgMaxEvLen) {
       cerr << "TaEvent::Load ERROR  fEvLen = "<<fEvLen; 
@@ -202,16 +203,16 @@ void TaEvent::Decode(const TaDevice& devices) {
 
 };
 
-const vector<pair<ECutType,Int_t> >& 
+void
 TaEvent::CheckEvent(TaRun& run)
 {
-  // Analysis-independent checks of event quality; adds failed cuts
-  // to event's list and returns that list.
+  // Analysis-independent checks of event quality; updates event's cut array.
 
   Double_t current = GetData(IBCM1);
 
   Int_t val = 0;
 
+  fFailedACut = false;
   if ( current < fgLoBeam )
     {
 #ifdef NOISY
@@ -262,8 +263,6 @@ TaEvent::CheckEvent(TaRun& run)
     }
   
   fgLastEv = *this;
-
-  return fCutFail;
 };
 
 
@@ -271,10 +270,9 @@ void TaEvent::AddCut (const ECutType cut, const Int_t val)
 {
   // Store information about cut conditions passed or failed by this event.
 
-  if (val == 0)
-    fCutPass.push_back (make_pair (cut, val));
-  else
-    fCutFail.push_back (make_pair (cut, val));
+  fCutArray[(unsigned int) cut] = val;
+  if (val != 0)
+    fFailedACut = true;
 };
 
 
@@ -304,7 +302,7 @@ Int_t TaEvent::GetRawData(Int_t index) const {
 Bool_t TaEvent::CutStatus() const {
   // Return true iff event failed one or more cut conditions 
 
-  return (fCutFail.size() > 0);    
+  return (fFailedACut);
 };
 
 Bool_t 
@@ -312,12 +310,7 @@ TaEvent::BeamCut() const
 {
   // Return true iff event failed low beam cut
 
-  vector<pair<ECutType,Int_t> >::const_iterator i;
-  for (i = fCutFail.begin();
-       i != fCutFail.end() && i->first != LowBeamCut;
-       ++i)
-    {} // null loop body
-  return (i != fCutFail.end());
+  return (fCutArray[(unsigned int) LowBeamCut] != 0);
 }
 
 Bool_t TaEvent::IsPrestartEvent() const {
@@ -398,24 +391,6 @@ const vector < TaLabelledQuantity > & TaEvent::GetResults() const
   // Return event analysis results stored in this event.
 
   return fResults; 
-};
-
-const vector <pair<ECutType,Int_t> > & 
-TaEvent::GetCuts() const
-{ 
-  // Return a list of cuts (pairs of cut types and values) failed by
-  // this event.
-
-  return fCutFail; 
-};
-
-const vector <pair<ECutType,Int_t> > & 
-TaEvent::GetCutsPassed() const
-{ 
-  // Return a list of cuts (pairs of cut types and values) passed by
-  // this event.
-
-  return fCutPass; 
 };
 
 void TaEvent::RawDump() const {
@@ -519,9 +494,14 @@ Double_t TaEvent::GetScalerData( Int_t scaler, Int_t chan ) const {
   return GetData(SCAOFF + 32*scaler + chan);
 }; 
 
-void TaEvent::AddToTree(const TaDevice& devices, TTree& rawtree ) {
-// Add the data of this device to the raw data tree (root output)
-// Called by TaRun::InitDevices()
+void 
+TaEvent::AddToTree (const TaDevice& devices, 
+		    const TaCutList& cutlist,
+		    TTree& rawtree ) 
+{
+  // Add the data of this device to the raw data tree (root output)
+  // Called by TaRun::InitDevices()
+
     Int_t bufsize = 5000;
     char tinfo[20];
     Int_t key;
@@ -540,6 +520,16 @@ void TaEvent::AddToTree(const TaDevice& devices, TTree& rawtree ) {
         strcpy(tinfo,keystr.c_str());  strcat(tinfo,"/D");
   	rawtree.Branch(keystr.c_str(), &fData[key], tinfo, bufsize);
     }
+
+    for (ECutType icut = ECutType (0); icut < MaxCuts; ++icut)
+      {
+	string cutstr = "cut_" + cutlist.GetName(icut);
+        strcpy (tinfo, cutstr.c_str());  strcat(tinfo,"/I");
+  	rawtree.Branch(cutstr.c_str(), 
+		       &fCutArray[(unsigned int) icut], 
+		       tinfo, 
+		       bufsize);
+      }	
 };
 
 // Private methods
@@ -563,8 +553,7 @@ void TaEvent::Create(const TaEvent& rhs)
  fEvType = rhs.fEvType;
  fEvNum = rhs.fEvNum;
  fEvLen = rhs.fEvLen;
- fCutFail = rhs.fCutFail;
- fCutPass = rhs.fCutPass;
+ fFailedACut = rhs.fFailedACut;
  fResults = rhs.fResults;
  fDelHel = rhs.fDelHel;
  fEvBuffer = new Int_t[fgMaxEvLen];
@@ -572,6 +561,8 @@ void TaEvent::Create(const TaEvent& rhs)
  memcpy(fEvBuffer, rhs.fEvBuffer, fEvLen*sizeof(Int_t));
  fData = new Double_t[MAXKEYS];
  memcpy(fData, rhs.fData, MAXKEYS*sizeof(Double_t));
+ fCutArray = new Int_t[MaxCuts];
+ memcpy(fCutArray, rhs.fCutArray, MaxCuts*sizeof(Int_t));
 };
 
 void TaEvent::Uncreate()
@@ -580,10 +571,5 @@ void TaEvent::Uncreate()
 
   delete [] fEvBuffer;
   delete [] fData;
+  delete [] fCutArray;
 };
-
-
-
-
-
-
