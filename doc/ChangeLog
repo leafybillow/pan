@@ -5,6 +5,83 @@ This is a detailed list of ongoing changes.  Add changes to
 the top of this file.
 
 
+Changes by R. Holmes on 20 Aug 2002
+-----------------------------------
+
+These changes are the beginnings of the implementation of the prompt
+analysis type, TaPromptAna.
+
+TaPromptAna is similar to TaBeamAna, but with detector results added.
+We assume there are four detector signals:
+
+     det1 = left spectrometer,  low Q^2
+     det2 = left spectrometer,  high Q^2
+     det3 = right spectrometer, low Q^2
+     det4 = right spectrometer, high Q^2
+
+We do sums of left and right, sums of high and low, sum of all, and
+average of all.
+
+(Unfortunate terminology: here "right" and "left" refer to which
+spectrometer, not which helicity.)
+
+To enable this, we add and revise some methods: In TaEvent, GetDataSum
+returns a (weighted, optionally) sum of the values associated with the
+specified keys.  In VaPair, methods GetDiffSum, GetAsySum, and
+GetAsyAve return differences of sums, asymmetries of sums, and average
+asymmetries, respectively, for the specified keys, with optional
+weighting.  In VaAnalysis, the utility class AnaList is upgraded to
+allow specifying lists of keys with weights, and new flags are
+defined: one to request asymmetry normalized by BCM1, and one to
+request averaged asymmetry over the specified keys (rather than the
+default, which is asymmetry of sum).
+
+In addition, since we don't have detector data, I have added
+conditional code in TaEvent to make fake detector data.  To use this
+one must put detectors in the database, e.g.
+
+    datamap   det        det1     adc       10      0        0    det1r
+    datamap   det        det2     adc       10      1        1    det2r
+    datamap   det        det3     adc       10      2        2    det3r
+    datamap   det        det4     adc       10      3        3    det4r
+
+(where the numbers in the second to last column are arbitrary, since
+we're not getting the data out of the data stream anyway).  WARNING: I
+committed TaEvent with detector faking turned ON.
+
+While working in VaPair I noticed some methods do not change the
+member data but were not declared const, so I did so.  Also, the new
+TaEvent::DecodeCook was setting event type to -100 to make it not a
+physics event, but this generates a warning since event type is
+unsigned; I changed it to 999.  I think that's OK.
+
+
+Makefile TaLinkDef.hh TaPromptAna.{hh,cc} TaAnalysisManager.cc
+
+ o New analysis type class TaPromptAna
+
+TaEvent.{hh,cc}
+
+ o GetDataSum method
+
+ o Detector data faking (conditional)
+
+ o -100 in DecodeCook changed to 999
+
+VaAnalysis.{hh,cc}
+
+ o AnaList generalized to allow multiple detector keys with weights
+
+ o New flags to request normalized asymmetries and to choose summed or
+   averaged asymmetries of multiple keys
+
+VaPair.{hh,cc}
+
+ o New methods GetDiffSum, GetAsySum, and GetAsyAve
+
+ o Some methods made const
+
+
 Changes by R. Michaels on 7 Aug 2002
 -------------------------------------
 

@@ -1,14 +1,58 @@
+Comments by R. Holmes, 20 Aug 2002
+----------------------------------
+
+(1) In places we have various devices hard-coded into Pan.  For
+instance, BCM1 is used for beam cuts and for feedback (and I'm working
+on a mod to VaAnalysis that provides for normalized asymmetries, again
+using BCM1), BPM4B is used for position feedback.  I'd like to be able
+to select these in the database instead.  Probably it's best to be
+able to select the feedback BCM separately from the beam cuts and
+normalization BCM (or even all three separately, though that might be
+over the top).  Comments?  Bob, could you put this into the database
+class?
+  
+(2) In TaAsciiDB there's a Bool_t data member called didinit which
+seemingly is being used by different methods to mean different things.
+Load(runnumber) sets didinit just before returning, and routines like
+GetDacNoise(...), GetAdcPed(...), and GetScalPed(...) check it,
+apparently to find out if the database has been loaded or not.  But
+InitDB() also sets it, and LoadTable(...) and InitDataMap() apparently
+check it to find out if the database has been initialized or not.
+(These are called by Load(), so they certainly can't be checking to
+see if it's loaded or not.)  As far as I know this doesn't cause any
+actual misbehavior, but I see it as a source of potential confusion.
+
+In particular, any routine that needs the database initialized doesn't
+need to complain and return an error if didinit is false; it could just
+call InitDB().  But if it needs the database loaded, it can't call
+Load(runnumber) because it doesn't know the run number.  I think I know
+which methods need which prerequisite, but due to this "overload" of
+didinit I'm not 100 percent certain. (Actually
+TaAsciiDB::Load(runnumber) doesn't need the run number any more, because
+all it used it for was to construct the database file name, and that's
+now handled by the TaFileName methods; but TaMysql::Load(runnumber)
+presumably does need the run number.)
+
+(3) Bug in TaAsciiDB (and in TaMysql): The following statement is
+needed in DataMapReStart:
+
+    firstiter = kTRUE;
+
+Otherwise when one tries to cycle through the datamap a second or later
+time, one does not get the first datamap entry, which happens to be the
+first ADC defined.
+
+I won't bother committing this since I know Bob is working on these
+classes, probably putting DataMapReStart into VaDatabase, and it might
+as well be committed with the rest of his changes.  You can patch your
+copy for now and get it working.
+
+
 Comments by R. Holmes, 7 Aug 2002
 ----------------------------------
 
 Quadsynch needs to be loaded in TaEvent::Load once that signal exists
 in hardware.
-
-
-Comments by R. Holmes, 30 Jul 2002
-----------------------------------
-
-Cut values need to be added to pair tree.
 
 
 Comments by R. Holmes, 26 Jul 2002
