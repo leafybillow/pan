@@ -48,7 +48,7 @@ Changes by R. Michaels on Oct 21, 2002
    and it's safer than silently recovering from all combinations 
    of user mistakes.
 
- * In ./doc:  Remove DATABASE.RULES and add DATABASE.DOC
+ * In ./doc:  Remove DATABASE.RULES and add DATABASE.TXT
 	
 
 Changes by R. Holmes on 15 Oct 2002
