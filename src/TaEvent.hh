@@ -91,7 +91,7 @@ private:
   void Create(const TaEvent&);
   void Uncreate();
   Int_t Idx(const Int_t& key) const;
-  Double_t Rotate(Double_t x, Double_t y, Int_t xy);
+  Double_t Rotate(Int_t key, Double_t x, Double_t y, Int_t xy);
 
   // Constants
   static const UInt_t fgMaxEvLen = 2000;    // Maximum length for event buffer
