@@ -6,6 +6,20 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on  18 Apr 2003
+------------------------------------
+
+There is now a "curmon" (current monitor) table in the database.  You
+can use this to specify a device which will be used to do beam
+intensity cuts (low beam and beam burp) and to normalize detector
+asymmetries.  If not specified, the default is "bcm1".
+
+TaDataBase.{hh,cc} VaAnalysis.{hh,cc} VaEvent.{hh,cc}
+
+o New curmon table in db allows device for normalization and cuts to be
+  specified in db.
+
+
 Changes by R. Michaels on 20 Mar 2003
 -------------------------------------
 
