@@ -39,6 +39,8 @@
 #include "Rtypes.h"
 #include <vector>
 #include <utility>
+#include <iostream>
+using namespace std;
 
 class TaStatistics
 {
