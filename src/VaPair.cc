@@ -24,6 +24,8 @@
 #include "TaLabelledQuantity.hh"
 #include "VaPair.hh" 
 #include "TaRun.hh"
+#include "TaString.hh"
+#include "VaDataBase.hh"
 
 #ifdef DICT
 ClassImp(VaPair)
@@ -34,6 +36,13 @@ const ErrCode_t VaPair::fgVAP_OK = 0;
 const ErrCode_t VaPair::fgVAP_ERROR = -1;
 deque< TaEvent > 
 VaPair::fgEventQueue;
+Bool_t VaPair::fgSkipping = true;
+TaEvent VaPair::fgThisWinEv;
+TaEvent VaPair::fgLastWinEv;
+UInt_t VaPair::fgShreg = 1;
+UInt_t VaPair::fgNShreg = 0;
+Bool_t VaPair::fgPairMade = false;
+Cut_t VaPair::fgSequenceNo;
 
 
 VaPair::VaPair()
@@ -73,7 +82,105 @@ VaPair::RunInit(const TaRun& run)
   // Initialization at start of run -- clear event queue (so we don't
   // pair events from two different runs, for instance)
   fgEventQueue.clear();
+  fgSkipping = true;
+  fgThisWinEv = TaEvent();
+  fgLastWinEv = TaEvent();
+  fgShreg = 1;
+  fgNShreg = 0;
+  fgPairMade = false;
+  fgSequenceNo = run.GetDataBase().GetCutNumber("Sequence");
+  if (fgSequenceNo == (UInt_t) run.GetDataBase().GetNumCuts())
+    {
+      cerr << "VaPair::RunInit ERROR: Sequence"
+	   << " cut must be defined in database" << endl;
+      return fgVAP_ERROR;
+    }
   return fgVAP_OK;
+}
+
+
+Bool_t 
+VaPair::Fill( TaEvent& ThisEv, TaRun& run )
+{
+  // If this event makes a pair with a stored one, put the two events
+  // into this pair and return true.  Otherwise store this event and
+  // return false.
+
+  Bool_t PairMade = false;
+  CheckSequence (ThisEv, run);
+
+  // Skip events until the first event of a new window pair
+  if ( ThisEv.GetPairSynch() == FirstPS &&
+       ThisEv.GetTimeSlot() == 1 )
+    fgSkipping = false;
+
+  if ( !fgSkipping )
+    {
+#ifdef NOISY
+    clog << "Pairing event "  << ThisEv.GetEvNumber() << ": ";
+#endif
+      // If first of a pair, store it
+      if ( ThisEv.GetPairSynch() == FirstPS )
+	{
+	  if (fgPairMade && fgEventQueue.size() > 0)
+	    {
+	      // If event queue isn't empty, something is wrong: we
+	      // didn't pair off all first events with second events
+	      // before another first event came along.
+	      cerr << "VaPair::Fill ERROR: Nothing to pair first event "
+		   << fgEventQueue[0].GetEvNumber() << " with\n";
+	      fgEventQueue.clear();
+	      if (ThisEv.GetTimeSlot() == 1)
+		fgEventQueue.push_back(ThisEv);
+	      else
+		fgSkipping = true;
+	    }
+	  else
+	    {
+	      fgEventQueue.push_back(ThisEv);
+#ifdef NOISY
+	      clog << " storing" << endl;
+#endif
+	    }
+	}
+      else
+	{
+	  // If second of a pair, get its partner and build the pair
+	  if (fgEventQueue.size() > 0)
+	    {
+#ifdef NOISY
+	      clog << "pairing with event " << fgEventQueue[0].GetEvNumber() << endl;
+#endif
+	      if (fgEventQueue[0].GetDelHelicity() == RightHeli)
+		{
+		  fEvRight = fgEventQueue[0];
+		  fEvLeft = ThisEv;
+		}
+	      else
+		{
+		  fEvRight = ThisEv;
+		  fEvLeft = fgEventQueue[0];
+		}
+	      fgEventQueue.pop_front();
+	      PairMade = true;
+	    }
+	  else
+	    {
+	      // Something's wrong.  This is a second event but the
+	      // queue of first events is empty.
+	      cerr << "VaPair::Fill ERROR: Nothing to pair second event "
+		   << ThisEv.GetEvNumber() << " with\n";
+	      fgSkipping = true;
+	    }
+	}
+    }
+#ifdef NOISY
+  else
+    clog << "Skipping event " << ThisEv.GetEvNumber() << endl;
+#endif
+
+  fgPairMade = PairMade;
+  return PairMade;
 }
 
 
@@ -159,4 +266,39 @@ const vector<TaLabelledQuantity>&
 VaPair::GetResults() const
 {
   return fResults;
+}
+
+
+// Private member functions
+
+Bool_t
+VaPair::HelSeqOK (EHelicity h)
+{
+  // Return true iff helicity h matches what we expect to find next.  
+  
+  // Get this helicity bit (or 2 if unknown)
+  UInt_t hb = ( h == UnkHeli ? 2 :
+		( h == RightHeli ? 1 : 0 ) );
+
+  // Get expected helicity bit (or 2 if unknown)
+  UInt_t eb;
+  eb = RanBit (hb);
+  Bool_t expectOK = (fgNShreg++ > 24);
+
+  if ( expectOK && hb != 2 && hb != eb )
+    {
+      // Not the expected value, reset count
+	fgNShreg = 0;
+    }
+
+#ifdef NOISY
+      if ( eb == 2 || eb != hb )
+	clog << "Helicity expected/got = " << eb << " " << hb 
+	     << " | " << fgShreg 
+	     << " fgNShreg = " << fgNShreg << endl;
+#endif
+
+  // Generate error if expected is known and does not match found
+
+  return ( !expectOK || (eb == 2 || eb == hb ));
 }

@@ -42,7 +42,7 @@ public:
   virtual ~VaPair();
   
   virtual ErrCode_t RunInit(const TaRun&);
-  virtual Bool_t Fill (TaEvent&, TaRun&) = 0;  // check for pair and fill
+  virtual Bool_t Fill (TaEvent&, TaRun&);  // check for pair and fill
   const TaEvent& GetRight() const;
   const TaEvent& GetLeft() const;
   void QueuePrint() const;   
@@ -59,8 +59,20 @@ protected:
   static const ErrCode_t fgVAP_ERROR;  // returned on error
   static const ErrCode_t fgVAP_OK;      // returned on success
 
+  // Private member functions
+  virtual void CheckSequence (TaEvent&, TaRun&) = 0; // look for helicity/synch errors
+  virtual UInt_t RanBit (UInt_t hRead = 2) = 0;
+  virtual Bool_t HelSeqOK (EHelicity h);
+
   // Static data members  
   static deque< TaEvent > fgEventQueue;  // Events waiting to be paired
+  static Bool_t  fgSkipping;   // true until first event of first full window pair/quad etc.
+  static TaEvent fgThisWinEv;  // first ev of this window
+  static TaEvent fgLastWinEv;  // first ev of last window
+  static UInt_t  fgShreg;      // value for sequence algorithm      
+  static UInt_t  fgNShreg;     // count since fgShreg was reset
+  static Bool_t  fgPairMade;   // set in Fill to true if pair made, else false
+  static Cut_t   fgSequenceNo; // cut number for sequence
 
   // Data members
   TaEvent fEvLeft;                       // "Left" helicity event
