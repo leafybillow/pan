@@ -1,0 +1,29 @@
+TCanvas* frame (Int_t run, TString label, TString title)
+{
+  // Opens a new canvas labelled with <run> prepended to <label>,
+  // titled with "HAPPEX Run <run>" prepended to <title>.  Canvas has
+  // a pave label containing the title at the top, and a single empty
+  // pad below that.  Returns pointer to the canvas, and gPad is left
+  // pointing to the empty pad.
+
+  char buf[100];
+  sprintf (buf, "%d_%s", run, label.Data());
+  TString llabel = buf;
+  sprintf (buf, "HAPPEX Run %d: %s", run, title.Data());
+  TString ltitle = buf;
+
+  c1 = new TCanvas (llabel, ltitle, 200, 10, 750, 800);
+  c1->Range (0, 0, 100, 100);
+  
+  TPaveLabel *pl = new TPaveLabel (5, 95, 95, 99, buf, "br");
+  pl->SetFillColor(18);
+  pl->SetTextFont(32);
+  pl->SetTextColor(49);
+  pl->Draw();
+  
+  pad1 = new TPad (llabel + "_pad1", ltitle, 0.01, 0.01, 0.99, 0.94, 0);
+  pad1->Draw();
+  pad1->cd();
+
+  return c1;
+}
