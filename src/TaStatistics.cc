@@ -447,7 +447,10 @@ TaStatistics::Neff() const // effective N for all x
     }
   else
     {
-      cerr << "TaStatistics::Neff ERROR: Statistics empty" << endl;
+      for ( size_t i = 0; i < fSumWt.size(); ++i )
+	{
+	  result.push_back (0);
+	}
     }
   return result;
 }      
@@ -580,7 +583,6 @@ TaStatistics::Neff (size_t i) const // effective N for one x
 	}
       else
 	{
-	  cerr << "TaStatistics::Neff ERROR: Statistics empty" << endl;
 	  return 0;
 	}
     }
