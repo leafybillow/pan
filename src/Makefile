@@ -13,7 +13,7 @@
 # export PROFILE = 1
 #
 # To compile optimized
-export OPTIMIZE = 1
+# export OPTIMIZE = 1
 # 
 # Would uncommment this if you want rootcint Dictionary.
 # Only works with the CVS version of root as of Dec 21, 2001.
