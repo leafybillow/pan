@@ -50,7 +50,8 @@ public:
   void Decode();
   virtual void AccumEvent(const TaEvent&);
   virtual void AccumPair(const VaPair&);
-  void AddCutToEvent(const ECutType, const Int_t val);
+  void AddCutToEvent(const ECutType, const Int_t);
+  void UpdateCutList(const ECutType, const Int_t, EventNumber_t);
   void AddCuts();
   virtual void Finish();
 

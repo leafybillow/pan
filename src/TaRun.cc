@@ -17,6 +17,7 @@
 
 #include "TaRun.hh"
 #include <iostream>
+#include <iomanip>
 #include <stdlib.h>
 #include "THaCodaData.h"
 #include "THaCodaFile.h"
@@ -146,6 +147,10 @@ TaRun::Init()
   fDevices->Init(*fDataBase);
   fCutList = new TaCutList(fRunNumber);
   fCutList->Init(*fDataBase);
+  fCutList->AddName(LowBeamCut, "Low beam");
+  fCutList->AddName(BeamBurpCut, "Beam burp");
+  fCutList->AddName(OversampleCut, "Oversample");
+  fCutList->AddName(SequenceCut, "Sequence");
   InitDevices();
   fOversamp = fDataBase->GetOverSamp();
   if (fOversamp == 0)
@@ -312,12 +317,11 @@ TaRun::AccumPair(const VaPair& pr)
     {
       fSliceLimit += fgSLICELENGTH;
       clog << "TaRun::AccumEvent(): At pair " << evr << "/" << evl
-	   << " of run " << fRunNumber;
+	   << " of run " << fRunNumber << endl;
       if (fESliceStats != 0 || fPSliceStats != 0)
-	clog << " -- Stats for last " << fgSLICELENGTH
+	clog << "Stats for last " << fgSLICELENGTH
 	     << " events:";
       clog << endl;
-
       if (fESliceStats != 0)
 	{
 	  PrintStats (*fESliceStats, fEStatsNames, fEStatsUnits);
@@ -341,16 +345,27 @@ TaRun::AddCutToEvent(const ECutType cut, const Int_t val)
 }
 
 void 
+TaRun::UpdateCutList (const ECutType cut, const Int_t val, EventNumber_t evno) 
+{ 
+  fCutList->UpdateCutInterval ( cut, val, evno );
+}
+
+void 
 TaRun::AddCuts() 
 { 
-  for ( vector< pair<ECutType,Int_t> >::const_iterator i = fEvent->GetCuts().begin();
-	i != fEvent->GetCuts().end();
-	++i )
-    fCutList->UpdateCutInterval ( i->first, i->second, fEvent->GetEvNumber() );
-  for ( vector< pair<ECutType,Int_t> >::const_iterator i = fEvent->GetCutsPassed().begin();
-	i != fEvent->GetCutsPassed().end();
-	++i )
-    fCutList->UpdateCutInterval ( i->first, i->second, fEvent->GetEvNumber() );
+  // Temporarily a no op
+//    for ( vector< pair<ECutType,Int_t> >::const_iterator i = fEvent->GetCuts().begin();
+//  	i != fEvent->GetCuts().end();
+//  	++i )
+//  {
+//    if (i->first > 1)
+//      clog << "AddCuts " << fEvent->GetEvNumber() << " " << i->first << " " << i->second << endl;
+//      fCutList->UpdateCutInterval ( i->first, i->second, fEvent->GetEvNumber() );
+//  }
+//    for ( vector< pair<ECutType,Int_t> >::const_iterator i = fEvent->GetCutsPassed().begin();
+//  	i != fEvent->GetCutsPassed().end();
+//  	++i )
+//      fCutList->UpdateCutInterval ( i->first, i->second, fEvent->GetEvNumber() );
 }
 
 void TaRun::SendEPICSInfo( pair< char* , Double_t> value)
@@ -374,10 +389,10 @@ void TaRun::SendEPICSInfo( pair< char* , Double_t> value)
 void 
 TaRun::Finish() 
 { 
-  clog << "\nTaRun::Finish End of run " << fRunNumber;
+  clog << "\nTaRun::Finish End of run " << fRunNumber << endl;
   size_t nSlice = fEventNumber - (fSliceLimit - fgSLICELENGTH);
   if ((fESliceStats != 0 || fPSliceStats != 0) && nSlice > 5)
-    clog<< " -- Stats for last " << nSlice << " events:";
+    clog<< "Stats for last " << nSlice << " events:";
   clog << endl;
 
   if (fESliceStats != 0 && nSlice > 5)
@@ -391,13 +406,16 @@ TaRun::Finish()
     *fPRunStats += *fPSliceStats;
 
   if (fERunStats != 0 || fPRunStats != 0)
-    clog << "\nCumulative stats: "
+    clog << "\nCumulative stats for " << fEventNumber 
+	 << " events: "
 	 << endl;
 
   if (fERunStats != 0)
     PrintStats (*fERunStats, fEStatsNames, fEStatsUnits);
   if (fPRunStats != 0)
     PrintStats (*fPRunStats, fPStatsNames, fPStatsUnits);
+
+  //  clog << *fCutList << endl;
 }
 
 
@@ -477,12 +495,14 @@ TaRun::PrintStats (TaStatistics s, vector<string> n, vector<string> u) const
       string firstword = string (n[j], 0, i);
       if (firstword != "Right" && firstword != "Left")
 	{
-	  clog << n[j];
+	  clog.setf(ios::left,ios::adjustfield);
+	  clog << setw(15) << n[j].c_str();
 	  if (s.Neff(j) > 5)
 	    {
-	      clog << " mean " << s.Mean(j)
-		   << " +- " << s.MeanErr(j)
-		   << " RMS " << s.DataRMS(j) 
+    // N.B. seem to need to convert to C-style string for setw to work.
+	      clog << " mean " << setw(10) << s.Mean(j)
+		   << " +- " << setw(10) << s.MeanErr(j)
+		   << " RMS " << setw(10) << s.DataRMS(j) 
 		   << " " << u[j] << endl;
 	    }
 	  else
