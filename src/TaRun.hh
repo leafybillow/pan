@@ -133,14 +133,18 @@ private:
   TTree *fEvtree;                // Event tree for Root file
   TaStatistics* fESliceStats;    // Incremental event statistics
   TaStatistics* fPSliceStats;    // Incremental pair statistics
+  TaStatistics** fPOrdSliceStats;  // Incremental pair statistics, order cuts
   TaStatistics* fERunStats;      // Cumulative event statistics
   TaStatistics* fPRunStats;      // Cumulative pair statistics
+  TaStatistics** fPOrdRunStats;  // Cumulative pair statistics, order cuts
   vector<string> fEStatsNames;   // Names of event statistics
   vector<string> fPStatsNames;   // Names of pair statistics
+  vector<string> fPOrdStatsNames;  // Names of pair statistics, order cuts
   vector<string> fEStatsUnits;   // Units of event statistics
   vector<string> fPStatsUnits;   // Units of pair statistics
+  vector<string> fPOrdStatsUnits;  // Units of pair statistics, order cuts
   Bool_t fFirstPass;             // Pass 1 or 2?
-  TaOResultsFile* fResFile;       // Results file
+  TaOResultsFile* fResFile;      // Results file
 
 #ifndef NODICT
 ClassDef (TaRun, 0)      //  One run of CODA data

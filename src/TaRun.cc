@@ -28,7 +28,7 @@
 //#define NOISY
 //#define CHECKOUT
 //#define FAKEDEAD
-#define PANAMTEST
+//#define PANAMTEST
 
 #include "TaRun.hh"
 #include <iostream>
@@ -86,8 +86,10 @@ TaRun::TaRun():
   fEvtree(0),
   fESliceStats(0),
   fPSliceStats(0),
+  fPOrdSliceStats(0),
   fERunStats(0),
   fPRunStats(0),
+  fPOrdRunStats(0),
   fFirstPass(true)
 {
 #ifdef ONLINE
@@ -113,8 +115,10 @@ TaRun::TaRun(const Int_t& run) :
   fEvtree(0),
   fESliceStats(0),
   fPSliceStats(0),
+  fPOrdSliceStats(0),
   fERunStats(0),
   fPRunStats(0),
+  fPOrdRunStats(0),
   fFirstPass(true)
 {
   TaFileName::Setup (fRunNumber, "");
@@ -134,8 +138,10 @@ TaRun::TaRun(const string& filename):
   fEvtree(0),
   fESliceStats(0),
   fPSliceStats(0),
+  fPOrdSliceStats(0),
   fERunStats(0),
   fPRunStats(0),
+  fPOrdRunStats(0),
   fFirstPass(true)
 {
 };
@@ -294,7 +300,13 @@ TaRun::ReInit()
   if (fERunStats != 0)
     fERunStats->SetFirstPass (false);
   if (fPRunStats != 0)
-    fPRunStats->SetFirstPass (false);
+    {
+      fPRunStats->SetFirstPass (false);
+      (*fPOrdRunStats)->SetFirstPass (false);
+      (*fPOrdRunStats+1)->SetFirstPass (false);
+      (*fPOrdRunStats+2)->SetFirstPass (false);
+      (*fPOrdRunStats+3)->SetFirstPass (false);
+    }
 
   return fgTARUN_OK;
 
@@ -434,15 +446,34 @@ TaRun::AccumPair(const VaPair& pr, const Bool_t doSlice, const Bool_t doRun)
 	    {
 	      fPStatsNames.push_back (i->GetName());
 	      fPStatsUnits.push_back (i->GetUnits());
+	      if (i->TestFlags(VaAnalysis::fgORDERED))
+		{
+		  fPOrdStatsNames.push_back (i->GetName());
+		  fPOrdStatsUnits.push_back (i->GetUnits());
+		}
 	    }
 	}
 #ifdef NOISY
       clog << "Setting up pair stats - " << fPStatsNames.size() << endl;
 #endif
       if (doSlice)
-	fPSliceStats = new TaStatistics (fPStatsNames.size(), false);
+	{
+	  fPSliceStats = new TaStatistics (fPStatsNames.size(), false);
+	  fPOrdSliceStats = new TaStatistics*[4];
+	  fPOrdSliceStats[0] = new TaStatistics (fPOrdStatsNames.size(), false);
+	  fPOrdSliceStats[1] = new TaStatistics (fPOrdStatsNames.size(), false);
+	  fPOrdSliceStats[2] = new TaStatistics (fPOrdStatsNames.size(), false);
+	  fPOrdSliceStats[3] = new TaStatistics (fPOrdStatsNames.size(), false);
+	}
       if (doRun)
-	fPRunStats = new TaStatistics (fPStatsNames.size(), false);
+	{
+	  fPRunStats = new TaStatistics (fPStatsNames.size(), false);
+	  fPOrdRunStats = new TaStatistics*[4];
+	  fPOrdRunStats[0] = new TaStatistics (fPOrdStatsNames.size(), false);
+	  fPOrdRunStats[1] = new TaStatistics (fPOrdStatsNames.size(), false);
+	  fPOrdRunStats[2] = new TaStatistics (fPOrdStatsNames.size(), false);
+	  fPOrdRunStats[3] = new TaStatistics (fPOrdStatsNames.size(), false);
+	}
     }
 
   if ( fCutList->OK(pr.GetRight()) && fCutList->OK(pr.GetLeft()) )
@@ -450,17 +481,37 @@ TaRun::AccumPair(const VaPair& pr, const Bool_t doSlice, const Bool_t doRun)
       // Both events pass cuts...
       // Update statistics
       vector<Double_t> vres;
+      vector<Double_t> vordres;
       for (vector<TaLabelledQuantity>::const_iterator i = lqres.begin();
 	   i != lqres.end();
 	   ++i )
 	{
 	  if (!i->TestFlags(VaAnalysis::fgNO_STATS))
-	    vres.push_back (i->GetVal());
+	    {
+	      vres.push_back (i->GetVal());
+	      if (i->TestFlags(VaAnalysis::fgORDERED))
+		vordres.push_back (i->GetVal());
+	    }
 	}
+
+      // Get the ordering index
+      // 0 if RLRL
+      // 1 if LRRL
+      // 2 if LRLR
+      // 3 if RLLR
+      UInt_t iord = (pr.GetFirst().GetHelicity() == RightHeli) ? 0 : 2;
+      iord += (pr.GetFirst().GetPrevHelicity() == pr.GetFirst().GetHelicity()) ? 1 : 0;
+      
       if (doSlice)
-	fPSliceStats->Update (vres);
+	{
+	  fPSliceStats->Update (vres);
+	  (fPOrdSliceStats[iord])->Update (vordres);
+	}
       if (doRun)
-	fPRunStats->Update (vres);
+	{
+	  fPRunStats->Update (vres);
+	  (fPOrdRunStats[iord])->Update (vordres);
+	}
     }
 #ifdef NOISY
   else
@@ -486,7 +537,17 @@ TaRun::PrintSlice (EventNumber_t n)
       if (fESliceStats != 0)
 	PrintStats (*fESliceStats, fEStatsNames, fEStatsUnits);
       if (fPSliceStats != 0)
-	PrintStats (*fPSliceStats, fPStatsNames, fPStatsUnits);
+	{
+	  PrintStats (*fPSliceStats, fPStatsNames, fPStatsUnits);
+	  cout << "RLRL pairs:\n";
+	  PrintStats (*(fPOrdSliceStats[0]), fPOrdStatsNames, fPOrdStatsUnits);
+	  cout << "LRRL pairs:\n";
+	  PrintStats (*(fPOrdSliceStats[1]), fPOrdStatsNames, fPOrdStatsUnits);
+	  cout << "LRLR pairs:\n";
+	  PrintStats (*(fPOrdSliceStats[2]), fPOrdStatsNames, fPOrdStatsUnits);
+	  cout << "RLLR pairs:\n";
+	  PrintStats (*(fPOrdSliceStats[3]), fPOrdStatsNames, fPOrdStatsUnits);
+	}
       
       cout << endl;
       fCutList->PrintTally(cout);
@@ -496,7 +557,13 @@ TaRun::PrintSlice (EventNumber_t n)
   if (fESliceStats != 0)
     fESliceStats->Zero();
   if (fPSliceStats != 0)
-    fPSliceStats->Zero();
+    {
+      fPSliceStats->Zero();
+      fPOrdSliceStats[0]->Zero();
+      fPOrdSliceStats[1]->Zero();
+      fPOrdSliceStats[2]->Zero();
+      fPOrdSliceStats[3]->Zero();
+    }
   fNLastSlice = n;
 }
 
@@ -514,7 +581,17 @@ TaRun::PrintRun ()
   if (fERunStats != 0)
     PrintStats (*fERunStats, fEStatsNames, fEStatsUnits);
   if (fPRunStats != 0)
-    PrintStats (*fPRunStats, fPStatsNames, fPStatsUnits);
+    {
+      PrintStats (*fPRunStats, fPStatsNames, fPStatsUnits);
+      cout << "RLRL pairs:\n";
+      PrintStats (*(fPOrdRunStats[0]), fPOrdStatsNames, fPOrdStatsUnits);
+      cout << "LRRL pairs:\n";
+      PrintStats (*(fPOrdRunStats[1]), fPOrdStatsNames, fPOrdStatsUnits);
+      cout << "LRLR pairs:\n";
+      PrintStats (*(fPOrdRunStats[2]), fPOrdStatsNames, fPOrdStatsUnits);
+      cout << "RLLR pairs:\n";
+      PrintStats (*(fPOrdRunStats[3]), fPOrdStatsNames, fPOrdStatsUnits);
+    }
 
   cout << endl;
   fCutList->PrintTally(cout);
@@ -537,6 +614,14 @@ TaRun::WriteRun ()
       (*fResFile) << endl;
       (*fResFile) << "# Pair statistics ===================" << endl;
       WriteStats (*fPRunStats, fPStatsNames, fPStatsUnits, 0, fEventNumber);
+      (*fResFile) << "RLRL pairs:\n";
+      WriteStats (*(fPOrdRunStats[0]), fPOrdStatsNames, fPOrdStatsUnits, 0, fEventNumber);
+      (*fResFile) << "LRRL pairs:\n";
+      WriteStats (*(fPOrdRunStats[1]), fPOrdStatsNames, fPOrdStatsUnits, 0, fEventNumber);
+      (*fResFile) << "LRLR pairs:\n";
+      WriteStats (*(fPOrdRunStats[2]), fPOrdStatsNames, fPOrdStatsUnits, 0, fEventNumber);
+      (*fResFile) << "RLLR pairs:\n";
+      WriteStats (*(fPOrdRunStats[3]), fPOrdStatsNames, fPOrdStatsUnits, 0, fEventNumber);
     }
 }
 
@@ -632,8 +717,18 @@ TaRun::Uncreate()
   delete fESliceStats;
   delete fERunStats;
   delete fPSliceStats;
+  delete fPOrdSliceStats[0];
+  delete fPOrdSliceStats[1];
+  delete fPOrdSliceStats[2];
+  delete fPOrdSliceStats[3];
+  delete[] fPOrdSliceStats;
   delete fPRunStats;
   delete fResFile;
+  delete fPOrdRunStats[0];
+  delete fPOrdRunStats[1];
+  delete fPOrdRunStats[2];
+  delete fPOrdRunStats[3];
+  delete[] fPOrdRunStats;
   fCutList = 0;
   fCoda = 0;
   fEvent = 0;
