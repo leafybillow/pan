@@ -189,7 +189,7 @@ Usage: mysql2ascii.pl \\
          run=<Run No.> \\
 	   
 Example: mysql2ascii.pl \\
-	   run= 100 \\
+	   run=100 \\
 		       
 EOM
 return;
