@@ -8,7 +8,7 @@
 
    bar = new TControlBar("vertical", "Helicity Correlations");
 
-   TString mycut = "pair_ok==1";   
+   TString mycut = "ok_cut==1";   
 
    btree at1("P","BCM1 Asymmetry","asym_bcm1",2,2,
                "asym_bcm1",mycut.Data(),"","",
