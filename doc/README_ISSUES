@@ -1,3 +1,24 @@
+Comments by R. Michaels, 6 Apr 2002
+-----------------------------------
+
+Studied profiles and effect of gcc optimization level.  Optimization
+can lead an approx 10% increase in speed, not more.  Leave the 
+default at level 1 as a compromise between speed of compilation
+and speed of code.  
+
+Profiled optimized code shows that 42% of the "visible" time is
+spent in TaEvent deep copy.  However, the visible time (i.e. cumulative
+time reported by gprof) is only 15% of the total; therefore the deep
+copy appears to be 6% of the total.  This is consistent with the
+observation that by adjusting MAXKEYS in TaEvent, which adjusts the
+size of the deep copy and calibrates its influence on the speed,
+the deep copy costs about 6% of cpu time.  Unfortunately, when we
+profile without optimization, while the total speed doesn't change
+much (10% level), the distribution becomes inconsistent with the
+above pattern.  The conclusions for now is that we do not know from
+gprof what the main bottlenecks are.
+
+
 Comments by R. Michaels, 5 Apr 2002
 -----------------------------------
 

@@ -4,6 +4,17 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Michaels on 6 Apr 2002
+-------------------------------------
+
+Studied g++ optimization (flag OPTIMIZE in Makefile).  Gains of 10%
+in speed are possible, but the compilation is slower.  Suggest to 
+comment out OPTIMIZE if you are frequently compiling code.
+
+Made "Get" methods of TaDevice inline, but it seems these methods get 
+inlined anyway with optimization.  
+
+			
 Changes by R. Michaels on 5 Apr 2002
 -------------------------------------
 
