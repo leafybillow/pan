@@ -6,6 +6,35 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on  3 Jul 2004
+--------------------------------------
+
+Hall C low current cuts.  To use, change the database as follows:
+
+Add the cut to the list of cuts in use:
+
+      ncuts 6
+      cutnames Low_beam Beam_burp Evt_seq Pair_seq Startup Low_beam_c
+
+Add the cut threshold:
+
+      lobeamc  0.002
+
+Add the BCM to use for Hall C current monitoring (defaults to bcm10, no
+foreseeable need to change this but the capability's there)
+
+      curmonc  bcm10
+
+Given that, then tree elements like cond_low_beam_c and cut_low_beam_c
+reflect low beam in bcm10, and asymmetry will not be computed for bcm10
+in events where cut_low_beam_c is nonzero; however, ok_cut and ok_cond
+will not be affected by this cut.
+
+Also, I fixed a longstanding unnoticed bug, unnoticed because it only
+crops up if the database fails to define a cut in the cutnames -- but it
+can cause a mystery seg fault in that case.
+
+
 Changes by R. Holmes on  28 Jun 2004
 --------------------------------------
 
