@@ -374,7 +374,13 @@ vector <TString> OnlineConfig::GetDrawCommand(UInt_t page, UInt_t nCommand)
       UInt_t j=0;
       for(j=i+1; j<sConfFile[index].size(); j++) {
 	TString word = sConfFile[index][j];
-	if(word.BeginsWith("\"")) {
+	if( (word.BeginsWith("\"")) && (word.EndsWith("\"")) ) {
+	  cout << "Urgent" << endl;
+	  title = word.ReplaceAll("\"","");
+	  out_command[3] = title;
+	  i = j;
+	  break;
+	} else if(word.BeginsWith("\"")) {
 	  title = word.ReplaceAll("\"","");
 	} else if(word.EndsWith("\"")) {
 	  title += " " + word.ReplaceAll("\"","");
@@ -390,11 +396,11 @@ vector <TString> OnlineConfig::GetDrawCommand(UInt_t page, UInt_t nCommand)
       i = i+1;
     }
 
-#ifdef DEBUG
+#ifndef DEBUG
     cout << endl;
 #endif
   }
-#ifdef DEBUG
+#ifndef DEBUG
   cout << sConfFile[index].size() << ": ";
   for(UInt_t i=0; i<sConfFile[index].size(); i++) {
     cout << sConfFile[index][i] << " ";
