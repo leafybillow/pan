@@ -12,7 +12,7 @@
 //
 ////////////////////////////////////////////////////////////////////////
 //
-// Provides constructors to generate Pan-standard filenames.
+// Provides methods to generate Pan-standard filenames.
 //
 ////////////////////////////////////////////////////////////////////////
 
@@ -47,12 +47,12 @@ private:
   
   // static data members
 
-  static string fgAnaStr;
-  static string fgBaseName;
+  static string fgAnaStr;      // name of analysis type
+  static string fgBaseName;    // base name: "prefix_runnumber"
 
   // Data members
 
-  string fFileName;
+  string fFileName;            // full path and file name
 
 #ifdef DICT
   ClassDef(TaFileName, 0)   // Improved string class

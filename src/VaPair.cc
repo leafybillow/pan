@@ -12,8 +12,7 @@
 // Base class for pairs of events of opposite helicities.  Contains
 // (when full) two events, as well as the results of analysis of that
 // pair. Different derived classes correspond to different beam
-// helicity structures, i.e., different methods of getting a pair from
-// an event sequence. Methods are provided to compute differences and
+// helicity structures. Methods are provided to compute differences and
 // asymmetries for a given device.
 //
 ////////////////////////////////////////////////////////////////////////

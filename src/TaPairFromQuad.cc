@@ -10,8 +10,8 @@
 ////////////////////////////////////////////////////////////////////////
 //
 //    Class which makes and analyzes opposite helicity event pairs
-//    from a data stream structured as helicity window pairs.  Derived
-//    from VaPair.
+//    from a data stream structured as helicity window quadruples.
+//    Derived from VaPair.
 //
 //////////////////////////////////////////////////////////////////////////
 

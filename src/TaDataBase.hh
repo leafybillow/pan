@@ -1,14 +1,16 @@
 #ifndef ROOT_TaDataBase
 #define ROOT_TaDataBase
 
-//////////////////////////////////////////////////////////////////////////
+//**********************************************************************
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
-//        TaDataBase.hh   (header file)
-//        ^^^^^^^^^^^^^
+//       VaAnalysis.cc  (interface)
 //
-//    Authors :  R. Holmes, A. Vacheret, R. Michaels, R. Suleiman
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
+//
+//////////////////////////////////////////////////////////////////////////
 //
 //  Database class.  This always reads database from an ASCII file.
 //  For MYSQL access, it first executes a Perl script which generates

@@ -24,9 +24,11 @@
 //    from each x_i, but automating such an estimate is difficult.
 //
 //    However, this class also allows 2-pass calculations to be made
-//    if desired, with greatly improved precision, and this is
-//    strongly recommended when feasible.  See for example _The
-//    American Statistician_ V. 37 p. 242 (1982).
+//    if desired, with greatly improved precision.  Note that in
+//    practice the aforementioned roundoff problems have not been
+//    shown to be significant for HAPPEX data.  For more on this
+//    subject see for example _The American Statistician_ V. 37 p. 242
+//    (1982).
 //
 ////////////////////////////////////////////////////////////////////////
 

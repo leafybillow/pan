@@ -11,18 +11,17 @@
 //
 // This class treats the data of one run. The Init method initializes
 // the event TTree, attaches the Coda file or online data, and gets
-// the (ASCII or MySQL) database.  It initializes the storage of
-// devices and cuts.
+// the database.  It initializes the storage of devices and cuts.
 //
 // In the event loop, the NextEvent method is called to get and decode
 // an event from the data stream.  AddCuts is called after
 // preprocessing each event, to update the list of cut intervals.
 // AccumEvent and AccumPair accumulate statistics for results of event
-// and pair analysis, respectively, and periodically write statistics
-// summaries to STDOUT.
+// and pair analysis, respectively.  PrintSlice and PrintRun write
+// statistics summaries to STDOUT.
 //
-// When analysis is complete, Finish is called to print final
-// statistics summaries.
+// When analysis is complete, Finish is called to write and close the
+// ROOT file.
 //
 ////////////////////////////////////////////////////////////////////////
 

@@ -1,3 +1,41 @@
+//**********************************************************************
+//
+//     HALL A C++/ROOT Parity Analyzer  Pan           
+//
+//       VaAnalysis.cc  (implementation)
+//
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
+//
+//////////////////////////////////////////////////////////////////////////
+//
+//  Database class.  This always reads database from an ASCII file.
+//  For MYSQL access, it first executes a Perl script which generates
+//  the ASCII file.
+//
+//  The database is organized in tables, see list below.
+//  The tables are denoted by a string table name (e.g. 'dacnoise').  
+//  In each table is a series of columns of information.  The columns 
+//  are 'typed' data, i.e. data of a type string, int, or double.
+//
+//  Tables include:
+//
+//      1. run  (the CODA run number)
+//      2. analysis type
+//      3. maxevents (the number of events to analyze)
+//      4. pair type ('pair' or 'quad')
+//      5. window delay
+//      6. oversampling factor
+//      7. dac noise parameters
+//      8. pedestals 
+//      9. datamap and header info
+//     10. named cuts ('lobeam', 'burpcut', etc, each a table)
+//     11. event intervals where data are cut.
+//      
+//  For usage instructions, syntax rules, and other details, see
+//          /doc/DATABASE.DOC
+//
+/////////////////////////////////////////////////////////////////////
 
 // Turn off MYSQL.  Hopefully it will be turned on ... soon.
 #define TURN_OFF_MYSQL
