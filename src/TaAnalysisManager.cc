@@ -43,7 +43,9 @@ TaAnalysisManager::TaAnalysisManager ():
   fAnalysis(0),
   fOnlFlag(false)
 {
+#ifdef PANAM
  fMonList.clear();
+#endif
 }
 
 
@@ -158,6 +160,7 @@ TaAnalysisManager::End()
   return fgTAAM_OK; // for now always return OK
 }
 
+#ifdef PANAM
 TaPanamAna*
 TaAnalysisManager::GetAnalysis() const
 {
@@ -174,7 +177,7 @@ TaAnalysisManager::SetMonitorList(vector<string> monlist)
   fMonList = monlist; 
   cout<<" copied "<<endl;
 }
-
+#endif
 
 
 
@@ -216,12 +219,14 @@ TaAnalysisManager::InitCommon()
    else if (theAnaType.CmpNoCase("debug") == 0)
      fAnalysis = new TaDebugAna;
   else if (theAnaType.CmpNoCase("fdbk") == 0)
-    fAnalysis = new TaFeedbackAna();    
+    fAnalysis = new TaFeedbackAna();
+#ifdef PANAM    
   else if (theAnaType.CmpNoCase("monitor") == 0)
     {
      fAnalysis = new TaPanamAna();
      fAnalysis->InitDevicesList(fMonList);
     }
+#endif
   else
     {
       cerr << "TaAnalysisManager::InitCommon ERROR: Invalid analysis type = "

@@ -22,8 +22,9 @@
 #include "Rtypes.h"
 #include "PanTypes.hh"
 #include <iostream>
+#ifdef PANAM
 #include "TaPanamAna.hh"
-
+#endif
 using namespace std;
 
 class TaRun;
@@ -56,8 +57,10 @@ class TaAnalysisManager
   ErrCode_t EndPass1();           // End first pass analysis
   ErrCode_t End();                // End all analysis
   // Panam specific methods
+#ifdef PANAM
   TaPanamAna*  GetAnalysis() const; 
-  void SetMonitorList(vector<string> monlist);  // init the device list  
+  void SetMonitorList(vector<string> monlist);  // init the device list 
+#endif 
   // Static constants
   static const ErrCode_t fgTAAM_ERROR;
   static const ErrCode_t fgTAAM_OK;
@@ -74,7 +77,10 @@ class TaAnalysisManager
   VaAnalysis* fAnalysis;    // Requested analysis
   Bool_t fOnlFlag;          // Flag indicating data is online
   vector<string> dbcommand; // Database command to pass to fRun 
-  vector<string> fMonList; // Database command to pass to fRun 
+
+#ifdef PANAM
+  vector<string> fMonList;  // List of devices chosen in TaPanam 
+#endif
 
 #ifndef NODICT
   ClassDef (TaAnalysisManager, 0) // Drives the entire analysis.  
