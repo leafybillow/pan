@@ -96,7 +96,7 @@ private:
   virtual void Uncreate();
   Int_t GetBuffer();
   Int_t FindRunNumber();  
-  virtual void InitDevices();
+  virtual void InitTree();
   void PrintStats (const TaStatistics& s, const vector<string>& n, const vector<string>& u) const;
 
   // Data members
