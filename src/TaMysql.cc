@@ -78,8 +78,6 @@ string TaMysql::GetRunType() const {
 
   Int_t length;
   TDBTools db = TDBTools("pandb"); 
-  //  db.PrintInfo();
-  //  db.SetDebugMode(0x20);  
   TString *anatype = db.GetDBChar("ana","pan","runtype",fRunIndex,&length); 
   return anatype->Data();
 };
@@ -233,7 +231,7 @@ map <Int_t, vector<Int_t> > TaMysql::GetCutValues() const {
 // results in prescribed order: (evlo, evhi, cut num, cut value)
   
   TDBTools db = TDBTools("pandb"); 
-  
+
   TIntBuffer Evlo; 
   db.GetDBIntBuff("ana","badevt","evlo",fRunIndex,&Evlo);  
   
@@ -597,6 +595,9 @@ void TaMysql::InitDataMap() {
 
   Int_t length;
   TDBTools db = TDBTools("pandb"); 
+  db.PrintInfo();
+  //  db.SetDebugMode(0x20);  
+
   TString *DM = db.GetDBChar("ana","pan","datamap",fRunIndex,&length); 
 
 //
