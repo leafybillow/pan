@@ -225,7 +225,7 @@ VaPair::AddResult (const TaLabelledQuantity& lq)
 
 
 Double_t 
-VaPair::GetDiff (Int_t key)
+VaPair::GetDiff (Int_t key) const
 {
   // Get difference in quantity indexed by key for this pair.
   return GetRight().GetData(key) - GetLeft().GetData(key);
@@ -233,9 +233,20 @@ VaPair::GetDiff (Int_t key)
 
 
 Double_t 
-VaPair::GetAsy (Int_t key)
+VaPair::GetDiffSum (vector<Int_t> keys, vector<Double_t> wts) const
+{
+  // Get difference in weighted sum of quantities indexed by keys for
+  // this pair.
+
+  return GetRight().GetDataSum (keys, wts) - GetLeft().GetDataSum (keys, wts);
+}
+
+
+Double_t 
+VaPair::GetAsy (Int_t key) const
 {
   // Get asymmetry in quantity indexed by key for this pair.
+
   Double_t denom = GetRight().GetData(key) + GetLeft().GetData(key);
   if ( denom <= 0 )
     {
@@ -246,8 +257,63 @@ VaPair::GetAsy (Int_t key)
   return (GetRight().GetData(key) - GetLeft().GetData(key)) / denom;
 }
 
+
+Double_t 
+VaPair::GetAsySum (vector<Int_t> keys, vector<Double_t> wts) const
+{
+  // Get asymmetry in weighted sum of quantities indexed by keys for
+  // this pair.
+
+  Double_t denom = GetRight().GetDataSum (keys, wts) + 
+    GetLeft().GetDataSum (keys, wts);
+  if ( denom <= 0 )
+    {
+      cerr << "VaPair::GetAsySum ERROR: Denominator is <= zero" << endl;
+      return -1;
+    }
+  return (GetRight().GetDataSum (keys, wts) - 
+	  GetLeft().GetDataSum (keys, wts)) / denom;
+}
+
+
+Double_t 
+VaPair::GetAsyAve (vector<Int_t> keys, vector<Double_t> wts) const
+{
+  // Get weighted average of asymmetries of quantities indexed by keys
+  // for this pair.
+
+  Double_t sumxw = 0;
+  Double_t sumw = 0;
+
+  if (wts.size() == 0)
+    for (vector<Int_t>::const_iterator p = keys.begin();
+	 p != keys.end();
+	 ++p)
+      {
+	sumxw += GetAsy (*p);
+	sumw++;
+      }
+  else if (wts.size() != keys.size())
+    cerr << "VaPair::GetAsyAve ERROR: Weight and key vector sizes differ" << endl;
+  else
+    for (size_t i = 0; i < keys.size(); ++i)
+      {
+	sumxw += wts[i] * GetAsy (keys[i]);
+	sumw += wts[i];
+      }
+
+  if (sumw <= 0)
+    {
+      cerr << "VaPair::GetAsyAve ERROR: Weight sum non-positive" << endl;
+      return 0;
+    }
+
+  return sumxw / sumw;
+}
+
+
 Bool_t 
-VaPair::PassedCuts()
+VaPair::PassedCuts() const
 {
 // True if neither event has cut condition
 
@@ -255,7 +321,7 @@ VaPair::PassedCuts()
 }
 
 Bool_t 
-VaPair::PassedCutsInt(const TaCutList& cl)
+VaPair::PassedCutsInt(const TaCutList& cl) const
 {
 // True if neither event is in cut interval
 

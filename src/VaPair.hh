@@ -47,10 +47,13 @@ public:
   const TaEvent& GetLeft() const;
   void QueuePrint() const;   
   void AddResult (const TaLabelledQuantity&); 
-  Double_t GetDiff (Int_t);
-  Double_t GetAsy (Int_t);
-  Bool_t PassedCuts(); // True if neither event has cut condition
-  Bool_t PassedCutsInt(const TaCutList& cl); // True if neither event is in cut interval
+  Double_t GetDiff (Int_t) const;
+  Double_t GetDiffSum (vector<Int_t>, vector<Double_t> = vector<Double_t>(0)) const;
+  Double_t GetAsy (Int_t) const;
+  Double_t GetAsySum (vector<Int_t>, vector<Double_t> = vector<Double_t>(0)) const;
+  Double_t GetAsyAve (vector<Int_t>, vector<Double_t> = vector<Double_t>(0)) const;
+  Bool_t PassedCuts() const; // True if neither event has cut condition
+  Bool_t PassedCutsInt(const TaCutList& cl) const; // True if neither event is in cut interval
   const vector<TaLabelledQuantity>& GetResults() const;
   
 protected:
