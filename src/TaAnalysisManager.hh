@@ -24,8 +24,6 @@
 class TaRun;
 class VaAnalysis;
 class TROOT;
-class TFile;
-class TaFileName;
 
 class TaAnalysisManager
 {
@@ -65,9 +63,7 @@ class TaAnalysisManager
   // Data members
   TaRun* fRun;              // Requested run
   VaAnalysis* fAnalysis;    // Requested analysis
-  TFile* fRootFile;         // Root file for analysis results
   Bool_t fOnlFlag;          // Flag indicating data is online
-  TaFileName* fRootFileName; // Root file name
 
 #ifdef DICT
   ClassDef (TaAnalysisManager, 0) // Drives the entire analysis.  

@@ -17,10 +17,8 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "TROOT.h"
-#include "TFile.h"
 #include <unistd.h>
 #include "TaAnalysisManager.hh" 
-#include "TaFileName.hh"
 #include "TaRun.hh"
 #include "TaString.hh"
 #include "VaDataBase.hh"
@@ -41,9 +39,7 @@ const ErrCode_t TaAnalysisManager::fgTAAM_OK = 0;
 TaAnalysisManager::TaAnalysisManager (): 
   fRun(0), 
   fAnalysis(0),
-  fRootFile(0),
-  fOnlFlag(false),
-  fRootFileName(0)
+  fOnlFlag(false)
 {
 }
 
@@ -138,18 +134,9 @@ TaAnalysisManager::End()
   fAnalysis->RunFini ();
   fAnalysis->Finish(); // take care of end-of-analysis tasks
   fRun->Finish(); // compute and print/store run results
-  fRootFile->Write();
-  fRootFile->Close();
-  // Move the generic root file to one with the run number in it
-  TaFileName RootFileName ("root");
-  string syscommand = string ("mv ") + fRootFileName->String() +
-    string (" ") + RootFileName.String();
-  system(syscommand.c_str());
 
   delete fAnalysis;
   delete fRun;
-  delete fRootFile;
-  delete fRootFileName;
   return fgTAAM_OK; // for now always return OK
 }
 
@@ -162,23 +149,6 @@ TaAnalysisManager::InitCommon()
   // Common setup for overall management of analysis
 
   clog << "\nTaAnalysisManager::InitCommon: Start of analysis\n" << endl;
-
-  // Make the ROOT output file, generic at first since we don't know
-  // run number yet.  Use a TaFileName name, incorporating process
-  // number and host name for uniqueness.
-
-  char pidc[6];
-  sprintf (pidc, "%5.5d", getpid());
-  char *hn = getenv ("HOSTNAME");
-  string com;
-  if (hn == 0)
-    com = string (pidc);
-  else
-    com = string (pidc) + string ("-") + string (hn);
-
-  fRootFileName = new TaFileName ("root", com);
-  fRootFile = new TFile(fRootFileName->String().c_str(),"RECREATE");
-  fRootFile->SetCompressionLevel(0);
 
   // Initialize the run
   int status = fRun->Init();
@@ -210,9 +180,6 @@ TaAnalysisManager::InitCommon()
 	   << theAnaType << endl;
       return fgTAAM_ERROR;
     }
-
-  // Now we know run number and analysis type, so set up proper file names
-  TaFileName::Setup (fRun->GetRunNumber(), theAnaType);
 
   fAnalysis->Init(fOnlFlag);
   return fAnalysis->RunIni (*fRun);
