@@ -85,7 +85,7 @@ ifdef PROFILE
 endif
 
 ifdef OPTIMIZE
-   CXXFLAGS += -O3
+   CXXFLAGS += -O
 else
    CXXFLAGS += -g
 endif
