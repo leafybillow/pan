@@ -143,7 +143,7 @@ VaAnalysis::Init()
 }
 
 
-void 
+ErrCode_t
 VaAnalysis::RunIni(TaRun& run) 
 { 
   // To be called at the start of each run.  (Present structure of Pan
@@ -166,47 +166,13 @@ VaAnalysis::RunIni(TaRun& run)
 // Define CHECKOUT if you want a printout of the database.  This might be worth
 // leaving in permanently, but should at least be checked sometimes.
 #ifdef CHECKOUT
-  cout << "\n\nCHECKOUT of DATABASE for Run "<<fRun->GetRunNumber()<<endl;
-  cout << "Run type  = "<<fRun->GetDataBase()->GetRunType()<<endl;
-  cout << "Max events = "<<fRun->GetDataBase()->GetMaxEvents()<<endl;
-  cout << "lobeam  cut = "<<fRun->GetDataBase()->GetCutValue("LOBEAM")<<endl;
-  cout << "burpcut  cut = "<<fRun->GetDataBase()->GetCutValue("BURPCUT")<<endl;
-  cout << "window delay = "<<fRun->GetDataBase()->GetDelay()<<endl;
-  cout << "oversampling factor = "<<fRun->GetDataBase()->GetOverSamp()<<endl;
-  cout << "pair type (i.e. pair or quad) =  "<<fRun->GetDataBase()->GetPairType()<<endl;
-  cout << "\n\nPedestal and Dac noise parameters by ADC# and channel# : "<<endl;
-  for (int adc = 0; adc < 10 ; adc++) {
-    cout << "\n\n-----  For ADC "<<adc<<endl;
-    for (int chan = 0; chan < 4; chan++) {
-      cout << "\n  channel "<<chan;
-      cout << "   ped = "<<fRun->GetDataBase()->GetPedestal(adc,chan);
-      cout << "   dac slope = "<<fRun->GetDataBase()->GetDacNoise(adc,chan,"slope");
-      cout << "   dac int = "<<fRun->GetDataBase()->GetDacNoise(adc,chan,"int");
-    }
-  }  
-  cout << "\n\nNumber of cuts "<<fRun->GetDataBase()->GetNumCuts()<<endl;
-  vector<Int_t> extlo = fRun->GetDataBase()->GetExtLo();
-  vector<Int_t> exthi = fRun->GetDataBase()->GetExtHi();
-  for (int i = 0; i<fRun->GetDataBase()->GetNumCuts(); i++) { 
-    if (i >= (long)exthi.size()) cout << "extlo and exthi mismatched size"<<endl;
-    cout << "Cut "<<i<<"   Extlo  = "<<extlo[i]<<"  Exthi = "<<exthi[i]<<endl;
-  }  
-  cout << "\n\nNum cut event intervals "<<fRun->GetDataBase()->GetNumBadEv()<<endl;
-  map<Int_t, vector<Int_t> > evint = fRun->GetDataBase()->GetCutValues();
-  Int_t k = 0;
-  for (map<Int_t, vector<Int_t> >::iterator icut = evint.begin();
-     icut != evint.end(); icut++) {
-     vector<Int_t> cutint = icut->second;
-     cout << "Cut interval "<<dec<< k++;
-     cout << "  from event "<< cutint[0] << " to "<<cutint[1];
-     cout << "  mask "<<cutint[2]<<"   veto "<<cutint[3]<<endl;
-  }
+  fRun->GetDataBase().Checkout();
 #endif  
 // ----------- end of database checkout (ifdef)
 
   // Get maximum events to analyze from the database
   EventNumber_t mx = 0;
-  mx = fRun->GetDataBase()->GetMaxEvents();
+  mx = fRun->GetDataBase().GetMaxEvents();
   if (mx > 0) {
     fMaxNumEv = mx;
     clog << "\nLimiting analysis to " << fMaxNumEv << "  events "<<endl;
@@ -215,8 +181,8 @@ VaAnalysis::RunIni(TaRun& run)
   // maximum events in fEHelDeque set equal to helicity delay times
   // oversample plus one. 
 
-  fEHelDequeMax = fRun->GetDataBase()->GetDelay() * 
-    fRun->GetDataBase()->GetOverSamp() + 1;
+  fEHelDequeMax = fRun->GetDataBase().GetDelay() * 
+    fRun->GetDataBase().GetOverSamp() + 1;
 
   // maximum events in fEDeque set equal to twice number of
   // events per second.  Half as many pairs in fPDeque.
@@ -226,7 +192,7 @@ VaAnalysis::RunIni(TaRun& run)
     {
       cerr << "VaAnalysis::RunIni ERROR: Trigger rate is zero, cannot analyze"
            << endl;
-      exit (1);
+      return fgVAANA_ERROR;
     }
   
   fPairTree = 0;
@@ -242,22 +208,22 @@ VaAnalysis::RunIni(TaRun& run)
     fZpair[i]=0;
     fZsum4B[i].clear();
   }  
-  if ( fRun->GetDataBase()->GetFdbkSwitch("AQ") == "on") fQSwitch = kTRUE;
+  if ( fRun->GetDataBase().GetFdbkSwitch("AQ") == "on") fQSwitch = kTRUE;
   if ( fQSwitch) 
     {
-      fQTimeScale = fRun->GetDataBase()->GetFdbkTimeScale("AQ");
+      fQTimeScale = fRun->GetDataBase().GetFdbkTimeScale("AQ");
       clog<< " feedback timescale "<<fQTimeScale<<endl;
     }
-  if ( fRun->GetDataBase()->GetFdbkSwitch("PZT") == "on") fZSwitch = kTRUE;
+  if ( fRun->GetDataBase().GetFdbkSwitch("PZT") == "on") fZSwitch = kTRUE;
   if ( fZSwitch) 
     {
-      fZTimeScale = fRun->GetDataBase()->GetFdbkTimeScale("PZT");
+      fZTimeScale = fRun->GetDataBase().GetFdbkTimeScale("PZT");
       clog<< " feedback timescale "<<fZTimeScale<<endl;
     }
 
   // Set pair type
 
-  string type = fRun->GetDataBase()->GetPairType();
+  string type = fRun->GetDataBase().GetPairType();
   
   // Remove this ifdef when TaPairFromQuad class exists and FromQuad
   // added to enum EPairType.
@@ -275,10 +241,11 @@ VaAnalysis::RunIni(TaRun& run)
         }
       fPairType = FromPair;
     }
+  return fgVAANA_OK;
 }
 
 
-void
+ErrCode_t
 VaAnalysis::ProcessRun()
 {
   // Main analysis routine -- this is the event loop.  Get an event,
@@ -288,15 +255,18 @@ VaAnalysis::ProcessRun()
 
   while ( fRun->NextEvent() )
     {
-      PreProcessEvt();
+      if (PreProcessEvt() != 0)
+	return fgVAANA_ERROR;
       if ( fEDeque.size() == fEDequeMax )
         {
-          ProcessEvt();
+          if (ProcessEvt() != 0)
+	    return fgVAANA_ERROR;
           fRun->AccumEvent (*fEvt);
         }
       if ( fPDeque.size() == fPDequeMax )
         {
-          ProcessPair();
+          if (ProcessPair() != 0)
+	    return fgVAANA_ERROR;
           fRun->AccumPair (*fPair);
         }
       if (fRun->GetEvent().GetEvNumber() % 1000 == 0)
@@ -321,15 +291,18 @@ VaAnalysis::ProcessRun()
   
   while ( fEDeque.size() > 0 )
     {
-      ProcessEvt();
+      if (ProcessEvt() != 0)
+	return fgVAANA_ERROR;
       fRun->AccumEvent (*fEvt);
     }
   while ( fPDeque.size() > 0 )
     {
-      ProcessPair();
+      if (ProcessPair() != 0)
+	return fgVAANA_ERROR;
       fRun->AccumPair (*fPair);
     }
 
+  return fgVAANA_OK;
 }
 
 void 
@@ -407,7 +380,7 @@ VaAnalysis& VaAnalysis::operator=(const VaAnalysis& assign)
 }
 
 
-void
+ErrCode_t
 VaAnalysis::PreProcessEvt()
 {
   // Preprocess event, checking for cut conditions, and putting event
@@ -444,10 +417,11 @@ VaAnalysis::PreProcessEvt()
        << ") " << fPDeque.size()
        << " (" << fPDequeMax << ")" << endl;
 #endif
+  return fgVAANA_OK;
 }
 
 
-void
+ErrCode_t
 VaAnalysis::ProcessEvt()
 {
   // Handle analysis of an event that has been through the event delay
@@ -475,10 +449,11 @@ VaAnalysis::ProcessEvt()
        << ") " << fPDeque.size()
        << " (" << fPDequeMax << ")" << endl;
 #endif
+  return fgVAANA_OK;
 }
 
 
-void
+ErrCode_t
 VaAnalysis::ProcessPair()
 {
   // Handle analysis of a pair that has been through the pair delay
@@ -514,7 +489,7 @@ VaAnalysis::ProcessPair()
     {
       cerr << "VaAnalysis::ProcessPair ERROR: "
            << "no pair on deque to analyze" << endl;
-      exit (1);
+      return fgVAANA_ERROR;
     }
 #ifdef NOISY
   clog << "Leaving ProcessPair, queue sizes " << fEHelDeque.size()
@@ -524,10 +499,11 @@ VaAnalysis::ProcessPair()
        << ") " << fPDeque.size()
        << " (" << fPDequeMax << ")" << endl;
 #endif
+  return fgVAANA_OK;
 }
 
 
-void
+ErrCode_t
 VaAnalysis::NewPrePair()
 { 
   // Look at the pairing type to create a new pair object of the
@@ -554,8 +530,9 @@ VaAnalysis::NewPrePair()
     {
       cerr << "VaAnalysis::NewPrePair ERROR "
            << "-- Invalid pair type " << endl;
-      exit (1);
+      return fgVAANA_ERROR;
     }
+  return fgVAANA_OK;
 }
 
 
@@ -686,13 +663,13 @@ VaAnalysis::ChanList (const string& devtype, const string& channel, const string
   string chancopy1, chancopy2;
   chancopy1 = channel;
 
-  fRun->GetDataBase()->DataMapReStart();  // Re-initialize the datamap iterator
-  while ( fRun->GetDataBase()->NextDataMap() )
+  fRun->GetDataBase().DataMapReStart();  // Re-initialize the datamap iterator
+  while ( fRun->GetDataBase().NextDataMap() )
     {
-      string devicetype (fRun->GetDataBase()->GetDataMapType());
+      string devicetype (fRun->GetDataBase().GetDataMapType());
       if ( devicetype == devtype )
         {
-          string devicename (fRun->GetDataBase()->GetDataMapName());
+          string devicename (fRun->GetDataBase().GetDataMapName());
           size_t i = channel.find("~");
           string channelp; 
           if (i < channel.length()) {
