@@ -21,6 +21,10 @@
 #include <vector>
 #include "Rtypes.h"
 #include "PanTypes.hh"
+#include <iostream>
+#include "TaPanamAna.hh"
+
+using namespace std;
 
 class TaRun;
 class VaAnalysis;
@@ -51,7 +55,9 @@ class TaAnalysisManager
   ErrCode_t Process();            // Process all data
   ErrCode_t EndPass1();           // End first pass analysis
   ErrCode_t End();                // End all analysis
-  
+  // Panam specific methods
+  TaPanamAna*  GetAnalysis() const; 
+  void SetMonitorList(vector<string> monlist);  // init the device list  
   // Static constants
   static const ErrCode_t fgTAAM_ERROR;
   static const ErrCode_t fgTAAM_OK;
@@ -67,7 +73,8 @@ class TaAnalysisManager
   TaRun* fRun;              // Requested run
   VaAnalysis* fAnalysis;    // Requested analysis
   Bool_t fOnlFlag;          // Flag indicating data is online
-  vector<string> dbcommand; // Database command to pass to fRun
+  vector<string> dbcommand; // Database command to pass to fRun 
+  vector<string> fMonList; // Database command to pass to fRun 
 
 #ifndef NODICT
   ClassDef (TaAnalysisManager, 0) // Drives the entire analysis.  

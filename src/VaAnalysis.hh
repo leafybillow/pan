@@ -47,9 +47,12 @@
 #include "PanTypes.hh"
 #include <deque>
 #include <string>
-#include <strstream>
+//#include <strstream>
+#include <sstream>
 #include <utility>
 #include <vector>
+
+using namespace std;
 
 class TaCutList;
 class TaRun;
@@ -158,6 +161,10 @@ public:
 
   // Data access functions
   size_t PairsLeft() const { return fPDeque.size(); }
+  // Monitoring related methods
+  virtual vector<string> GetHistoForListBox() const; 
+  virtual void InitDevicesList(vector<string> monlist);
+  virtual void DefineADCStacks( Bool_t opt);
 
   // Constants
 
@@ -214,7 +221,7 @@ protected:
   virtual void PZTSendEPICS(Int_t fdbkoption);
   virtual void SendVoltagePZT();
   virtual void GetLastSetPt();
-  // new code 
+  // Feedback related methods
   virtual void InitFeedback();
   virtual void ProceedFeedback();
   virtual void ProceedLastFeedback();

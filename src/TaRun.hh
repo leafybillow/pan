@@ -36,6 +36,8 @@
 #include <string>
 #include <map>
 
+using namespace std;
+
 // This flag may be set by signalhandler in main.cc
 // It defines a way to gracefully end a run with "kill -31"
 extern int global_kill31_flag;
@@ -87,7 +89,6 @@ public:
   string GetKey(Int_t key) const;
   TaDevice& GetDevices() const {return *fDevices;};  // Device map for this run
   virtual void InitRoot();
-
   // Static data
 
   static const ErrCode_t fgTARUN_ERROR;  // returned on error

@@ -28,6 +28,7 @@
 //#define NOISY
 //#define CHECKOUT
 //#define FAKEDEAD
+#define PANAMTEST
 
 #include "TaRun.hh"
 #include <iostream>
@@ -50,6 +51,9 @@
 #include "TaString.hh"
 #include "VaAnalysis.hh"
 #include "VaPair.hh"
+#ifdef PANAMTEST
+#include <TSystem.h>
+#endif
 #ifdef ONLINE
 #include "THaEtClient.h"
 #endif
@@ -105,6 +109,7 @@ TaRun::TaRun(const Int_t& run) :
   fEvent(0),
   fAccumEvent(0),
   fDevices(0),
+  fRootFile(0),
   fEvtree(0),
   fESliceStats(0),
   fPSliceStats(0),
@@ -125,6 +130,7 @@ TaRun::TaRun(const string& filename):
   fEvent(0),
   fAccumEvent(0),
   fDevices(0),
+  fRootFile(0),
   fEvtree(0),
   fESliceStats(0),
   fPSliceStats(0),
@@ -317,6 +323,10 @@ TaRun::NextEvent()
 	}
       gotPhys = fEvent->IsPhysicsEvent();
     }
+#ifdef PANAMTEST
+  //  cout<<"sleeeeep...."<<endl;
+  gSystem->Sleep(33);
+#endif
 
   Decode();     // Seems like a good place to put this.
 
@@ -545,8 +555,7 @@ TaRun::Finish()
 { 
   // End of run.  Write out root file and close it.
 
-  cout << "\nTaRun::Finish End of run " << fRunNumber << endl;
-
+  cout << "\nTaRun::Finish End of run " << fRunNumber <<flush<<endl;
   if (fRootFile != 0)
     {
       fRootFile->Write();
@@ -641,7 +650,7 @@ TaRun::GetBuffer()
     {
       return status;
     } 
-  if (global_kill31_flag == 1) return -1; // forced end-of-run.
+  //  if (global_kill31_flag == 1) return -1; // forced end-of-run.
 
 #ifdef FAKEDEAD
   static TRandom r;

@@ -43,6 +43,7 @@ TaAnalysisManager::TaAnalysisManager ():
   fAnalysis(0),
   fOnlFlag(false)
 {
+ fMonList.clear();
 }
 
 
@@ -157,6 +158,25 @@ TaAnalysisManager::End()
   return fgTAAM_OK; // for now always return OK
 }
 
+TaPanamAna*
+TaAnalysisManager::GetAnalysis() const
+{
+ TaString theAnaType = fRun->GetDataBase().GetAnaType(); 
+ if (theAnaType.CmpNoCase("monitor") == 0) {return (TaPanamAna*) fAnalysis;}
+ else { cout<<"TaAnalysisManager::GetAnalysis() BAD ANALYSIS TYPE, NEED TaPanam type analysis \n";
+       return NULL;}
+}
+
+void 
+TaAnalysisManager::SetMonitorList(vector<string> monlist)
+{// copy the list of devices key for monitoring analysis
+  cout<<" TaAnalysisManager::SetMonitorList() : copy device list "<<endl;
+  fMonList = monlist; 
+  cout<<" copied "<<endl;
+}
+
+
+
 
 // Private member functions
 
@@ -189,14 +209,19 @@ TaAnalysisManager::InitCommon()
       theAnaType.CmpNoCase("beam") == 0 ||
       theAnaType.CmpNoCase("prompt") == 0)
     fAnalysis = new TaStandardAna;
-  else if (theAnaType.CmpNoCase("adcped") == 0)
-    fAnalysis = new TaADCCalib("adcped");
-  else if (theAnaType.CmpNoCase("adcdac") == 0)
-    fAnalysis = new TaADCCalib("adcdac");
-  else if (theAnaType.CmpNoCase("debug") == 0)
-    fAnalysis = new TaDebugAna;
+   else if (theAnaType.CmpNoCase("adcped") == 0)
+     fAnalysis = new TaADCCalib("adcped");
+   else if (theAnaType.CmpNoCase("adcdac") == 0)
+     fAnalysis = new TaADCCalib("adcdac");
+   else if (theAnaType.CmpNoCase("debug") == 0)
+     fAnalysis = new TaDebugAna;
   else if (theAnaType.CmpNoCase("fdbk") == 0)
     fAnalysis = new TaFeedbackAna();    
+  else if (theAnaType.CmpNoCase("monitor") == 0)
+    {
+     fAnalysis = new TaPanamAna();
+     fAnalysis->InitDevicesList(fMonList);
+    }
   else
     {
       cerr << "TaAnalysisManager::InitCommon ERROR: Invalid analysis type = "

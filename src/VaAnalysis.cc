@@ -274,7 +274,9 @@ VaAnalysis::InitLastPass ()
       InitTree(fRun->GetCutList());
     }
   else
-    clog << "VaAnalysis::RunIni No ROOT file created for this analysis" << endl;
+    {
+     clog << "VaAnalysis::RunIni No ROOT file created for this analysis" << endl;      
+    }   
   return fgVAANA_OK;  
 }
 
@@ -398,9 +400,6 @@ VaAnalysis::RunFini()
     fRun->PrintRun();
 
   ProceedLastFeedback();
-
-  //  if (fQSwitch) QasyEndFeedback();
-  //  if (fZSwitch) PZTEndFeedback();
 
   if (fLastPass)
     {
@@ -1300,7 +1299,7 @@ VaAnalysis::ComputeData(EFeedbackType fdbk, UInt_t timescale, Int_t devicekey)
        }
     fRMS[fdbk] = sqrt(fRMS[fdbk]/fNPair[fdbk]);
     fResult[fdbk] = fMean1[fdbk];
-    fResultError[fdbk] = fRMS[fdbk]/sqrt(fNPair[fdbk]);
+    fResultError[fdbk] = fRMS[fdbk]/sqrt((Double_t) fNPair[fdbk]);
 #ifdef FDBK1
     clog<<"      |\n";      
     clog<<"      | 1st pass <"<<fMonitor[fdbk]<<"> :  "
@@ -1335,7 +1334,7 @@ VaAnalysis::ComputeData(EFeedbackType fdbk, UInt_t timescale, Int_t devicekey)
        }     
     fRMS[fdbk] = sqrt(fRMS[fdbk]/fNPair[fdbk]); // data RMS
     fResult[fdbk] = fMean2[fdbk];
-    fResultError[fdbk] = fRMS[fdbk]/sqrt(fNPair[fdbk]); //  error on data Mean
+    fResultError[fdbk] = fRMS[fdbk]/sqrt((Double_t) fNPair[fdbk]); //  error on data Mean
 #ifdef FDBK1
 
     clog<<"      |\n";      
@@ -1386,7 +1385,7 @@ VaAnalysis::ComputeLastData(EFeedbackType fdbk, UInt_t timescale, Int_t deviceke
           }     
        fRMS[fdbk] = sqrt(fRMS[fdbk]/fNPair[fdbk]); //  data RMS
        fResult[fdbk] = fMean1[fdbk];
-       fResultError[fdbk] = fRMS[fdbk]/sqrt(fNPair[fdbk]); //  error on data Mean
+       fResultError[fdbk] = fRMS[fdbk]/sqrt((Double_t) fNPair[fdbk]); //  error on data Mean
     
 #ifdef FDBK1
        clog<<"      |\n";      
@@ -1416,7 +1415,7 @@ VaAnalysis::ComputeLastData(EFeedbackType fdbk, UInt_t timescale, Int_t deviceke
           }     
        fRMS[fdbk] = sqrt(fRMS[fdbk]/fNPair[fdbk]); //  Qasym RMS
        fResult[fdbk] = fMean2[fdbk];
-       fResultError[fdbk] = fRMS[fdbk]/sqrt(fNPair[fdbk]); //  error on Qasym Mean
+       fResultError[fdbk] = fRMS[fdbk]/sqrt((Double_t) fNPair[fdbk]); //  error on Qasym Mean
 #ifdef FDBK1
        clog<<"      |\n";      
        clog<<"      | 2nd pass <"<<fMonitor[fdbk]<<"> : "<<fResult[fdbk]<<" +- "<<fResultError[fdbk]<<" RMS "<<fRMS[fdbk]<<" \n"; 
@@ -1530,7 +1529,8 @@ void VaAnalysis::GetLastSetPt() {
     cout << "ERROR: Cannot open latest value of set points !\n"<<endl;
     return;
   }
-  static char strin[100],epicsvar[100];
+  static char strin[100];
+  //epicsvar[100];
   float epicsval;
   //for (int i = 0; i<3; i++){
     if (fgets(strin,100,fd) != NULL) {
@@ -1662,3 +1662,20 @@ void VaAnalysis::LeakCheck()
        << " diff " <<fLeakNewPair-fLeakDelPair << endl;
 }
 #endif
+
+vector<string>
+VaAnalysis::GetHistoForListBox() const
+{
+  cout<<" VaAnalysis::GetHistoForListBox(), overwrite in TaPanamAna\n";
+  vector<string> empty;
+  return empty;
+}
+void VaAnalysis::InitDevicesList(vector<string> monlist)
+{
+  // overwrite this member function in TaPanamAna
+}
+
+void VaAnalysis::DefineADCStacks(Bool_t opt)
+{
+  // overwrite this member function in TaPanamAna
+}
