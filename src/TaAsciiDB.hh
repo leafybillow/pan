@@ -44,6 +44,10 @@ public:
   string GetRunType()const ;
 // Get analysis type
   string GetAnaType()const ;
+  // Get feedback switch
+  string GetFdbkSwitch( const string &fdbktype) const;
+// Get feedback timescale 
+  Int_t  GetFdbkTimeScale(const string &fdbktype) const;  
 // FIXME: I drop a lot of 'const' everywhere... no time to put it in.
 // Get Dac noise parameters for adc,chan with key = 'slope' or 'intercept'
   Double_t GetDacNoise(const Int_t& adc, const Int_t& chan, const string& key) const;  

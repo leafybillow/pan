@@ -172,6 +172,10 @@ public:
   virtual string GetRunType()const =0 ;
 // Get analysis type
   virtual string GetAnaType()const =0;
+// Get feedback switch
+ virtual string GetFdbkSwitch( const string &fdbktype) const=0;
+// Get feedback timescale 
+ virtual Int_t  GetFdbkTimeScale(const string &fdbktype) const=0;  
 // Get Dac noise parameters for adc,chan with key = 'slope' or 'intercept'
   virtual Double_t GetDacNoise(const Int_t& adc, const Int_t& chan, 
        const string& key)const =0;  
