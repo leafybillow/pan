@@ -6,6 +6,21 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on  15 Jun 2004
+--------------------------------------
+
+In prompt.macro, we open a new canvas before the calls to ParamSave
+methods and delete it after, so it's not there to annoy the user when
+prompt finishes.  I've added lines for detector means/widths, and made
+it not attempt to call the spokes macro if there is no dither tree.
+
+In prompt.cfg, now that a bug in online has been fixed I've put minus
+signs into the titles of the double difference plots.
+
+In ParamSave.macro, I've commented out the definition of FAKETYFAKE so
+regression coefficient faking is disabled.
+
+
 Changes by R. Holmes on  31 May 2004
 --------------------------------------
 
