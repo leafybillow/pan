@@ -49,8 +49,7 @@ TaADCCalib::TaADCCalib(const string& anName)
   else
     typeFlag = 0;
 
-  //  clog << "TaADCCalib::TaADCCalib analysis type is " << anName << " and typeflag is " 
-  //       << typeFlag << endl;
+  //  clog << "TaADCCalib::TaADCCalib analysis type is " << anName << " and typeflag is "        << typeFlag << endl;
 
   if (typeFlag == 1) {
     phist = new TH1F* [(ADC_MaxSlot+1)*ADC_MaxChan];
@@ -138,8 +137,7 @@ void TaADCCalib::Init(const Bool_t& onl)
     InitDAC();
   else {
     cerr << endl;
-    cerr << "TaADCCalib::Init ERROR: Invalid ADC Calibration Procedure Selected: typeFlag = " 
-	 << typeFlag <<endl;
+    cerr << "TaADCCalib::Init ERROR: Invalid ADC Calibration Procedure Selected: typeFlag = "  << typeFlag <<endl;
     cerr << endl;
   }
 
@@ -150,18 +148,17 @@ void TaADCCalib::Finish()
   // End of analysis -- mainly just calls type-specific finish routine
 
   VaAnalysis::Finish();
-  //  clog << "TaADCCalib::Finish Local finish of TaADCCalib needed also..." << endl;
+  //  clog<<"TaADCCalib::Finish Local finish of TaADCCalib needed also..." << endl;
 
 
   // separate finish calls for each type of analysis
-  if (typeFlag == 1) 
-    FinishPed();
-  else if (typeFlag == 2)
+  if (typeFlag == 1) {
+  FinishPed();
+  } else if (typeFlag == 2) {
     FinishDAC();
-  else {
+  } else {
     cerr << endl;
-    cerr << "TaADCCalib::Finish ERROR: Invalid ADC Calibration Procedure Selected: typeFlag = " 
-	 << typeFlag <<endl;
+    cerr << "TaADCCalib::Finish ERROR: Invalid ADC Calibration Procedure Selected: typeFlag = "  << typeFlag <<endl;
     cerr << endl;
   }
 
@@ -175,10 +172,10 @@ void TaADCCalib::FinishDAC()
 {
   // End of DAC calibration analysis; computes DAC noise pedestals and
   // slopes
-
   char charkey[10];
   string key; 
   Int_t id;
+
   vector<Double_t> x0 = vector<Double_t>((size_t) (ADC_MaxSlot+1)*ADC_MaxChan,0);
   vector<Double_t> slope = vector<Double_t>((size_t) (ADC_MaxSlot+1)*ADC_MaxChan,0);
   vector<Double_t> Ex0 = vector<Double_t>((size_t) (ADC_MaxSlot+1)*ADC_MaxChan,0);
@@ -186,6 +183,7 @@ void TaADCCalib::FinishDAC()
     vector<Double_t>((size_t) (ADC_MaxSlot+1)*ADC_MaxChan,0);
   vector<Bool_t> filledOK = 
     vector<Bool_t>((size_t) (ADC_MaxSlot+1)*ADC_MaxChan,kFALSE);
+
 
   // loop over slots, 0-9
   for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
@@ -293,11 +291,6 @@ void TaADCCalib::FinishDAC()
     //  loop over chans 1-4
     for (Int_t ich=0; ich < ADC_MaxChan;  ich++) {
       id = isl*ADC_MaxChan + ich + 1;
-      Double_t dDACval[MaxNoiseDACBin];
-      Double_t dEDACval[MaxNoiseDACBin];
-      Double_t dADCavg[MaxNoiseDACBin];
-      Double_t dADCvar[MaxNoiseDACBin];
-      Double_t dRes[MaxNoiseDACBin];
       Int_t nGood = 0;
       for (Int_t ib=0; ib<MaxNoiseDACBin; ib++) {
 	if (dEntries[id][ib] >=1) {

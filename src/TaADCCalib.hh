@@ -81,6 +81,11 @@ private:
   vector< vector<Double_t> >  dADCsum;  // sum of ADC value for each chan#/DAC bin
   vector< vector<Double_t> >  dADCsum2; // sum of ADC value-squared
 
+  Double_t dDACval[MaxNoiseDACBin];
+  Double_t dEDACval[MaxNoiseDACBin];
+  Double_t dADCavg[MaxNoiseDACBin];
+  Double_t dADCvar[MaxNoiseDACBin];
+  Double_t dRes[MaxNoiseDACBin];
 
   // We should not need to copy or assign an analysis, so copy
   // constructor and operator= are private.
