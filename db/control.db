@@ -165,7 +165,7 @@
 # beam modulation words...
 #    datamap   bmw        bmw      bmw        0     0       112   bmw_clean bmw_obj bmw_val
 #
-    ncuts 4
-    cutnames Low_beam Beam_burp Evt_seq Pair_seq
-    extlo 10 10 25 25
-    exthi 40 40 25 25
+    ncuts 5
+    cutnames Low_beam Beam_burp Evt_seq Pair_seq Startup
+    extlo 10 10 25 25 0
+    exthi 40 40 25 25 0
