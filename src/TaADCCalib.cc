@@ -14,29 +14,13 @@
 #include "TaADCCalib.hh"
 #include "TaEvent.hh"
 #include "TaRun.hh"
+#include "TaString.hh"
 #include "TaLabelledQuantity.hh"
 
 #ifdef DICT
 ClassImp(TaADCCalib)
 #endif
 
-
-// This non-member string comparison routine probably should be somewhere else!
-Int_t cmp_nocase2 (const string& s, const string& s2)
-{
-  string::const_iterator p = s.begin();
-  string::const_iterator p2 = s2.begin();
-
-  while (p != s.end() && p2 != s2.end())
-    {
-      if (toupper(*p) != toupper(*p2))
-	return (toupper(*p) < toupper(*p2)) ? -1 : 1;
-      ++p;
-      ++p2;
-    }
-
-  return (s2.size() == s.size()) ? 0 : (s.size() < s2.size()) ? -1 : 1;
-}
 
 // Constructors/destructors/operators
 
@@ -49,9 +33,9 @@ TaADCCalib::TaADCCalib():VaAnalysis()
 TaADCCalib::TaADCCalib(const string& anName)
   :VaAnalysis()
 {
-  if (cmp_nocase2 (anName, "adcped") == 0)
+  if (TaString (anName).CmpNoCase("adcped") == 0)
     typeFlag = 1;
-  else if (cmp_nocase2 (anName, "adcdac") == 0)
+  else if (TaString (anName).CmpNoCase("adcdac") == 0)
     typeFlag = 2;
   else
     typeFlag = 0;

@@ -13,6 +13,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "TaAsciiDB.hh"
+#include "TaString.hh"
 
 #ifdef DICT
 ClassImp(TaAsciiDB)
@@ -51,9 +52,9 @@ void TaAsciiDB::Load(int run) {
   }
   string comment = "#";
   vector<string> strvect;
-  string sinput,sline;
+  TaString sinput,sline;
   while (getline(*dbfile,sinput)) {
-    strvect.clear();   strvect = vsplit(sinput);
+    strvect.clear();   strvect = sinput.Split();
     sline = "";
     for (vector<string>::iterator str = strvect.begin();
       str != strvect.end(); str++) {
@@ -61,7 +62,7 @@ void TaAsciiDB::Load(int run) {
       sline += *str;   sline += " ";
     }
     if (sline == "") continue;
-    strvect = vsplit(sline);
+    strvect = sline.Split();
     multimap<string, vector<dtype*> >::iterator dmap = 
           database.find(FindTable(strvect[0]));
     if (dmap == database.end()) continue; 
@@ -106,7 +107,7 @@ vector<Double_t> TaAsciiDB::GetData(string table, vector<string> keys) const {
        string key = *str;
        for (int k = 0; k < (long)datatype.size(); k++) {         
          if (datatype[k]->GetType() == "s") {
-           if ( bstrstr(datatype[k]->GetS(),key) ) {
+           if ( TaString(datatype[k]->GetS()).CmpNoCase(key) == 0 ) {
              result.push_back(GetData(datatype[k+1]));
            }
          }
@@ -127,7 +128,7 @@ string TaAsciiDB::GetData(string table, string key, Int_t index) const {
      vector<dtype*> datatype = dmap->second;
      if (index >= 0 && index+1 < (long)datatype.size()) {
        if (datatype[0]->GetType() == "s") {
-         if ( bstrstr(datatype[0]->GetS(), key) ) {
+         if ( TaString(datatype[0]->GetS()).CmpNoCase( key) == 0 ) {
             if (datatype[index+1]->GetType() == "s") 
                return datatype[index+1]->GetS();
          }
@@ -202,9 +203,9 @@ Double_t TaAsciiDB::GetDacNoise(const Int_t& adc, const Int_t& chan, const strin
     idx = adc*MAXCHAN+chan;
     if (idx >= 0 && idx < MAXADC*MAXCHAN) 
       {
-       if (bstrstr(key,"slope")) return dacparam[idx];
+       if (TaString(key).CmpNoCase("slope") == 0) return dacparam[idx];
       }
-    if (bstrstr(key,"int") || bstrstr(key,"intercept"))
+    if (TaString(key).CmpNoCase("int") == 0 || TaString(key).CmpNoCase("intercept") == 0)
       {
       return dacparam[idx+MAXADC*MAXCHAN];
       } 
@@ -256,13 +257,13 @@ Double_t TaAsciiDB::GetPedestal(const Int_t& adc, const Int_t& chan) const{
 UInt_t TaAsciiDB::GetHeader(const string& device) const {
 // Get Headers for decoding
    string table = "header";
-   return str_to_base16(GetData(table, device, 0));
+   return TaString(GetData(table, device, 0)).Hex();
 };
 
 UInt_t TaAsciiDB::GetMask(const string& device) const {
 // Get Mask for decoding 
    string table = "header";
-   return str_to_base16(GetData(table, device, 1));
+   return TaString(GetData(table, device, 1)).Hex();
 };
 
 Double_t TaAsciiDB::GetCutValue(const string& cutname) const {
@@ -341,13 +342,13 @@ Double_t TaAsciiDB::GetValue(const string& table) const {
 // are in a pair  "table   value" where table is a unique string and
 // value the single Double_t that belongs to it.
    static multimap<string, vector<dtype*> >::const_iterator dmap;
-   dmap = database.lower_bound(stlow(table));
+   dmap = database.lower_bound(TaString(table).ToLower());
    if (dmap == database.end() || 
-       database.count(stlow(table)) == 0) {
+       database.count(TaString(table).ToLower()) == 0) {
      cout << "ERROR: TaAsciiDB: Unknown database table "<<table<<endl;
      return 0;
    }
-   if (database.count(stlow(table)) > 1) {
+   if (database.count(TaString(table).ToLower()) > 1) {
      cout << "ERROR: TaAsciiDB: Mulitply defined table "<<table<<endl;
      cout << "Fix the database to have one instance."<<endl;
      return 0;
@@ -365,13 +366,13 @@ string TaAsciiDB::GetString(const string& table) const {
 // are in a pair  "table  string" where table is unique and
 // value the single string that belongs to it.
    static multimap<string, vector<dtype*> >::const_iterator dmap;
-   dmap = database.lower_bound(stlow(table));
+   dmap = database.lower_bound(TaString(table).ToLower());
    if (dmap == database.end() || 
-       database.count(stlow(table)) == 0) {
+       database.count(TaString(table).ToLower()) == 0) {
      cout << "ERROR: TaAsciiDB: Unknown database table "<<table<<endl;
      return 0;
    }
-   if (database.count(stlow(table)) > 1) {
+   if (database.count(TaString(table).ToLower()) > 1) {
      cout << "ERROR: TaAsciiDB: Mulitply defined table "<<table<<endl;
      cout << "Fix the database to have one instance."<<endl;
      return 0;
@@ -387,9 +388,9 @@ vector<Int_t> TaAsciiDB::GetValueVector(const string& table) const {
    vector<Int_t> result;
    result.clear();
    multimap<string, vector<dtype*> >::const_iterator lb =
-          database.lower_bound(stlow(table));
+          database.lower_bound(TaString(table).ToLower());
    multimap<string, vector<dtype*> >::const_iterator ub = 
-          database.upper_bound(stlow(table));
+          database.upper_bound(TaString(table).ToLower());
    for (multimap<string, vector<dtype*> >::const_iterator dmap = lb;
          dmap != ub; dmap++) {
      vector<dtype*> datav = dmap->second;
@@ -614,7 +615,7 @@ void TaAsciiDB::PrintDataBase() {
 string TaAsciiDB::FindTable(string table) {
 // Return 'case insensitive' table name if table exists
   for (int i = 0; i < (long)tables.size(); i++) {
-    if ( bstrstr(table,tables[i]) ) return tables[i];
+    if ( TaString(table).CmpNoCase(tables[i]) == 0 ) return tables[i];
   }
   return " ";
 };

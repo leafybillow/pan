@@ -12,11 +12,11 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-#include <strstream>
 #include "TROOT.h"
 #include "TFile.h"
 #include "TaAnalysisManager.hh" 
 #include "TaRun.hh"
+#include "TaString.hh"
 #include "VaDataBase.hh"
 #include "VaAnalysis.hh"
 #include "TaBeamAna.hh"
@@ -26,24 +26,6 @@
 #ifdef DICT
 ClassImp(TaAnalysisManager)
 #endif
-
-// This non-member string comparison routine probably should be somewhere else!
-int cmp_nocase (const string& s, const string& s2)
-{
-  string::const_iterator p = s.begin();
-  string::const_iterator p2 = s2.begin();
-
-  while (p != s.end() && p2 != s2.end())
-    {
-      if (toupper(*p) != toupper(*p2))
-	return (toupper(*p) < toupper(*p2)) ? -1 : 1;
-      ++p;
-      ++p2;
-    }
-
-  return (s2.size() == s.size()) ? 0 : (s.size() < s2.size()) ? -1 : 1;
-}
-
 
 // Constructors/destructors/operators
 
@@ -160,18 +142,18 @@ TaAnalysisManager::InitCommon()
   }
 
   // Make the desired kind of analysis
-  string theAnaType = fRun->GetDataBase()->GetAnaType();
+  TaString theAnaType = fRun->GetDataBase()->GetAnaType();
 
   cout << "TaAnalysisManager::Init Analysis type is " 
        << theAnaType << endl;
 
-  if (cmp_nocase (theAnaType, "beam") == 0)
+  if (theAnaType.CmpNoCase("beam") == 0)
     fAnalysis = new TaBeamAna;
-  else if(cmp_nocase (theAnaType, "fdbk") == 0)
+  else if(theAnaType.CmpNoCase("fdbk") == 0)
     fAnalysis = new TaFdbkAna;
-  else if (cmp_nocase (theAnaType, "adcped") == 0)
+  else if (theAnaType.CmpNoCase("adcped") == 0)
     fAnalysis = new TaADCCalib("adcped");
-  else if (cmp_nocase (theAnaType, "adcdac") == 0)
+  else if (theAnaType.CmpNoCase("adcdac") == 0)
     fAnalysis = new TaADCCalib("adcdac");
   else
     {

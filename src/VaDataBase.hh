@@ -256,10 +256,6 @@ public:
 protected:
 
   int runnum;
-  string stlow(const string a) const;
-  bool bstrstr(const string a, const string b) const;
-  vector<string> vsplit(const string s);
-  UInt_t str_to_base16(string str) const;
 
 private:
 
