@@ -126,7 +126,8 @@
     datamap   scaler     scaler0  scaler     0     16       26  scaler0_16 scaler0_17 scaler0_18 scaler0_19
     datamap   scaler     scaler0  scaler     0     20       30  scaler0_20 scaler0_21 scaler0_22 scaler0_23
     datamap   scaler     scaler0  scaler     0     24       34  scaler0_24 scaler0_25 scaler0_26 scaler0_27
-    datamap   scaler     scaler0  scaler     0     28       38  scaler0_28 scaler0_29 scaler0_30 v2f_clk0
+    datamap   scaler     scaler0  scaler     0     28       38  scaler0_28 scaler0_29 scaler0_30 scaler0_31
+    datamap   v2fclk     v2fclk   scaler     0     31       41  v2f_clk0
     ncuts 4
     cutnames Low_beam Beam_burp Oversample Sequence
     extlo 10 10 25 25
