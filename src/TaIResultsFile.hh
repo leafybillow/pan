@@ -78,7 +78,7 @@ class TaIResultsFile: public ifstream
 
   // Private member functions
 
-  TaIResultsFile (const TaIResultsFile&) {}  // Do not use
+  TaIResultsFile (const TaIResultsFile& f): ifstream (f)  {}  // Do not use
   TaIResultsFile& operator= (const TaIResultsFile&) { return *this; } // Do not use
   void Create (const RunNumber_t run, 
 	       const string atype, 
