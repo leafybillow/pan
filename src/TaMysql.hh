@@ -8,7 +8,8 @@
 //           TaMysql.hh   (header file)
 //           ^^^^^^^^^^^^
 //
-//    Authors :  R. Suleiman
+//    Authors :  Copy from TaAsciiDB.hh (with TaAsciiDB <-> TaMysql and
+//                                       UInt_t fRunIndex;)
 //
 //  Mysql based database
 //  Inherits interface from class VaDataBase.
@@ -26,12 +27,14 @@
 #include <map>
 #include <iterator>
 #include <stdlib.h>
+
 #include "TMySQLServer.h"
 #include "TMySQLRow.h"
 #include "TMySQLResult.h" 
 #include "time.h" 
 
 #include "VaDataBase.hh"
+#include "TDBTools.hh"
 
 class TaMysql : public VaDataBase {
 
@@ -39,10 +42,7 @@ public:
  
   TaMysql();
   virtual ~TaMysql();
-
   void Load(int run);   // Load the database for this run.
-  Int_t Connect(TSQLServer *db);   // Connect to MySQL database for this run.
-  Int_t DisConnect(TSQLServer *db);   // disConnect MySQL database for this run.
   void Write();         // Write (update) database for this run.
 
 // Generic get methods if you know the 'table' and 'key's you want.
@@ -157,6 +157,8 @@ private:
   map<string, int> dbinit,colsize;
   Bool_t didinit,initdm,firstiter;
   Double_t *dacparam,*pedvalue;
+
+  UInt_t fRunIndex;
 
 #ifdef DICT
 ClassDef(TaMysql,0)  // MySQL database
