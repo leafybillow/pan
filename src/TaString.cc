@@ -118,7 +118,7 @@ TaString::ToLower () const
 TaString 
 TaString::ToUpper () const
 {
- // Conversion to lower case.
+ // Conversion to upper case.
   TaString::const_iterator p = this->begin();
   TaString result("");
   while (p != this->end()) 

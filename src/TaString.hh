@@ -50,7 +50,7 @@ public:
   vector<string> Split (size_t n = 0) const;   // split on whitespace
   UInt_t Hex() const;      // conversion to to unsigned interpreting as hex
   TaString ToLower () const; // conversion to lower case
-  TaString ToUpper () const; // conversion to lower case
+  TaString ToUpper () const; // conversion to upper case
 
   TaString RemoveChar(const char* toremove); // Remove "toremove" 
 
