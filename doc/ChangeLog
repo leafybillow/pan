@@ -4,6 +4,84 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Michaels on 5 Apr 2002
+-------------------------------------
+
+Before changing anything, I created a "stable release"
+    cvs -q tag Stable-version0-5Apr2002
+To retrieve this in the future, you may
+    cvs checkout -r Stable-version0-5Apr2002
+But, you probably never will want to.  Instead, you should
+checkout the new code in a CLEAN new working directory.
+
+Massive surgery:  elimination of the classes
+
+   VaDevice  TaADC   TaBCM   TaBPM   TaTIR  TaScaler  TaTB
+
+There is a new class TaDevice which is owned by TaRun.
+It contains the data that TaEvent needs to decode devices,
+but which doesn't change throughout a run.  
+
+To increase the speed, we use static arrays of data, with 
+access by integer indices, not strings.  This is found to be
+much faster than hash maps.
+
+In TaEvent the "Get" methods for data are:
+
+   // raw data, index = location in buffer 
+       Int_t GetRawData(Int_t index); 
+   // get data by unique key
+       Double_t GetData(Int_t key);   
+   // get raw ADC data in slot and chan (slot & chan starts at 0)
+       Double_t GetRawADCData(Int_t slot, Int_t chan);  
+   // get calib. ADC data in slot and chan.
+       Double_t GetCalADCData(Int_t slot, Int_t chan);  
+   // get scaler data in slot and chan.
+       GetScalerData(Int_t slot, Int_t chan);  
+
+The "GetData(key)" method uses integer keys defined in
+DevTypes.hh.   Examples:
+
+      GetData(IBCM1R);     // gets raw (R) data from BCM1
+      GetData(IHELICITY);  // gets the helicity data.
+
+The string names equivalent to these integer keys is
+defined in an obvious way in TaDevice::InitKeyList, and
+users can determine the correspondence at initialization
+using the method of TaRun
+
+      Int_t GetKey(string keystr);  // returns integer key
+
+The string names are still used to define variables in 
+the root output trees, in TaLabelledQuantity, etc.  
+The VaAnalysis was modified to use a vector of "AnaList"
+objects which contain the string names, corresponding
+integer keys, and units.
+
+Other details:
+  - TaAnalysisManager sets ROOT file compression level to 0
+  - Suppress printout of datamap (commented out)
+
+  - Files affected:
+     Makefile
+     TaADCCalib.cc
+     TaAsciiDB.cc
+     TaAnalysisManager.cc
+     TaBeamAna.cc
+     TaEvent.cc
+     TaEvent.hh
+     TaRun.cc
+     TaRun.hh
+     VaAnalysis.hh
+     VaAnalysis.hh
+     TaFdbkAna.cc
+
+  - New files:
+     TaDevice.cc
+     TaDevice.hh
+     DevTypes.hh
+	
+	
 Changes by R. Holmes on 18-19 Mar 2002
 ----------------------------------------
 
