@@ -41,7 +41,7 @@ public:
   
   virtual ~VaPair();
   
-  virtual void RunInit();
+  virtual ErrCode_t RunInit(const TaRun&);
   virtual Bool_t Fill (TaEvent&, TaRun&) = 0;  // check for pair and fill
   const TaEvent& GetRight() const;
   const TaEvent& GetLeft() const;
@@ -54,6 +54,10 @@ public:
   const vector<TaLabelledQuantity>& GetResults() const;
   
 protected:
+
+  // Constants
+  static const ErrCode_t fgVAP_ERROR;  // returned on error
+  static const ErrCode_t fgVAP_OK;      // returned on success
 
   // Static data members  
   static deque< TaEvent > fgEventQueue;  // Events waiting to be paired

@@ -23,11 +23,15 @@
 #include "TaEvent.hh"
 #include "TaLabelledQuantity.hh"
 #include "VaPair.hh" 
+#include "TaRun.hh"
 
 #ifdef DICT
 ClassImp(VaPair)
 #endif
 
+// Static members
+const ErrCode_t VaPair::fgVAP_OK = 0;
+const ErrCode_t VaPair::fgVAP_ERROR = -1;
 deque< TaEvent > 
 VaPair::fgEventQueue;
 
@@ -63,12 +67,13 @@ VaPair::~VaPair()
 }
 
 
-void 
-VaPair::RunInit()
+ErrCode_t
+VaPair::RunInit(const TaRun& run)
 {
   // Initialization at start of run -- clear event queue (so we don't
   // pair events from two different runs, for instance)
   fgEventQueue.clear();
+  return fgVAP_OK;
 }
 
 
