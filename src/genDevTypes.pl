@@ -140,8 +140,10 @@ sub do_striplines
     $out .= << "ENDSTRCOM";
 // Stripline BPMs
 
-\#define   STROFF     $stroff     // Stripline BPMs start here
-\#define   STRNUM     $strnum     // number of striplines defined below
+\// Stripline BPMs start here
+\#define   STROFF     $stroff
+\// number of striplines defined below
+\#define   STRNUM     $strnum
 
 // XP, XM, YP, YM = antennas; X, Y = calibrated position;
 // XWS, YWS, WS = X, Y, and total wiresum
@@ -164,7 +166,8 @@ ENDSTRCOM
     $out .= << "ENDSTRCORRCOM";
 // Stripline wires before pedestal subtraction
 
-\#define   STRCORROFF     $strcorroff     // Corrected Stripline wires
+\// Corrected Stripline wires
+\#define   STRCORROFF     $strcorroff
 
 // XPC, XMC, YPC, YMC = corrected antennas (before pedestal subtraction);
 
@@ -220,8 +223,10 @@ sub do_cavities
     
     $out .= << "ENDCAVCOM";
 // Cavity BPMs
-\#define   CAVOFF     $cavoff     // Cavity BPMs start here
-\#define   CAVNUM     $cavnum     // number of cavities defined below
+\// Cavity BPMs start here
+\#define   CAVOFF     $cavoff
+\// number of cavities defined below
+\#define   CAVNUM     $cavnum
 
 // XR, YR = raw data; X, Y = calibrated position
 
@@ -237,7 +242,8 @@ ENDCAVCOM
     
     $out .= << "ENDCAVCORRCOM";
 // Cavity BPMs (before pedestal subtraction)
-\#define   CAVCORROFF     $cavcorroff     // Cavity BPMs (before peds)
+\// Cavity BPMs (before peds)
+\#define   CAVCORROFF     $cavcorroff
 
 // XC, YC = data before pedestal subtraction
 
@@ -284,8 +290,10 @@ sub do_profile
     
     $out .= << "ENDPROFCOM";
 // UMass Profile Scanner
-\#define   PROFOFF     $profoff     // UMass profile scanner start here
-\#define   PROFNUM     $profnum     // num. prof. devices defined below
+\// UMass profile scanner start here
+\#define   PROFOFF     $profoff
+\// num. prof. devices defined below
+\#define   PROFNUM     $profnum
 
 // "PROFX", "PROFY" = positions, "PROF" = amplitude.
 // "PROFV1" "V2" "V3" = control voltage levels.
@@ -325,8 +333,10 @@ sub do_bcms
     $out .= << "ENDBCMCOM";
 // Old (HAPPEX-I era) BCMs
 
-\#define   BCMOFF     $bcmoff     // Old BCMs start here
-\#define   BCMNUM     $bcmnum     // number of old BCMs defined below
+\// Old BCMs start here
+\#define   BCMOFF     $bcmoff
+\// number of old BCMs defined below
+\#define   BCMNUM     $bcmnum
 
 // R = raw data; "" = calibrated data
 
@@ -342,7 +352,8 @@ ENDBCMCOM
     $out .= << "ENDBCMCORRCOM";
 // Old (HAPPEX-I era) BCMs (before pedestal subtraction)
 
-\#define   BCMCORROFF     $bcmcorroff     // Old BCMs start here
+\// Old BCMs start here
+\#define   BCMCORROFF     $bcmcorroff
 
 // C = data before pedestal subtraction
 
@@ -360,8 +371,10 @@ ENDBCMCORRCOM
     $out .= << "ENDCCMCOM";
 // G0 BCMs
 
-\#define   CCMOFF     $ccmoff     // G0 BCMs start here
-\#define   CCMNUM     $ccmnum     // number of G0 BCMs defined below
+\// G0 BCMs start here
+\#define   CCMOFF     $ccmoff
+\// number of G0 BCMs defined below
+\#define   CCMNUM     $ccmnum
 
 // R = raw data; "" = calibrated data
 
@@ -378,7 +391,8 @@ ENDCCMCOM
     $out .= << "ENDCCMCORRCOM";
 // G0 BCMs (before pedestal subtraction)
 
-\#define   CCMCORROFF     $ccmcorroff     // G0 BCMs (before peds)
+\// G0 BCMs (before peds)
+\#define   CCMCORROFF     $ccmcorroff
 
 // C = data before pedestal subtraction
 
@@ -421,8 +435,10 @@ sub do_batts
     $out .= << "ENDBATTCOM";
 // Batteries
 
-\#define   BATOFF     $batoff     // Batteries start here
-\#define   BATNUM     $batnum     // number of batteries defined below
+\// Batteries start here
+\#define   BATOFF     $batoff
+\// number of batteries defined below
+\#define   BATNUM     $batnum
 
 $out1
 ENDBATTCOM
@@ -450,8 +466,10 @@ sub do_dets
     $out .= << "ENDDETCOM";
 // Detectors
 
-\#define   DETOFF     $detoff     // Detectorss start here
-\#define   DETNUM     $detnum     // number of detectors defined below
+\// Detectorss start here
+\#define   DETOFF     $detoff
+\// number of detectors defined below
+\#define   DETNUM     $detnum
 
 // R = raw data; "" = calibrated data
 
@@ -467,7 +485,8 @@ ENDDETCOM
     $out .= << "ENDDETCORRCOM";
 // Detectors (before pedestal subtraction)
 
-\#define   DETCORROFF     $detcorroff     // Detectors (before peds)
+\// Detectors (before peds)
+\#define   DETCORROFF     $detcorroff
 
 // C = data before pedestal subtraction
 
@@ -512,8 +531,11 @@ sub do_detcombs
     $out .= << "ENDDETCOMBCOM";
 // Detector Combinations
 
-\#define   DETCOMBOFF     $detcomboff     // Detector Combinations start here
-\#define   DETCOMBNUM     $detcombnum     // number of detector combos defined below
+\// Detector Combinations start here
+\#define   DETCOMBOFF     $detcomboff
+\// number of detector combos defined below
+\#define   DETCOMBNUM     $detcombnum
+
 
 $out1
 ENDDETCOMBCOM
@@ -548,8 +570,10 @@ sub do_adcs
 
 // First the raw data
 
-\#define   ADCOFF     $adcoff     // Raw ADCs start here
-\#define   ADCNUM     $adcnum     // number of ADCs defined below
+\// Raw ADCs start here
+\#define   ADCOFF     $adcoff
+\// number of ADCs defined below
+\#define   ADCNUM     $adcnum
 
 $out1
 ENDADCCOM
@@ -564,7 +588,8 @@ ENDADCCOM
     $out .= << "ENDADCDACSUBCOM";
 // Now the dacnoise subtracted data
 
-\#define   ADCDACSUBOFF     $adcdacsuboff     // Dacnoise Subtracted ADCs start here
+\// Dacnoise Subtracted ADCs start here
+\#define   ADCDACSUBOFF     $adcdacsuboff
 
 $out1
 ENDADCDACSUBCOM
@@ -579,7 +604,8 @@ ENDADCDACSUBCOM
     $out .= << "ENDACCCOM";
 // Now the calibrated data
 
-\#define   ACCOFF     $accoff     // Calibrated ADCs start here
+\// Calibrated ADCs start here
+\#define   ACCOFF     $accoff
 
 $out1
 ENDACCCOM
@@ -595,8 +621,10 @@ ENDACCCOM
     $out .= << "ENDDACCOM";
 // DAC noise.
 
-\#define   DACOFF     $dacoff     // DACs start here
-\#define   DACNUM     $dacnum     // number of DACs defined below
+\// DACs start here
+\#define   DACOFF     $dacoff
+\// number of DACs defined below
+\#define   DACNUM     $dacnum
 
 $out1
 ENDDACCOM
@@ -612,8 +640,10 @@ ENDDACCOM
     $out .= << "ENDCSRCOM";
 // CSRs
 
-\#define   CSROFF     $csroff     // CSRs start here
-\#define   CSRNUM     $csrnum     // number of CSRs defined below
+\// CSRs start here
+\#define   CSROFF     $csroff
+\// number of CSRs defined below
+\#define   CSRNUM     $csrnum
 
 $out1
 ENDCSRCOM
@@ -677,8 +707,10 @@ sub do_scalers
     $out .= << "ENDSCALERCOM";
 // Raw scalers
 
-\#define   SCAOFF     $scaoff     // Raw SCALERs start here
-\#define   SCANUM     $scanum     // number of SCALERs defined below
+\// Raw SCALERs start here
+\#define   SCAOFF     $scaoff
+\// number of SCALERs defined below
+\#define   SCANUM     $scanum
 
 $out1
 ENDSCALERCOM
@@ -693,7 +725,8 @@ ENDSCALERCOM
     $out .= << "ENDSCACLKDIVCOM";
 // Clock Divided scalers (before pedestal subtraction)
 
-\#define   SCACLKDIVOFF     $scaclkdivoff     // Clock Divided SCALERs start here
+\// Clock Divided SCALERs start here
+\#define   SCACLKDIVOFF     $scaclkdivoff
 
 $out1
 ENDSCACLKDIVCOM
@@ -708,7 +741,8 @@ ENDSCACLKDIVCOM
     $out .= << "ENDSCCCOM";
 // Calibrated scalers
 
-\#define   SCCOFF     $sccoff     // Calibrated SCALERs start here
+\// Calibrated SCALERs start here
+\#define   SCCOFF     $sccoff     
 
 $out1
 ENDSCCCOM
@@ -764,8 +798,10 @@ sub do_tirs
     $out .= << "ENDTIRCOM";
 // TIR data from various crates
 
-\#define   TIROFF     $tiroff     // TIRs start here
-\#define   TIRNUM     $ncrates     // number of TIRs defined below
+\// TIRs start here
+\#define   TIROFF     $tiroff
+\ // number of TIRs defined below
+\#define   TIRNUM     $ncrates
 
 $out1
 ENDTIRCOM
@@ -775,8 +811,10 @@ ENDTIRCOM
     $out .= << "ENDHELCOM";
 // Helicity info from various crates
 
-\#define   HELOFF     $heloff     // Helicities start here
-\#define   HELNUM     $ncrates     // number of HELs defined below
+\// Helicities start here
+\#define   HELOFF     $heloff
+\// number of HELs defined below
+\#define   HELNUM     $ncrates
 
 $out1
 ENDHELCOM
@@ -786,8 +824,10 @@ ENDHELCOM
     $out .= << "ENDTIMCOM";
 // Timeslot info from various crates
 
-\#define   TIMOFF     $timoff     // Timeslots start here
-\#define   TIMNUM     $ncrates     // number of timeslots defined below
+\// Timeslots start here
+\#define   TIMOFF     $timoff
+\// number of timeslots defined below
+\#define   TIMNUM     $ncrates
 
 $out1
 ENDTIMCOM
@@ -797,8 +837,10 @@ ENDTIMCOM
     $out .= << "ENDPARCOM";
 // Pairsynch info from various crates
 
-\#define   PAROFF     $paroff     // Pairsynchs start here
-\#define   PARNUM     $ncrates     // number of pairsynchs defined below
+\// Pairsynchs start here
+\#define   PAROFF     $paroff
+\// number of pairsynchs defined below
+\#define   PARNUM     $ncrates
 
 $out1
 ENDPARCOM
@@ -807,8 +849,10 @@ ENDPARCOM
     $out .= << "ENDQUDCOM";
 // Quadsynch info from various crates
 
-\#define   QUDOFF     $qudoff     // Quadsynchs start here
-\#define   QUDNUM     $ncrates     // number of quadsynchs defined below
+\// Quadsynchs start here
+\#define   QUDOFF     $qudoff
+\// number of quadsynchs defined below
+\#define   QUDNUM     $ncrates
 
 $out1
 ENDQUDCOM
@@ -833,8 +877,10 @@ sub do_daqflag
 // DAQ Flag data from various crates
 // (note: BMW data only comes from one crate)
 
-\#define   DAQOFF     $daqoff     // DAQ flags start here
-\#define   DAQNUM     $ncrates    // number of DAQ flags defined below
+\// DAQ flags start here
+\#define   DAQOFF     $daqoff
+\// number of DAQ flags defined below
+\#define   DAQNUM     $ncrates
 
 $out1
 ENDDAQCOM
@@ -862,8 +908,10 @@ sub do_timeboards
     $out .= << "ENDTBDCOM";
 // Timeboard data from various crates
 
-\#define   TBDOFF     $tbdoff     // Timeboards start here
-\#define   TBDNUM     $ncrates     // number of timeboards defined below
+\// Timeboards start here
+\#define   TBDOFF     $tbdoff
+\// number of timeboards defined below
+\#define   TBDNUM     $ncrates
 
 $out1
 ENDTBDCOM
@@ -903,8 +951,10 @@ sub do_lumis
     $out .= << "ENDLUMICOM";
 // Lumi detectors
 
-\#define   LMIOFF     $lmioff     // Lumis start here
-\#define   LMINUM     $lminum     // number of lumis defined below
+\// Lumis start here
+\#define   LMIOFF     $lmioff
+\// number of lumis defined below
+\#define   LMINUM     $lminum
 
 // R = raw data; "" = calibrated data
 
@@ -920,7 +970,8 @@ ENDLUMICOM
     $out .= << "ENDLUMICORRCOM";
 // Lumi detectors (before pedestal subtraction)
 
-\#define   LMICORROFF     $lmicorroff     // Lumis (before peds)
+\// Lumis (before peds)
+\#define   LMICORROFF     $lmicorroff
 
 // C = data before pedestal subtraction
 
@@ -963,8 +1014,10 @@ sub do_v2fclocks
     $out .= << "ENDV2FCLOCKCOM";
 // V2f_Clocks
 
-\#define   V2FCLKOFF     $v2fclkoff     // V2F clocks start here
-\#define   V2FCLKNUM     $v2fclknum     // number of V2F clocks defined below
+\// V2F clocks start here
+\#define   V2FCLKOFF     $v2fclkoff
+\// number of V2F clocks defined below
+\#define   V2FCLKNUM     $v2fclknum
 
 $out1
 ENDV2FCLOCKCOM
@@ -994,8 +1047,10 @@ sub do_qpds
     $out .= << "ENDQPDCOM";
 // Quad photodiodes
 
-\#define   QPDOFF     $qpdoff     // Quad photodiodes start here
-\#define   QPDNUM     $qpdnum     // number of quad photodiodes defined below
+\// Quad photodiodes start here
+\#define   QPDOFF     $qpdoff
+\// number of quad photodiodes defined below
+\#define   QPDNUM     $qpdnum
 
 // PP, PM, MP, MM = diodes (x side, y side); X, Y = calibrated position;
 // SUM = X, Y, and total diode sum
@@ -1013,7 +1068,8 @@ ENDQPDCOM
     $out .= << "ENDQPDCORRCOM";
 // Quad photodiodes (before pedestal subtraction)
 
-\#define   QPDCORROFF     $qpdcorroff     // Quad photodiodes (before peds)
+\// Quad photodiodes (before peds)
+\#define   QPDCORROFF     $qpdcorroff
 
 // PPC, PMC, MPC, MMC = diodes (x side, y side) before pedestal subtraction
 
@@ -1066,8 +1122,10 @@ sub do_scans
     $out .= << "ENDSCANCOM";
 // Q2 Scanners
 
-\#define   SCANOFF     $scanoff     // Q2 scanners start here
-\#define   SCANNUM     $scannum     // number of Q2 scanners defined below
+\// Q2 scanners start here
+\#define   SCANOFF     $scanoff
+\// number of Q2 scanners defined below
+\#define   SCANNUM     $scannum
 
 // XENC, YENC = raw encoder values,  X, Y = calibrated encoder values  
 // DET = integrated PMT signal
@@ -1085,7 +1143,8 @@ ENDSCANCOM
     $out .= << "ENDSCANCORRCOM";
 // Q2 Scanners (before pedestal subtraction)
 
-\#define   SCANCORROFF     $scancorroff     // Q2 scanners (before peds)
+\// Q2 scanners (before peds)
+\#define   SCANCORROFF     $scancorroff
 
 // XENCC, YENCC = encoder values before pedestal subtraction
 // DETC = integrated PMT signal before pedestal subtraction
@@ -1135,8 +1194,10 @@ sub do_bmwwords
     $out .= << "ENDBMWWORDCOM";
 // bmw words
 
-\#define   BMWOFF     $bmwoff     // bmw words start here
-\#define   BMWNUM     $bmwnum     // number of bmw words defined below
+\// bmw words start here
+\#define   BMWOFF     $bmwoff
+\// number of bmw words defined below
+\#define   BMWNUM     $bmwnum
 
 $out1
 ENDBMWWORDCOM
@@ -1164,8 +1225,10 @@ sub do_scanflags
     $out .= << "ENDSCANFLCOM";
 // scan flags
 
-\#define   SCANFLAGOFF     $scanfloff     // scanflags start here
-\#define   SCANFLAGNUM     $scanflnum     // number of scanflags defined below
+\// scanflags start here
+\#define   SCANFLAGOFF     $scanfloff
+\// number of scanflags defined below
+\#define   SCANFLAGNUM     $scanflnum
 
 $out1
 ENDSCANFLCOM
@@ -1193,8 +1256,10 @@ sub do_syncwords
     $out .= << "ENDSYNCWORDCOM";
 // sync words
 
-\#define   SYNCOFF     $syncoff     // sync words start here
-\#define   SYNCNUM     $syncnum     // number of sync words defined below
+\// sync words start here
+\#define   SYNCOFF     $syncoff
+\// number of sync words defined below
+\#define   SYNCNUM     $syncnum
 
 $out1
 ENDSYNCWORDCOM
