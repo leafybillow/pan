@@ -28,6 +28,7 @@
 #include <iomanip>
 #include "TaCutInterval.hh"
 #include "TaDataBase.hh"
+#include "TaOResultsFile.hh"
 
 #ifndef NODICT
 ClassImp(TaCutList)
@@ -335,6 +336,32 @@ TaCutList::PrintTally (ostream& s) const
       s << setw(15) << fCutNames[k].c_str() << " " ;
       clog.setf(ios::right,ios::adjustfield);
       s << setw(6) << fTally[k] << endl;
+    }
+}
+
+void 
+TaCutList::WriteTally (TaOResultsFile& resFile,
+		       const EventNumber_t ev0,
+		       const EventNumber_t ev1
+		       ) const
+{
+  // Write tally to results file
+  
+  for (size_t k = 0;
+       k != fTally.size();
+       ++k)
+    {
+      string nk = fCutNames[k];
+      // Eliminate invalid characters
+
+      for (string::iterator i = (nk).begin(); i != (nk).end(); ++i)
+	if (!((*i >= 'a' && *i <= 'z') || 
+	      (*i >= 'A' && *i <= 'Z') || 
+	      (*i >= '0' && *i <= '9') || 
+	      *i == '_'))
+	  *i = '_';
+
+      resFile.WriteNextLine (nk + "_condTally", Double_t (fTally[k]), 0, ev0, ev1, "", "");
     }
 }
 

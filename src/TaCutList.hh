@@ -36,6 +36,7 @@ using namespace std;
 class TaCutInterval;
 class TaDataBase;
 class VaEvent;
+class TaOResultsFile;
 
 class TaCutList
 {
@@ -59,6 +60,10 @@ public:
   void PrintInt (ostream&) const;  // Print intervals
   void PrintExt (ostream&) const;  // Print extensions
   void PrintTally (ostream&) const;  // Print tally of events failing cuts
+  void WriteTally (TaOResultsFile& resFile,
+		   const EventNumber_t ev0,
+		   const EventNumber_t ev1
+		   ) const;         // Write tally to results file
 
   // Access functions
   UInt_t GetNumCuts () const {return fNumCuts;} // Number of cuts defined

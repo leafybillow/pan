@@ -624,7 +624,7 @@ TaRun::PrintRun ()
 void
 TaRun::WriteRun ()
 {
-  // Write run statistics to results file
+  // Write run statistics and cut tally to results file
 
   if (fERunStats != 0)
     {
@@ -644,6 +644,7 @@ TaRun::WriteRun ()
 	  WriteStats (*(fPOrdRunStats[io]), fPOSN, fPOrdStatsUnits, 0, fEventNumber);
 	}
     }
+  fCutList->WriteTally (*fResFile, 0, fEventNumber);
 }
 
 
