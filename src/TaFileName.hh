@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "Rtypes.h"
+#include "TString.h"
 #include <string>
 #include "PanTypes.hh"
 
@@ -28,6 +29,16 @@ public:
   // Constructors/destructors/operators
 
   TaFileName () {};
+  TaFileName (const RunNumber_t r, 
+	      const string a,
+	      const string s, 
+	      const string c = "", 
+	      const string suf = "");
+  TaFileName (const RunNumber_t r, 
+	      const char* a,
+	      const char* s, 
+	      const char* c = "", 
+	      const char* suf = "");
   TaFileName (const string s, 
 	      const string c = "", 
 	      const string suf = "");
@@ -40,13 +51,13 @@ public:
 
   // Major functions
 
-  static void Setup (RunNumber_t r, string a);
-  static void Setup (RunNumber_t r, char* a);
+  static void Setup (const RunNumber_t r, const string a);
+  static void Setup (const RunNumber_t r, const char* a);
 
   // Access functions
 
   const string& String() { return fFileName; }
-  const char* C_str() { return fFileName.c_str(); }
+  const TString Tstring() { return fFileName.c_str(); }
 
 private:
   
@@ -57,9 +68,12 @@ private:
 
   // private methods
 
-  void Create (const string s, 
+  void Create (const string b,
+	       const string a,
+	       const string s, 
 	       const string c = "", 
 	       const string suf = "");
+  static string Basename (const RunNumber_t r);
 
   // Data members
 

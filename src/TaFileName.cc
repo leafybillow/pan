@@ -26,19 +26,26 @@ string TaFileName::fgBaseName = "";
 
 // Constructors/destructors/operators
 
-TaFileName::TaFileName (const string s, 
+TaFileName::TaFileName (const RunNumber_t r, 
+			const string a,
+			const string s, 
 			const string com = "", 
 			const string suf = "")
 {
-  // Construct a Pan standard filename for a file of type s (which may
-  // be "coda" for CODA data files, "db" for run-specific ASCII
-  // database files, "dbdef" for generic ASCII database files, "root"
-  // for ROOT files, or "output" for general output files) with
-  // additional comment tag com (for "root" or "output" files only)
-  // and suffix suf (for "output" files only).  
+  // Construct a Pan standard filename for run r, analysis type a,
+  // file type s (which may be "coda" for CODA data files, "db" for
+  // run-specific ASCII database files, "dbdef" for generic ASCII
+  // database files, "root" for ROOT files, "output" for general
+  // output files, or "result" for standard result output files
+  // (TaIResultFile/TaOResultFile)) with additional comment tag com
+  // (for "root", "output", or "result" files only) and suffix suf
+  // (for "output" files only).
   //
-  //  Filenames/paths generated are as follows. (In the following,
-  //  environment variables are enclosed within $().)
+  // Note that one would more commonly call Setup with r and a, and
+  // then use the 3-argument constructor.
+  //
+  // Filenames/paths generated are as follows. (In the following,
+  // environment variables are enclosed within $().)
   //
   // File type "coda":
   //
@@ -73,6 +80,16 @@ TaFileName::TaFileName (const string s,
   //   as above, where VVV is whatever suffix the programmer wants,
   //   e.g. '.txt', as given in the string suf.
   //
+  // File type "result"
+  //
+  //   $(PAN_RES_FILE_PATH)/$(PAN_FILE_PREFIX)_XXXX_ZZZZ.$(PAN_RES_FILE_SUFFIX)
+  //
+  // or
+  //
+  //   $(PAN_RES_FILE_PATH)/$(PAN_FILE_PREFIX)_XXXX_ZZZZ_WWWW.$(PAN_RES_FILE_SUFFIX)
+  //
+  //   as above.
+  //
   // All the environment variables have default values to use in case
   // they're undefined:
   //
@@ -84,15 +101,33 @@ TaFileName::TaFileName (const string s,
   //   $PAN_ROOT_FILE_PATH        .
   //   $PAN_ROOT_FILE_SUFFIX      root
   //   $PAN_OUTPUT_FILE_PATH      .
+  //   $PAN_RES_FILE_PATH         .
+  //   $PAN_RES_FILE_SUFFIX       result
 
-  Create (s, com, suf);
+  Create (Basename (r), a, s, com, suf);
+}
+
+TaFileName::TaFileName (const RunNumber_t r, 
+			const char* a,
+			const char* s, 
+			const char* com = "", 
+			const char* suf = "")
+{
+  Create (Basename (r), string (a), string (s), string (com), string (suf));
+}
+
+TaFileName::TaFileName (const string s, 
+			const string com = "", 
+			const string suf = "")
+{
+  Create (fgBaseName, fgAnaStr, s, com, suf);
 }
 
 TaFileName::TaFileName (const char* s, 
 			const char* com = "", 
 			const char* suf = "")
 {
-  Create (string (s), string (com), string (suf));
+  Create (fgBaseName, fgAnaStr, string (s), string (com), string (suf));
 }
 
 TaFileName::TaFileName (const TaFileName& fn)
@@ -111,14 +146,96 @@ TaFileName::operator= (const TaFileName& fn)
 // Major functions
 
 void 
-TaFileName::Setup (RunNumber_t r, string a)
+TaFileName::Setup (const RunNumber_t r, const string a)
 {
-  // Prepare for future creation of filenames by storing the run
-  // number r and analysis type a, and getting the file prefix from
-  // $(PAN_FILE_PREFIX) or building it by appending last 2 digits of
-  // the year to "parity".  Yes, we have a year 2100 problem.  This
-  // should be called before any filenames are constructed, perhaps
-  // repeatedly as the run number and analysis type become known.
+  // Prepare for future creation of filenames by storing a basename
+  // based on the run number r and the file prefix (obtained from
+  // $(PAN_FILE_PREFIX) or by building it by appending last 2 digits
+  // of the year to "parity".  Yes, we have a year 2100 problem.), and
+  // the analysis type a.  This should be called before any filenames
+  // are constructed, perhaps repeatedly as the run number and
+  // analysis type become known.
+
+  fgBaseName = Basename (r);
+  fgAnaStr = a;
+}
+
+void 
+TaFileName::Setup (const RunNumber_t r, const char* a)
+{
+  Setup (r, string (a));
+}
+
+// Private member functions
+
+void
+TaFileName::Create (const string b,
+		    const string a,
+		    const string s, 
+		    const string com = "", 
+		    const string suf = "")
+{
+  string path (".");
+  string tags ("");
+  string suffix ("");
+  string base = b;
+
+  if (s == "coda")
+    {
+      suffix = GetEnvOrDef ("PAN_CODA_FILE_SUFFIX", "dat");
+      path = GetEnvOrDef ("PAN_CODA_FILE_PATH", ".");
+    }
+  else if (s == "db")
+    {
+      suffix = GetEnvOrDef ("PAN_DB_FILE_SUFFIX", "db");
+      path = GetEnvOrDef ("PAN_DB_FILE_PATH", "./db");
+    }
+  else if (s == "dbdef")
+    {
+      suffix = GetEnvOrDef ("PAN_DB_FILE_SUFFIX", "db");
+      path = GetEnvOrDef ("PAN_DB_FILE_PATH", ".");
+      base = "control";
+    }
+  else if (s == "root")
+    {
+      suffix = GetEnvOrDef ("PAN_ROOT_FILE_SUFFIX", "root");
+      path = GetEnvOrDef ("PAN_ROOT_FILE_PATH", ".");
+    }
+  else if (s == "output")
+    {
+      suffix = suf;
+      path = GetEnvOrDef ("PAN_OUTPUT_FILE_PATH", ".");
+    }
+  else if (s == "result")
+    {
+      suffix = GetEnvOrDef ("PAN_RES_FILE_SUFFIX", "res");
+      path = GetEnvOrDef ("PAN_RES_FILE_PATH", ".");
+    }
+  else
+    {
+      clog << "TaFileName::TaFileName ERROR: Unknown filename type " << s << endl;
+      fFileName = "ERROR";
+      return;
+    }
+
+  if (s == "root" || s == "output" || s == "result")
+    {
+      if (a != "")
+	tags += string ("_") + a;
+      if (com != "")
+	tags += string ("_") + com;
+    }
+
+  fFileName = path + string("/") + base + tags + string(".") + suffix;
+}
+
+string
+TaFileName::Basename (const RunNumber_t r)
+{
+  // Make a basename for future creation of filenames using the run
+  // number r and the file prefix (obtained from $(PAN_FILE_PREFIX) or
+  // by building it by appending last 2 digits of the year to
+  // "parity".  Yes, we have a year 2100 problem.)
 
   string runstr ("xxxx");
   if (r != 0)
@@ -147,73 +264,7 @@ TaFileName::Setup (RunNumber_t r, string a)
       prefix = "parity";
       prefix += ystr;
     }
-  fgBaseName = prefix + string ("_") + runstr;
-  fgAnaStr = a;
-}
-
-void 
-TaFileName::Setup (RunNumber_t r, char* a)
-{
-  Setup (r, string (a));
-}
-
-// Private member functions
-
-void
-TaFileName::Create (const string s, 
-		    const string com = "", 
-		    const string suf = "")
-{
-  string path (".");
-  string tags ("");
-  string suffix ("");
-  string base = fgBaseName;
-
-  if (fgBaseName == "")
-    Setup (0, "");
-
-  if (s == "coda")
-    {
-      suffix = GetEnvOrDef ("PAN_CODA_FILE_SUFFIX", "dat");
-      path = GetEnvOrDef ("PAN_CODA_FILE_PATH", ".");
-    }
-  else if (s == "db")
-    {
-      suffix = GetEnvOrDef ("PAN_DB_FILE_SUFFIX", "db");
-      path = GetEnvOrDef ("PAN_DB_FILE_PATH", "./db");
-    }
-  else if (s == "dbdef")
-    {
-      suffix = GetEnvOrDef ("PAN_DB_FILE_SUFFIX", "db");
-      path = GetEnvOrDef ("PAN_DB_FILE_PATH", ".");
-      base = "control";
-    }
-  else if (s == "root")
-    {
-      suffix = GetEnvOrDef ("PAN_ROOT_FILE_SUFFIX", "root");
-      path = GetEnvOrDef ("PAN_ROOT_FILE_PATH", ".");
-    }
-  else if (s == "output")
-    {
-      suffix = suf;
-      path = GetEnvOrDef ("PAN_OUTPUT_FILE_PATH", ".");
-    }
-  else
-    {
-      clog << "TaFileName::TaFileName ERROR: Unknown filename type " << s << endl;
-      fFileName = "ERROR";
-      return;
-    }
-
-  if (s == "root" || s == "output")
-    {
-      if (fgAnaStr != "")
-	tags += string ("_") + fgAnaStr;
-      if (com != "")
-	tags += string ("_") + com;
-    }
-
-  fFileName = path + string("/") + base + tags + string(".") + suffix;
+  return (prefix + string ("_") + runstr);
 }
 
 // Non member functions
@@ -229,3 +280,4 @@ GetEnvOrDef (string e, const string d)
   else
     return env;
 }
+
