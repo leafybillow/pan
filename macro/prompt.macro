@@ -1,0 +1,464 @@
+ // -*- c++ -*-
+
+//**********************************************************************
+//
+//     HALL A C++/ROOT Parity Analyzer  Pan           
+//
+//           prompt.macro
+//
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
+//
+////////////////////////////////////////////////////////////////////////
+//
+//  Prompt analysis macro
+//
+////////////////////////////////////////////////////////////////////////
+
+#include "TStyle.h"
+#include <iostream>
+
+void prompt (Int_t run);
+void style ();
+
+class Prompt
+{
+public:
+  Prompt (Int_t run);
+  void ~Prompt ();
+
+  void Monitors ();
+  void Detectors (bool corrected);
+
+private:
+  Int_t fRun;               // run number
+  Int_t fNMon;              // number of beam monitors
+  Int_t fNDif;              // number of differences to compute/display
+  Int_t fNDDif;             // number of double differences to compute/display
+  Int_t fNDetAsy;           // number of detector asyms to compute/display
+  Int_t fNMod;              // number of modulation objects
+  Int_t fNDimCor;           // number of monitors and mod objects to use in corrections
+  Double_t*  fDifM;         // mean (monitor) differences
+  Double_t*  fDifME;        // errors on mean differences
+  Double_t*  fDifW;         // RMS widths of differences
+  Double_t*  fDDifW;        // RMS widths of double differences
+  Double_t*  fAsyM;         // mean (detector) asymmetries
+  Double_t*  fAsyME;        // errors on mean asymmetries
+  Double_t*  fAsyW;         // RMS widths of asymmetries
+  Double_t*  fCAsyM;        // mean (detector) corrected asymmetries
+  Double_t*  fCAsyME;       // errors on mean corrected asymmetries
+  Double_t*  fCAsyW;        // RMS widths of corrected asymmetries
+  Double_t** fMonSlope;     // Monitor slopes
+  Double_t** fDetSlope;     // Detector slopes
+  Double_t** fDetCoef;      // Detector coefficients
+  TString* fMonTag;         // tag for monitor
+  TString* fModTag;         // tag for modulation object
+  Int_t*   fMonType;        // type of monitor: 0 = BCM, 1 = BPM
+  Int_t*   fDifMon;         // list of monitor indices for differences
+  Int_t*   fDDifMon0;       // list of monitor indices for double differences
+  Int_t*   fDDifMon1;       // list of monitor indices for double differences
+  Int_t*   fCorMon;         // list of monitors for corrections
+  Int_t*   fCorMod;         // list of modulation objects for corrections
+  TString* fDifExp;         // TTree::Draw expression for monitor differences
+  TString* fDDifExp;        // TTree::Draw expression for double differences
+  TString* fAsyExp;         // TTree::Draw expression for detector asymmetries
+  TString* fCorExp;         // TTree::Draw expression for corrected detector asymmetries
+  // N.B. For whatever reason, output stream must be allocated dynamically
+  ofstream* fFile;           // output file
+};
+
+
+TString
+Prompt::Prompt (Int_t run): fRun(run)
+{
+  fNMon     = 8;
+  fNDif     = 8;
+  fNDDif    = 4;
+  fNDetAsy  = 10;
+  fNMod     = 8;
+  fNDimCor  = 5;
+  fDifM     = new Double_t[fNDif];
+  fDifME    = new Double_t[fNDif];
+  fDifW     = new Double_t[fNDif];
+  fDDifW    = new Double_t[fNDDif];
+  fAsyM     = new Double_t[fNDetAsy];
+  fAsyME    = new Double_t[fNDetAsy];
+  fAsyW     = new Double_t[fNDetAsy];
+  fCAsyM    = new Double_t[fNDetAsy];
+  fCAsyME   = new Double_t[fNDetAsy];
+  fCAsyW    = new Double_t[fNDetAsy];
+
+  fMonSlope = new Double_t*[fNMon];
+  UInt_t imon;
+  for (imon = 0; imon < fNMon; ++imon)
+    {
+      fMonSlope[imon] = new Double_t[fNMod];
+    }
+
+  fDetSlope = new Double_t*[fNDetAsy];
+   UInt_t iasy;
+  for (iasy = 0; iasy < fNDetAsy; ++iasy)
+    {
+      fDetSlope[iasy] = new Double_t[fNMod];
+    }
+
+  fDetCoef  = new Double_t*[fNDetAsy];
+  for (iasy = 0; iasy < fNDetAsy; ++iasy)
+    {
+      fDetCoef[iasy] = new Double_t[fNDimCor];
+    }
+
+  fMonTag   = new TString[fNMon];
+  fModTag   = new TString[fNMod];
+  fMonType  = new Int_t[fNMon];
+  fDifMon   = new Int_t[fNDif];
+  fDDifMon0 = new Int_t[fNDDif];
+  fDDifMon1 = new Int_t[fNDDif];
+  fCorMon   = new Int_t[fNDimCor];
+  fCorMod   = new Int_t[fNDimCor];
+  fDifExp   = new TString[fNDif];
+  fDDifExp  = new TString[fNDDif];
+  fAsyExp   = new TString[fNDetAsy];
+  fCorExp   = new TString[fNDetAsy];
+
+  fMonTag[0] = "bcm1";
+  fMonTag[1] = "bcm2";
+  fMonTag[2] = "bpm10x";
+  fMonTag[3] = "bpm12x";
+  fMonTag[4] = "bpm4ax";
+  fMonTag[5] = "bpm4ay";
+  fMonTag[6] = "bpm4bx";
+  fMonTag[7] = "bpm4by";
+
+  fMonType[0] = 0;
+  fMonType[1] = 0;
+  fMonType[2] = 1;
+  fMonType[3] = 1;
+  fMonType[4] = 1;
+  fMonType[5] = 1;
+  fMonType[6] = 1;
+  fMonType[7] = 1;
+
+  fDifMon[0] = 0;
+  fDifMon[1] = 1;
+  fDifMon[2] = 2;
+  fDifMon[3] = 3;
+  fDifMon[4] = 4;
+  fDifMon[5] = 5;
+  fDifMon[6] = 6;
+  fDifMon[7] = 7;
+
+  fDDifMon0[0] = 0;  fDDifMon1[0] = 1;
+  fDDifMon0[1] = 2;  fDDifMon1[1] = 3;
+  fDDifMon0[2] = 4;  fDDifMon1[2] = 6;
+  fDDifMon0[3] = 5;  fDDifMon1[3] = 7;
+
+  fModTag[0] = "MAT1C01H";
+  fModTag[1] = "MAT1C02V";
+  fModTag[2] = "MAT1C03H";
+  fModTag[3] = "MAT1C04H";
+  fModTag[4] = "MAT1C05H";
+  fModTag[5] = "MAT1C06V";
+  fModTag[6] = "MAT1C07V";
+  fModTag[7] = "VERNIER";
+
+  fCorMon[0] = 3;
+  fCorMon[1] = 4;
+  fCorMon[2] = 5;
+  fCorMon[3] = 6;
+  fCorMon[4] = 7;
+
+  fCorMod[0] = 0;
+  fCorMod[1] = 1;
+  fCorMod[2] = 4;
+  fCorMod[3] = 5;
+  fCorMod[4] = 7;
+
+  TString xa = "asym_";
+  TString xd = "diff_";
+
+  for (UInt_t idif = 0; idif < fNDif; ++idif)
+    {
+      fDifExp[idif] =
+	(fMonType[fDifMon[idif]] == 0 ? xa : xd) + fMonTag[fDifMon[idif]];
+    }
+
+  for (UInt_t iddif = 0; iddif < fNDDif; ++iddif)
+    {
+      fDDifExp[iddif] =
+	(fMonType[fDDifMon0[iddif]] == 0 ? xa : xd) + 
+	fMonTag[fDDifMon0[iddif]] + "-" +
+	(fMonType[fDDifMon1[iddif]] == 0 ? xa : xd) + 
+	fMonTag[fDDifMon1[iddif]];
+    }
+
+  fAsyExp[0] = "asym_n_det1";
+  fAsyExp[1] = "asym_n_det2";
+  fAsyExp[2] = "asym_n_det3";
+  fAsyExp[3] = "asym_n_det4";
+  fAsyExp[4] = "asym_n_det_l";
+  fAsyExp[5] = "asym_n_det_r";
+  fAsyExp[6] = "asym_n_det_hi";
+  fAsyExp[7] = "asym_n_det_lo";
+  fAsyExp[8] = "asym_n_det_all";
+  fAsyExp[9] = "asym_n_det_ave";
+
+  for (iasy = 0; iasy < fNDetAsy; ++iasy)
+    for (UInt_t jdim = 0; jdim < fNDimCor; ++jdim)
+      {
+	fDetCoef[iasy][jdim] = 0.;
+      }
+
+  for (iasy = 0; iasy < fNDetAsy; ++iasy)
+    {
+      fCorExp[iasy] = fAsyExp[iasy] + "-(";
+      for (UInt_t idim = 0; idim < fNDimCor; ++idim)
+	{
+	  if (idim != 0)
+	    fCorExp[iasy] += "+";
+	  Double_t foo(3.14);
+	  fCorExp[iasy] += fDetCoef[iasy][idim];
+	  fCorExp[iasy] += "*";
+	  fCorExp[iasy] +=  fDifExp[fCorMon[idim]];
+	}
+	fCorExp[iasy] += ")";
+	clog << iasy << " " << fCorExp[iasy] << endl;
+    }
+
+  TaFileName fn("output", "macro", "txt");
+  fFile = new ofstream (fn.C_str());
+  if (!(*fFile))
+    {
+      cerr << "Prompt ERROR: Cannot open output file " << fn.C_str() << endl;
+      exit (1);
+    }
+  else
+    clog << "Output file is " << fn.C_str() << endl;
+
+  *fFile << "Prompt macro output for run " << run << endl;
+  *fFile << "================================" << endl;
+}
+
+void
+Prompt::~Prompt ()
+{
+  fFile->close();
+  delete[] fDifM;
+  delete[] fDifME;
+  delete[] fDifW;
+  delete[] fDDifW;
+  delete[] fAsyM;
+  delete[] fAsyME;
+  delete[] fAsyW;
+  delete[] fCAsyM;
+  delete[] fCAsyME;
+  delete[] fCAsyW;
+
+  UInt_t imon;
+  for (imon = 0; imon < fNMon; ++imon)
+    {
+      delete[] fMonSlope[imon];
+    }
+  delete[] fMonSlope;
+
+  UInt_t iasy;
+  for (iasy = 0; iasy < fNDetAsy; ++iasy)
+    {
+      delete[] fDetSlope[iasy];
+    }
+  delete[] fDetSlope;
+
+  for (iasy = 0; iasy < fNDetAsy; ++iasy)
+    {
+      delete[] fDetCoef[iasy];
+    }
+  delete[] fDetCoef;
+
+  delete[] fMonTag;
+  delete[] fMonType;
+  delete[] fDifMon;
+  delete[] fDDifMon0;
+  delete[] fDDifMon1;
+  delete[] fDifExp;
+  delete[] fDDifExp;
+  delete[] fAsyExp;
+}
+
+void 
+Prompt::Monitors ()
+{
+  style ();
+
+  gROOT->LoadMacro ("frame.macro");
+  TString can_name ("MonitorDiffs");
+  TString can_title ("Monitor differences");
+  TCanvas* can_mon1 = frame (fRun, can_name, can_title);
+  TPad* pad_mon1 = gPad;
+
+  UInt_t nh = 2;
+  UInt_t nv = (fNDif+1)/2;
+  UInt_t np = nh * nv;
+  pad_mon1->Divide (nh, nv);
+
+  TTree *prtree = (TTree*)gROOT.FindObject("P");
+  for (Int_t idif = 0; idif < fNDif; ++idif)
+    {
+      pad_mon1->cd (idif%np+1);
+      prtree->Draw (fDifExp[idif], "ok_cut");
+
+      fDifM[idif] = htemp->GetMean();
+      fDifW[idif] = htemp->GetRMS();
+      fDifME[idif] = fDifW[idif] / sqrt (htemp->GetEntries()-1);
+
+      htemp->Fit("gaus");
+      pad_mon1->Update();
+    }
+  can_mon1.Print("");
+
+  can_name = "MonitorDblDiffs";
+  can_title = "Monitor double differences";
+  TCanvas* can_mon2 = frame (fRun, can_name, can_title);
+  TPad* pad_mon2 = gPad;
+
+  nv = (fNDDif+1)/2;
+  np = nh * nv;
+  pad_mon2->Divide (nh, nv);
+
+  TTree *prtree = (TTree*)gROOT.FindObject("P");
+  for (Int_t iddif = 0; iddif < fNDDif; ++iddif)
+    {
+      pad_mon2->cd (iddif+1);
+      prtree->Draw (fDDifExp[iddif], "ok_cut");
+
+      fDDifW[iddif] = htemp->GetRMS();
+
+      htemp->Fit("gaus");
+      pad_mon2->Update();
+    }
+  can_mon2.Print("");
+
+  *fFile << "\nMonitor differences (asymmetries):" << endl;
+  for (Int_t idif = 0; idif < fNDif; ++idif)
+    {
+      *fFile << fMonTag[fDifMon[idif]]
+	     << " Mean " << fDifM[idif]
+	     << " +- " << fDifME[idif]
+	     << "  Width " << fDifW[idif]
+	     << endl;
+    }
+
+  *fFile << "\nMonitor double differences:" << endl;
+  for (Int_t iddif = 0; iddif < fNDDif; ++iddif)
+    {
+      *fFile << fMonTag[fDDifMon0[iddif]]
+	     << " - " << fMonTag[fDDifMon1[iddif]]
+	     << "  Width " << fDDifW[iddif]
+	     << endl;
+    }
+}
+
+void 
+Prompt::Detectors (bool corrected)
+{
+  style ();
+
+  gROOT->LoadMacro ("frame.macro");
+  TString can_name (corrected ? "CorrectedDetectorAsyms" : "DetectorAsyms");
+  TString can_title (corrected ? "Corrected Detector Asymmetriess" : "Detector asymmetries");
+  TCanvas* can_det1 = frame (fRun, can_name, can_title);
+  TPad* pad_det1 = gPad;
+
+  UInt_t nh = 2;
+  UInt_t nv = (fNDetAsy+1)/2;
+  UInt_t np = nh * nv;
+  pad_det1->Divide (nh, nv);
+
+  Double_t* asym;
+  Double_t* asyw;
+  Double_t* asyme;
+
+  if (corrected)
+    {
+      asym = fCAsyM;
+      asyw = fCAsyW;
+      asyme = fCAsyME;
+    }
+  else
+    {
+      asym = fAsyM;
+      asyw = fAsyW;
+      asyme = fAsyME;
+    }
+
+  TTree *prtree = (TTree*)gROOT.FindObject("P");
+  for (Int_t iasy = 0; iasy < fNDetAsy; ++iasy)
+    {
+      pad_det1->cd (iasy%np+1);
+      prtree->Draw (corrected ? fCorExp[iasy] : fAsyExp[iasy], "ok_cut");
+
+      asym[iasy] = htemp->GetMean();
+      asyw[iasy] = htemp->GetRMS();
+      asyme[iasy] = fAsyW[iasy] / sqrt (htemp->GetEntries()-1);
+
+      htemp->Fit("gaus");
+      pad_det1->Update();
+    }
+  can_det1.Print("");
+
+  if (corrected)
+    *fFile << "\nCorrected detector asymmetries:" << endl;
+  else
+    *fFile << "\nDetector asymmetries:" << endl;
+  for (Int_t iasy = 0; iasy < fNDetAsy; ++iasy)
+    {
+      *fFile << fAsyExp[iasy]
+	     << " Mean " << asym[iasy]
+	     << " +- " << asyme[iasy]
+	     << "  Width " << asyw[iasy]
+	     << endl;
+    }
+}
+
+void 
+style ()
+{
+    gStyle->SetOptStat (1110);
+    gStyle->SetOptFit (0111);
+    gStyle->SetStatH (0.15);
+    gStyle->SetStatW (0.20);
+    gStyle->SetTitleH (0.08);
+    gStyle->SetTitleW (0.6);
+    gStyle->SetLabelSize (0.05, "x");
+    gStyle->SetLabelSize (0.05, "y");
+    //    gStyle->SetPaperSize(TStyle::kUSLetter);
+    gStyle->SetPaperSize(20,24);
+    gROOT->ForceStyle();
+}
+
+void 
+prompt (Int_t run)
+{
+  gROOT->Reset();
+
+  if (run <= 0)
+    {
+      cout << "Enter run number : ";
+      cin >> run;
+    }
+  clog << "Run " << run << endl;
+  TaFileName::Setup (run, "prompt");
+
+  Prompt pr(run);
+
+  TaFileName fn ("root");
+  TString file = fn.C_str();
+
+  clog << "ROOT file is " << file << endl;
+  f = new TFile(file);
+  //  TTree *evtree = (TTree*)gROOT.FindObject("R");
+
+  pr.Monitors ();
+  pr.Detectors (false);
+  pr.Detectors (true);
+  
+}
