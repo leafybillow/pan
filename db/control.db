@@ -10,6 +10,9 @@
     oversamp 1
     windelay  8     # helicity delay in windows
     pairtype  quad
+# blinding control
+    blindstring none  # use "" or "none" to turn off blinding
+    blindparams sign 1 mean 0.0 offscale 0.0
 # feedback     type   switch on/off/onc(compute)   timescale (mn)  monitor  
     feedback    IA       onc                          1              bcm1
     feedback    PZT      onc                           1             bpm4b
