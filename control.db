@@ -128,10 +128,6 @@
     datamap   scaler     scaler0  scaler     0     24       34  scaler0_24 scaler0_25 scaler0_26 scaler0_27
     datamap   scaler     scaler0  scaler     0     28       38  scaler0_28 scaler0_29 scaler0_30 scaler0_31
     ncuts 4
+    cutnames Low_beam Beam_burp Oversample Sequence
     extlo 10 10 25 25
     exthi 40 40 25 25
-
-
-
-
-
