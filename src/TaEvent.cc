@@ -369,6 +369,8 @@ void TaEvent::Decode(TaDevice& devices) {
   fData[IHELICITY] = (Double_t)(((int)GetData(ITIRDATA) & 0x40) >> 6);
   fData[IPAIRSYNCH] = (Double_t)(((int)GetData(ITIRDATA) & 0x80) >> 7);
   fData[ITIMESLOT] = (Double_t)(((int)GetData(IOVERSAMPLE) & 0xff00) >> 8);
+  // kluge for 1..(n-1),0 counting of TB prototype
+  if (fData[ITIMESLOT]==0) fData[ITIMESLOT] = fgOversample;
 #else
   fgHelfile >> fData[IHELICITY] >> fData[IPAIRSYNCH]
 	    >> fData[IQUADSYNCH] >> fData[ITIMESLOT];
