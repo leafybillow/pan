@@ -6,6 +6,35 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on  11 Jul 2003
+------------------------------------
+
+I've defined a new flag to use in analysis lists, fgORDERED.
+Quantities with this flag set have statistics done for all good pairs
+as usual, but also separate statistics are done for all four possible
+orderings of helicity for the current and preceding pair.  In
+TaStandardAna.cc this flag is set for bcm1 asymmetry (only).  We
+therefore get separate means and widths for each of the four peaks in
+the bcm1 asymmetry.  In principle we could look at ordering effects in
+BPM differences, etc., too, but this is not (for now) in the standard
+analysis. 
+
+I also commented out the #define PANAMTEST in TaRun.cc, the lifetime
+of our solar system being finite and all.
+
+TaRun.{cc,hh}
+
+ o Comment out define PANAMTEST; results with fgORDERED flag set have order-dependent statistics done
+
+TaStandardAna.cc
+
+ o Set fgORDERED for BCM1 asymmetry
+
+VaAnalysis.{cc,hh}
+
+ o Define fgORDERED flag
+
+
 Changes by R. Holmes on  18 Apr 2003
 ------------------------------------
 
