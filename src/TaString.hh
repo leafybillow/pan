@@ -52,6 +52,9 @@ public:
   TaString ToLower () const; // conversion to lower case
   TaString ToUpper () const; // conversion to lower case
 
+  TaString RemoveChar(const char* toremove); // Remove "toremove" 
+
+
 private:
   
 #ifndef NODICT

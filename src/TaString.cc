@@ -129,6 +129,22 @@ TaString::ToUpper () const
   return result;
 }
 
+TaString
+TaString::RemoveChar(const char* toremove)
+{
+// Remove "toremove" 
+  TaString::const_iterator p = this->begin();
+  TaString result("");
+  while (p != this->end()) 
+    {
+      if (*p != *toremove) result += *p;
+      ++p;
+    }
+  return result;
+}
+
+
+
 // Private member functions
 
 
