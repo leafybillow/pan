@@ -450,9 +450,9 @@ VaAnalysis::ProcessPair()
 
 #ifdef ASYMCHECK   
       clog << " paired event "<<fPair->GetLeft().GetEvNumber()<<" with "<<fPair->GetRight().GetEvNumber()<<endl;
-      clog << " BCM1(L, R) "<<fPair->GetLeft().GetData("bcm1")<<" "<<fPair->GetRight().GetData("bcm1")<<endl;
-      clog << " BCM2(L, R) "<<fPair->GetLeft().GetData("bcm2")<<" "<<fPair->GetRight().GetData("bcm2")<<endl;
-      clog << " BCM asy " <<fPair->GetAsy("bcm1")*1E6 <<" "<<fPair->GetAsy("bcm2")*1E6<<endl;
+      clog << " BCM1(L, R) "<<fPair->GetLeft().GetData(IBCM1)<<" "<<fPair->GetRight().GetData(IBCM1)<<endl;
+      clog << " BCM2(L, R) "<<fPair->GetLeft().GetData(IBCM2)<<" "<<fPair->GetRight().GetData(IBCM2)<<endl;
+      clog << " BCM asy " <<fPair->GetAsy(IBCM1)*1E6 <<" "<<fPair->GetAsy(IBCM2)*1E6<<endl;
       clog << " x diff " <<endl;       
 #endif
       PairAnalysis();
@@ -547,63 +547,66 @@ VaAnalysis::InitTree ()
   // Channels for which to copy right and left values to tree
   string prefix_r ("r_");
   string prefix_l ("l_");
-  for (vector<pair<string,string> >::const_iterator i = fCopyList.begin();
+  for (vector<AnaList* >::const_iterator i = fCopyList.begin();
        i != fCopyList.end();
        ++i )
     {
-      fPairTree->Branch ((prefix_r+i->first).c_str(), 
+      AnaList* alist = *i;
+      fPairTree->Branch ((prefix_r+alist->varstr).c_str(), 
 			 tsptr++, 
-			 (prefix_r+i->first+suff).c_str(), 
+			 (prefix_r+alist->varstr+suff).c_str(), 
 			 bufsize); 
 #ifdef TREEPRINT
-      clog << (prefix_r+i->first) << endl;
+      clog << (prefix_r+alist->varstr) << endl;
 #endif
 
-      fPairTree->Branch ((prefix_l+i->first).c_str(), 
+      fPairTree->Branch ((prefix_l+alist->varstr).c_str(), 
 			 tsptr++, 
-			 (prefix_l+i->first+suff).c_str(), 
+			 (prefix_l+alist->varstr+suff).c_str(), 
 			 bufsize); 
 #ifdef TREEPRINT
-      clog << (prefix_l+i->first) << endl;
+      clog << (prefix_l+alist->varstr) << endl;
 #endif
 
     }
 
   // Channels for which to put difference in tree
   string prefix ("diff_");
-  for (vector<pair<string,string> >::const_iterator i = fDiffList.begin();
+  for (vector<AnaList* >::const_iterator i = fDiffList.begin();
        i != fDiffList.end();
        ++i )
     {
-      fPairTree->Branch ((prefix+i->first).c_str(), 
+      AnaList* alist = *i;
+      fPairTree->Branch ((prefix+alist->varstr).c_str(), 
 			 tsptr++, 
-			 (prefix+i->first+suff).c_str(), 
+			 (prefix+alist->varstr+suff).c_str(), 
 			 bufsize); 
 #ifdef TREEPRINT
-      clog << (prefix+i->first) << endl;
+      clog << (prefix+alist->varstr) << endl;
 #endif
 
     }
 
   // Channels for which to put asymmetry in tree
   prefix = "asym_";
-  for (vector<pair<string,string> >::const_iterator i = fAsymList.begin();
+  for (vector<AnaList* >::const_iterator i = fAsymList.begin();
        i != fAsymList.end();
        ++i )
     {
-      fPairTree->Branch ((prefix+i->first).c_str(), 
+      AnaList* alist = *i;
+      fPairTree->Branch ((prefix+alist->varstr).c_str(), 
 			 tsptr++, 
-			 (prefix+i->first+suff).c_str(), 
+			 (prefix+alist->varstr+suff).c_str(), 
 			 bufsize); 
 #ifdef TREEPRINT
-      clog << (prefix+i->first) << endl;
+      clog << (prefix+alist->varstr) << endl;
 #endif
 
     }
 }
 
 
-vector<pair<string,string> >
+vector<AnaList* >
 VaAnalysis::ChanList (const string& devtype, const string& channel, const string& other)
 {
   // Create a channel list.
@@ -619,7 +622,8 @@ VaAnalysis::ChanList (const string& devtype, const string& channel, const string
   // ChanList ("bpm", "~x", "um") will return: < <"bpm8x","um">,
   // <"bpm12x", "um"> >.
 
-  vector<pair<string,string> > chanlist;
+  vector<AnaList* > chanlist;
+  chanlist.clear();
   string chancopy1, chancopy2;
   chancopy1 = channel;
 
@@ -639,7 +643,7 @@ VaAnalysis::ChanList (const string& devtype, const string& channel, const string
 	  } else {
  	     channelp = channel;
 	  }
-	  chanlist.push_back (make_pair (channelp, other));
+	  chanlist.push_back ( new AnaList(channelp, fRun->GetKey(channelp), other) );
 	}
     }
 
@@ -677,7 +681,7 @@ VaAnalysis::AutoPairAna()
   fTreeOKCond = (fPair->PassedCuts() ? 1 : 0);
   fTreeOKCut  = (fPair->PassedCutsInt(fRun->GetCutList()) ? 1 : 0);
 #ifdef ASYMCHECK
-  //  cout<<" mean ev pair "<<(fPair->GetRight().GetEvNumber()+fPair->GetLeft().GetEvNumber())*0.5<<" passed Cuts :"<<fPair->PassedCuts()<<endl;
+  clog<<" mean ev pair "<<(fPair->GetRight().GetEvNumber()+fPair->GetLeft().GetEvNumber())*0.5<<" passed Cuts :"<<fPair->PassedCuts()<<endl;
 #endif
   Double_t val;
 
@@ -692,18 +696,20 @@ VaAnalysis::AutoPairAna()
 #endif
 
 
-  for (vector<pair<string,string> >::const_iterator i = fCopyList.begin();
+  for (vector<AnaList* >::const_iterator i = fCopyList.begin();
        i != fCopyList.end();
        ++i )
     {
-      val = fPair->GetRight().GetData(i->first);
+      AnaList* alist = *i;
+
+      val = fPair->GetRight().GetData(alist->varint);
       *(tsptr++) = val;
-      fPair->AddResult ( TaLabelledQuantity ( prefix_r+(i->first), 
-					     val, i->second ) );
-      val = fPair->GetLeft().GetData(i->first);
+      fPair->AddResult ( TaLabelledQuantity ( prefix_r+(alist->varstr), 
+					     val, alist->unistr ) );
+      val = fPair->GetLeft().GetData(alist->varint);
       *(tsptr++) = val;
-      fPair->AddResult ( TaLabelledQuantity ( prefix_l+(i->first), 
-					     val, i->second ) );
+      fPair->AddResult ( TaLabelledQuantity ( prefix_l+(alist->varstr), 
+					     val, alist->unistr ) );
 #ifdef NOISY
   clog <<val<<endl;
 #endif
@@ -715,14 +721,15 @@ VaAnalysis::AutoPairAna()
 #endif
   // Channels for which to put difference in tree
   string prefix ("Diff ");
-  for (vector<pair<string,string> >::const_iterator i = fDiffList.begin();
+  for (vector<AnaList* >::const_iterator i = fDiffList.begin();
        i != fDiffList.end();
        ++i )
     {
-      val = fPair->GetDiff(i->first) * 1E3;
+      AnaList* alist = *i;
+      val = fPair->GetDiff(alist->varint) * 1E3;
       *(tsptr++) = val;
-      fPair->AddResult ( TaLabelledQuantity ( prefix+(i->first), 
-					     val, i->second ) );
+      fPair->AddResult ( TaLabelledQuantity ( prefix+(alist->varstr), 
+					     val, alist->unistr ) );
 #ifdef NOISY
   clog <<val<<endl;
 #endif
@@ -733,16 +740,17 @@ VaAnalysis::AutoPairAna()
 #endif
   // Channels for which to put asymmetry in tree
   prefix = "Asym ";
-  for (vector<pair<string,string> >::const_iterator i = fAsymList.begin();
+  for (vector<AnaList* >::const_iterator i = fAsymList.begin();
        i != fAsymList.end();
        ++i )
     {
-      val = fPair->GetAsy(i->first) * 1E6;
+      AnaList* alist = *i;
+      val = fPair->GetAsy(alist->varint) * 1E6;
       *(tsptr++) = val;
-      fPair->AddResult ( TaLabelledQuantity ( prefix+(i->first), 
-					     val, i->second ) );
+      fPair->AddResult ( TaLabelledQuantity ( prefix+(alist->varstr), 
+					     val, alist->unistr ) );
 #ifdef NOISY
-   clog<<i->first<<endl; 
+   clog<<alist->varstr<<endl; 
    clog <<val<<endl;
 #endif
     }
@@ -761,5 +769,14 @@ void VaAnalysis::LeakCheck()
        << " diff " <<fLeakNewPair-fLeakDelPair << endl;
 }
 #endif
+
+
+
+
+
+
+
+
+
 
 
