@@ -55,6 +55,7 @@
 #include <utility>
 #include <vector>
 
+class TaCutList;
 class TaRun;
 class TaEvent;
 class VaPair;
@@ -139,7 +140,7 @@ protected:
   virtual void PairAnalysis () = 0;
   ErrCode_t NewPrePair();
   virtual void InitChanLists ();
-  virtual void InitTree ();
+  virtual void InitTree (const TaCutList&);
   virtual vector<AnaList> ChanList (const string& devtype, 
 				      const string& channel, 
 				      const string& other,
@@ -185,6 +186,8 @@ protected:
   Int_t fTreeOKCond;            // Pair passes cut conditions
   Int_t fTreeOKCut;             // Pair not in cut interval
   Double_t* fTreeSpace;         // Other data for tree
+  UInt_t fNCuts;                // Size of cut array
+  Int_t* fCutArray;             // Array of cut values for tree
   Bool_t fOnlFlag;              // Flag whether data are online or not. 
   UInt_t fEvtProc;              // Number of events processed
   UInt_t fPairProc;             // Number of pairs processed

@@ -54,6 +54,7 @@
 #include "TaLabelledQuantity.hh"
 #include "TaPairFromPair.hh"
 #include "TaRun.hh"
+#include "TaString.hh"
 #include "VaAnalysis.hh"
 #include "VaDataBase.hh"
 #include "TaAsciiDB.hh"
@@ -99,6 +100,8 @@ VaAnalysis::VaAnalysis():
   fTreeOKCond(0),
   fTreeOKCut(0),
   fTreeSpace(0),
+  fNCuts(0),
+  fCutArray(0),
   fOnlFlag(0),
   fPairType(FromPair),
   fFirstPass(true),
@@ -138,6 +141,7 @@ VaAnalysis::~VaAnalysis()
   delete fPair;
   delete fPairTree;
   delete[] fTreeSpace;
+  delete [] fCutArray;
   delete[] fPZTMatrix;
 #ifdef LEAKCHECK
   ++fLeakDelEvt;
@@ -211,10 +215,13 @@ VaAnalysis::RunIni(TaRun& run)
       return fgVAANA_ERROR;
     }
 
+  fNCuts = fRun->GetDataBase().GetNumCuts();
+  fCutArray = new Int_t[2*fNCuts];
+
   fPairTree = 0;
   fPairTree = new TTree("P","Pair data DST");
   InitChanLists();
-  InitTree();
+  InitTree(fRun->GetCutList());
   fQSwitch = kFALSE;
   fZSwitch = kFALSE;
   fQNpair=0; fQfeedNum=0;
@@ -256,6 +263,7 @@ VaAnalysis::RunIni(TaRun& run)
          }
       }
       clog << "VaAnalysis::RunIni PZT Matrix "<<fPZTMatrix[0]<<"  "<<fPZTMatrix[1]<<"  "<<fPZTMatrix[2]<<"  "<<fPZTMatrix[3]<<endl;
+
    }
   
 
@@ -473,6 +481,7 @@ VaAnalysis::PreProcessEvt()
         fEDeque.push_back (*fPreEvt);
         if (fPrePair->Fill (*fPreEvt, *fRun))
         {
+	  // Now push this on the deque and prepare a new PrePair
           fPDeque.push_back(fPrePair);
           NewPrePair();
         }
@@ -541,6 +550,18 @@ VaAnalysis::ProcessPair()
         }
       fPair = fPDeque.front();
       fPDeque.pop_front();
+
+      // Copy event cut arrays into pair cut array
+  
+      UInt_t ncr = fPair->GetRight().GetNCuts();
+      UInt_t ncl = fPair->GetLeft().GetNCuts();
+      UInt_t j = 0;
+      for (UInt_t i = 0; i < fNCuts; ++i)
+	{
+	  fCutArray[j++] = (ncr > i) ? fPair->GetRight().CutCond(i) : 0;
+	  fCutArray[j++] = (ncl > i) ? fPair->GetLeft().CutCond(i) : 0;
+	}
+      
 
 #ifdef ASYMCHECK   
       clog << " paired event "<<fPair->GetLeft().GetEvNumber()<<" with "<<fPair->GetRight().GetEvNumber()<<endl;
@@ -614,17 +635,17 @@ VaAnalysis::InitChanLists ()
 
 
 void
-VaAnalysis::InitTree ()
+VaAnalysis::InitTree (const TaCutList& cutlist)
 {
   // Initialize the pair tree with standard entries plus entries based
-  // on the tree list.
+  // on the tree list plus entries based on the passed cut list
 
   Int_t bufsize = 5000;
 
   //#define TREEPRINT
 #ifdef TREEPRINT
   clog << "Adding to pair tree:" << endl;
-  clog << "ev_num" << endl;
+  clog << "evt_ev_num" << endl;
   clog << "m_ev_num" << endl;
   clog << "ok_cond"  << endl;
   clog << "ok_cut"   << endl;
@@ -695,6 +716,20 @@ VaAnalysis::InitTree ()
 #endif
 	}
     }
+
+  // Add cut values
+
+  size_t j(0);
+  for (Cut_t icut = Cut_t (0); icut < cutlist.GetNumCuts(); ++icut)
+    {
+      TaString cutstr = "cond_" + cutlist.GetName(icut);
+      cutstr = cutstr.ToLower();
+      fPairTree->Branch(cutstr.c_str(), 
+			&fCutArray[j], 
+			(cutstr + string("[2]/I")).c_str(), 
+			bufsize);
+      j += 2;
+    }	
 }
 
 
