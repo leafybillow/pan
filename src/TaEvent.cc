@@ -67,9 +67,9 @@ TaEvent::TaEvent():
   fEvNum(0),  
   fEvLen(0), 
   fFailedACut(false), 
-  fDelHel(UnkHeli),
-  fPrevHel(UnkHeli),
-  fPrevDelHel(UnkHeli)
+  fHel(UnkHeli),
+  fPrevROHel(UnkHeli),
+  fPrevHel(UnkHeli)
 {
   fEvBuffer = new Int_t[fgMaxEvLen];
   memset(fEvBuffer, 0, fgMaxEvLen*sizeof(Int_t));
@@ -119,9 +119,9 @@ TaEvent::CopyInPlace (const TaEvent& rhs)
       fEvLen = rhs.fEvLen;
       fFailedACut = rhs.fFailedACut;
       fResults = rhs.fResults;
-      fDelHel = rhs.fDelHel;
+      fHel = rhs.fHel;
+      fPrevROHel = rhs.fPrevROHel;
       fPrevHel = rhs.fPrevHel;
-      fPrevDelHel = rhs.fPrevDelHel;
       memset (fEvBuffer, 0, fgMaxEvLen*sizeof(Int_t));
       memcpy(fEvBuffer, rhs.fEvBuffer, fEvLen*sizeof(Int_t));
       memcpy(fData, rhs.fData, MAXKEYS*sizeof(Double_t));
@@ -560,66 +560,67 @@ SlotNumber_t TaEvent::GetTimeSlot() const {
   return (SlotNumber_t)GetData(ITIMESLOT);
 };
 
-void TaEvent::SetDelHelicity(EHelicity h)
+void TaEvent::SetHelicity(EHelicity h)
 {
-  // Fill in the delayed helicity value for an event.  We use this to
+  // Fill in the true helicity value for an event.  We use this to
   // associated a delayed helicity with the earlier event it applies to.
 
-  fDelHel = h;
+  fHel = h;
 }
 
-EHelicity TaEvent::GetHelicity() const 
+EHelicity TaEvent::GetROHelicity() const 
 {
-  // Return helicity as RightHeli or LeftHeli.  (WARNING: This is the
-  // helicity stored in the data stream for this event, which in
-  // general is *not* the helicity to use in analysis of this event!
-  // See GetDelHelicity().  Note also that this is the helicity bit
-  // from the source and does not reflect half wave plate state, g-2
-  // precession, etc.)
+  // Return readout helicity as RightHeli or LeftHeli.  (WARNING: This
+  // is the helicity stored in the data stream for this event, which
+  // in general is *not* the helicity to use in analysis of this
+  // event!  See GetHelicity().  Note also that this is the helicity
+  // bit from the source and does not reflect half wave plate state,
+  // g-2 precession, etc.)
 
   Double_t val = GetData(IHELICITY);
-  if (val == 1)
+  if (val == 0)
     return RightHeli;
   else
     return LeftHeli;
 }
 
-EHelicity TaEvent::GetDelHelicity() const {
-  // Return helicity as RightHeli or LeftHeli.  (WARNING: This is the
-  // helicity to use in analysis of this event, which in general is
-  // *not* the helicity stored in the data stream for this event!  See
-  // GetHelicity().  Note also that this is the helicity bit from the
-  // source and does not reflect half wave plate state, g-2
+EHelicity TaEvent::GetHelicity() const 
+{
+  // Return true helicity as RightHeli or LeftHeli.  (WARNING: This is
+  // the helicity to use in analysis of this event, which in general
+  // is *not* the helicity stored in the data stream for this event!
+  // See GetROHelicity().  Note also that this is the helicity bit
+  // from the source and does not reflect half wave plate state, g-2
   // precession, etc.)
 
-  return fDelHel;
+  return fHel;
+}
+
+void TaEvent::SetPrevROHelicity(EHelicity h)
+{
+  // Fill in the readout helicity value for the previous event.
+
+  fPrevROHel = h;
 }
 
 void TaEvent::SetPrevHelicity(EHelicity h)
 {
-  // Fill in the in-time helicity value for the previous event.
+  // Fill in the true helicity value for the previous event.
 
   fPrevHel = h;
 }
 
-void TaEvent::SetPrevDelHelicity(EHelicity h)
+EHelicity TaEvent::GetPrevROHelicity() const 
 {
-  // Fill in the delayed helicity value for the previous event.
+  // Return readout helicity of previous event as RightHeli or LeftHeli.
 
-  fPrevDelHel = h;
+  return fPrevROHel;
 }
 
-EHelicity TaEvent::GetPrevHelicity() const 
-{
-  // Return in-time helicity of previous event as RightHeli or LeftHeli.
+EHelicity TaEvent::GetPrevHelicity() const {
+  // Return true helicity of previous event as RightHeli or LeftHeli.
 
   return fPrevHel;
-}
-
-EHelicity TaEvent::GetPrevDelHelicity() const {
-  // Return delayed helicity of previous event as RightHeli or LeftHeli.
-
-  return fPrevDelHel;
 }
 
 EPairSynch TaEvent::GetPairSynch() const {
@@ -713,7 +714,7 @@ void TaEvent::DeviceDump() const {
   }
   cout <<endl;
   cout << "tirdata = 0x"<<hex<<(Int_t)GetData(ITIRDATA);  
-  cout << "   helicity = "<<dec<<(Int_t)GetData(IHELICITY);
+  cout << "   readout helicity = "<<dec<<(Int_t)GetData(IHELICITY);
   cout << "   timeslot = "<<(Int_t)GetData(ITIMESLOT);
   cout << "   pairsynch = "<<(Int_t)GetData(IPAIRSYNCH)<<endl;
   cout << "Data by ADC "<<endl;
@@ -734,12 +735,11 @@ void
 TaEvent::MiniDump() const 
 {
 // Diagnostic dump of selected data on one line for debugging purposes.
-// Note the helicity is delayed
 
   cout << "Event " << dec << setw(7) << GetEvNumber()
-       << " h/dh/t/p/q =" << dec 
+       << " h(ro)/h/t/p/q =" << dec 
        << " " << setw(2) << (Int_t) GetData (IHELICITY)
-       << "/" << setw(2) << (Int_t) GetDelHelicity()
+       << "/" << setw(2) << (Int_t) GetHelicity()
        << "/" << setw(2) << (Int_t) GetData (ITIMESLOT)
        << "/" << setw(2) << (Int_t) GetData (IPAIRSYNCH)
        << "/" << setw(2) << (Int_t) GetData (IQUADSYNCH)
@@ -862,9 +862,9 @@ void TaEvent::Create(const TaEvent& rhs)
  fEvLen = rhs.fEvLen;
  fFailedACut = rhs.fFailedACut;
  fResults = rhs.fResults;
- fDelHel = rhs.fDelHel;
+ fHel = rhs.fHel;
+ fPrevROHel = rhs.fPrevROHel;
  fPrevHel = rhs.fPrevHel;
- fPrevDelHel = rhs.fPrevDelHel;
  fEvBuffer = new Int_t[fgMaxEvLen];
  memset (fEvBuffer, 0, fgMaxEvLen*sizeof(Int_t));
  memcpy(fEvBuffer, rhs.fEvBuffer, fEvLen*sizeof(Int_t));

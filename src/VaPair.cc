@@ -182,7 +182,7 @@ VaPair::Fill( TaEvent& ThisEv, TaRun& run )
 #ifdef NOISY
 	      clog << "pairing with event " << fgEventQueue[0].GetEvNumber() << endl;
 #endif
-	      if (fgEventQueue[0].GetDelHelicity() == RightHeli)
+	      if (fgEventQueue[0].GetHelicity() == RightHeli)
 		{
 		  fEvRight = fgEventQueue[0];
 		  fEvLeft = ThisEv;
@@ -393,7 +393,7 @@ VaPair::HelSeqOK (EHelicity h)
   
   // Get this helicity bit (or 2 if unknown)
   UInt_t hb = ( h == UnkHeli ? 2 :
-		( h == RightHeli ? 1 : 0 ) );
+		( h == RightHeli ? 0 : 1 ) );
 
   // Get expected helicity bit (or 2 if unknown)
   UInt_t eb;
