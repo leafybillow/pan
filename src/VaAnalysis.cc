@@ -76,6 +76,7 @@ const UInt_t VaAnalysis::fgAVE            = 0x40;
 const UInt_t VaAnalysis::fgBLIND          = 0x80;
 const UInt_t VaAnalysis::fgBLINDSIGN      = 0x100;
 const UInt_t VaAnalysis::fgORDERED        = 0x200;
+const UInt_t VaAnalysis::fgNO_BEAM_C_NO_ASY = 0x400;
 const ErrCode_t VaAnalysis::fgVAANA_ERROR = -1;  // returned on error
 const ErrCode_t VaAnalysis::fgVAANA_OK = 0;      // returned on success
 const UInt_t VaAnalysis::fgNumBpmFdbk     = 2;   // number of BPMs to feedback on
@@ -264,7 +265,6 @@ VaAnalysis::RunIni(TaRun& run)
   string bs = fRun->GetDataBase().GetBlindingString();
   vector<Double_t> bp = fRun->GetDataBase().GetBlindingParams();
   fBlind  = new TaBlind (bs, bp[0], bp[1], bp[2]);
-
   InitChanLists();
   InitFeedback();
   
@@ -1053,7 +1053,11 @@ VaAnalysis::AutoPairAna()
 	  unit = alist.fUniStr;
 	  if ((alist.fFlagInt & fgNO_BEAM_NO_ASY) &&
 	      (fPair->GetRight().BeamCut() ||
-	       fPair->GetLeft().BeamCut()))
+	       fPair->GetLeft().BeamCut())
+	      ||
+	      (alist.fFlagInt & fgNO_BEAM_C_NO_ASY) &&
+	      (fPair->GetRight().BeamCCut() ||
+	       fPair->GetLeft().BeamCCut()))
 	    val = -1.0E6;
 	  else
 	    {
@@ -1099,7 +1103,11 @@ VaAnalysis::AutoPairAna()
 	  unit = alist.fUniStr;
 	  if ((alist.fFlagInt & fgNO_BEAM_NO_ASY) &&
 	      (fPair->GetRight().BeamCut() ||
-	       fPair->GetLeft().BeamCut()))
+	       fPair->GetLeft().BeamCut())
+	      ||
+	      (alist.fFlagInt & fgNO_BEAM_C_NO_ASY) &&
+	      (fPair->GetRight().BeamCCut() ||
+	       fPair->GetLeft().BeamCCut()))
 	    val = -1.0E6;
 	  else
 	    {
