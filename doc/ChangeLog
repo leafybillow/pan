@@ -6,7 +6,7 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
-Changes by R. Holmes on  21 May 2004
+Changes by R. Holmes on  26 May 2004
 --------------------------------------
 
 Added macro/panchain.macro, a macro (well, duh) to create a chain of
@@ -28,7 +28,7 @@ vs. run number, e.g.
    ch->Draw("asym_bcm1:run_num"); // BCM1 asym vs. run number
 
 
-Changes by R. Holmes on  21 May 2004
+Changes by R. Holmes on  24 May 2004
 --------------------------------------
 
 By request, added a "compress" table in the database which takes a
