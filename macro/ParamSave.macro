@@ -12,6 +12,7 @@
 #include <TString.h>
 #include <TTree.h>
 #include "src/TaFileName.hh"
+#include "RedCoefs.macro"
 
 // Uncomment to load fake correction coefficients
 //#define FAKETYFAKE 1
@@ -81,16 +82,39 @@ ParamSave::LoadCorrs ()
   fCorrMonTag.push_back ("bpm4ay");
   fCorrMonTag.push_back ("bpm4by");
   fCorrMonTag.push_back ("bpm12x");
+
+  // Detectors for which to look for coefficients
+  vector<string> corrDetTag;
+  corrDetTag.clear();
+  corrDetTag.push_back ("det1");
+  corrDetTag.push_back ("det3");
   
-  fCorrCoef[0].clear();
-  fCorrCoef[1].clear();
-  
-#ifdef FAKETYFAKE  
+  vector<Double_t> v;
+#ifndef FAKETYFAKE
+  gROOT->LoadMacro("RedCoefs.macro+");
+  RedCoefs* rc;
+  for (vector<string>::const_iterator idt = corrDetTag.begin();
+       idt != corrDetTag.end();
+       ++idt)
+    {
+      v.clear();
+      // For now just regression
+      for (vector<string>::const_iterator imt = fCorrMonTag.begin();
+	   imt != fCorrMonTag.end();
+	   ++imt)
+	{
+	  rc = new RedCoefs  (fRun, "regress", string("asym_n_")+(*idt), string("diff_") + (*imt));
+	  if (rc->GetMeanErr() > 0)
+	    v.push_back (rc->GetMean());
+	  delete rc;
+	}
+      fCorrCoef[0][*idt] = v;
+    }
+#else
   cerr << "=====================================" << endl;
   cerr << "WARNING!" << endl;
   cerr << "FAKE CORRECTION COEFFICIENTS LOADED!" << endl;
   cerr << "=====================================" << endl;
-  vector<Double_t> v;
   
   v.clear();
   v.push_back (0.1);
@@ -233,7 +257,7 @@ ParamSave::PutDetAsym (const string dt, TTree& t, const string sel)
 void 
 ParamSave::PutDet (const string dt, const string naora, TTree& t, const string sel)
 {
-  // Story norm asyms or asyms (naora = "asym_n" or "asym") for
+  // Store norm asyms or asyms (naora = "asym_n" or "asym") for
   // detector named dt from tree t with selection sel
   // If correction coefficients exist, do corrected asyms too.
   
