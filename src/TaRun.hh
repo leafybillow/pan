@@ -19,16 +19,17 @@
 #include "Rtypes.h"
 #include "TTree.h"
 #include "PanTypes.hh"
+#include "DevTypes.hh"
 #include <vector>
 #include <string>
 #include <map>
 
 class THaCodaData;
 class TaEvent;
+class TaDevice;
 class VaPair;
 class VaDataBase;
 class TaCutList;
-class VaDevice;
 class TaStatistics;
 
 class TaRun
@@ -61,6 +62,7 @@ public:
   TaEvent& GetEvent() const { return *fEvent; };
   Int_t GetRunNumber() const { return fRunNumber; };
   VaDataBase* GetDataBase() const { return fDataBase; };
+  Int_t GetKey(string keystr) const;
   void SendEPICSInfo( pair< char*, Double_t> value); // used by feedbacks 
                                                         // to send EPICS var in ONLINE mode.
 private:
@@ -91,11 +93,11 @@ private:
   Int_t fEventNumber;
   VaDataBase* fDataBase;
   TaCutList* fCutList;
-  map<string, VaDevice* > devices;
   SlotNumber_t fOversamp;
   THaCodaData* fCoda;
   string fCodaFileName,fComputer,fSession;
   TaEvent* fEvent;
+  TaDevice* fDevices;
   TTree *evtree;
   TaStatistics* fESliceStats;
   TaStatistics* fPSliceStats;

@@ -21,15 +21,11 @@
 #include "THaCodaData.h"
 #include "THaCodaFile.h"
 #include "TaAsciiDB.hh"
-#include "TaBCM.hh"
-#include "TaBPM.hh"
 #include "TaCutList.hh"
 #include "TaEvent.hh"
+#include "TaDevice.hh"
 #include "TaLabelledQuantity.hh"
-#include "TaScaler.hh"
 #include "TaStatistics.hh"
-#include "TaTB.hh"
-#include "TaTIR.hh"
 #include "VaDataBase.hh"
 #include "VaPair.hh"
 #ifdef ONLINE
@@ -146,6 +142,8 @@ TaRun::Init()
     
   fDataBase = new TaAsciiDB();
   fDataBase->Load(fRunNumber);
+  fDevices = new TaDevice();
+  fDevices->Init(*fDataBase);
   fCutList = new TaCutList(fRunNumber);
   fCutList->Init(*fDataBase);
   InitDevices();
@@ -214,7 +212,7 @@ TaRun::NextEvent()
 void 
 TaRun::Decode()
 {
-   fEvent->Decode();
+   fEvent->Decode(*fDevices);
    fEventNumber = fEvent->GetEvNumber();
    evtree->Fill();
 // Use this to make detailed checks of decoding:
@@ -426,7 +424,6 @@ TaRun::Uncreate()
   fEvent = 0;
 }
 
-
 Int_t 
 TaRun::GetBuffer()
 {
@@ -440,54 +437,24 @@ TaRun::GetBuffer()
   return 0;
 }
 
-
 void TaRun::InitDevices() {
-// All data are contained in 'devices'.
-// Construct the devices dynamically from the database.
-// Restriction:  There are a finite number of defined device types.
-// ('bcm', 'tir', 'timeboard', 'scaler', 'detector')
-// If you need more types, add them here and in the database.
-
-  pair<string, VaDevice*> devpair;
-  string devicename;
-
-  fDataBase->DataMapReStart();
-  while ( fDataBase->NextDataMap() ) {
-    devicename = fDataBase->GetDataMapName();  
-    devpair.first = devicename; 
-    VaDevice *device;
-    // Cases (see comment above about restrictions):
-    if ( fDataBase->GetDataMapType() == "bcm" ) {
-       device = new TaBCM(devicename);
-    } else if ( fDataBase->GetDataMapType() == "bpm" ) {
-       device = new TaBPM(devicename);
-    } else if ( fDataBase->GetDataMapType() == "adc" ) {
-       device = new TaADC(devicename);
-    } else if ( fDataBase->GetDataMapType() == "tir" ) {
-       device = new TaTIR(devicename);
-    } else if ( fDataBase->GetDataMapType() == "timeboard" ) {
-       device = new TaTB(devicename);
-    } else if ( fDataBase->GetDataMapType() == "scaler" ) {
-       device = new TaScaler(devicename);
-// Turn this off for now...   Antonin ??
-#ifdef WHEN_THEY_ARE_DEFINED_LATER
-    } else if ( fDataBase->GetDataMapType() == "detector" ) {
-       device = new TaDetector(devicename);
-#endif
-    } else {
-      if (TARUN_VERBOSE) {
-	cerr << "TaRun:: WARNING: undefined device "<<devicename<<endl;
-      }
-      continue;
-    }
-    device->Init(*fDataBase);
-    device->AddToTree(*evtree);
-    devpair.second = device;
-    devices.insert(devpair);
+// Initialize the devices and add their data to the output tree.
+  if ( !fDevices ) {
+    cout << "TaRun::InitDevices:: ERROR:  You must create and initialize";
+    cout << " fDevices before adding to tree"<<endl;
+    return;
   }
-  fEvent->InitDevices(devices);
-  fDataBase->DataMapReStart();  
+  if ( !evtree ) {
+    cout << "TaRun::InitDevices:: ERROR:  You must create the root tree";
+    cout << " before attempting to add to it."<<endl;
+    return;
+  }
+  fEvent->AddToTree(*fDevices, *evtree);
+};
 
+Int_t TaRun::GetKey(string keystr) const {
+// return the integer key that corresponds to a string.  
+  return fDevices->GetKey(keystr);
 };
 
 
