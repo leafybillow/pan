@@ -263,15 +263,15 @@ void TaSimEvent::Decode(TaDevice& devices) {
 
   // modify position by dithering slope for 12x, 4a x,y and 4b x,y given value
   //  and ident of dithering object
-  if (fData[IBMW_OBJ]<7 && fData[IBMW_OBJ]>-1 && 
-      fData[IBMW_CYC]>0 && fData[IBMW_CLN]>0    ) {
-    Int_t icoil = (int) fData[IBMW_OBJ];
+  if (fData[IBMWOBJ]<7 && fData[IBMWOBJ]>-1 && 
+      fData[IBMWCYC]>0 && fData[IBMWCLN]>0    ) {
+    Int_t icoil = (int) fData[IBMWOBJ];
     if (icoil>=0) {
-      fData[IBPM4AX] += fBpm4AXvCoil[icoil]*fData[IBMW_VAL]/1.E6;
-      fData[IBPM4BX] += fBpm4BXvCoil[icoil]*fData[IBMW_VAL]/1.E6;
-      fData[IBPM4AY] += fBpm4AYvCoil[icoil]*fData[IBMW_VAL]/1.E6;
-      fData[IBPM4BY] += fBpm4BYvCoil[icoil]*fData[IBMW_VAL]/1.E6;
-      fData[IBPM12X] += fBpm12XvCoil[icoil]*fData[IBMW_VAL]/1.E6;
+      fData[IBPM4AX] += fBpm4AXvCoil[icoil]*fData[IBMWVAL]/1.E6;
+      fData[IBPM4BX] += fBpm4BXvCoil[icoil]*fData[IBMWVAL]/1.E6;
+      fData[IBPM4AY] += fBpm4AYvCoil[icoil]*fData[IBMWVAL]/1.E6;
+      fData[IBPM4BY] += fBpm4BYvCoil[icoil]*fData[IBMWVAL]/1.E6;
+      fData[IBPM12X] += fBpm12XvCoil[icoil]*fData[IBMWVAL]/1.E6;
     }
   }
 
