@@ -116,6 +116,14 @@ TaAnalysisManager::InitPass2()
 
 
 ErrCode_t
+TaAnalysisManager::InitLastPass()
+{
+  // Setup last pass (second if two passes, else first)
+
+  return fAnalysis->InitLastPass();
+}
+
+ErrCode_t
 TaAnalysisManager::Process()
 {
   // Process all data
@@ -177,10 +185,10 @@ TaAnalysisManager::InitCommon()
   clog << "TaAnalysisManager::InitCommon: Analysis type is " 
        << theAnaType << endl;
 
-  if (theAnaType.CmpNoCase("beam") == 0)
-    fAnalysis = new TaBeamAna;
-  else if (theAnaType.CmpNoCase("prompt") == 0)
-    fAnalysis = new TaPromptAna;
+  if (theAnaType.CmpNoCase("standard") == 0 ||
+      theAnaType.CmpNoCase("beam") == 0 ||
+      theAnaType.CmpNoCase("prompt") == 0)
+    fAnalysis = new TaStandardAna;
   else if (theAnaType.CmpNoCase("adcped") == 0)
     fAnalysis = new TaADCCalib("adcped");
   else if (theAnaType.CmpNoCase("adcdac") == 0)
