@@ -6,6 +6,66 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+
+Changes by R. Holmes on  7 Mar 2003
+-----------------------------------
+
+(1) There is now a Perl module file that provides roughly the same
+    functionality as Pan's TaFileName class.  Typical usage:
+
+    use FindBin;
+    use lib $FindBin::Bin;
+    use TaFileName;
+    $fn = MakeTaFileName2 ($run, $anatype, "result", $com, "")
+
+    This handles environment variables to specify default paths, etc.,
+    etc. 
+
+(2) There is now a utility for examining results files.  Run it with
+    no arguments to see usage.  Basically it looks for specified
+    devices (or anything matching a regexp) and puts out the
+    associated results in a somewhat more human-friendly form than the
+    raw results file.  You can tell it which file(s) to look in, or
+    specify a run number and (optionally) analyis type and "comment"
+    for it to find the corresponding file using TaFileName.  Typical
+    usage: 
+
+    $ utils/rut.pl --exp 'bpm.*x' --run 1637 --ana beam
+    Opened ./parity03_1637_beam.res for input
+    From pan: Diff_bpm10x in evts 0 to 10000:   mean 4.895753 RMS 4.895753 um with N_eff = 2690.0
+    From pan: Diff_bpm12x in evts 0 to 10000:   mean 9.325296 RMS 9.325296 um with N_eff = 2690.0
+    From pan: Diff_bpm4ax in evts 0 to 10000:   mean 9.255259 RMS 9.255259 um with N_eff = 2690.0
+    From pan: Diff_bpm4bx in evts 0 to 10000:   mean 11.035430 RMS 11.035430 um with N_eff = 2690.0
+    From pan: Diff_bpm8x in evts 0 to 10000:   mean 14.083170 RMS 14.083170 um with N_eff = 2690.0
+
+    I think this utility (or a fancier, expanded version thereof) will
+    come in handy sometimes, but also it serves as a model for other
+    Perl scripts that need to process results files.
+
+(3) The anatype in control.db is changed to "standard".  We should
+    phase out use of "beam" and "prompt", now both synonymous with
+    "standard". 
+
+(4) TaFileName.cc now lowercases the anatype value before using it to
+    make a filename.
+
+utils/TaFileName.pm
+
+ o File name module for Perl scripts
+
+utils/rut.pl
+
+ o Results file utility
+
+db/control.db
+
+ o Default ana type should be standard
+
+src/TaFileName.cc
+
+ o Lowercase ana type in file names
+
+
 Changes by R. Holmes on 27 Feb 2003
 -----------------------------------
 
