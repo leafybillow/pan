@@ -31,7 +31,7 @@ Double_t correl (TString a, TString b, TString c)
     {
       saa = TString ("reg_asym_n_") + a;
       if (T->GetBranch (saa) == NULL)
-	saa = TString ("asym_n") + a;
+	saa = TString ("asym_n_") + a;
       if (T->GetBranch (saa) == NULL)
 	saa = TString ("asym_") + a;
       if (T->GetBranch (saa) == NULL)
