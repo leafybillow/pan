@@ -45,7 +45,7 @@ public:
   // Copy constructor and operator= are defined privately.
 
   // Major functions
-  virtual void Init();
+  virtual Int_t Init();
   Bool_t NextEvent();
   void Decode();
   virtual void AccumEvent(const TaEvent&);
@@ -83,8 +83,9 @@ private:
   static const UInt_t fgPHYSICSMAX  = 12;
   static const UInt_t fgPRESTART = 17;
   // Flags
-  static const Int_t TARUN_ERROR = -1;
-  static const Int_t TARUN_VERBOSE = 1; // verbose(1) or not(0) warnings
+  static const Int_t fgTARUN_ERROR = -1;
+  static const Int_t fgTARUN_OK = 0;
+  static const Int_t fgTARUN_VERBOSE = 1; // verbose(1) or not(0) warnings
   // Others
   static const EventNumber_t fgSLICELENGTH = 1000;
 

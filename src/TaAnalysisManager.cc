@@ -1,16 +1,19 @@
-//////////////////////////////////////////////////////////////////////////
+//**********************************************************************
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
 //           TaAnalysisManager.cc   (implementation)
-//           ^^^^^^^^^^^^^^^^^^^^
 //
-//    Authors :  R. Holmes, A. Vacheret, R. Michaels
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
 //
-//    This is the class that drives the entire analysis.  
+////////////////////////////////////////////////////////////////////////
 //
+//    Manages the overall analysis.  This is a simple class whose
+//    three main methods are Init, Process, and End; calling these
+//    three in that order, once each, gives an analysis of a run.
 //
-//////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -44,42 +47,52 @@ TaAnalysisManager::~TaAnalysisManager ()
 
 // Major functions
 
-// Init for use with online data
-void TaAnalysisManager::Init ()
+Int_t
+TaAnalysisManager::Init ()
 {
+  // Initialization routine for use with online data
+
 #ifdef ONLINE
   fRun = new TaRun();
-  InitCommon();
+  return InitCommon();
 #else
   cerr << "TaAnalysisManager::Init ERROR: Not compiled with ONLINE, cannot analyze online data" << endl;
-  exit (1);
+  return fgTAAM_ERROR;
 #endif
 }
 
 
-// Init for replay, data from file derived from run number
-void TaAnalysisManager::Init (RunNumber_t run)
+Int_t 
+TaAnalysisManager::Init (RunNumber_t run)
 {
+  // Initialization routine for replay, data from file derived from
+  // run number
+
   fRun = new TaRun(run);
-  InitCommon();
+  return InitCommon();
 }
 
 
-// Init for replay, data from a given file
-void TaAnalysisManager::Init (string runfile)
+Int_t 
+TaAnalysisManager::Init (string runfile)
 {
+  // Initialization routine for replay, data from a given file
+
   fRun = new TaRun(runfile);
-  InitCommon();
+  return InitCommon();
 }
 
 
-void
+Int_t
 TaAnalysisManager::Process()
 {
+  // Process all data
+
   fAnalysis->ProcessRun();
+  return fgTAAM_OK; // for now always return OK
 }
 
-void
+Int_t
 TaAnalysisManager::End()
 {
   // Cleanup for overall analysis
@@ -105,19 +118,19 @@ TaAnalysisManager::End()
   delete fAnalysis;
   delete fRun;
   delete fRootFile;
-  return;
+  return fgTAAM_OK; // for now always return OK
 }
 
 
 // Private member functions
 
-void
+Int_t
 TaAnalysisManager::InitCommon()
 {
-
   // Common setup for overall management of analysis
 
-  // Make the ROOT output file, generic at first since we don't know run number yet.
+  // Make the ROOT output file, generic at first since we don't know
+  // run number yet.
 
   char rootfile[50];
   char *path;
@@ -131,20 +144,22 @@ TaAnalysisManager::InitCommon()
   fRootFile->SetCompressionLevel(0);
 
   // Initialize the run
-  fRun->Init();
+  int status = fRun->Init();
+  if (status != 0)
+    return status;
 
   // Check the database.  If there is a problem, you cannot continue.
-  // (Rich, I'm not sure where you want to put this.  -Bob)
-  cout << "checking database ..."<<endl;
+
+  clog << "checking database ..."<<endl;
   if ( !fRun->GetDataBase()->SelfCheck() ) {
-    cout << "TaAnalysisManager::Init ERROR: Invalid database.  Quitting."<<endl;
-    exit (1);
+    cerr << "TaAnalysisManager::Init ERROR: Invalid database.  Quitting."<<endl;
+    return fgTAAM_ERROR;
   }
 
   // Make the desired kind of analysis
   TaString theAnaType = fRun->GetDataBase()->GetAnaType();
 
-  cout << "TaAnalysisManager::Init Analysis type is " 
+  clog << "TaAnalysisManager::Init Analysis type is " 
        << theAnaType << endl;
 
   if (theAnaType.CmpNoCase("beam") == 0)
@@ -157,12 +172,13 @@ TaAnalysisManager::InitCommon()
     fAnalysis = new TaADCCalib("adcdac");
   else
     {
-      cout << "TaAnalysisManager::Init ERROR: Invalid analysis type = "
+      cerr << "TaAnalysisManager::Init ERROR: Invalid analysis type = "
 	   << theAnaType << endl;
-      exit (1);
+      return fgTAAM_ERROR;
     }
   
   fAnalysis->Init();
   fAnalysis->RunIni (*fRun);
+  return fgTAAM_OK;
 }
 

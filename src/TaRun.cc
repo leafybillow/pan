@@ -88,7 +88,7 @@ TaRun::TaRun(const Int_t& run) :
     cerr << "TaRun:: ERROR: You must define env. variables to obtain filename"<<endl;
     cerr << "Example:  CODA_FILE_PREFIX = /adaql2/data2/parity01"<<endl;
     cerr << "Example:  CODA_FILE_SUFFIX = dat"<<endl;
-    fCodaFileName = "nothing";
+    fCodaFileName = "";
     return;
   }
   char *fname = new char[strlen(prefix)+strlen(suffix)+20];
@@ -119,9 +119,15 @@ TaRun::TaRun(const string& filename):
 {
 };
 
-void
+Int_t
 TaRun::Init()
 {
+  if (fCodaFileName == "")
+    {
+      cerr << "TaRun::Init ERROR Empty filename" << endl;
+      return fgTARUN_ERROR;
+    }
+      
   clog << "TaRun::Init Initialization for run, analyzing " 
        << fCodaFileName << endl;
 
@@ -132,18 +138,23 @@ TaRun::Init()
 #ifdef ONLINE
      fCoda = new THaEtClient();
      if ( fCoda->codaOpen(fComputer, fSession, mymode) != 0) {
-        cerr << "TaRun:: InitERROR: Cannot open ET connection"<<endl;
+        cerr << "TaRun:: Init ERROR: Cannot open ET connection"<<endl;
         cerr << " to  computer "<<fComputer;
         cerr << " and session "<<fSession<<endl;
-        return TARUN_ERROR;
+        return fgTARUN_ERROR;
      }
 #else
      cerr << "TaRun:: Init ERROR: Undefined online input."<<endl;
-     return;
+     return fgTARUN_ERROR;
 #endif
   } else { 
      TString tfile(fCodaFileName.c_str()); // hopefully temp. prefer <string>
      fCoda = new THaCodaFile(tfile);
+     if (fCoda->status() != 0)
+       {
+	 cerr << "TaRun::Init ERROR: Cannot open file" << endl;
+	 return fgTARUN_ERROR;
+       }
   }
 
   // Get first event
@@ -153,7 +164,7 @@ TaRun::Init()
   if (GetBuffer() != 0)
     {
       cerr << "TaRun::Init ERROR: No data from " << fCodaFileName << endl;
-      exit (1);
+      return fgTARUN_ERROR;
     }
   fRunNumber = FindRunNumber();
   if (fRunNumber == 0)
@@ -186,8 +197,9 @@ TaRun::Init()
     {
       cerr << "TaRun::Init ERROR: Oversample factor is zero, cannot analyze"
 	   << endl;
-      exit (1);
+      return fgTARUN_ERROR;
     }
+  return fgTARUN_OK;
 
 }
  

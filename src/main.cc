@@ -53,7 +53,6 @@ int main(int argc, char **argv)
   // Done processing command line.  Hand off to analysis manager.  
 
   TROOT pan ( "pan", "Parity analyzer" );
-  TaAnalysisManager am;
 
   if (choice == 0)
     {
@@ -65,25 +64,34 @@ int main(int argc, char **argv)
     }
   else 
     {
+      TaAnalysisManager am;
+
       // Command line use with run number, file name or online specified
       if (choice == 1) 
-	am.Init(runnum);
+	{
+	  if (am.Init(runnum) != 0)
+	    return 1;
+	}
       else if (choice == 2) 
 	{
 	  string filename = cfilename;
-	  am.Init(filename);
+	  if (am.Init(filename) != 0)
+	    return 1;
 	}
       else if (choice == 3) 
 	{
 #ifdef ONLINE
-	  am.Init();
+	  if (am.Init() != 0)
+	    return 1;
 #else
 	  usage();
 	  return 1;
 #endif
 	}
-      am.Process();
-      am.End();
+      if (am.Process() != 0)
+	return 1;
+      if (am.End() != 0)
+	return 1;
       return 0;
     }
 }
