@@ -17,7 +17,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "TaDebugAna.hh"
-#include "TaEvent.hh"
+#include "VaEvent.hh"
 #include "TaRun.hh"
 #include "TaLabelledQuantity.hh"
 

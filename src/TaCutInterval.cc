@@ -17,7 +17,7 @@
 
 #include <iostream>
 #include "TaCutInterval.hh"
-#include "TaEvent.hh"
+#include "VaEvent.hh"
 
 #ifndef NODICT
 ClassImp(TaCutInterval)
@@ -67,7 +67,7 @@ TaCutInterval::operator= (const TaCutInterval& assign)
 // Major functions
 
 Bool_t 
-TaCutInterval::Inside (const TaEvent& ev, 
+TaCutInterval::Inside (const VaEvent& ev, 
 		       const UInt_t lex, 
 		       const UInt_t hex) const 
 {

@@ -27,7 +27,7 @@
 
 class TaCutList;
 class TaRun;
-class TaEvent;
+class VaEvent;
 class TaLabelledQuantity;
 
 class VaPair {
@@ -41,11 +41,11 @@ public:
   virtual ~VaPair();
   
   virtual ErrCode_t RunInit(const TaRun&);
-  virtual Bool_t Fill (TaEvent&, TaRun&);  // check for pair and fill
-  const TaEvent& GetRight() const;
-  const TaEvent& GetLeft() const;
-  const TaEvent& GetFirst() const;
-  const TaEvent& GetSecond() const;
+  virtual Bool_t Fill (VaEvent&, TaRun&);  // check for pair and fill
+  const VaEvent& GetRight() const;
+  const VaEvent& GetLeft() const;
+  const VaEvent& GetFirst() const;
+  const VaEvent& GetSecond() const;
   void QueuePrint() const;   
   void AddResult (const TaLabelledQuantity&); 
   Double_t GetDiff (Int_t) const;
@@ -64,26 +64,26 @@ protected:
   static const ErrCode_t fgVAP_OK;      // returned on success
 
   // Private member functions
-  virtual void CheckSequence (TaEvent&, TaRun&) = 0; // look for helicity/synch errors
+  virtual void CheckSequence (VaEvent&, TaRun&) = 0; // look for helicity/synch errors
   virtual UInt_t RanBit (UInt_t hRead = 2) = 0;
   virtual Bool_t HelSeqOK (EHelicity h);
 
   // Static data members  
-  static deque< TaEvent > fgEventQueue;  // Events waiting to be paired
+  static deque< VaEvent > fgEventQueue;  // Events waiting to be paired
   static Bool_t  fgSkipping;   // true until first event of first full window pair/quad etc.
-  static TaEvent fgThisWinEv;  // first ev of this window
-  static TaEvent fgLastWinEv;  // first ev of last window
+  static VaEvent fgThisWinEv;  // first ev of this window
+  static VaEvent fgLastWinEv;  // first ev of last window
   static UInt_t  fgShreg;      // value for sequence algorithm      
   static UInt_t  fgNShreg;     // count since fgShreg was reset
   static Bool_t  fgPairMade;   // set in Fill to true if pair made, else false
   static Cut_t   fgSequenceNo; // cut number for sequence
 
   // Data members
-  TaEvent fEvLeft;                       // "Left" helicity event
-  TaEvent fEvRight;                      // "Right" helicity event
+  VaEvent fEvLeft;                       // "Left" helicity event
+  VaEvent fEvRight;                      // "Right" helicity event
   vector<TaLabelledQuantity> fResults;   // Pair analysis results
-  TaEvent* fEvFirst;                     // (pointer to) first event
-  TaEvent* fEvSecond;                    // (pointer to) second event
+  VaEvent* fEvFirst;                     // (pointer to) first event
+  VaEvent* fEvSecond;                    // (pointer to) second event
   
 #ifndef NODICT
   ClassDef( VaPair, 0 )  // Base class for helicity pairs

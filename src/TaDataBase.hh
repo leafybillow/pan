@@ -278,7 +278,9 @@ public:
   Int_t GetRunNum() const { return runnum; };
 // Get analysis type
   string GetAnaType()const;
-  // Get timestamp
+// Get simulation type
+  string GetSimulationType() const;
+// Get timestamp
   string GetTimestamp() const;
 // Get feedback switch
   string GetFdbkSwitch( const string &fdbktype) const;

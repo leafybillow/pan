@@ -296,6 +296,12 @@ void TaDataBase::Print() {
   clog << endl;
   clog << "Database Variables Used for This Run " << endl;
   clog << "   Analysis type :  " << GetAnaType() << endl;
+  string str = GetSimulationType();
+  if (str != "none") {
+    clog << "   !!!                                        !!!" << endl;
+    clog << "   !!!!!!!!!! Simulation : " << str <<  "  !!!!!!!!!!" << endl;
+    clog << "   !!!                                        !!!" << endl;
+  }
   clog << "   Max events :  " << GetMaxEvents() << endl;
   clog << "   Window delay :  " << GetDelay() << endl;
   clog << "   Oversample :   " << GetOverSamp() << endl;
@@ -502,6 +508,15 @@ TaDataBase::GetTimestamp() const
      return datatype[0]->GetS() + " " + datatype[1]->GetS(); 
    return "unknown";
 };
+
+
+string TaDataBase::GetSimulationType()  const {
+// returns pair type (pair or quad) for this run.
+  string stest = GetString("simtype");
+  if (strlen(stest.c_str())-1 <= 0) return "none";
+  return stest;
+};
+
 
 string TaDataBase::GetFdbkSwitch( const string &fdbktype )const {
   // get the feedback switch state corresponding to feedback type fdbktype.
@@ -1182,6 +1197,7 @@ void TaDataBase::InitDB() {
   tables.push_back("PZTparam");      //  18
   tables.push_back("cutnames");      //  19
   tables.push_back("timestamp");     //  20
+  tables.push_back("simtype");       //  21
 
   pair<string, int> sipair;
   int k;
@@ -1256,10 +1272,13 @@ void TaDataBase::InitDB() {
     if (i == 19) {   // cutnames
       for (k = 0; k < 40; k++) columns.push_back(new dtype("s"));
     }
-    if (i == 20) 
-      {
-	columns.push_back (new dtype ("s"));  // timestamp (date)
-	columns.push_back (new dtype ("s"));  // timestamp (time)
+    if (i == 20) { 
+      columns.push_back (new dtype ("s"));  // timestamp (date)
+      columns.push_back (new dtype ("s"));  // timestamp (time)
+    }
+    if (i == 21) { // simtype
+	columns.push_back (new dtype ("s"));  // first spec
+	columns.push_back (new dtype ("s"));  // 
       }
 
     sipair.second = columns.size(); 

@@ -38,7 +38,7 @@
 
 class TFile;
 class THaCodaData;
-class TaEvent;
+class VaEvent;
 class TaDevice;
 class VaPair;
 class TaDataBase;
@@ -62,7 +62,7 @@ public:
   virtual ErrCode_t ReInit();
   Bool_t NextEvent();
   void Decode();
-  virtual void AccumEvent(const TaEvent&, const Bool_t doSlice, const Bool_t doRun);
+  virtual void AccumEvent(const VaEvent&, const Bool_t doSlice, const Bool_t doRun);
   virtual void AccumPair(const VaPair&, const Bool_t doSlice, const Bool_t doRun);
   void PrintSlice (EventNumber_t n);
   void PrintRun();
@@ -74,7 +74,7 @@ public:
   SlotNumber_t GetOversample() const { return fOversamp; };
   UInt_t GetRate() const { return 30 * fOversamp; }; // events per second
   Double_t GetDBValue(string key) const;
-  TaEvent& GetEvent() const { return *fEvent; };
+  VaEvent& GetEvent() const { return *fEvent; };
   Int_t GetRunNumber() const { return fRunNumber; };
   TaDataBase& GetDataBase() const { return *fDataBase; };
   Int_t GetKey(string keystr) const;
@@ -114,8 +114,8 @@ private:
   string fCodaFileName;          // Name of CODA data file
   string fComputer;              // Computer to ask for online data
   string fSession;               // CODA session for online data
-  TaEvent* fEvent;               // The most recently read event
-  TaEvent* fAccumEvent;          // Event being accumulated
+  VaEvent* fEvent;               // The most recently read event
+  VaEvent* fAccumEvent;          // Event being accumulated
   TaDevice* fDevices;            // Device map for this run
   TFile* fRootFile;              // Root file for analysis results
   TTree *fEvtree;                // Event tree for Root file

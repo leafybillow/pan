@@ -13,7 +13,7 @@
 // (for computation of pedestals and DAC noise slopes), TaBeamAna (for
 // analysis of beam characteristics), and TaPromptAna (for prompt
 // physics analysis).  Each of these is responsible for some treatment
-// of TaEvents from a TaRun.  The type of analysis to be done is
+// of VaEvents from a TaRun.  The type of analysis to be done is
 // specified in the database, and the TaAnalysisManager instantiates
 // the appropriate analysis class accordingly.
 //
@@ -48,7 +48,7 @@
 
 #include "TaCutList.hh"
 #include "TaDevice.hh"
-#include "TaEvent.hh"
+#include "VaEvent.hh"
 #include "TaLabelledQuantity.hh"
 #include "TaPairFromPair.hh"
 #include "TaPairFromQuad.hh"
@@ -118,7 +118,7 @@ VaAnalysis::VaAnalysis():
   fEDeque.clear(); 
   fPDeque.clear();
   fTreeList.clear();
-  fEvt = new TaEvent();
+  fEvt = new VaEvent();
   fPZTMatrix = new Double_t[2*fgNumBpmFdbk];
   memset(fPZTMatrix, 0, 2*fgNumBpmFdbk*sizeof(Double_t));
 #ifdef LEAKCHECK
@@ -178,7 +178,7 @@ VaAnalysis::RunIni(TaRun& run)
   // factor.  Find out pair type and set fPairType accordingly.
 
   fRun = &run;
-  fPreEvt = new TaEvent();
+  fPreEvt = new VaEvent();
 #ifdef LEAKCHECK
   ++fLeakNewEvt;
 #endif
@@ -270,7 +270,7 @@ VaAnalysis::RunReIni(TaRun& run)
   // getting a new empty pair and making sure fPair is null.
 
   fFirstPass = false;
-  fPreEvt = new TaEvent();
+  fPreEvt = new VaEvent();
 #ifdef LEAKCHECK
   ++fLeakNewEvt;
 #endif

@@ -21,7 +21,7 @@
 #include "TObject.h"
 #include "PanTypes.hh"
 
-class TaEvent;
+class VaEvent;
 
 class TaCutInterval
 {
@@ -41,7 +41,7 @@ public:
 
   // Major functions
 
-  Bool_t Inside (const TaEvent& ev, const UInt_t lex, const UInt_t hex) const;
+  Bool_t Inside (const VaEvent& ev, const UInt_t lex, const UInt_t hex) const;
 
   // Access functions
 

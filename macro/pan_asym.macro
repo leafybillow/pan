@@ -23,7 +23,7 @@ cout << "Enter run number : ";
 cin >> run;
 cout << "Run "<<run<<endl;
 char runfile[50];
-sprintf(runfile,"pan_%d.root",run);
+sprintf(runfile,"parity02_%d_BEAM.root",run);
 
 f = new TFile(runfile);
 
@@ -44,7 +44,7 @@ Double_t rho, rhomean, rhomeanerr, asymbcm2reg;
 Double_t  delta, deltamean;
 Int_t i, j, np, maxev, it, npoint, pairokcp;
 
-TH1F *bcmres    = new TH1F("bcmres","",100, -5000,5000);
+TH1F *bcmres    = new TH1F("bcmres","",100, -200,200);
 TH1F *beamnoise = new TH1F("beamnoise","",100,-5000,5000);
 
 TBranch* b_bcm1 = p->GetBranch("asym_bcm1");b_bcm1->SetAddress(&asymbcm1cp);
@@ -208,13 +208,13 @@ a1_1->Draw(); a1_2->Draw(); a1_3->Draw();
 a1_4->Draw(); a1_5->Draw(); a1_6->Draw();
 
 
-a1_1->cd(); r->Draw("bcm1:ev_num");    
+a1_1->cd(); r->Draw("bcm1:ev_num","bcm1>2000");    
 htemp->GetXaxis()->CenterTitle();
 htemp->GetXaxis()->SetTitleOffset(1.2);
 htemp->GetXaxis()->SetTitle("BCM1 (adc bins) vs number of events");
 
 
-a1_2->cd(); r->Draw("bcm2:ev_num");
+a1_2->cd(); r->Draw("bcm2:ev_num","bcm1>2000");
 htemp->GetXaxis()->CenterTitle();
 htemp->GetXaxis()->SetTitleOffset(1.2);
 htemp->GetXaxis()->SetTitle("BCM2 (adc bins) vs number of events");
@@ -350,7 +350,7 @@ a3->Modified();
 
 a3_2_1->cd(); bcmres->Draw();
 bcmres->GetXaxis()->CenterTitle();
-bcmres->GetXaxis()->SetTitle("Monitors resolution in ppm");
+bcmres->GetXaxis()->SetTitle("BCM resolution (double difference) in ppm");
 Npair = bcmres->GetEntries();
 Mean  = bcmres->GetMean();
 Rms   = bcmres->GetRMS();

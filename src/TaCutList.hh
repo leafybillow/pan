@@ -33,7 +33,7 @@
 
 class TaCutInterval;
 class TaDataBase;
-class TaEvent;
+class VaEvent;
 
 class TaCutList
 {
@@ -48,8 +48,8 @@ public:
 
   // Major functions
   void Init(const TaDataBase&);
-  Bool_t OK (const TaEvent&) const;  // True if event not in any cut interval
-  vector<pair<Cut_t,Int_t> > CutsFailed (const TaEvent&) const; // Cuts failed by event
+  Bool_t OK (const VaEvent&) const;  // True if event not in any cut interval
+  vector<pair<Cut_t,Int_t> > CutsFailed (const VaEvent&) const; // Cuts failed by event
   void UpdateCutInterval (const Cut_t, const Int_t, const EventNumber_t);  // Update interval for this cut type
   void AddExtension (const Cut_t, const UInt_t, const UInt_t);  // Add extensions to list
   void AddName (const Cut_t, const string&);  // Add name to list
@@ -74,7 +74,7 @@ private:
   vector<UInt_t> fHighExtension;     // High-end extension for each cut type
   vector<UInt_t> fTally;             // tally of cut condition failures
   vector<string> fCutNames;          // names of cuts
-  static const size_t fgMaxEvent = 1000000; // Probably should be available from TaEvent, really
+  static const size_t fgMaxEvent = 1000000; // Probably should be available from VaEvent, really
 
 #ifndef NODICT
   ClassDef(TaCutList, 0)   // List of cuts

@@ -25,7 +25,7 @@
 
 //class TaStatistics;
 class TaRun;
-class TaEvent;
+class VaEvent;
 
 class TaPromptAna: public VaAnalysis {
   

@@ -13,7 +13,7 @@
 // (for computation of pedestals and DAC noise slopes), TaBeamAna (for
 // analysis of beam characteristics), and TaPromptAna (for prompt
 // physics analysis).  Each of these is responsible for some treatment
-// of TaEvents from a TaRun.  The type of analysis to be done is
+// of VaEvents from a TaRun.  The type of analysis to be done is
 // specified in the database, and the TaAnalysisManager instantiates
 // the appropriate analysis class accordingly.
 //
@@ -53,7 +53,7 @@
 
 class TaCutList;
 class TaRun;
-class TaEvent;
+class VaEvent;
 class VaPair;
 class AnaList {
 // Utility class of variable info
@@ -222,17 +222,17 @@ protected:
   // Data members
   TaRun* fRun;                  // Run being analyzed
   UInt_t fMaxNumEv;             // Max number of events to analyze
-  TaEvent* fPreEvt;             // Event being preprocessed
+  VaEvent* fPreEvt;             // Event being preprocessed
   VaPair* fPrePair;             // Pair being built
   // There are three delay queues (actually deques) fEHelDeque is used
   // to implement delayed helicity.  fEDeque and fPDeque are used to
   // implement cut extensions.  Note pairs are queued by pointers
   // (because VaPair is abstract) but events are simply copied
-  // (because TaEvent is concrete)
-  deque<TaEvent> fEHelDeque;    // Helicity delay event deque
-  deque<TaEvent> fEDeque;       // Cut delay event deque
+  // (because VaEvent is concrete)
+  deque<VaEvent> fEHelDeque;    // Helicity delay event deque
+  deque<VaEvent> fEDeque;       // Cut delay event deque
   deque<VaPair*> fPDeque;       // Cut delay pair deque
-  TaEvent* fEvt;                // Event being analyzed
+  VaEvent* fEvt;                // Event being analyzed
   VaPair* fPair;                // Pair being analyzed
   size_t fEHelDequeMax;         // Max size of helicity delay event deque
   size_t fEDequeMax;            // Max size of cut delay event deque

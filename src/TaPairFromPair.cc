@@ -17,7 +17,7 @@
 
 //#define NOISY
 
-#include "TaEvent.hh"
+#include "VaEvent.hh"
 #include "TaPairFromPair.hh"
 #include "TaRun.hh"
 
@@ -43,7 +43,7 @@ TaPairFromPair::~TaPairFromPair()
 {
 }
 
-void TaPairFromPair::CheckSequence( TaEvent& ThisEv, TaRun& run )
+void TaPairFromPair::CheckSequence( VaEvent& ThisEv, TaRun& run )
 {
   // Look for sequence errors in the beam's window pair structure.
   // Errors include:

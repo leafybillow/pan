@@ -39,7 +39,9 @@
 #include "THaCodaFile.h"
 #include "TaDataBase.hh"
 #include "TaCutList.hh"
+#include "VaEvent.hh"
 #include "TaEvent.hh"
+#include "TaSimEvent.hh"
 #include "TaFileName.hh"
 #include "TaDevice.hh"
 #include "TaLabelledQuantity.hh"
@@ -173,7 +175,7 @@ TaRun::Init(const vector<string>& dbcommand)
   // Get first event
   // For a data file this will normally be a PRESTART event.
 
-  fEvent = new TaEvent();
+  fEvent = new VaEvent();
   if (GetBuffer() != 0)
     {
       cerr << "TaRun::Init ERROR: No data from " << fCodaFileName << endl;
@@ -208,17 +210,29 @@ TaRun::Init(const vector<string>& dbcommand)
 	   << endl;
       return fgTARUN_ERROR;
     }
-
-  if (TaEvent::RunInit(*this) != 0)
+  clog << "make event" << endl;
+  delete fEvent;
+  TString* evtype = new TString(fDataBase->GetSimulationType().c_str());
+  if (evtype->Contains("simdit") || evtype->Contains("fakehel")) {
+    cout << "!!! making a TaSimEvent !!!" << endl;
+    fEvent = new TaSimEvent();
+  } else {
+    fEvent = new TaEvent();
+  }
+  if (fEvent->RunInit(*this) != 0)
     return fgTARUN_ERROR;
-
   // Delete and recreate fEvent, now that we have done RunInit,
   // so we are able to set up cut array therein;
   // also create fAccumEvent now.
-
   delete fEvent;
-  fEvent = new TaEvent();
-  fAccumEvent = new TaEvent();
+  if (evtype->Contains("simdit") || evtype->Contains("fakehel")) {
+    cout << "!!! making a TaSimEvent !!!" << endl;
+    fEvent = new TaSimEvent();
+    fAccumEvent = new TaSimEvent();
+  } else {
+    fEvent = new TaEvent();
+    fAccumEvent = new TaEvent();
+  }
 
   return fgTARUN_OK;
 
@@ -260,7 +274,7 @@ TaRun::ReInit()
 //    fCutList->AddName(BeamBurpCut, "Beam_burp");
 //    fCutList->AddName(OversampleCut, "Oversample");
 //    fCutList->AddName(SequenceCut, "Sequence");
-  if (TaEvent::RunInit(*this) != 0)
+  if (fEvent->RunInit(*this) != 0)
     return fgTARUN_ERROR;
 
   if (fERunStats != 0)
@@ -356,7 +370,7 @@ TaRun::Decode()
 
 
 void 
-TaRun::AccumEvent(const TaEvent& ev, const Bool_t doSlice, const Bool_t doRun) 
+TaRun::AccumEvent(const VaEvent& ev, const Bool_t doSlice, const Bool_t doRun) 
 { 
   // Update event statistics with the results in this event, if it
   // passes cuts.

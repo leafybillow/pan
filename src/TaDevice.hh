@@ -12,7 +12,7 @@
 //
 //    This class contains that component of "device data" which is
 //    the same for each event.  This class is owned by TaRun, not by
-//    TaEvent.  That way when events are copied they need not carry
+//    VaEvent.  That way when events are copied they need not carry
 //    the data here.
 //
 //////////////////////////////////////////////////////////////////////////
@@ -79,7 +79,7 @@ ClassDef (TaDevice, 0)   // Collection of devices that contain data
 
 }; 
 
-// For the following "Get" methods, typically used by TaEvent, it is the
+// For the following "Get" methods, typically used by VaEvent, it is the
 // users responsibility to check the index (not checked here, for performance).
 
 inline Int_t TaDevice::GetNumRaw() const { return fNumRaw; };

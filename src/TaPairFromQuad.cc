@@ -17,7 +17,7 @@
 
 //#define NOISY
 
-#include "TaEvent.hh"
+#include "VaEvent.hh"
 #include "TaPairFromQuad.hh"
 #include "TaRun.hh"
 
@@ -55,7 +55,7 @@ TaPairFromQuad::RunInit(const TaRun& run)
   return fgVAP_OK;
 }
 
-void TaPairFromQuad::CheckSequence( TaEvent& ThisEv, TaRun& run )
+void TaPairFromQuad::CheckSequence( VaEvent& ThisEv, TaRun& run )
 {
   // Look for sequence errors in the beam's window pair structure.
   // Errors include:

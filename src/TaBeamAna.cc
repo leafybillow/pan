@@ -96,25 +96,100 @@ TaBeamAna::InitChanLists ()
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanListFromName ("pairsynch", "", fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanListFromName ("quadsynch", "", fgNO_STATS + fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanListFromName ("timeslot", "", fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanListFromName ("pitadac", "", fgNO_STATS + fgCOPY);
+
+//    f = ChanList("timeboard","oversample","cnts", fgNO_STATS + fgCOPY);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+//    f = ChanList ("timeboard", "integtime","cnts",fgNO_STATS + fgCOPY);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+//    f = ChanList ("timeboard", "rampdelay","cnts",fgNO_STATS + fgCOPY);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+//    f = ChanList ("timeboard", "pitadac","cnts",fgNO_STATS + fgCOPY);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+
+  f = ChanList ("adc", "~_0", "chan", fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanList ("batt", "~", "chan", fgNO_STATS + fgCOPY);
+  f = ChanList ("adc", "~_1", "chan", fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("adc", "~_2", "chan", fgNO_STATS + fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("adc", "~_3", "chan", fgNO_STATS + fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+
+//    f = ChanList ("scaler", "~_17", "cnts", fgNO_STATS + fgCOPY);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+//    f = ChanList ("v2f", "~_clk", "cnts", fgNO_STATS + fgCOPY);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+
+    f = ChanList ("adc_cal", "~_0", "chan", fgNO_STATS + fgCOPY);
+    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+//    f = ChanList ("adc", "~_1_cal", "chan", fgNO_STATS + fgCOPY);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+//    f = ChanList ("adc", "~_2_cal", "chan", fgNO_STATS + fgCOPY);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+//    f = ChanList ("adc", "~_3_cal", "chan", fgNO_STATS + fgCOPY);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+
+//    f = ChanList ("batt", "~", "chan", fgNO_STATS + fgCOPY);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+
+//    f = ChanList ("bcm", "~r", "chan", fgNO_STATS + fgCOPY);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+//    f = ChanList ("bpm", "~xm", "mm", fgNO_STATS + fgCOPY);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+//    f = ChanList ("bpm", "~ym", "mm", fgNO_STATS + fgCOPY);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+//    f = ChanList ("bpm", "~xp", "mm", fgNO_STATS + fgCOPY);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+//    f = ChanList ("bpm", "~yp", "mm", fgNO_STATS + fgCOPY);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+
+
   f = ChanList ("bpm", "~x", "mm", fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("bpm", "~y", "mm", fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+
   f = ChanList ("bcm", "~", "chan", fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
-  // Channels for which to store differences
-  f = ChanList ("batt", "~", "mchan", fgDIFF);
+  f = ChanList ("bpm", "~xws", "", fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("bpm", "~yws", "", fgNO_STATS + fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("bpm", "~ws", "", fgNO_STATS + fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+
+  f = ChanList ("lumi", "~", "", fgNO_STATS + fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+
+  f = ChanList ("bpmcav", "~x", "", fgNO_STATS + fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("bpmcav", "~y", "", fgNO_STATS + fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+
+  // Channels for which to store differences
+
+//    f = ChanList ("adc", "~_0", "chan", fgDIFF);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+//    f = ChanList ("adc", "~_1", "chan", fgDIFF);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+//    f = ChanList ("adc", "~_2", "chan", fgDIFF);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+//    f = ChanList ("adc", "~_3", "chan", fgDIFF);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+
   f = ChanList ("bpm", "~x", "um", fgDIFF);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("bpm", "~y", "um", fgDIFF);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+
+  f = ChanList ("bpmcav", "~x", "um", fgDIFF);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("bpmcav", "~y", "um", fgDIFF);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   // Channels for which to store asymmetries
@@ -122,5 +197,30 @@ TaBeamAna::InitChanLists ()
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("bcm", "~", "ppm", fgNO_BEAM_NO_ASY + fgASY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+
+  f = ChanList ("lumi", "~", "ppm", fgNO_BEAM_NO_ASY + fgASY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+
+  f = ChanList ("det", "~", "ppm", fgNO_BEAM_NO_ASY + fgASY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+
+//    f = ChanList ("bpm", "~xws", "ppm", fgNO_BEAM_NO_ASY + fgASY);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+//    f = ChanList ("bpm", "~yws", "ppm", fgNO_BEAM_NO_ASY + fgASY);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+//    f = ChanList ("bpm", "~ws", "ppm", fgNO_BEAM_NO_ASY + fgASY);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+
+
+//    f = ChanListFromName ("adc2_0", "", fgASY);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+//    f = ChanListFromName ("adc2_1", "", fgASY);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+//    f = ChanListFromName ("adc2_2", "", fgASY);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+//    f = ChanListFromName ("adc2_3", "", fgASY);
+//    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+
+
 
 }

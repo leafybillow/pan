@@ -842,6 +842,7 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"bmw_clean",IBMW_CLN));
   fKeyToIdx.insert(make_pair((string)"bmw_obj",IBMW_OBJ));
   fKeyToIdx.insert(make_pair((string)"bmw_val",IBMW_VAL));
+  fKeyToIdx.insert(make_pair((string)"bmw_cyc",IBMW_CYC));
 
 };
 

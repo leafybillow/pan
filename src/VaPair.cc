@@ -19,7 +19,7 @@
 
 
 #include "TaCutList.hh"
-#include "TaEvent.hh"
+#include "VaEvent.hh"
 #include "TaLabelledQuantity.hh"
 #include "VaPair.hh" 
 #include "TaRun.hh"
@@ -33,11 +33,11 @@ ClassImp(VaPair)
 // Static members
 const ErrCode_t VaPair::fgVAP_OK = 0;
 const ErrCode_t VaPair::fgVAP_ERROR = -1;
-deque< TaEvent > 
+deque< VaEvent > 
 VaPair::fgEventQueue;
 Bool_t VaPair::fgSkipping = true;
-TaEvent VaPair::fgThisWinEv;
-TaEvent VaPair::fgLastWinEv;
+VaEvent VaPair::fgThisWinEv;
+VaEvent VaPair::fgLastWinEv;
 UInt_t VaPair::fgShreg = 1;
 UInt_t VaPair::fgNShreg = 0;
 Bool_t VaPair::fgPairMade = false;
@@ -114,8 +114,8 @@ VaPair::RunInit(const TaRun& run)
   // pair events from two different runs, for instance)
   fgEventQueue.clear();
   fgSkipping = true;
-  fgThisWinEv = TaEvent();
-  fgLastWinEv = TaEvent();
+  fgThisWinEv = VaEvent();
+  fgLastWinEv = VaEvent();
   fgShreg = 1;
   fgNShreg = 0;
   fgPairMade = false;
@@ -133,7 +133,7 @@ VaPair::RunInit(const TaRun& run)
 
 
 Bool_t 
-VaPair::Fill( TaEvent& ThisEv, TaRun& run )
+VaPair::Fill( VaEvent& ThisEv, TaRun& run )
 {
   // If this event makes a pair with a stored one, put the two events
   // into this pair and return true.  Otherwise store this event and
@@ -221,28 +221,28 @@ VaPair::Fill( TaEvent& ThisEv, TaRun& run )
 }
 
 
-const TaEvent& 
+const VaEvent& 
 VaPair::GetRight() const
 {
   return fEvRight;
 }
 
 
-const TaEvent& 
+const VaEvent& 
 VaPair::GetLeft() const
 {
   return fEvLeft;
 }
 
 
-const TaEvent& 
+const VaEvent& 
 VaPair::GetFirst() const
 {
   return *fEvFirst;
 }
 
 
-const TaEvent& 
+const VaEvent& 
 VaPair::GetSecond() const
 {
   return *fEvSecond;
@@ -257,7 +257,7 @@ VaPair::QueuePrint() const
   if ( fgEventQueue.size() !=0 )
     {
       cout<<" ----- PAIR event queue print out -------- "<<endl;
-      for ( deque< TaEvent >::iterator fEvIdx  = fgEventQueue.begin() ; 
+      for ( deque< VaEvent >::iterator fEvIdx  = fgEventQueue.begin() ; 
             fEvIdx != fgEventQueue.end() ; 
             fEvIdx++ )
         cout<<"event number "<< (*fEvIdx).GetEvNumber() << endl;
@@ -301,8 +301,8 @@ VaPair::GetAsy (Int_t key) const
   Double_t denom = GetRight().GetData(key) + GetLeft().GetData(key);
   if ( denom <= 0 )
     {
-      cerr << "VaPair::GetAsy ERROR: Denominator is <= zero, key = " 
-           << key << endl;
+//        cerr << "VaPair::GetAsy ERROR: Denominator is <= zero, key = " 
+//  	   << key << endl;
       return -1;
     }
   return (GetRight().GetData(key) - GetLeft().GetData(key)) / denom;

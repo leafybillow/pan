@@ -22,7 +22,7 @@
 #include "VaPair.hh"
 
 class TaCutList;
-class TaEvent;
+class VaEvent;
 class TaRun;
 
 class TaPairFromPair : public VaPair {
@@ -39,7 +39,7 @@ public:
 private:
   
   // Private member functions
-  void CheckSequence (TaEvent&, TaRun&); // look for helicity/synch errors
+  void CheckSequence (VaEvent&, TaRun&); // look for helicity/synch errors
   UInt_t RanBit (UInt_t hRead = 2);
 
 #ifndef NODICT
