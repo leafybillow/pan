@@ -25,6 +25,7 @@
 #include "VaAnalysis.hh"
 #include "TaBeamAna.hh"
 #include "TaPromptAna.hh"
+#include "TaDebugAna.hh"
 #include "TaADCCalib.hh"
 
 #ifndef NODICT
@@ -184,6 +185,8 @@ TaAnalysisManager::InitCommon()
     fAnalysis = new TaADCCalib("adcped");
   else if (theAnaType.CmpNoCase("adcdac") == 0)
     fAnalysis = new TaADCCalib("adcdac");
+  else if (theAnaType.CmpNoCase("debug") == 0)
+    fAnalysis = new TaDebugAna;
   else
     {
       cerr << "TaAnalysisManager::InitCommon ERROR: Invalid analysis type = "
