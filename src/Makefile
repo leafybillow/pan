@@ -59,7 +59,7 @@ ifeq ($(OSNAME),Linux)
    CXXFLAGS      = -Wall -fno-exceptions -fPIC $(INCLUDES) 
    LD            = g++
    LDFLAGS       = 
-   SOFLAGS       = -shared
+   SOFLAGS       = -shared 
    GLIBS         = $(ROOTGLIBS) -L/usr/X11R6/lib -lXpm -lX11
    LIBCODACLASS=libcoda.a
    ET_AC_FLAGS = -D_REENTRANT -D_POSIX_PTHREAD_SEMANTICS
@@ -94,11 +94,11 @@ else
 endif
 
 #
-# Mysql can be dowloaded from http://www.mysql.com 
+# Mysql can be downloaded from http://www.mysql.com 
 # It is also found at CUE in /apps/mysql/
 # Use Mysql version: mysql-3.23.xx 
 # 
-# libMySQL.so is root library found under $(ROOTSYS)/lib
+# libMySQL.so is a root library found under $(ROOTSYS)/lib
 #
 # libz.so is a compression library used by libMySQL.so
 # and can be found at CUE in /apps/lib/
@@ -107,7 +107,7 @@ endif
 ifdef MYSQLDB
 MYSQL_INCLUDE = /apps/mysql/PRO/include/mysql
 INCLUDES      +=-I$(MYSQL_INCLUDE) 
-MYSQL_LIBS    = $(ROOTSYS)/lib/libMySQL.so /apps/lib/libz.so
+MYSQL_LIBS    = $(ROOTSYS)/lib/libMySQL.so /apps/lib/libz.so 
 ALL_LIBS += $(MYSQL_LIBS)
 endif
 
@@ -120,7 +120,7 @@ SRC = TaAnalysisManager.cc  \
       VaAnalysis.cc VaDataBase.cc VaPair.cc TaADCCalib.cc
 
 ifdef MYSQLDB
- SRC +=TaMysql.cc
+ SRC +=TaMysql.cc 
  CXXFLAGS += -DMYSQLDB
 else
  SRC +=TaAsciiDB.cc
