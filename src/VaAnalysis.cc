@@ -1,15 +1,47 @@
-//////////////////////////////////////////////////////////////////////////
+//**********************************************************************
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
-//           VaAnalysis.cc   (implementation)
-//           ^^^^^^^^^^^^^
+//       VaAnalysis.cc  (implementation)
 //
-//    Authors :  R. Holmes, A. Vacheret, R. Michaels
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
 //
-//    Analysis base class.
+////////////////////////////////////////////////////////////////////////
 //
-//////////////////////////////////////////////////////////////////////////
+// Abstract base class of analysis. Derived classes include TaADCCalib
+// (for computation of pedestals and DAC noise slopes) and TaBeamAna
+// (for analysis of beam characteristics).  Future derived classes may
+// include TaAsymAna (for analysis of physics asymmetries),
+// TaModulaAna (for computation of beam modulation coefficients), and
+// TaCorrecAna (for computation of corrections due to
+// helicity-correlated beam differences).  Each of these is
+// responsible for some treatment of TaEvents from a TaRun.  The type
+// of analysis to be done is specified in the database, and the
+// TaAnalysisManager instantiates the appropriate analysis class
+// accordingly.
+//
+// VaAnalysis has initialization and termination routines for both the
+// overall analysis and the analysis of a particular run.  At present
+// Pan is designed to analyze only a single run, but these routines
+// provide for a possible future version that will handle multiple
+// runs.
+//
+// The main event loop is inside the ProcessRun method.  The three
+// main methods called from here are PreProcessEvt, ProcessEvt, and
+// ProcessPair.  The first of these places the most recently read
+// event into a delay queue until the delayed helicity information for
+// that event becomes available.  Cut conditions are checked for here.
+// Once the helicity information is added the event is pushed onto a
+// second delay queue, while the events are used to construct pairs
+// which are pushed onto a third delay queue.  These two delay queues
+// are used to hold events and pairs until we can tell whether they
+// fall within a cut interval caused by a cut condition arising later.
+// Events and pairs which emerge from the ends of these queues are
+// analyzed in ProcessEvt and ProcessPair, respectively.  Analysis
+// results are added to the events and pairs themselves.
+//
+////////////////////////////////////////////////////////////////////////
 
 //#define NOISY
 //#define CHECKOUT
@@ -180,8 +212,8 @@ VaAnalysis::RunIni(TaRun& run)
     {
       mx = atoi (mxev);
       if (mx > 0)
-	clog << "Limiting analysis to " << mxev << " events "
-	     << "(from env. var. CODA_MAXEVENTS)" << endl;
+        clog << "Limiting analysis to " << mxev << " events "
+             << "(from env. var. CODA_MAXEVENTS)" << endl;
     }
 #endif
   if (mx > 0) {
@@ -202,7 +234,7 @@ VaAnalysis::RunIni(TaRun& run)
   if (fPDequeMax == 0)
     {
       cerr << "VaAnalysis::RunIni ERROR: Trigger rate is zero, cannot analyze"
-	   << endl;
+           << endl;
       exit (1);
     }
   
@@ -239,11 +271,11 @@ VaAnalysis::RunIni(TaRun& run)
 #endif
     {
       if (type != "pair")
-	{
-	  cerr << "VaAnalysis::NewPrePair WARNING: "
-	       << "Invalid pair type: " << type << endl;
-	  cerr << "Pair pairing chosen" << endl;
-	}
+        {
+          cerr << "VaAnalysis::NewPrePair WARNING: "
+               << "Invalid pair type: " << type << endl;
+          cerr << "Pair pairing chosen" << endl;
+        }
       fPairType = FromPair;
     }
 }
@@ -252,35 +284,36 @@ VaAnalysis::RunIni(TaRun& run)
 void
 VaAnalysis::ProcessRun()
 {
-
-  // Main analysis routine -- this is the event loop
+  // Main analysis routine -- this is the event loop.  Get an event,
+  // preprocess it; if the event deque is full, pop off an event,
+  // analyze it, and pass it to the run to be accumulated; likewise
+  // for the pair deque.
 
   while ( fRun->NextEvent() )
     {
       PreProcessEvt();
-      fRun->AddCuts(); // revise cut intervals
       if ( fEDeque.size() == fEDequeMax )
-	{
-	  ProcessEvt();
-	  fRun->AccumEvent (*fEvt);
-	}
+        {
+          ProcessEvt();
+          fRun->AccumEvent (*fEvt);
+        }
       if ( fPDeque.size() == fPDequeMax )
-	{
-	  ProcessPair();
-	  fRun->AccumPair (*fPair);
-	}
+        {
+          ProcessPair();
+          fRun->AccumPair (*fPair);
+        }
       if (fRun->GetEvent().GetEvNumber() % 1000 == 0)
-	{
-	  clog << "VaAnalysis::ProcessRun: Event " 
-	       << fRun->GetEvent().GetEvNumber() 
-	       << " read -- processed " << fEvtProc << " (" << fPairProc
-	       << ") events (pairs)" << endl;
+        {
+          clog << "VaAnalysis::ProcessRun: Event " 
+               << fRun->GetEvent().GetEvNumber() 
+               << " read -- processed " << fEvtProc << " (" << fPairProc
+               << ") events (pairs)" << endl;
 #ifdef LEAKCHECK
-	  //LeakCheck();
+          //LeakCheck();
 #endif
-	}
+        }
       if (fRun->GetEvent().GetEvNumber() >= fMaxNumEv)
-	break;
+        break;
     }
   
   // Cleanup loops -- Keep calling ProcessEvt (ProcessPair) to analyze
@@ -395,16 +428,16 @@ VaAnalysis::PreProcessEvt()
 
   if (fEHelDeque.size() == fEHelDequeMax)
       {
-	*fPreEvt = fEHelDeque.front();
+        *fPreEvt = fEHelDeque.front();
         fEHelDeque.pop_front();
-	fPreEvt->SetDelHelicity(fRun->GetEvent().GetHelicity());
+        fPreEvt->SetDelHelicity(fRun->GetEvent().GetHelicity());
 
         fEDeque.push_back (*fPreEvt);
         if (fPrePair->Fill (*fPreEvt, *fRun))
-  	{
-  	  fPDeque.push_back(fPrePair);
-  	  NewPrePair();
-  	}
+        {
+          fPDeque.push_back(fPrePair);
+          NewPrePair();
+        }
       }
 #ifdef NOISY
   clog << "Leaving PreProcessEvt, queue sizes " << fEHelDeque.size()
@@ -436,7 +469,7 @@ VaAnalysis::ProcessEvt()
     }
   else
     cerr << "VaAnalysis::ProcessEvt WARNING: "
-	 << "no event on deque to analyze" << endl;
+         << "no event on deque to analyze" << endl;
 #ifdef NOISY
   clog << "Leaving ProcessEvt, queue sizes " << fEHelDeque.size()
        << " (" << fEHelDequeMax
@@ -460,12 +493,12 @@ VaAnalysis::ProcessPair()
   if ( fPDeque.size() )
     {
       if (fPair)
-	{ 
-	  delete fPair;
+        { 
+          delete fPair;
 #ifdef LEAKCHECK
-	  ++fLeakDelPair;
+          ++fLeakDelPair;
 #endif
-	}
+        }
       fPair = fPDeque.front();
       fPDeque.pop_front();
 
@@ -483,7 +516,7 @@ VaAnalysis::ProcessPair()
   else
     {
       cerr << "VaAnalysis::ProcessPair ERROR: "
-	   << "no pair on deque to analyze" << endl;
+           << "no pair on deque to analyze" << endl;
       exit (1);
     }
 #ifdef NOISY
@@ -500,7 +533,8 @@ VaAnalysis::ProcessPair()
 void
 VaAnalysis::NewPrePair()
 { 
-  // look at the pairing type to create a new pair object of the correct type  
+  // Look at the pairing type to create a new pair object of the
+  // correct type
 
   if (fPairType == FromPair)
     {
@@ -522,7 +556,7 @@ VaAnalysis::NewPrePair()
   else
     {
       cerr << "VaAnalysis::NewPrePair ERROR "
-	   << "-- Invalid pair type " << endl;
+           << "-- Invalid pair type " << endl;
       exit (1);
     }
 }
@@ -539,13 +573,15 @@ VaAnalysis::InitChanLists ()
 void
 VaAnalysis::InitTree ()
 {
-  // Initialize the pair tree 
+  // Initialize the pair tree with standard entries plus entries based
+  // on the copy, diff, and asym lists.
+
   Int_t bufsize = 5000;
 
   fTreeSpace = new Double_t[4+
-			   fCopyList.size()*2+
-			   fDiffList.size()+
-			   fAsymList.size()];
+                           fCopyList.size()*2+
+                           fDiffList.size()+
+                           fAsymList.size()];
   //#define TREEPRINT
 #ifdef TREEPRINT
   clog << "Adding to pair tree:" << endl;
@@ -575,17 +611,17 @@ VaAnalysis::InitTree ()
     {
       AnaList* alist = *i;
       fPairTree->Branch ((prefix_r+alist->varstr).c_str(), 
-			 tsptr++, 
-			 (prefix_r+alist->varstr+suff).c_str(), 
-			 bufsize); 
+                         tsptr++, 
+                         (prefix_r+alist->varstr+suff).c_str(), 
+                         bufsize); 
 #ifdef TREEPRINT
       clog << (prefix_r+alist->varstr) << endl;
 #endif
 
       fPairTree->Branch ((prefix_l+alist->varstr).c_str(), 
-			 tsptr++, 
-			 (prefix_l+alist->varstr+suff).c_str(), 
-			 bufsize); 
+                         tsptr++, 
+                         (prefix_l+alist->varstr+suff).c_str(), 
+                         bufsize); 
 #ifdef TREEPRINT
       clog << (prefix_l+alist->varstr) << endl;
 #endif
@@ -600,9 +636,9 @@ VaAnalysis::InitTree ()
     {
       AnaList* alist = *i;
       fPairTree->Branch ((prefix+alist->varstr).c_str(), 
-			 tsptr++, 
-			 (prefix+alist->varstr+suff).c_str(), 
-			 bufsize); 
+                         tsptr++, 
+                         (prefix+alist->varstr+suff).c_str(), 
+                         bufsize); 
 #ifdef TREEPRINT
       clog << (prefix+alist->varstr) << endl;
 #endif
@@ -617,9 +653,9 @@ VaAnalysis::InitTree ()
     {
       AnaList* alist = *i;
       fPairTree->Branch ((prefix+alist->varstr).c_str(), 
-			 tsptr++, 
-			 (prefix+alist->varstr+suff).c_str(), 
-			 bufsize); 
+                         tsptr++, 
+                         (prefix+alist->varstr+suff).c_str(), 
+                         bufsize); 
 #ifdef TREEPRINT
       clog << (prefix+alist->varstr) << endl;
 #endif
@@ -632,7 +668,7 @@ vector<AnaList* >
 VaAnalysis::ChanList (const string& devtype, const string& channel, const string& other)
 {
   // Create a channel list.
-
+  //
   // Go through all devices in data map.  For each device of type
   // <devtype>, push onto the returned vector the pair (<channel'>,
   // <other>) where <channel'> is <channel> with "~" replaced by the
@@ -654,19 +690,19 @@ VaAnalysis::ChanList (const string& devtype, const string& channel, const string
     {
       string devicetype (fRun->GetDataBase()->GetDataMapType());
       if ( devicetype == devtype )
-	{
-	  string devicename (fRun->GetDataBase()->GetDataMapName());
+        {
+          string devicename (fRun->GetDataBase()->GetDataMapName());
           size_t i = channel.find("~");
           string channelp; 
-	  if (i < channel.length()) {
+          if (i < channel.length()) {
              chancopy2 = chancopy1;
              channelp  = chancopy1.replace (i, 1, devicename);
              chancopy1 = chancopy2;
-	  } else {
- 	     channelp = channel;
-	  }
-	  chanlist.push_back ( new AnaList(channelp, fRun->GetKey(channelp), other) );
-	}
+          } else {
+             channelp = channel;
+          }
+          chanlist.push_back ( new AnaList(channelp, fRun->GetKey(channelp), other) );
+        }
     }
 
   return chanlist;
@@ -676,21 +712,22 @@ VaAnalysis::ChanList (const string& devtype, const string& channel, const string
 void
 VaAnalysis::AutoPairAna()
 {
-#ifdef NOISY  
- clog<<" Entering AutoPairAna()"<<endl;
-#endif
   // Routine a derived class can call to do some of the analysis
   // automatically.
-
+  //
   // Place into the tree space copies, difference, and asymmetries for
   // channels listed in fCopyList, fDiffList, and fAsymList.  Also
   // put these into the pair as labelled quantities.
-
+  //
   // These lists are created in InitChanLists; different analyses can
   // produce different lists, then just call AutoPairAna to handle
   // some if not all of the pair analysis.
+  //
+  // At the end, call feedback routines if enabled.
 
-
+#ifdef NOISY  
+ clog<<" Entering AutoPairAna()"<<endl;
+#endif
    
 
   Double_t* tsptr = fTreeSpace;
@@ -699,7 +736,7 @@ VaAnalysis::AutoPairAna()
   fTreeREvNum = fPair->GetRight().GetEvNumber();
   fTreeLEvNum = fPair->GetLeft().GetEvNumber();
   fTreeMEvNum = (fPair->GetRight().GetEvNumber()+
-		fPair->GetLeft().GetEvNumber())*0.5;
+                fPair->GetLeft().GetEvNumber())*0.5;
   fTreeOKCond = (fPair->PassedCuts() ? 1 : 0);
   fTreeOKCut  = (fPair->PassedCutsInt(fRun->GetCutList()) ? 1 : 0);
 #ifdef ASYMCHECK
@@ -727,11 +764,11 @@ VaAnalysis::AutoPairAna()
       val = fPair->GetRight().GetData(alist->varint);
       *(tsptr++) = val;
       fPair->AddResult ( TaLabelledQuantity ( prefix_r+(alist->varstr), 
-					     val, alist->unistr ) );
+                                             val, alist->unistr ) );
       val = fPair->GetLeft().GetData(alist->varint);
       *(tsptr++) = val;
       fPair->AddResult ( TaLabelledQuantity ( prefix_l+(alist->varstr), 
-					     val, alist->unistr ) );
+                                             val, alist->unistr ) );
 #ifdef NOISY
   clog <<val<<endl;
 #endif
@@ -751,7 +788,7 @@ VaAnalysis::AutoPairAna()
       val = fPair->GetDiff(alist->varint) * 1E3;
       *(tsptr++) = val;
       fPair->AddResult ( TaLabelledQuantity ( prefix+(alist->varstr), 
-					     val, alist->unistr ) );
+                                             val, alist->unistr ) );
 #ifdef NOISY
   clog <<val<<endl;
 #endif
@@ -770,7 +807,7 @@ VaAnalysis::AutoPairAna()
       val = fPair->GetAsy(alist->varint) * 1E6;
       *(tsptr++) = val;
       fPair->AddResult ( TaLabelledQuantity ( prefix+(alist->varstr), 
-					     val, alist->unistr ) );
+                                             val, alist->unistr ) );
 #ifdef NOISY
    clog<<alist->varstr<<endl; 
    clog <<val<<endl;
@@ -780,8 +817,9 @@ VaAnalysis::AutoPairAna()
   if (fZSwitch) PZTRunFeedback();
 }
 
-void VaAnalysis::QasyRunFeedback(){
-
+void 
+VaAnalysis::QasyRunFeedback(){
+  // Intensity feedback routine.
 
   if ( fQSwitch ){ 
     if ( fPair->PassedCuts() && fPair->PassedCutsInt(fRun->GetCutList()) ){
@@ -809,7 +847,7 @@ void VaAnalysis::QasyRunFeedback(){
       fQmean1= fQmean1/fQNpair;
       vector< Double_t>::iterator qi;
       for ( qi = fQsum.begin(); qi != fQsum.end(); qi++){
-	fQRMS+=(*qi - fQmean1)*(*qi -fQmean1);
+        fQRMS+=(*qi - fQmean1)*(*qi -fQmean1);
       }
     fQRMS = sqrt(fQRMS/fQNpair);
     fQasy = fQmean1;
@@ -824,15 +862,15 @@ void VaAnalysis::QasyRunFeedback(){
       for ( qi = fQsum.begin(); qi != fQsum.end() ; qi++){
         // if asymmetry value is not too far from the mean value 
         // (filter very large values )    
-	// let's say < 6 sigma away from the calculated mean
+        // let's say < 6 sigma away from the calculated mean
         if ( abs(Int_t(*qi) - Int_t(fQasy)) < 6*fQRMS ) { 
              fQNpair++;
-	     fQmean2 += *qi;             
+             fQmean2 += *qi;             
             }
           else
-	    {
-	     fQsum.erase(qi); 
-	}
+            {
+             fQsum.erase(qi); 
+        }
       } 
 
 #ifdef FDBK1
@@ -866,11 +904,10 @@ void VaAnalysis::QasyRunFeedback(){
 
 
 void VaAnalysis::QasyEndFeedback(){
-
   // Last feedback at the end of the run. To have a chance to send 
-  // a feedback, this function need enough pair to do it . 
-  // it checks the QAsym vector size, compute an error and 
-  // test the value and send it.
+  // a feedback, this function needs enough pairs.
+  // It checks the QAsym vector size, computes an error and 
+  // tests the value and sends it.
  if ( fQSwitch ){ 
   if (fQsum.size() > fQTimeScale ) {     
     fQNpair = fQsum.size();
@@ -905,15 +942,15 @@ void VaAnalysis::QasyEndFeedback(){
     for ( qi = fQsum.begin(); qi != fQsum.end() ; qi++){
         // if asymmetry value is not too far from the mean value 
         // (filter very large values )    
-	//  < 6 sigma away from the calculated mean
+        //  < 6 sigma away from the calculated mean
         if ( abs(Int_t(*qi) - Int_t(fQmean1)) < 6*fQRMS ) { 
              fQNpair++;
-	     fQmean2 += *qi;             
+             fQmean2 += *qi;             
             }
           else
-	    {
-	     fQsum.erase(qi); 
-	}
+            {
+             fQsum.erase(qi); 
+        }
      } 
 #ifdef FDBK1
     clog<<"      | Filtering processed, new Npair :"<<fQNpair<<"\n"; 
@@ -943,6 +980,7 @@ void VaAnalysis::QasyEndFeedback(){
 }
 
 void VaAnalysis::SendVoltagePC(){
+  // Send Pockels cell voltage
     if ( abs(Int_t(fQasy)) < 25 || abs(Int_t(fQasy)) > 25 && 
          abs(Int_t(fQasy)/(Int_t(fQasyEr))) > 2 ) {
         // CRITERIA are OK, compute PC low voltage value.  
@@ -953,6 +991,7 @@ void VaAnalysis::SendVoltagePC(){
 }
 
 void VaAnalysis::QasySendEPICS(){
+  // Send intensity feedback value to EPICS
     if ( abs(Int_t(fQasy)) < 25 || abs(Int_t(fQasy)) > 25 && 
          abs(Int_t(fQasy)/(Int_t(fQasyEr))) > 2 ) {
         // CRITERIA are OK.  
@@ -979,14 +1018,15 @@ void VaAnalysis::QasySendEPICS(){
 #ifdef ONLINE
          //system(command[i]);
 #endif            
-	 // delete thevar[i]; 
+         // delete thevar[i]; 
        delete thevalue[i];  
       delete command[i];           
-      }	
+      } 
    }
 }
 
 void VaAnalysis::PZTRunFeedback(){
+  // Position feedback routine.
   // do it on IBPM4BX,Y but perhaps it is preferable for the future to 
   // do feedback at bpms at the injector in the 5 MeV region....if it is the case 
   // just replace the name of the bpm.  
@@ -1087,7 +1127,7 @@ void VaAnalysis::PZTRunFeedback(){
 
 
 void VaAnalysis::PZTEndFeedback(){
-
+  // Position feedback at end of run
   if (fZSwitch){
      if ((fZsum4B[0].size() > fQTimeScale*900) && 
          (fZsum4B[1].size() > fQTimeScale*900)){     
@@ -1098,7 +1138,7 @@ void VaAnalysis::PZTEndFeedback(){
          fZpair[i] = fZsum4B[i].size();
          for ( qi = fZsum4B[i].begin(); qi != fZsum4B[i].end(); qi++){
            fZ4Bmean1[i]+= *qi;
-	 }
+         }
        } 
 #ifdef FDBK1
 
@@ -1174,6 +1214,8 @@ void VaAnalysis::PZTEndFeedback(){
 }
 
 void VaAnalysis::PZTSendEPICS(){
+  // Send position feedback value to EPICS
+
   // arbitrary values for now
     if ( (abs(Int_t(fZ4Bdiff[0])) < 1000 || abs(Int_t(fZ4Bdiff[0])) > 1000 && 
          abs(Int_t(fZ4Bdiff[0])/(Int_t(fZ4BdiffEr[0]))) > 2) &&
@@ -1206,7 +1248,7 @@ void VaAnalysis::PZTSendEPICS(){
 #ifdef ONLINE
          //system(command[i]);
 #endif            
-	 // delete thevar[i]; 
+         // delete thevar[i]; 
        delete thevalue[i];  
       delete command[i];            
        }
@@ -1215,12 +1257,14 @@ void VaAnalysis::PZTSendEPICS(){
 
 
 void VaAnalysis::SendVoltagePZT(){
+  // Send position feedback value
  cout<<" will write the function when hardware defined ...."<<endl;
 }
 
 #ifdef LEAKCHECK
 void VaAnalysis::LeakCheck()
 {
+  // Check for memory leaks in VaAnalysis
   cerr << "Memory leak test for VaAnalysis:" << endl;
   cerr << "Events new " << fLeakNewEvt
        << " del " << fLeakDelEvt

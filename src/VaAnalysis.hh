@@ -1,15 +1,47 @@
-//////////////////////////////////////////////////////////////////////////
+//**********************************************************************
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
-//           VaAnalysis.hh  (header file)
-//           ^^^^^^^^^^^^^
+//       VaAnalysis.hh  (interface)
 //
-//    Authors :  R. Holmes, A. Vacheret, R. Michaels
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
 //
-//    Analysis base class.
+////////////////////////////////////////////////////////////////////////
 //
-//////////////////////////////////////////////////////////////////////////
+// Abstract base class of analysis. Derived classes include TaADCCalib
+// (for computation of pedestals and DAC noise slopes) and TaBeamAna
+// (for analysis of beam characteristics).  Future derived classes may
+// include TaAsymAna (for analysis of physics asymmetries),
+// TaModulaAna (for computation of beam modulation coefficients), and
+// TaCorrecAna (for computation of corrections due to
+// helicity-correlated beam differences).  Each of these is
+// responsible for some treatment of TaEvents from a TaRun.  The type
+// of analysis to be done is specified in the database, and the
+// TaAnalysisManager instantiates the appropriate analysis class
+// accordingly.
+//
+// VaAnalysis has initialization and termination routines for both the
+// overall analysis and the analysis of a particular run.  At present
+// Pan is designed to analyze only a single run, but these routines
+// provide for a possible future version that will handle multiple
+// runs.
+//
+// The main event loop is inside the ProcessRun method.  The three
+// main methods called from here are PreProcessEvt, ProcessEvt, and
+// ProcessPair.  The first of these places the most recently read
+// event into a delay queue until the delayed helicity information for
+// that event becomes available.  Cut conditions are checked for here.
+// Once the helicity information is added the event is pushed onto a
+// second delay queue, while the events are used to construct pairs
+// which are pushed onto a third delay queue.  These two delay queues
+// are used to hold events and pairs until we can tell whether they
+// fall within a cut interval caused by a cut condition arising later.
+// Events and pairs which emerge from the ends of these queues are
+// analyzed in ProcessEvt and ProcessPair, respectively.  Analysis
+// results are added to the events and pairs themselves.
+//
+////////////////////////////////////////////////////////////////////////
 
 #ifndef PAN_VaAnalysis
 #define PAN_VaAnalysis
@@ -113,57 +145,74 @@ protected:
 
 
   // Data members
-  TaRun* fRun;
-  UInt_t fMaxNumEv;
-  TaEvent* fPreEvt;
-  VaPair* fPrePair;
+  TaRun* fRun;                  // Run being analyzed
+  UInt_t fMaxNumEv;             // Max number of events to analyze
+  TaEvent* fPreEvt;             // Event being preprocessed
+  VaPair* fPrePair;             // Pair being built
   // There are three delay queues (actually deques) fEHelDeque is used
   // to implement delayed helicity.  fEDeque and fPDeque are used to
   // implement cut extensions.  Note pairs are queued by pointers
   // (because VaPair is abstract) but events are simply copied
   // (because TaEvent is concrete)
-  deque<TaEvent> fEHelDeque;
-  deque<TaEvent> fEDeque;
-  deque<VaPair*> fPDeque;
-  TaEvent* fEvt;
-  VaPair* fPair;
-  size_t fEHelDequeMax;
-  size_t fEDequeMax;
-  size_t fPDequeMax;
-  vector<AnaList* > fCopyList;
-  vector<AnaList* > fDiffList;
-  vector<AnaList* > fAsymList;
-  TTree* fPairTree;
-  Int_t fTreeREvNum; // right ev number for tree
-  Int_t fTreeLEvNum; // left ev number for tree
-  Double_t fTreeMEvNum; // mean ev number for tree
-  Int_t fTreeOKCond; // pair passes cut conditions
-  Int_t fTreeOKCut; // pair not in cut interval
-  Double_t* fTreeSpace; // other data for tree
-  UInt_t fEvtProc;
-  UInt_t fPairProc;
-  EPairType fPairType;
+  deque<TaEvent> fEHelDeque;    // Helicity delay event deque
+  deque<TaEvent> fEDeque;       // Cut delay event deque
+  deque<VaPair*> fPDeque;       // Cut delay pair deque
+  TaEvent* fEvt;                // Event being analyzed
+  VaPair* fPair;                // Pair being analyzed
+  size_t fEHelDequeMax;         // Max size of helicity delay event deque
+  size_t fEDequeMax;            // Max size of cut delay event deque
+  size_t fPDequeMax;            // Max size of cut delay pair deque
+  vector<AnaList* > fCopyList;  // Quantities to copy to the pair tree
+  vector<AnaList* > fDiffList;  // Quantities to have difference in pair tree
+  vector<AnaList* > fAsymList;  // Quantities to have asymmetry in pair tree
+  TTree* fPairTree;             // Pair tree for Root file
+  Int_t fTreeREvNum;            // Right ev number for tree
+  Int_t fTreeLEvNum;            // Left ev number for tree
+  Double_t fTreeMEvNum;         // Mean ev number for tree
+  Int_t fTreeOKCond;            // Pair passes cut conditions
+  Int_t fTreeOKCut;             // Pair not in cut interval
+  Double_t* fTreeSpace;         // Other data for tree
+  UInt_t fEvtProc;              // Number of events processed
+  UInt_t fPairProc;             // Number of pairs processed
+  EPairType fPairType;          // Type of beam helicity structure
 
-  // feedback data
-  Bool_t fQSwitch, fZSwitch; 
-  Int_t fRunNum;
-  UInt_t fQTimeScale, fZTimeScale ,fZNpair, fQNpair;
-  Int_t  fQStartPair, fQStopPair,fQfeedNum;
-  Int_t  fZpair[2], fZStartPair, fZStopPair,fZfeedNum;     
-  vector<Double_t> fQsum;
-  vector<Double_t> fZsum4B[2];
-  Double_t fQmean1, fQmean2, fQRMS, fQasy, fQasyEr;
-  Double_t fQslope, fQSlopeEr;    
-  Double_t fZ4Bmean1[2], fZ4Bmean2[2], fZ4BRMS[2];
-  Double_t fZ4Bdiff[2],fZ4BdiffEr[2];   
+  Bool_t fQSwitch;              // feedback data
+  Bool_t fZSwitch;              // feedback data
+  Int_t fRunNum;                // feedback data
+  UInt_t fQTimeScale;           // feedback data
+  UInt_t fZTimeScale;           // feedback data
+  UInt_t fZNpair;               // feedback data
+  UInt_t fQNpair;               // feedback data
+  Int_t fQStartPair;            // feedback data
+  Int_t fQStopPair;             // feedback data
+  Int_t fQfeedNum;              // feedback data
+  Int_t fZpair[2];              // feedback data
+  Int_t fZStartPair;            // feedback data
+  Int_t fZStopPair;             // feedback data
+  Int_t fZfeedNum;              // feedback data
+  vector<Double_t> fQsum;       // feedback data
+  vector<Double_t> fZsum4B[2];  // feedback data
+  Double_t fQmean1;             // feedback data
+  Double_t fQmean2;             // feedback data
+  Double_t fQRMS;               // feedback data
+  Double_t fQasy;               // feedback data
+  Double_t fQasyEr;             // feedback data
+  Double_t fQslope;             // feedback data
+  Double_t fQSlopeEr;           // feedback data
+  Double_t fZ4Bmean1[2];        // feedback data
+  Double_t fZ4Bmean2[2];        // feedback data
+  Double_t fZ4BRMS[2];          // feedback data
+  Double_t fZ4Bdiff[2];         // feedback data
+  Double_t fZ4BdiffEr[2];       // feedback data
+
   // Define LEAKCHECK to check that new = del
 #define LEAKCHECK
 #ifdef LEAKCHECK
   void LeakCheck();
-  static UInt_t fLeakNewEvt;
-  static UInt_t fLeakDelEvt;
-  static UInt_t fLeakNewPair;
-  static UInt_t fLeakDelPair;
+  static UInt_t fLeakNewEvt;    // count of event allocations
+  static UInt_t fLeakDelEvt;    // count of event deallocations
+  static UInt_t fLeakNewPair;   // count of pair allocations
+  static UInt_t fLeakDelPair;   // count of pair deallocations
 #endif
 
 #ifdef DICT
@@ -173,11 +222,3 @@ protected:
 };
 
 #endif
-
-
-
-
-
-
-
-
