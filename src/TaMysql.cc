@@ -34,6 +34,7 @@ TaMysql::~TaMysql() {
      delete [] dacparam;
      delete [] pedvalue;
 }
+
 Int_t TaMysql::Connect(TSQLServer *db) {
   const Char_t *dbusername = "dbmanager";  // username for DB access
   const Char_t *dbpasswd = "parity";    // password for DB access
@@ -51,24 +52,18 @@ Int_t TaMysql::Connect(TSQLServer *db) {
   printf("Server info: %s\n", db->ServerInfo());
 
   return 0;
-}
+};
 
 Int_t TaMysql::DisConnect(TSQLServer *db) {
   delete db;
-  db = NULL;
-  
- return 0;
-}
+  db = NULL;  
+  return 0;
+};
 
 void TaMysql::Load(int run) {
 // Load the database for this run.
-
- 
-
-    InitDB();
-
-    return;
- 
+  InitDB();
+  return;
 };
 
 void TaMysql::Write() {
@@ -105,9 +100,9 @@ Double_t TaMysql::GetData(dtype *d) const {
 string TaMysql::GetRunType() const {
 // Get run type, e.g. runtype = 'beam' 
 
-  //   TSQLServer *db;
+  //     TSQLServer *db;
 
-   // Int_t Stat = Connect(db);
+  //    Int_t Stat = Connect();
 
   const Char_t *dbusername = "dbmanager";  // username for DB access
   const Char_t *dbpasswd = "parity";    // password for DB access
@@ -120,7 +115,7 @@ string TaMysql::GetRunType() const {
   TSQLServer *db = TSQLServer::Connect(dburl, dbusername, dbpasswd);
   delete []dburl;
   dburl=NULL;
-
+  
 
   //
   
@@ -468,7 +463,7 @@ UInt_t TaMysql::GetHeader(const string& device) const {
 
   row = res->Next();
 
-  //cout << " hdr: " << str_to_base16(row->GetField(0)) << endl;
+  cout << " hdr: " << TaString(row->GetField(0)).Hex() << endl;
 
    return TaString(row->GetField(0)).Hex();
 
@@ -545,7 +540,7 @@ UInt_t TaMysql::GetMask(const string& device) const {
 
   row = res->Next();
 
-  //cout << " mask: " << str_to_base16(row->GetField(0)) << endl;
+  // cout << "mask: " << row->GetField(0) << endl;
 
    return TaString(row->GetField(0)).Hex();
 
@@ -603,7 +598,7 @@ Double_t TaMysql::GetCutValue(const string& cutname) const {
   // Construct query
   Char_t *sql = new Char_t[4200];
   sprintf(sql, "SELECT %s FROM %s", column, dbtablename);
-  //  cout << sql << endl;
+    cout << sql << endl;
 
   // start timer
   //  TStopwatch timer;
@@ -865,20 +860,6 @@ vector<Int_t> TaMysql::GetEvHi() const {
 
    vector<Int_t> result;
    result.clear();
-   //   multimap<string, vector<dtype*> >::const_iterator lb =
-   //          database.lower_bound(stlow(table));
-   //   multimap<string, vector<dtype*> >::const_iterator ub = 
-   //        database.upper_bound(stlow(table));
-   //for (multimap<string, vector<dtype*> >::const_iterator dmap = lb;
-   //      dmap != ub; dmap++) {
-   //  vector<dtype*> datav = dmap->second;
-   //  for (vector<dtype*>::const_iterator idat = datav.begin();
-   //       idat != datav.end(); idat++) {
-   //    if ((*idat)->GetType() == "i") 
-   //        result.push_back((*idat)->GetI());
-   //  }
-   // }
-
    for (Int_t i=0;i<=12;i++){
        result.push_back(atoi(row->GetField(i)));
    }
@@ -1723,12 +1704,52 @@ void TaMysql::InitDataMap() {
   Int_t nfields = res->GetFieldCount();
     cout << "Got " << nfields << " fields in result." << endl;
 
-  for(Int_t i=1; i<=nrows; i++){
+    ////
+
+
     row = res->Next();
     cout << "datamap: " <<  row->GetField(0) << endl;
   
 
-   const char *myc = row->GetField(0);
+   const char *Myc = row->GetField(0);
+
+   cout << "Myc: " <<  Myc << endl;
+
+   Int_t Len = strlen(Myc);
+
+   cout << "Len: " <<  Len << endl;
+   
+   string Str; string Data[1000];
+      Str = Myc[0];  
+     
+      //    cout << "Str: " <<  Str << endl; 
+
+
+   
+     Int_t K =0;
+   for (Int_t i=1; i<Len; i++){
+     if(Myc[i]=='+'){
+       //       cout << "Str: " <<  Str << endl;  
+       Str = "";
+       K++;
+     }
+     else{
+       Str += Myc[i];
+       Data[K]= Str;
+     }
+   }
+   //       cout << "Str: " <<  Str << endl; 
+
+
+   ////
+
+   nrows = K;
+
+   for(Int_t i=0; i<nrows; i++){
+
+   char *myc;
+   myc = new char[strlen(Data[i].c_str()+1)];
+   strcpy(myc,Data[i].c_str()); 
 
    cout << "myc: " <<  myc << endl;
 
@@ -1822,19 +1843,6 @@ void TaMysql::InitDataMap() {
   // delete []dbtablename;
 
    
- /*
-     multimap<string, vector<dtype*> >::iterator lb =
-         database.lower_bound(table);        
-	   multimap<string, vector<dtype*> >::iterator ub = 
-        database.upper_bound(table);
-   for (multimap<string, vector<dtype*> >::iterator dmap = lb;
-	       dmap != ub; dmap++) {
-  
- 
-    
-        vector<dtype*> datav =  dmap->second;
-
- */
      string devname = datav[1]->GetS();    
      cout << "devname: " << datav[1]->GetS() <<endl;
      map<string, TaKeyMap >::iterator dm = datamap.find(devname);
