@@ -56,6 +56,12 @@
 ClassImp(TaRun)
 #endif
 
+// Flags
+const ErrCode_t TaRun::fgTARUN_ERROR = -1;  // returned on error
+const ErrCode_t TaRun::fgTARUN_OK = 0;      // returned on success
+const ErrCode_t TaRun::fgTARUN_VERBOSE = 1; // verbose(1) or not(0) warnings
+const EventNumber_t TaRun::fgSLICELENGTH = 1000;  // events in a statistics slice
+
 // Constructors/destructors/operators
 
 TaRun::TaRun():

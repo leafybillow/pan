@@ -44,7 +44,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 //#define NOISY
-//#define CHECKOUT
+#define CHECKOUT
 //#define ASYMCHECK
 #define FDBK1
 
@@ -68,6 +68,8 @@ const UInt_t VaAnalysis::fgNO_BEAM_NO_ASY = 0x2;
 const UInt_t VaAnalysis::fgCOPY           = 0x4;
 const UInt_t VaAnalysis::fgDIFF           = 0x8;
 const UInt_t VaAnalysis::fgASY            = 0x10;
+const ErrCode_t VaAnalysis::fgVAANA_ERROR = -1;  // returned on error
+const ErrCode_t VaAnalysis::fgVAANA_OK = 0;      // returned on success
 
 #ifdef LEAKCHECK
 UInt_t VaAnalysis::fLeakNewEvt(0);

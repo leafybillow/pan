@@ -48,16 +48,16 @@ class TaAnalysisManager
   ErrCode_t Process();            // Process all data
   ErrCode_t End();                // End all analysis
   
+  // Static constants
+  static const ErrCode_t fgTAAM_ERROR;
+  static const ErrCode_t fgTAAM_OK;
+
  private:
 
   // Private member functions
   ErrCode_t InitCommon ();        // Code common to all Init routines
   TaAnalysisManager (const TaAnalysisManager&) {}  // Do not use
   TaAnalysisManager& operator= (const TaAnalysisManager&) { return *this; } // Do not use
-
-  // Static constants
-  static const ErrCode_t fgTAAM_ERROR = -1;
-  static const ErrCode_t fgTAAM_OK = 0;
 
   // Data members
   TaRun* fRun;              // Requested run

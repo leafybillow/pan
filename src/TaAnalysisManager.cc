@@ -29,6 +29,10 @@
 ClassImp(TaAnalysisManager)
 #endif
 
+// Static constants
+const ErrCode_t TaAnalysisManager::fgTAAM_ERROR = -1;
+const ErrCode_t TaAnalysisManager::fgTAAM_OK = 0;
+
 // Constructors/destructors/operators
 
 TaAnalysisManager::TaAnalysisManager (): 

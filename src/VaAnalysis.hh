@@ -109,10 +109,11 @@ public:
   static const UInt_t fgCOPY;
   static const UInt_t fgDIFF;
   static const UInt_t fgASY;
-  static const ErrCode_t fgVAANA_ERROR = -1;  // returned on error
-  static const ErrCode_t fgVAANA_OK = 0;      // returned on success
+  static const ErrCode_t fgVAANA_ERROR;  // returned on error
+  static const ErrCode_t fgVAANA_OK;      // returned on success
 
 protected:
+
 
   // Protected member functions
 

@@ -76,6 +76,14 @@ public:
   VaDataBase& GetDataBase() const { return *fDataBase; };
   Int_t GetKey(string keystr) const;
   string GetKey(Int_t key) const;
+
+  // Static data
+
+  static const ErrCode_t fgTARUN_ERROR;  // returned on error
+  static const ErrCode_t fgTARUN_OK;      // returned on success
+  static const ErrCode_t fgTARUN_VERBOSE; // verbose(1) or not(0) warnings
+  static const EventNumber_t fgSLICELENGTH;  // events in a statistics slice
+
 private:
 
   // Copy constructor and operator= -- defined null and private
@@ -88,15 +96,6 @@ private:
   Int_t FindRunNumber();  
   virtual void InitDevices();
   void PrintStats (TaStatistics s, vector<string> n, vector<string> u) const;
-
-  // Static data
-
-  // Flags
-  static const ErrCode_t fgTARUN_ERROR = -1;  // returned on error
-  static const ErrCode_t fgTARUN_OK = 0;      // returned on success
-  static const ErrCode_t fgTARUN_VERBOSE = 1; // verbose(1) or not(0) warnings
-  // Others
-  static const EventNumber_t fgSLICELENGTH = 1000;  // events in a statistics slice
 
   // Data members
   RunNumber_t fRunNumber;        // Number of this run
