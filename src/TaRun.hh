@@ -58,7 +58,7 @@ public:
   // Copy constructor and operator= are defined privately.
 
   // Major functions
-  virtual Int_t Init();
+  virtual ErrCode_t Init();
   Bool_t NextEvent();
   void Decode();
   virtual void AccumEvent(const TaEvent&);
@@ -73,7 +73,7 @@ public:
   Double_t GetDBValue(string key) const;
   TaEvent& GetEvent() const { return *fEvent; };
   Int_t GetRunNumber() const { return fRunNumber; };
-  VaDataBase* GetDataBase() const { return fDataBase; };
+  VaDataBase& GetDataBase() const { return *fDataBase; };
   Int_t GetKey(string keystr) const;
   string GetKey(Int_t key) const;
 private:
@@ -92,9 +92,9 @@ private:
   // Static data
 
   // Flags
-  static const Int_t fgTARUN_ERROR = -1;  // returned on error
-  static const Int_t fgTARUN_OK = 0;      // returned on success
-  static const Int_t fgTARUN_VERBOSE = 1; // verbose(1) or not(0) warnings
+  static const ErrCode_t fgTARUN_ERROR = -1;  // returned on error
+  static const ErrCode_t fgTARUN_OK = 0;      // returned on success
+  static const ErrCode_t fgTARUN_VERBOSE = 1; // verbose(1) or not(0) warnings
   // Others
   static const EventNumber_t fgSLICELENGTH = 1000;  // events in a statistics slice
 
