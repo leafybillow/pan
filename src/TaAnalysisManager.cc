@@ -21,6 +21,7 @@
 #include "VaAnalysis.hh"
 #include "TaBeamAna.hh"
 #include "TaFdbkAna.hh"
+#include "TaADCCalib.hh"
 
 #ifdef DICT
 ClassImp(TaAnalysisManager)
@@ -165,25 +166,20 @@ TaAnalysisManager::InitCommon()
 
   if (cmp_nocase (theAnaType, "beam") == 0)
     fAnalysis = new TaBeamAna;
+  else if(cmp_nocase (theAnaType, "fdbk") == 0)
+    fAnalysis = new TaFdbkAna;
+  else if (cmp_nocase (theAnaType, "adcped") == 0)
+    fAnalysis = new TaADCCalib("adcped");
+  else if (cmp_nocase (theAnaType, "adcdac") == 0)
+    fAnalysis = new TaADCCalib("adcdac");
   else
     {
-      if(cmp_nocase (theAnaType, "fdbk") == 0){
-         fAnalysis = new TaFdbkAna;
-      }      
-      else
-	{
-         cout << "TaAnalysisManager::Init ERROR: Invalid analysis type = "
-	      << theAnaType << endl;
-         exit (1);
-	}
+      cout << "TaAnalysisManager::Init ERROR: Invalid analysis type = "
+	   << theAnaType << endl;
+      exit (1);
     }
   
   fAnalysis->Init();
   fAnalysis->RunIni (*fRun);
 }
-
-
-
-
-
 

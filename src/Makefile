@@ -92,7 +92,7 @@ SRC = TaADC.cc TaAnalysisManager.cc TaAsciiDB.cc TaBCM.cc \
       TaCutInterval.cc TaCutList.cc TaEvent.cc TaLabelledQuantity.cc \
       TaPairFromPair.cc TaRun.cc TaScaler.cc TaStatistics.cc \
       TaTB.cc TaTIR.cc \
-      VaAnalysis.cc VaDataBase.cc VaDevice.cc VaPair.cc
+      VaAnalysis.cc VaDataBase.cc VaDevice.cc VaPair.cc TaADCCalib.cc
 
 DEPS = $(SRC:.cc=.d)
 OBJS = $(SRC:.cc=.o)
