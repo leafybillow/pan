@@ -67,7 +67,7 @@ protected:
   vector<TaLabelledQuantity> fResults;
   
 #ifdef DICT
-  ClassDef( VaPair, 0 );
+  ClassDef( VaPair, 0 )  // Base class for helicity pairs
 #endif
 };
 

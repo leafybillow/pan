@@ -146,7 +146,7 @@ protected:
 #endif
 
 #ifdef DICT
-  ClassDef(VaAnalysis, 0);
+  ClassDef(VaAnalysis, 0)  // Interface class for data analysis
 #endif
 
 };

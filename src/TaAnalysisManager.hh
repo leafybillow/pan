@@ -68,7 +68,7 @@ class TaAnalysisManager
   TFile* fRootFile;
 
 #ifdef DICT
-  ClassDef (TaAnalysisManager, 0)
+  ClassDef (TaAnalysisManager, 0) // Drives the entire analysis.  
 #endif
 };
 

@@ -109,7 +109,7 @@ private:
   //  TTree*             fbktree;  // it could be interesting to have a tree for feedbacks..
 
 #ifdef DICT
-  ClassDef (TaRunFeedback, 0) 
+  ClassDef (TaRunFeedback, 0)   // Feedback for a run
 #endif
 
 };

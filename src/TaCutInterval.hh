@@ -55,7 +55,7 @@ private:
   EventNumber_t fEnd;
 
 #ifdef DICT
-  ClassDef(TaCutInterval, 0)
+  ClassDef(TaCutInterval, 0)  // Cut Intervals
 #endif
 
 };

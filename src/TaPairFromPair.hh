@@ -61,7 +61,7 @@ private:
   static Bool_t  fgPairMade;   // set in Fill to true if pair made, else false
   static Bool_t  fgNeedHelCheck; // need to check helicity on next first event
 #ifdef DICT
-  ClassDef(TaPairFromPair, 0);
+  ClassDef(TaPairFromPair, 0)  // Helicity pair from HAPPEX pair structure
 #endif
 };
 

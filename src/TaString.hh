@@ -16,6 +16,7 @@
 #ifndef PAN_TaString
 #define PAN_TaString
 
+#include "Rtypes.h"
 #include <string>
 #include <vector>
 
@@ -45,7 +46,7 @@ public:
 private:
   
 #ifdef DICT
-  ClassDef(TaString, 0);
+  ClassDef(TaString, 0)   // Improved string class
 #endif
 
 };

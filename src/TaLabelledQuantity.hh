@@ -48,7 +48,7 @@ private:
   string fUnits;
 
 #ifdef DICT
-  ClassDef(TaLabelledQuantity, 0);
+  ClassDef(TaLabelledQuantity, 0)
 #endif
 
 };

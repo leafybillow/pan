@@ -61,7 +61,7 @@ private:
   static const size_t fgMaxEvent = 1000000; // Probably should be available from TaEvent, really
 
 #ifdef DICT
-  ClassDef(TaCutList, 0)
+  ClassDef(TaCutList, 0)   // List of cuts
 #endif
 
 };

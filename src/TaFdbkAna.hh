@@ -86,7 +86,7 @@ protected:
   TTree* fFdbkTree;  // feedback tree where all run's feedback info are stored.
 
 #ifdef DICT
-  ClassDef(TaFdbkAna, 0)
+  ClassDef(TaFdbkAna, 0)  // Feedback analysis
 #endif
 };
 

@@ -97,7 +97,7 @@ private:
   
 
 #ifdef DICT
-  ClassDef(TaADCCalib, 0)
+  ClassDef(TaADCCalib, 0)  // ADC calibration analysis
 #endif
 };
 
