@@ -6,6 +6,48 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 21 Nov 2002
+-----------------------------------
+
+Following yet another sensible suggestion from Kent, I've made changes
+which are mostly transparent to users but should make the code less
+confusing -- but there are some effects on outputs.
+
+The confusing "delayed/in-time helicity" nomenclature has been
+changed.  Instead we now refer to "helicity" (or "true helicity", if
+we want to be emphatic), meaning the helicity that actually
+corresponds to the pockels cell state and comes from the event record
+of an event 8 windows later; and "readout helicity", meaning the
+helicity read out in an event, which belongs to an event 8 windows
+earlier.
+
+The most visible effect of this is that the "evt_intime_helicity",
+"prev_del_hel", and "prev_hel" tags in the pair tree become
+"evt_readout_helicity", "prev_hel", and "prev_readout_hel".  Any
+macros referring to these should be modified (especially since
+"prev_hel" has changed its meaning.)  Also, "evt_helicity2" etc. are
+now "evt_readout_helicity2".  (There is no "evt_helicity" tag, note,
+because the first event of a pair is always right helicity and the
+second is always left.)
+
+I also noticed TaEvent::GetHelicity() returned RightHeli if the
+helicity data word was 1, LeftHeli if it was 0.  This is confusing
+because RightHeli and LeftHeli are defined as 0 and 1 respectively in
+the enum defined in PanTypes.  So I changed this; I think this will
+have the effect of flipping the signs of any differences with respect
+to the old version.
+
+TaEvent.cc VaPair.cc
+
+ o Helicity nomenclature change
+ 
+ o  GetHelicity returns RightHeli for 0, not LeftHeli
+
+TaEvent.hh TaPairFrom{Pair,Quad}.cc VaAnalysis.{cc,hh} TaRun.cc
+
+ o Helicity nomenclature change 
+
+
 Changes by R. Holmes on 20 Nov 2002
 -----------------------------------
 
