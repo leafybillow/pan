@@ -16,6 +16,7 @@
 #include "TaMysql.hh"
 #include "TaString.hh" 
 
+
 #ifdef DICT
 ClassImp(TaMysql)
 #endif
@@ -35,34 +36,10 @@ TaMysql::~TaMysql() {
      delete [] pedvalue;
 }
 
-Int_t TaMysql::Connect(TSQLServer *db) {
-  const Char_t *dbusername = "dbmanager";  // username for DB access
-  const Char_t *dbpasswd = "parity";    // password for DB access
-  const Char_t *dbname = "pandb";      // name of DB
-  const Char_t *dbhostname = "alquds.jlab.org";  // hostname of DB server computer
-  
-  // Connect to MySQL server
-  Char_t *dburl = new Char_t[50];
-  sprintf(dburl,"mysql://%s/%s", dbhostname, dbname);
-  db = TSQLServer::Connect(dburl, dbusername, dbpasswd);
-  delete []dburl;
-  dburl=NULL;
-
-  // Print server information
-  printf("Server info: %s\n", db->ServerInfo());
-
-  return 0;
-};
-
-Int_t TaMysql::DisConnect(TSQLServer *db) {
-  delete db;
-  db = NULL;  
-  return 0;
-};
-
 void TaMysql::Load(int run) {
 // Load the database for this run.
   InitDB();
+  fRunIndex = run;
   return;
 };
 
@@ -75,7 +52,6 @@ Double_t TaMysql::GetData(const string& key) const {
    Double_t dummy = 0;
    return dummy; 
 };
-
 
 vector<Double_t> TaMysql::GetData(string table, vector<string> keys) const {
 // Generic get method if you know the 'table' and 'keys' you want.
@@ -100,1261 +76,230 @@ Double_t TaMysql::GetData(dtype *d) const {
 string TaMysql::GetRunType() const {
 // Get run type, e.g. runtype = 'beam' 
 
-  //     TSQLServer *db;
-
-  //    Int_t Stat = Connect();
-
-  const Char_t *dbusername = "dbmanager";  // username for DB access
-  const Char_t *dbpasswd = "parity";    // password for DB access
-  const Char_t *dbname = "pandb";      // name of DB
-  const Char_t *dbhostname = "alquds.jlab.org";  // hostname of DB server computer
-
-  // Connect to MySQL server
-  Char_t *dburl = new Char_t[50];
-  sprintf(dburl,"mysql://%s/%s", dbhostname, dbname);
-  TSQLServer *db = TSQLServer::Connect(dburl, dbusername, dbpasswd);
-  delete []dburl;
-  dburl=NULL;
-  
-
-  //
-  
-  Char_t *dbtablename = new Char_t[50];
-  Char_t *column = new Char_t[50];
-  
-  dbtablename = "ana_pan_runtype_VALUE";
-  column = "value_1"; 
-  
-  // Construct query
-  Char_t *sql = new Char_t[4200];
-  sprintf(sql, "SELECT %s FROM %s", column, dbtablename);
-  cout << sql << endl;
-  
-  // start timer
-  //  TStopwatch timer;
-  //  timer.Start();
-  
-  // Submit query to server
-  TSQLRow *row;
-  TSQLResult *res;
-
-  res = db->Query(sql);
-
-  row = res->Next();
-
-  Int_t nrows = res->GetRowCount();
-  cout << "Got " << nrows << " rows in result." << endl;
-
-  Int_t nfields = res->GetFieldCount();
-  cout << "Got " << nfields << " fields in result." << endl;
-  delete db;
-  db = NULL;
- 
-  //   DisConnect(db);
-
-  // Process results
-  //  Int_t nrows = res->GetRowCount();
-  // cout << "Got " << nrows << " rows in result." << endl;
-
-  // Int_t nfields = res->GetFieldCount();
-  //cout << "Got " << nfields << " fields in result." << endl;
-
-  //  row = res->Next();
-
-  return row->GetField(0);
-
-  // stop timer and print results
-  //  timer.Stop();
-  //  Double_t rtime = timer.RealTime();
-  //  Double_t ctime = timer.CpuTime();
-
-  //  printf("\nRealTime=%f seconds, CpuTime=%f seconds\n", rtime, ctime);
-
-  // Clean up
-  delete []sql;
-  delete []column;
-  delete []dbtablename;
-
- 
-   return "unknown";
+  Int_t length;
+  TDBTools db = TDBTools("pandb"); 
+  //  db.PrintInfo();
+  //  db.SetDebugMode(0x20);  
+  TString *anatype = db.GetDBChar("ana","pan","runtype",fRunIndex,&length); 
+  return anatype->Data();
 };
 
 string TaMysql::GetAnaType() const {
 // Get analysis type, e.g. anatype = 'beam' 
 
-
-  const Char_t *dbusername = "dbmanager";  // username for DB access
-  const Char_t *dbpasswd = "parity";    // password for DB access
-  const Char_t *dbname = "pandb";      // name of DB
-  const Char_t *dbhostname = "alquds.jlab.org";  // hostname of DB server computer
-
-  // Connect to MySQL server
-  Char_t *dburl = new Char_t[50];
-  sprintf(dburl,"mysql://%s/%s", dbhostname, dbname);
-  TSQLServer *db = TSQLServer::Connect(dburl, dbusername, dbpasswd);
-  delete []dburl;
-  dburl=NULL;
-
-  //
-
-   Char_t *dbtablename = new Char_t[50];
-   Char_t *column = new Char_t[50];
-
-   dbtablename = "ana_pan_runtype_VALUE";
-   column = "value_1"; 
-   
-  // Construct query
-  Char_t *sql = new Char_t[4200];
-  sprintf(sql, "SELECT %s FROM %s", column, dbtablename);
-  cout << sql << endl;
-
-  // start timer
-  //  TStopwatch timer;
-  //  timer.Start();
-
-  // Submit query to server
-  TSQLRow *row;
-  TSQLResult *res;
-  res = db->Query(sql);
-  delete db;
-  db = NULL;
-
-  // Process results
-  Int_t nrows = res->GetRowCount();
-  cout << "Got " << nrows << " rows in result." << endl;
-
-  Int_t nfields = res->GetFieldCount();
-  cout << "Got " << nfields << " fields in result." << endl;
-
-  row = res->Next();
-
-   return row->GetField(0);
-
-  // stop timer and print results
-  //  timer.Stop();
-  //  Double_t rtime = timer.RealTime();
-  //  Double_t ctime = timer.CpuTime();
-
-  //  printf("\nRealTime=%f seconds, CpuTime=%f seconds\n", rtime, ctime);
-
-  // Clean up
-  delete []sql;
-  delete []column;
-  delete []dbtablename;
-
-
-  ////////
-
-   return "unknown";
+  Int_t length;
+  TDBTools db = TDBTools("pandb"); 
+  TString *anatype = db.GetDBChar("ana","pan","anatype",fRunIndex,&length); 
+  return anatype->Data();
 };
 
 Double_t TaMysql::GetDacNoise(const Int_t& adc, const Int_t& chan, const string& key) const {
 // Get Dac noise parameters for adc,chan with key = 'slope' or 'intercept'
 
-  const Char_t *dbusername = "dbmanager";  // username for DB access
-  const Char_t *dbpasswd = "parity";    // password for DB access
-  const Char_t *dbname = "pandb";      // name of DB
-  const Char_t *dbhostname = "alquds.jlab.org";  // hostname of DB server computer
-
-  // Connect to MySQL server
-  Char_t *dburl = new Char_t[50];
-  sprintf(dburl,"mysql://%s/%s", dbhostname, dbname);
-  TSQLServer *db = TSQLServer::Connect(dburl, dbusername, dbpasswd);
-  delete []dburl;
-  dburl=NULL;
-
-  //
-   
-   if (chan <= 0 ) return 0;
-   if (adc > 9 ) return 0;
-   Char_t *dbtablename =  new Char_t[50];
-   Char_t *column = new Char_t[50];
-
-   static char cadc[10];  sprintf(cadc,"%d",adc);
-   static char cchan[10];  sprintf(cchan,"%d",chan);
-
-   sprintf (dbtablename, "dacnoise_adc"); strcat(dbtablename, cadc);  strcat(dbtablename, "_chan"); 
-   strcat(dbtablename, cchan); strcat(dbtablename, "_VALUE"); 
-
-   //   cout <<  dbtablename << endl;
- 
-   column = "value_1, value_2"; 
-   
-  // Construct query
-  Char_t *sql = new Char_t[4200];
-  sprintf(sql, "SELECT %s FROM %s", column, dbtablename);
-  //  cout << sql << endl;
-
-  // start timer
-  //  TStopwatch timer;
-  //  timer.Start();
-
-  // Submit query to server
-  TSQLRow *row;
-  TSQLResult *res;
-  res = db->Query(sql);
-
-  delete db;
-  db = NULL;
-
-  // Process results
-  Int_t nrows = res->GetRowCount();
-  //  cout << "Got " << nrows << " rows in result." << endl;
-
-  if (nrows <= 0 ) return 0;
+  if (chan < 0 ) return 0;
+  if (adc > 9 ) return 0;
+  if (adc < 7 ) return 0;
 
 
+  static char cadc[10];  sprintf(cadc,"adc%d",adc);
+  static char cchan[10];  sprintf(cchan,"chan%d",chan);
 
-  Int_t nfields = res->GetFieldCount();
-  //  cout << "Got " << nfields << " fields in result." << endl;
-
-  row = res->Next();
-
-  //cout << " dacnoise adc " << adc << " chan " << chan << " Slope "<< atof(row->GetField(0))<< " Intercept "<< atof(row->GetField(1)) <<endl;
-
-    if (TaString(key).CmpNoCase("slope") == 0) return atof(row->GetField(0));
-    if (TaString(key).CmpNoCase("int") == 0 || TaString(key).CmpNoCase("intercept") == 0)
-      {
-      return atof(row->GetField(1));
-      } 
-
-    return 0;
-  // stop timer and print results
-  //  timer.Stop();
-  //  Double_t rtime = timer.RealTime();
-  //  Double_t ctime = timer.CpuTime();
-
-  //  printf("\nRealTime=%f seconds, CpuTime=%f seconds\n", rtime, ctime);
-
-
+  TFloatBuffer Noise; 
+  TDBTools db = TDBTools("pandb"); 
+  db.GetDBFloatBuff("dacnoise",cadc,cchan,fRunIndex,&Noise);  
+  
+  if (TaString(key).CmpNoCase("slope") == 0) return Noise.Get(0);
+  if (TaString(key).CmpNoCase("int") == 0 || TaString(key).CmpNoCase("intercept") == 0)
+    {
+      return Noise.Get(1);
+    } 
+  return 0;
 };
 
 Double_t TaMysql::GetPedestal(const Int_t& adc, const Int_t& chan) const{
 // Get Pedestals for adc, chan 
 
-  const Char_t *dbusername = "dbmanager";  // username for DB access
-  const Char_t *dbpasswd = "parity";    // password for DB access
-  const Char_t *dbname = "pandb";      // name of DB
-  const Char_t *dbhostname = "alquds.jlab.org";  // hostname of DB server computer
+  if (chan < 0 ) return 0;
+  if (adc > 9 ) return 0;
+  if (adc < 4 ) return 0;
 
-  // Connect to MySQL server
-  Char_t *dburl = new Char_t[50];
-  sprintf(dburl,"mysql://%s/%s", dbhostname, dbname);
-  TSQLServer *db = TSQLServer::Connect(dburl, dbusername, dbpasswd);
-  delete []dburl;
-  dburl=NULL;
+  static char cadc[10];  sprintf(cadc,"adc%d",adc);
+  static char cchan[10];  sprintf(cchan,"chan%d",chan);
 
-  //
-   
-   if (chan <= 0 ) return 0;
-   if (adc > 9 ) return 0;
-   Char_t *dbtablename =  new Char_t[50];
-   Char_t *column = new Char_t[50];
-
-   static char cadc[10];  sprintf(cadc,"%d",adc);
-   static char cchan[10];  sprintf(cchan,"%d",chan);
-
-   sprintf (dbtablename, "ped_adc"); strcat(dbtablename, cadc);  strcat(dbtablename, "_chan"); 
-   strcat(dbtablename, cchan); strcat(dbtablename, "_VALUE"); 
-
-   //   cout <<  dbtablename << endl;
- 
-   column = "value_1"; 
-   
-  // Construct query
-  Char_t *sql = new Char_t[4200];
-  sprintf(sql, "SELECT %s FROM %s", column, dbtablename);
-  //cout << sql << endl;
-
-  // start timer
-  //  TStopwatch timer;
-  //  timer.Start();
-
-  // Submit query to server
-  TSQLRow *row;
-  TSQLResult *res;
-  res = db->Query(sql);
-
-  delete db;
-  db = NULL;
-  // Process results
-  Int_t nrows = res->GetRowCount();
-  //cout << "Got " << nrows << " rows in result." << endl;
-
-  if (nrows <= 0 ) return 0;
-
-
-
-  Int_t nfields = res->GetFieldCount();
-  //cout << "Got " << nfields << " fields in result." << endl;
-
-  row = res->Next();
-
-  //cout << " ped adc " << adc << " chan " << chan << " value "<< row->GetField(0) <<endl;
-
-  return  atoi(row->GetField(0));
-
-  // stop timer and print results
-  //  timer.Stop();
-  //  Double_t rtime = timer.RealTime();
-  //  Double_t ctime = timer.CpuTime();
-
-  //  printf("\nRealTime=%f seconds, CpuTime=%f seconds\n", rtime, ctime);
-
-  // Clean up
-  delete []sql;
-  delete []column;
-  delete []dbtablename;
-
+  TIntBuffer Ped; 
+  TDBTools db = TDBTools("pandb"); 
+  db.GetDBIntBuff("ped",cadc,cchan,fRunIndex,&Ped);  
+  return Ped.Get(0);
 };
 
 UInt_t TaMysql::GetHeader(const string& device) const {
 // Get Headers for decoding
-  //    string table = "header";
-  //  return str_to_base16(GetData(table, device, 0));
 
-  const Char_t *dbusername = "dbmanager";  // username for DB access
-  const Char_t *dbpasswd = "parity";    // password for DB access
-  const Char_t *dbname = "pandb";      // name of DB
-  const Char_t *dbhostname = "alquds.jlab.org";  // hostname of DB server computer
-
-  // Connect to MySQL server
-  Char_t *dburl = new Char_t[50];
-  sprintf(dburl,"mysql://%s/%s", dbhostname, dbname);
-  TSQLServer *db = TSQLServer::Connect(dburl, dbusername, dbpasswd);
-  delete []dburl;
-  dburl=NULL;
-
-  //
-
-   Char_t *dbtablename = new Char_t[50];
-   Char_t *column = new Char_t[50];
-
-   char *myc;
-   myc = new char[strlen(device.c_str())];
-   strcpy(myc,device.c_str());
-
-     sprintf (dbtablename, "header_"); strcat(dbtablename,myc); strcat(dbtablename, "_hdr_VALUE"); 
-
-   column = "value_1"; 
-   
-  // Construct query
-  Char_t *sql = new Char_t[4200];
-  sprintf(sql, "SELECT %s FROM %s", column, dbtablename);
-  //  cout << sql << endl;
-
-  // start timer
-  //  TStopwatch timer;
-  //  timer.Start();
-
-  // Submit query to server
-  TSQLRow *row;
-  TSQLResult *res;
-  res = db->Query(sql);
-  delete db;
-  db = NULL;
-
-  // Process results
-  Int_t nrows = res->GetRowCount();
-  //cout << "Got " << nrows << " rows in result." << endl;
-
-  Int_t nfields = res->GetFieldCount();
-  //cout << "Got " << nfields << " fields in result." << endl;
-
-  row = res->Next();
-
-  cout << " hdr: " << TaString(row->GetField(0)).Hex() << endl;
-
-   return TaString(row->GetField(0)).Hex();
-
-
-  // stop timer and print results
-  //  timer.Stop();
-  //  Double_t rtime = timer.RealTime();
-  //  Double_t ctime = timer.CpuTime();
-
-  //  printf("\nRealTime=%f seconds, CpuTime=%f seconds\n", rtime, ctime);
-
-  // Clean up
-  delete []sql;
-  delete []column;
-  delete []dbtablename;
-
-
-
+  char *myc;
+  myc = new char[strlen(device.c_str())];
+  strcpy(myc,device.c_str());
+  
+  Int_t length;
+  TDBTools db = TDBTools("pandb"); 
+  TString *Hdr = db.GetDBChar("header",myc,"hdr",fRunIndex,&length);
+  cout << "HEADER: " << TaString(Hdr->Data()).Hex() << endl;
+  return TaString(Hdr->Data()).Hex();
 };
 
 UInt_t TaMysql::GetMask(const string& device) const {
 // Get Mask for decoding 
-    string table = "header";
-    //     cout << " mask control: " << str_to_base16(GetData(table, device, 1)) << endl;
-//  return str_to_base16(GetData(table, device, 1));
 
-  const Char_t *dbusername = "dbmanager";  // username for DB access
-  const Char_t *dbpasswd = "parity";    // password for DB access
-  const Char_t *dbname = "pandb";      // name of DB
-  const Char_t *dbhostname = "alquds.jlab.org";  // hostname of DB server computer
-
-  // Connect to MySQL server
-  Char_t *dburl = new Char_t[50];
-  sprintf(dburl,"mysql://%s/%s", dbhostname, dbname);
-  TSQLServer *db = TSQLServer::Connect(dburl, dbusername, dbpasswd);
-  delete []dburl;
-  dburl=NULL;
-
-  //
-
-   Char_t *dbtablename = new Char_t[50];
-   Char_t *column = new Char_t[50];
-
-   char *myc;
-   myc = new char[strlen(device.c_str())];
-   strcpy(myc,device.c_str());
-
-     sprintf (dbtablename, "header_"); strcat(dbtablename,myc); strcat(dbtablename, "_mask_VALUE"); 
-
-   column = "value_1"; 
-   
-  // Construct query
-  Char_t *sql = new Char_t[4200];
-  sprintf(sql, "SELECT %s FROM %s", column, dbtablename);
-  //cout << sql << endl;
-
-  // start timer
-  //  TStopwatch timer;
-  //  timer.Start();
-
-  // Submit query to server
-  TSQLRow *row;
-  TSQLResult *res;
-  res = db->Query(sql);
-  delete db;
-  db = NULL;
-
-  // Process results
-  Int_t nrows = res->GetRowCount();
-  //cout << "Got " << nrows << " rows in result." << endl;
-
-  Int_t nfields = res->GetFieldCount();
-  //cout << "Got " << nfields << " fields in result." << endl;
-
-  row = res->Next();
-
-  // cout << "mask: " << row->GetField(0) << endl;
-
-   return TaString(row->GetField(0)).Hex();
-
-
-
-  // stop timer and print results
-  //  timer.Stop();
-  //  Double_t rtime = timer.RealTime();
-  //  Double_t ctime = timer.CpuTime();
-
-  //  printf("\nRealTime=%f seconds, CpuTime=%f seconds\n", rtime, ctime);
-
-  // Clean up
-  delete []sql;
-  delete []column;
-  delete []dbtablename;
-
-
-
-
+  char *myc;
+  myc = new char[strlen(device.c_str())];
+  strcpy(myc,device.c_str());
+  
+  Int_t length;
+  TDBTools db = TDBTools("pandb"); 
+  TString *Mask = db.GetDBChar("header",myc,"mask",fRunIndex,&length);
+  cout << "MASK: " << TaString(Mask->Data()).Hex() << endl;
+  return TaString(Mask->Data()).Hex();
 };
 
 Double_t TaMysql::GetCutValue(const string& cutname) const {
 // Get a cut value for 'value'.  e.g. value = 'lobeam', 'burpcut' 
-  //   return GetValue(cutname);
 
-  const Char_t *dbusername = "dbmanager";  // username for DB access
-  const Char_t *dbpasswd = "parity";    // password for DB access
-  const Char_t *dbname = "pandb";      // name of DB
-  const Char_t *dbhostname = "alquds.jlab.org";  // hostname of DB server computer
-
-  // Connect to MySQL server
-  Char_t *dburl = new Char_t[50];
-  sprintf(dburl,"mysql://%s/%s", dbhostname, dbname);
-  TSQLServer *db = TSQLServer::Connect(dburl, dbusername, dbpasswd);
-  delete []dburl;
-  dburl=NULL;
-
-  //
-   
-   Char_t *dbtablename =  new Char_t[50];
-   Char_t *column = new Char_t[50];
-
-   char *myc;
-   myc = new char[strlen(cutname.c_str())];
-   strcpy(myc,cutname.c_str());
-
-     sprintf (dbtablename, "ana_pan_"); strcat(dbtablename,myc); strcat(dbtablename, "_VALUE"); 
-
- 
-     //   cout <<  dbtablename << endl;
- 
-   column = "value_1"; 
-   
-  // Construct query
-  Char_t *sql = new Char_t[4200];
-  sprintf(sql, "SELECT %s FROM %s", column, dbtablename);
-    cout << sql << endl;
-
-  // start timer
-  //  TStopwatch timer;
-  //  timer.Start();
-
-  // Submit query to server
-  TSQLRow *row;
-  TSQLResult *res;
-  res = db->Query(sql);
-
-  delete db;
-  db = NULL;
-  // Process results
-  Int_t nrows = res->GetRowCount();
-  //  cout << "Got " << nrows << " rows in result." << endl;
-
-  if (nrows <= 0 ) return 0;
-
-
-
-  Int_t nfields = res->GetFieldCount();
-  //  cout << "Got " << nfields << " fields in result." << endl;
-
-  row = res->Next();
-
-  //  cout << "Cut " << cutname <<" Value: "<< atof(row->GetField(0)) <<endl;
-
-  return  atof(row->GetField(0));
-
-  // stop timer and print results
-  //  timer.Stop();
-  //  Double_t rtime = timer.RealTime();
-  //  Double_t ctime = timer.CpuTime();
-
-  //  printf("\nRealTime=%f seconds, CpuTime=%f seconds\n", rtime, ctime);
-
-  // Clean up
-  delete []sql;
-  delete []column;
-  delete []dbtablename;
-
+  char *myc;
+  myc = new char[strlen(cutname.c_str())];
+  strcpy(myc,cutname.c_str());
+  
+  TIntBuffer Cut; 
+  TDBTools db = TDBTools("pandb"); 
+  db.GetDBIntBuff("ana","pan",myc,fRunIndex,&Cut);  
+  return Double_t(Cut.Get(0));
 };
 
 Int_t TaMysql::GetNumCuts() const {
 // Get number of cuts "ncuts" in the database.
-  //   return (Int_t)GetValue("ncuts");
-
-  const Char_t *dbusername = "dbmanager";  // username for DB access
-  const Char_t *dbpasswd = "parity";    // password for DB access
-  const Char_t *dbname = "pandb";      // name of DB
-  const Char_t *dbhostname = "alquds.jlab.org";  // hostname of DB server computer
-
-  // Connect to MySQL server
-  Char_t *dburl = new Char_t[50];
-  sprintf(dburl,"mysql://%s/%s", dbhostname, dbname);
-  TSQLServer *db = TSQLServer::Connect(dburl, dbusername, dbpasswd);
-  delete []dburl;
-  dburl=NULL;
-
-  //
-
-   Char_t *dbtablename = new Char_t[50];
-   Char_t *column = new Char_t[50];
-
-   sprintf (dbtablename, "ana_cut_ncuts_VALUE"); 
-
-   column = "value_1"; 
-   
-  // Construct query
-  Char_t *sql = new Char_t[4200];
-  sprintf(sql, "SELECT %s FROM %s", column, dbtablename);
-  cout << sql << endl;
-
-  // start timer
-  //  TStopwatch timer;
-  //  timer.Start();
-
-  // Submit query to server
-  TSQLRow *row;
-  TSQLResult *res;
-  res = db->Query(sql);
-  delete db;
-  db = NULL;
-
-  // Process results
-  Int_t nrows = res->GetRowCount();
-  cout << "Got " << nrows << " rows in result." << endl;
-
-  Int_t nfields = res->GetFieldCount();
-  cout << "Got " << nfields << " fields in result." << endl;
-
-  row = res->Next();
-
-  cout << "Number of cut= " << atoi(row->GetField(0)) << endl;
-
-   return atoi(row->GetField(0));
-
-
-
-  // stop timer and print results
-  //  timer.Stop();
-  //  Double_t rtime = timer.RealTime();
-  //  Double_t ctime = timer.CpuTime();
-
-  //  printf("\nRealTime=%f seconds, CpuTime=%f seconds\n", rtime, ctime);
-
-  // Clean up
-  delete []sql;
-  delete []column;
-  delete []dbtablename;
-
-
-
-
+  
+  TIntBuffer Ncut; 
+  TDBTools db = TDBTools("pandb"); 
+  db.GetDBIntBuff("ana","cut","ncuts",fRunIndex,&Ncut);  
+  return Ncut.Get(0);  
 };
 
 vector<Int_t> TaMysql::GetEvLo() const {
 // Get cut evlo event intervals 
-  //     return GetValueVector("evlo");
-  const Char_t *dbusername = "dbmanager";  // username for DB access
-  const Char_t *dbpasswd = "parity";    // password for DB access
-  const Char_t *dbname = "pandb";      // name of DB
-  const Char_t *dbhostname = "alquds.jlab.org";  // hostname of DB server computer
 
-  // Connect to MySQL server
-  Char_t *dburl = new Char_t[50];
-  sprintf(dburl,"mysql://%s/%s", dbhostname, dbname);
-  TSQLServer *db = TSQLServer::Connect(dburl, dbusername, dbpasswd);
-  delete []dburl;
-  dburl=NULL;
+  TIntBuffer Evlo; 
+  TDBTools db = TDBTools("pandb"); 
+  db.GetDBIntBuff("ana","cut","evlo",fRunIndex,&Evlo);  
 
-  //
+  vector<Int_t> result;
+  result.clear();
 
-   Char_t *dbtablename = new Char_t[50];
-   Char_t *column = new Char_t[500];
+  Int_t ncuts = GetNumCuts();
+  for (Int_t i=0;i<ncuts;i++){
+    result.push_back(Evlo.Get(i));
+  }
 
-   sprintf (dbtablename, "ana_cut_evlo_VALUE"); 
-
-   column = "value_1, value_2, value_3, value_4, value_5, value_6, value_7, value_8, value_9, value_10,  value_11, value_12, value_13"; 
-   
-  // Construct query
-  Char_t *sql = new Char_t[4200];
-  sprintf(sql, "SELECT %s FROM %s", column, dbtablename);
-  cout << sql << endl;
-
-  // start timer
-  //  TStopwatch timer;
-  //  timer.Start();
-
-  // Submit query to server
-  TSQLRow *row;
-  TSQLResult *res;
-  res = db->Query(sql);
-  delete db;
-  db = NULL;
-
-  // Process results
-  Int_t nrows = res->GetRowCount();
-  cout << "Got " << nrows << " rows in result." << endl;
-
-  Int_t nfields = res->GetFieldCount();
-  cout << "Got " << nfields << " fields in result." << endl;
-
-  row = res->Next();
-
-  cout << "Cut evlo = " << atoi(row->GetField(0)) << endl;
-
-   vector<Int_t> result;
-   result.clear();
-   //   multimap<string, vector<dtype*> >::const_iterator lb =
-   //          database.lower_bound(stlow(table));
-   //   multimap<string, vector<dtype*> >::const_iterator ub = 
-   //        database.upper_bound(stlow(table));
-   //for (multimap<string, vector<dtype*> >::const_iterator dmap = lb;
-   //      dmap != ub; dmap++) {
-   //  vector<dtype*> datav = dmap->second;
-   //  for (vector<dtype*>::const_iterator idat = datav.begin();
-   //       idat != datav.end(); idat++) {
-   //    if ((*idat)->GetType() == "i") 
-   //        result.push_back((*idat)->GetI());
-   //  }
-   // }
-
-   for (Int_t i=0;i<=12;i++){
-       result.push_back(atoi(row->GetField(i)));
-   }
-
-   return result;
-
-
-  // stop timer and print results
-  //  timer.Stop();
-  //  Double_t rtime = timer.RealTime();
-  //  Double_t ctime = timer.CpuTime();
-
-  //  printf("\nRealTime=%f seconds, CpuTime=%f seconds\n", rtime, ctime);
-
-  // Clean up
-  delete []sql;
-  delete []column;
-  delete []dbtablename;
-
-
-
+  return result;
 };
 
 vector<Int_t> TaMysql::GetEvHi() const {
 // Get cut evhi event intervals 
-  //   return GetValueVector("evhi");
 
-  const Char_t *dbusername = "dbmanager";  // username for DB access
-  const Char_t *dbpasswd = "parity";    // password for DB access
-  const Char_t *dbname = "pandb";      // name of DB
-  const Char_t *dbhostname = "alquds.jlab.org";  // hostname of DB server computer
+  TIntBuffer Evhi; 
+  TDBTools db = TDBTools("pandb"); 
+  db.GetDBIntBuff("ana","cut","evhi",fRunIndex,&Evhi);  
 
-  // Connect to MySQL server
-  Char_t *dburl = new Char_t[50];
-  sprintf(dburl,"mysql://%s/%s", dbhostname, dbname);
-  TSQLServer *db = TSQLServer::Connect(dburl, dbusername, dbpasswd);
-  delete []dburl;
-  dburl=NULL;
+  vector<Int_t> result;
+  result.clear();
 
-  //
+  Int_t ncuts = GetNumCuts();
+  for (Int_t i=0;i<ncuts;i++){
+    result.push_back(Evhi.Get(i));
+  }
 
-   Char_t *dbtablename = new Char_t[50];
-   Char_t *column = new Char_t[500];
-
-   sprintf (dbtablename, "ana_cut_evhi_VALUE"); 
-
-
-   column = "value_1, value_2, value_3, value_4, value_5, value_6, value_7, value_8, value_9, value_10,  value_11, value_12, value_13"; 
-   
-  // Construct query
-  Char_t *sql = new Char_t[4200];
-  sprintf(sql, "SELECT %s FROM %s", column, dbtablename);
-  cout << sql << endl;
-
-  // start timer
-  //  TStopwatch timer;
-  //  timer.Start();
-
-  // Submit query to server
-  TSQLRow *row;
-  TSQLResult *res;
-  res = db->Query(sql);
-  delete db;
-  db = NULL;
-
-  // Process results
-  Int_t nrows = res->GetRowCount();
-  cout << "Got " << nrows << " rows in result." << endl;
-
-  Int_t nfields = res->GetFieldCount();
-  cout << "Got " << nfields << " fields in result." << endl;
-
-  row = res->Next();
-
-  cout << "Cut evhi = " << atoi(row->GetField(0)) << endl;
-
-   vector<Int_t> result;
-   result.clear();
-   for (Int_t i=0;i<=12;i++){
-       result.push_back(atoi(row->GetField(i)));
-   }
-
-   return result;
-
-
-  // stop timer and print results
-  //  timer.Stop();
-  //  Double_t rtime = timer.RealTime();
-  //  Double_t ctime = timer.CpuTime();
-
-  //  printf("\nRealTime=%f seconds, CpuTime=%f seconds\n", rtime, ctime);
-
-  // Clean up
-  delete []sql;
-  delete []column;
-  delete []dbtablename;
-
-
+  return result;
 };
 
 Int_t TaMysql::GetNumBadEv() const {
 // Get number of bad event intervals
-  //   return database.count("evint");
 
-  const Char_t *dbusername = "dbmanager";  // username for DB access
-  const Char_t *dbpasswd = "parity";    // password for DB access
-  const Char_t *dbname = "pandb";      // name of DB
-  const Char_t *dbhostname = "alquds.jlab.org";  // hostname of DB server computer
-
-  // Connect to MySQL server
-  Char_t *dburl = new Char_t[50];
-  sprintf(dburl,"mysql://%s/%s", dbhostname, dbname);
-  TSQLServer *db = TSQLServer::Connect(dburl, dbusername, dbpasswd);
-  delete []dburl;
-  dburl=NULL;
-
-  //
-
-   Char_t *dbtablename = new Char_t[50];
-   Char_t *column = new Char_t[50];
-
-   sprintf (dbtablename, "ana_badevt_evlo_VALUE"); 
-
-   column = "value_1, value_2, value_3, value_4, value_5"; 
-   
-  // Construct query
-  Char_t *sql = new Char_t[4200];
-  sprintf(sql, "SELECT %s FROM %s", column, dbtablename);
-  cout << sql << endl;
-
-  // start timer
-  //  TStopwatch timer;
-  //  timer.Start();
-
-  // Submit query to server
-  TSQLRow *row;
-  TSQLResult *res;
-  res = db->Query(sql);
-  delete db;
-  db = NULL;
-
-  // Process results
-  Int_t nrows = res->GetRowCount();
-  cout << "Got " << nrows << " rows in result." << endl;
-
-  Int_t nfields = res->GetFieldCount();
-  cout << "Got " << nfields << " fields in result." << endl;
-
-  row = res->Next();
-
-  cout << "Number of bad event intervals= " << nfields << endl;
-
-   return nfields;
-
-
-
-  // stop timer and print results
-  //  timer.Stop();
-  //  Double_t rtime = timer.RealTime();
-  //  Double_t ctime = timer.CpuTime();
-
-  //  printf("\nRealTime=%f seconds, CpuTime=%f seconds\n", rtime, ctime);
-
-  // Clean up
-  delete []sql;
-  delete []column;
-  delete []dbtablename;
-
-
-
-
+  TIntBuffer Evlo; 
+  TDBTools db = TDBTools("pandb"); 
+  db.GetDBIntBuff("ana","badevt","evlo",fRunIndex,&Evlo);  
+  return Evlo.GetSize();
 };
 
 map <Int_t, vector<Int_t> > TaMysql::GetCutValues() const {
 // For bad event intervals, get formatted results 
 // First element of map goes from 0 to GetNumBadEv(), second is a vector of
 // results in prescribed order: (evlo, evhi, cut num, cut value)
-
-
-  const Char_t *dbusername = "dbmanager";  // username for DB access
-  const Char_t *dbpasswd = "parity";    // password for DB access
-  const Char_t *dbname = "pandb";      // name of DB
-  const Char_t *dbhostname = "alquds.jlab.org";  // hostname of DB server computer
-
-  // Connect to MySQL server
-  Char_t *dburl = new Char_t[50];
-  sprintf(dburl,"mysql://%s/%s", dbhostname, dbname);
-  TSQLServer *db = TSQLServer::Connect(dburl, dbusername, dbpasswd);
-  delete []dburl;
-  dburl=NULL;
+  
+  TDBTools db = TDBTools("pandb"); 
+  
+  TIntBuffer Evlo; 
+  db.GetDBIntBuff("ana","badevt","evlo",fRunIndex,&Evlo);  
+  
+  TIntBuffer Evhi; 
+  db.GetDBIntBuff("ana","badevt","evhi",fRunIndex,&Evhi);  
+  
+  TIntBuffer Ncut; 
+  db.GetDBIntBuff("ana","badevt","ncut",fRunIndex,&Ncut);  
+  
+  TIntBuffer State; 
+  db.GetDBIntBuff("ana","badevt","state",fRunIndex,&State);  
 
   //
 
-   Char_t *dbtablename1 = new Char_t[50]; Char_t *dbtablename2 = new Char_t[50];
-   Char_t *dbtablename3 = new Char_t[50]; Char_t *dbtablename4 = new Char_t[50];
-   Char_t *column = new Char_t[500];
-
-   sprintf (dbtablename1, "ana_badevt_evhi_VALUE"); 
-   sprintf (dbtablename2, "ana_badevt_evlo_VALUE"); 
-   sprintf (dbtablename3, "ana_badevt_ncut_VALUE"); 
-   sprintf (dbtablename4, "ana_badevt_state_VALUE"); 
-
-
-   column = "value_1, value_2, value_3, value_4, value_5"; 
-   
-  // Construct query
-  Char_t *sql1 = new Char_t[4200];Char_t *sql2 = new Char_t[4200];
-  Char_t *sql3 = new Char_t[4200];Char_t *sql4 = new Char_t[4200];
-  sprintf(sql1, "SELECT %s FROM %s", column, dbtablename1);
-  sprintf(sql2, "SELECT %s FROM %s", column, dbtablename2);
-  sprintf(sql3, "SELECT %s FROM %s", column, dbtablename3);
-  sprintf(sql4, "SELECT %s FROM %s", column, dbtablename4);
-
-
-  //  cout << sql1 << endl;
-
-  // start timer
-  //  TStopwatch timer;
-  //  timer.Start();
-
-  // Submit query to server
-  TSQLRow *row1;TSQLRow *row2;TSQLRow *row3;TSQLRow *row4;
-  TSQLResult *res1; TSQLResult *res2; TSQLResult *res3; TSQLResult *res4;
-  res1 = db->Query(sql1);res2 = db->Query(sql2);res3 = db->Query(sql3);res4 = db->Query(sql4);
-  delete db;
-  db = NULL;
-
-  // Process results
-  Int_t nrows = res1->GetRowCount();
-  //  cout << "Got " << nrows << " rows in result." << endl;
-
-  Int_t nfields = res1->GetFieldCount();
-  cout << "Got " << nfields << " fields in result." << endl;
-
-  row1 = res1->Next();row2 = res2->Next();row3 = res3->Next();row4 = res4->Next();
-
-  //  cout << "Badevt evhi = " << atoi(row1->GetField(0)) << endl;
-
-
   map <Int_t, vector<Int_t> > result;
-   vector<Int_t> temp;
-   result.clear();
-   temp.clear();
-  for (Int_t k=0;k<=4;k++){  
+  vector<Int_t> temp;
+  result.clear();
+  temp.clear();
+  Int_t NumBadEv = GetNumBadEv();
 
-  temp.push_back(atoi(row1->GetField(0)));
-  temp.push_back(atoi(row2->GetField(0)));
-  temp.push_back(atoi(row3->GetField(0)));
-  temp.push_back(atoi(row4->GetField(0)));
-
-  result.insert(make_pair(k, temp));
+  for (Int_t k=0; k<NumBadEv; k++){  
+    
+    temp.push_back(Evlo.Get(k));
+    temp.push_back(Evhi.Get(k));
+    temp.push_back(Ncut.Get(k));
+    temp.push_back(State.Get(k));
+    
+    result.insert(make_pair(k, temp));
   
   }
-
    return result; 
-
-  // stop timer and print results
-  //  timer.Stop();
-  //  Double_t rtime = timer.RealTime();
-  //  Double_t ctime = timer.CpuTime();
-
-  //  printf("\nRealTime=%f seconds, CpuTime=%f seconds\n", rtime, ctime);
-
-  // Clean up
-  delete []sql1;
-  delete []column;
-  delete []dbtablename1;
-
-   
 };
-
-
-
-
 
 Int_t TaMysql::GetMaxEvents() const {
 // returns number of events to process
-  //   return (Int_t)GetValue("maxevents");
 
-  const Char_t *dbusername = "dbmanager";  // username for DB access
-  const Char_t *dbpasswd = "parity";    // password for DB access
-  const Char_t *dbname = "pandb";      // name of DB
-  const Char_t *dbhostname = "alquds.jlab.org";  // hostname of DB server computer
-
-  // Connect to MySQL server
-  Char_t *dburl = new Char_t[50];
-  sprintf(dburl,"mysql://%s/%s", dbhostname, dbname);
-  TSQLServer *db = TSQLServer::Connect(dburl, dbusername, dbpasswd);
-  delete []dburl;
-  dburl=NULL;
-
-  //
-   
-   Char_t *dbtablename =  new Char_t[50];
-   Char_t *column = new Char_t[50];
-
-
-   sprintf (dbtablename, "ana_pan_maxevents_VALUE"); 
-
-   cout <<  dbtablename << endl;
- 
-   column = "value_1"; 
-   
-  // Construct query
-  Char_t *sql = new Char_t[4200];
-  sprintf(sql, "SELECT %s FROM %s", column, dbtablename);
-  cout << sql << endl;
-
-  // start timer
-  //  TStopwatch timer;
-  //  timer.Start();
-
-  // Submit query to server
-  TSQLRow *row;
-  TSQLResult *res;
-  res = db->Query(sql);
-
-  delete db;
-  db = NULL;
-  // Process results
-  Int_t nrows = res->GetRowCount();
-  cout << "Got " << nrows << " rows in result." << endl;
-
-  if (nrows <= 0 ) return 0;
-
-
-
-  Int_t nfields = res->GetFieldCount();
-  cout << "Got " << nfields << " fields in result." << endl;
-
-  row = res->Next();
-
-cout << " Maximum Events: "<< atof(row->GetField(0)) <<endl;
-
-  return  atoi(row->GetField(0));
-
-  // stop timer and print results
-  //  timer.Stop();
-  //  Double_t rtime = timer.RealTime();
-  //  Double_t ctime = timer.CpuTime();
-
-  //  printf("\nRealTime=%f seconds, CpuTime=%f seconds\n", rtime, ctime);
-
-  // Clean up
-  delete []sql;
-  delete []column;
-  delete []dbtablename;
-
-
+  TIntBuffer Maxev; 
+  TDBTools db = TDBTools("pandb"); 
+  db.GetDBIntBuff("ana","pan","maxevents",fRunIndex,&Maxev);  
+  return Maxev.Get(0);
 };
 
 Int_t TaMysql::GetDelay() const {
 // returns helicity delay (in windows)
-  //   return (Int_t)GetValue("windelay");
 
-  const Char_t *dbusername = "dbmanager";  // username for DB access
-  const Char_t *dbpasswd = "parity";    // password for DB access
-  const Char_t *dbname = "pandb";      // name of DB
-  const Char_t *dbhostname = "alquds.jlab.org";  // hostname of DB server computer
-
-  // Connect to MySQL server
-  Char_t *dburl = new Char_t[50];
-  sprintf(dburl,"mysql://%s/%s", dbhostname, dbname);
-  TSQLServer *db = TSQLServer::Connect(dburl, dbusername, dbpasswd);
-  delete []dburl;
-  dburl=NULL;
-
-  //
-   
-   Char_t *dbtablename =  new Char_t[50];
-   Char_t *column = new Char_t[50];
-
-   sprintf (dbtablename, "ana_pan_windelay_VALUE"); 
-
- 
-     //   cout <<  dbtablename << endl;
- 
-   column = "value_1"; 
-   
-  // Construct query
-  Char_t *sql = new Char_t[4200];
-  sprintf(sql, "SELECT %s FROM %s", column, dbtablename);
-  //  cout << sql << endl;
-
-  // start timer
-  //  TStopwatch timer;
-  //  timer.Start();
-
-  // Submit query to server
-  TSQLRow *row;
-  TSQLResult *res;
-  res = db->Query(sql);
-
-  delete db;
-  db = NULL;
-  // Process results
-  Int_t nrows = res->GetRowCount();
-  //  cout << "Got " << nrows << " rows in result." << endl;
-
-  if (nrows <= 0 ) return 0;
-
-
-
-  Int_t nfields = res->GetFieldCount();
-  //  cout << "Got " << nfields << " fields in result." << endl;
-
-  row = res->Next();
-
-  //  cout << "Cut " << cutname <<" Value: "<< atof(row->GetField(0)) <<endl;
-
-  return  atoi(row->GetField(0));
-
-  // stop timer and print results
-  //  timer.Stop();
-  //  Double_t rtime = timer.RealTime();
-  //  Double_t ctime = timer.CpuTime();
-
-  //  printf("\nRealTime=%f seconds, CpuTime=%f seconds\n", rtime, ctime);
-
-  // Clean up
-  delete []sql;
-  delete []column;
-  delete []dbtablename;
-
+  TIntBuffer Wind; 
+  TDBTools db = TDBTools("pandb"); 
+  db.GetDBIntBuff("ana","pan","windelay",fRunIndex,&Wind);  
+  return Wind.Get(0);
 };
 
 Int_t TaMysql::GetOverSamp() const {
 // returns oversample factor
-  //   return (Int_t)GetValue("oversamp");
-
-  const Char_t *dbusername = "dbmanager";  // username for DB access
-  const Char_t *dbpasswd = "parity";    // password for DB access
-  const Char_t *dbname = "pandb";      // name of DB
-  const Char_t *dbhostname = "alquds.jlab.org";  // hostname of DB server computer
-
-  // Connect to MySQL server
-  Char_t *dburl = new Char_t[50];
-  sprintf(dburl,"mysql://%s/%s", dbhostname, dbname);
-  TSQLServer *db = TSQLServer::Connect(dburl, dbusername, dbpasswd);
-  delete []dburl;
-  dburl=NULL;
-
-  //
-   
-   Char_t *dbtablename =  new Char_t[50];
-   Char_t *column = new Char_t[50];
-
-   sprintf (dbtablename, "ana_pan_oversamp_VALUE"); 
-
- 
-     //   cout <<  dbtablename << endl;
- 
-   column = "value_1"; 
-   
-  // Construct query
-  Char_t *sql = new Char_t[4200];
-  sprintf(sql, "SELECT %s FROM %s", column, dbtablename);
-  //  cout << sql << endl;
-
-  // start timer
-  //  TStopwatch timer;
-  //  timer.Start();
-
-  // Submit query to server
-  TSQLRow *row;
-  TSQLResult *res;
-  res = db->Query(sql);
-
-  delete db;
-  db = NULL;
-  // Process results
-  Int_t nrows = res->GetRowCount();
-  //  cout << "Got " << nrows << " rows in result." << endl;
-
-  //  if (nrows <= 0 ) return 0;
-
-
-
-  Int_t nfields = res->GetFieldCount();
-  //  cout << "Got " << nfields << " fields in result." << endl;
-
-  row = res->Next();
-
-  cout << "Oversample = " << atoi(row->GetField(0)) << endl;
-
-  return  atoi(row->GetField(0));
-
-  // stop timer and print results
-  //  timer.Stop();
-  //  Double_t rtime = timer.RealTime();
-  //  Double_t ctime = timer.CpuTime();
-
-  //  printf("\nRealTime=%f seconds, CpuTime=%f seconds\n", rtime, ctime);
-
-  // Clean up
-  delete []sql;
-  delete []column;
-  delete []dbtablename;
-
+  TIntBuffer Oversamp; 
+  TDBTools db = TDBTools("pandb"); 
+  db.GetDBIntBuff("ana","pan","oversamp",fRunIndex,&Oversamp);  
+  return Oversamp.Get(0);
 };
  
 string TaMysql::GetPairType()  const {
 // returns pair type (pair or quad) for this run.
-  //   return GetString("pairtype");
- const Char_t *dbusername = "dbmanager";  // username for DB access
-  const Char_t *dbpasswd = "parity";    // password for DB access
-  const Char_t *dbname = "pandb";      // name of DB
-  const Char_t *dbhostname = "alquds.jlab.org";  // hostname of DB server computer
 
-  // Connect to MySQL server
-  Char_t *dburl = new Char_t[50];
-  sprintf(dburl,"mysql://%s/%s", dbhostname, dbname);
-  TSQLServer *db = TSQLServer::Connect(dburl, dbusername, dbpasswd);
-  delete []dburl;
-  dburl=NULL;
-
-  //
-   
-   Char_t *dbtablename =  new Char_t[50];
-   Char_t *column = new Char_t[50];
-
-   sprintf (dbtablename, "ana_pan_pairtype_VALUE"); 
-
- 
-     //   cout <<  dbtablename << endl;
- 
-   column = "value_1"; 
-   
-  // Construct query
-  Char_t *sql = new Char_t[4200];
-  sprintf(sql, "SELECT %s FROM %s", column, dbtablename);
-  //  cout << sql << endl;
-
-  // start timer
-  //  TStopwatch timer;
-  //  timer.Start();
-
-  // Submit query to server
-  TSQLRow *row;
-  TSQLResult *res;
-  res = db->Query(sql);
-
-  delete db;
-  db = NULL;
-  // Process results
-  Int_t nrows = res->GetRowCount();
-  //  cout << "Got " << nrows << " rows in result." << endl;
-
-  if (nrows <= 0 ) return 0;
-
-
-
-  Int_t nfields = res->GetFieldCount();
-  //  cout << "Got " << nfields << " fields in result." << endl;
-
-  row = res->Next();
-
-  //  cout << "Pair Type: " <<  row->GetField(0) << endl;
-
-  return  row->GetField(0);
-
-  // stop timer and print results
-  //  timer.Stop();
-  //  Double_t rtime = timer.RealTime();
-  //  Double_t ctime = timer.CpuTime();
-
-  //  printf("\nRealTime=%f seconds, CpuTime=%f seconds\n", rtime, ctime);
-
-  // Clean up
-  delete []sql;
-  delete []column;
-  delete []dbtablename;
-
+  Int_t length;
+  TDBTools db = TDBTools("pandb"); 
+  TString *anatype = db.GetDBChar("ana","pan","pairtype",fRunIndex,&length); 
+  return anatype->Data();
 };
 
 Double_t TaMysql::GetValue(const string& table) const {
@@ -1591,7 +536,6 @@ string TaMysql::FindTable(string table) {
   return " ";
 };
 
-
 void TaMysql::DataMapReStart() {
 // To reset the datamap iterator.  Must be done before using
 // NextDataMap() the first time.
@@ -1609,7 +553,6 @@ Bool_t TaMysql::NextDataMap() {
   if (dmapiter != datamap.end()) return kTRUE;
   return kFALSE; 
 };
-
 
 string TaMysql::GetDataMapName() const {
   if ( !initdm ) {
@@ -1651,232 +594,123 @@ void TaMysql::InitDataMap() {
   }
   if (initdm) return;  // already initialized
   datamap.clear();
-  string table = "datamap";
 
- const Char_t *dbusername = "dbmanager";  // username for DB access
-  const Char_t *dbpasswd = "parity";    // password for DB access
-  const Char_t *dbname = "pandb";      // name of DB
-  const Char_t *dbhostname = "alquds.jlab.org";  // hostname of DB server computer
+  Int_t length;
+  TDBTools db = TDBTools("pandb"); 
+  TString *DM = db.GetDBChar("ana","pan","datamap",fRunIndex,&length); 
 
-  // Connect to MySQL server
-  Char_t *dburl = new Char_t[50];
-  sprintf(dburl,"mysql://%s/%s", dbhostname, dbname);
-  TSQLServer *db = TSQLServer::Connect(dburl, dbusername, dbpasswd);
-  delete []dburl;
-  dburl=NULL;
+//
+// Decode the DataMap:
+//   
 
-  //
-   
-   Char_t *dbtablename =  new Char_t[50];
-   Char_t *column = new Char_t[50];
-
-   sprintf (dbtablename, "ana_pan_datamap_VALUE"); 
-
- 
-     //   cout <<  dbtablename << endl;
- 
-   column = "value_1"; 
-   
-  // Construct query
-  Char_t *sql = new Char_t[4200];
-  sprintf(sql, "SELECT %s FROM %s", column, dbtablename);
-  //  cout << sql << endl;
-
-  // start timer
-  //  TStopwatch timer;
-  //  timer.Start();
-
-  // Submit query to server
-  TSQLRow *row;
-  TSQLResult *res;
-  res = db->Query(sql);
-
-  delete db;
-  db = NULL;
-  // Process results
-  Int_t nrows = res->GetRowCount();
-    cout << "Got " << nrows << " rows in result." << endl;
-
-    //  if (nrows <= 0 ) return 0;
-
-
-
-  Int_t nfields = res->GetFieldCount();
-    cout << "Got " << nfields << " fields in result." << endl;
-
-    ////
-
-
-    row = res->Next();
-    cout << "datamap: " <<  row->GetField(0) << endl;
+  Int_t nrows;
+  const char *Myc = DM->Data();
+  Int_t Len = strlen(Myc);
   
-
-   const char *Myc = row->GetField(0);
-
-   cout << "Myc: " <<  Myc << endl;
-
-   Int_t Len = strlen(Myc);
-
-   cout << "Len: " <<  Len << endl;
-   
-   string Str; string Data[1000];
-      Str = Myc[0];  
-     
-      //    cout << "Str: " <<  Str << endl; 
-
-
-   
-     Int_t K =0;
-   for (Int_t i=1; i<Len; i++){
-     if(Myc[i]=='+'){
-       //       cout << "Str: " <<  Str << endl;  
-       Str = "";
-       K++;
-     }
-     else{
+  string Str; 
+  string Data[1000];
+  Str = Myc[0];  
+  
+  Int_t K =0;
+  for (Int_t i=1; i<Len; i++){
+    if(Myc[i]=='+'){
+      Str = "";
+      K++;
+    }
+    else{
        Str += Myc[i];
        Data[K]= Str;
-     }
-   }
-   //       cout << "Str: " <<  Str << endl; 
+    }
+  }
 
+  nrows = K;
 
-   ////
-
-   nrows = K;
-
-   for(Int_t i=0; i<nrows; i++){
-
-   char *myc;
-   myc = new char[strlen(Data[i].c_str()+1)];
-   strcpy(myc,Data[i].c_str()); 
-
-   cout << "myc: " <<  myc << endl;
-
-   Int_t len = strlen(myc);
-
-   cout << "len: " <<  len << endl;
-   
-   string str; string data[10];
-      str = myc[0];  
-     
-      //    cout << "str: " <<  str << endl; 
-
-
-   
-     Int_t k =0;
-   for (Int_t i=1; i<len; i++){
-     if(myc[i]==','){
-       //       cout << "str: " <<  str << endl;  
-       str = "";
-       k++;
-     }
-     else{
-       str += myc[i];
-       data[k]= str;
-     }
-   }
-   //       cout << "str: " <<  str << endl; 
-
-
-      vector<dtype*> datav;
-
-      dtype *dat0 = new dtype("s"); 
-      dat0->Load(data[0]);
-      datav.push_back(dat0);
-
-      dtype *dat1 = new dtype("s");
-      dat1->Load(data[1]);
-      datav.push_back(dat1);
-
-      dtype *dat2 = new dtype("i");
-      dat2->Load(data[2]);
-      datav.push_back(dat2);
-
-      dtype *dat3 = new dtype("i");
-      dat3->Load(data[3]);
-      datav.push_back(dat3);
-
-      dtype *dat4 = new dtype("i");
-      dat4->Load(data[4]);
-      datav.push_back(dat4);
-
-      cout << "k = " << k << endl;
- 
- for (Int_t j=5; j<=k; j++){
-
-   //   char *myc;
-   // myc = new char[strlen(data[j].c_str())];
-   //strcpy(myc,data[j].c_str());
-
-   //   cout << "myccc: " <<  myc << endl; 
+  for(Int_t i=0; i<=nrows; i++){
     
-   dtype *dat = new dtype("s");
- 
-   dat->Load(data[j]);
-   datav.push_back(dat);
+    char *myc;
+    myc = new char[strlen(Data[i].c_str()+1)];
+    strcpy(myc,Data[i].c_str()); 
+    Int_t len = strlen(myc);
+    
+    string str; 
+    string data[10];
+    str = myc[0];  
+     
+    Int_t k =0;
+    for (Int_t i=1; i<len; i++){
+      if(myc[i]==','){
+	str = "";
+	k++;
+      }
+      else{
+	str += myc[i];
+	data[k]= str;
+      }
+    }
+    
+    vector<dtype*> datav;
+    
+    dtype *dat0 = new dtype("s"); 
+    dat0->Load(data[0]);
+    datav.push_back(dat0);
+    
+    dtype *dat1 = new dtype("s");
+    dat1->Load(data[1]);
+    datav.push_back(dat1);
+    
+    dtype *dat2 = new dtype("i");
+    dat2->Load(data[2]);
+    datav.push_back(dat2);
+    
+    dtype *dat3 = new dtype("i");
+    dat3->Load(data[3]);
+    datav.push_back(dat3);
+    
+    dtype *dat4 = new dtype("i");
+    dat4->Load(data[4]);
+    datav.push_back(dat4);
 
- }
-
-
-
-
-
- //  for (Int_t j=0; j<=k; j++){
- // cout << "data: " <<  data[j] << endl; 
- //  datav.push_back((dtype*)data[j]); 
- //  }
-
- //} 
-  
-   
-   // stop timer and print results
-  //  timer.Stop();
-  //  Double_t rtime = timer.RealTime();
-  //  Double_t ctime = timer.CpuTime();
-
-  //  printf("\nRealTime=%f seconds, CpuTime=%f seconds\n", rtime, ctime);
-
-  // Clean up
-  //  delete []sql;
-  // delete []column;
-  // delete []dbtablename;
-
-   
-     string devname = datav[1]->GetS();    
-     cout << "devname: " << datav[1]->GetS() <<endl;
-     map<string, TaKeyMap >::iterator dm = datamap.find(devname);
-     TaKeyMap keymap;
-     if (dm != datamap.end()) keymap = dm->second;
-     keymap.LoadType(datav[0]->GetS());
-     cout << "keymap: " << datav[0]->GetS() <<endl;
-
-     adc  = datav[2]->GetI();
-     chan = datav[3]->GetI();
-     evb  = datav[4]->GetI();
-     cout << "adc: " << adc << " chan: " << chan << " evb: " << evb <<endl;
-
-     int istart = 5;
-     for (int k = istart; k < (long)datav.size(); k++) {
-       if ( !datav[k]->IsLoaded() ) continue;
-       key = datav[k]->GetS();
-       cout << "Key: " << key <<endl;
-       keymap.LoadData( key, adc, chan + k - istart, evb + k - istart);
-     }
-     pair<string, TaKeyMap > skm;
-     skm.first = devname;  skm.second = keymap;
-     pair<map<string, TaKeyMap>::iterator, bool> p = datamap.insert(skm);
-     if ( !p.second ) {
-           datamap.erase(dm);
-           datamap.insert(skm);
-     }
+    cout << "k = " << k << endl;
+    
+    for (Int_t j=5; j<=k; j++){
+      dtype *dat = new dtype("s");       
+      dat->Load(data[j]);
+      datav.push_back(dat);
+    }
+    
+    string devname = datav[1]->GetS();    
+    cout << "devname: " << datav[1]->GetS() <<endl;
+    map<string, TaKeyMap >::iterator dm = datamap.find(devname);
+    TaKeyMap keymap;
+    if (dm != datamap.end()) keymap = dm->second;
+    keymap.LoadType(datav[0]->GetS());
+    cout << "keymap: " << datav[0]->GetS() <<endl;
+    
+    adc  = datav[2]->GetI();
+    chan = datav[3]->GetI();
+    evb  = datav[4]->GetI();
+    cout << "adc: " << adc << " chan: " << chan << " evb: " << evb <<endl;
+    
+    int istart = 5;
+    for (int k = istart; k < (long)datav.size(); k++) {
+      if ( !datav[k]->IsLoaded() ) continue;
+      key = datav[k]->GetS();
+      cout << "Key: " << key <<endl;
+      keymap.LoadData( key, adc, chan + k - istart, evb + k - istart);
+    }
+    pair<string, TaKeyMap > skm;
+    skm.first = devname;  skm.second = keymap;
+    pair<map<string, TaKeyMap>::iterator, bool> p = datamap.insert(skm);
+    if ( !p.second ) {
+      datamap.erase(dm);
+      datamap.insert(skm);
+    }
   }
   dmapiter = datamap.begin();
   initdm = kTRUE;
-// Comment: should CHECK datamap, in case of typo errors.
+  // Comment: should CHECK datamap, in case of typo errors.
   //  PrintDataMap();   // DEBUG
 };
-
 
 void TaMysql::PrintDataMap() {
   cout << "\n\n--- Printout of datamap ---"<<endl;
@@ -1888,7 +722,6 @@ void TaMysql::PrintDataMap() {
     keymap.Print();
   }
 };
-
 
 Bool_t TaMysql::SelfCheck() {
 // Returns kTRUE if the database makes good sense.  This enforces some rules.
