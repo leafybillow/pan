@@ -23,7 +23,7 @@ For csh/tcsh:
 
 You are basically done. To check out the repository, do
 
-% cvs -d ":ext:user@jlabs1.jlab.org:/group/halla/parity/cvs" checkout pan
+% cvs -d ":ext:user@login1.jlab.org:/group/halla/parity/cvs" checkout pan
 
 Of course, replace "user" in the above command with your CUE username.
 You can now use CVS as usual.  
@@ -47,14 +47,14 @@ a copy too, at:
 Examples of CVS commands for username = rsholmes
 
 * Checking out a working copy 
-    cvs -d ":ext:rsholmes@jlabs1.jlab.org:/group/halla/parity/cvs" checkout pan
+    cvs -d ":ext:rsholmes@login1.jlab.org:/group/halla/parity/cvs" checkout pan
 
 * Looking for differences in repository
-   cvs -d ":ext:rsholmes@jlabs1.jlab.org:/group/halla/parity/cvs" diff
+   cvs -d ":ext:rsholmes@login1.jlab.org:/group/halla/parity/cvs" diff
 
 * Obtaining updates from the respository
-   cvs -d ":ext:rsholmes@jlabs1.jlab.org:/group/halla/parity/cvs" update
+   cvs -d ":ext:rsholmes@login1.jlab.org:/group/halla/parity/cvs" update
 
 * Committing a change
-   cvs -d ":ext:rsholmes@jlabs1.jlab.org:/group/halla/parity/cvs" commit -m "correct path to codaclass" Makefile
+   cvs -d ":ext:rsholmes@login1.jlab.org:/group/halla/parity/cvs" commit -m "correct path to codaclass" Makefile
 
