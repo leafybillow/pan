@@ -65,29 +65,13 @@ private:
 
   // Private methods
   void Create(const TaSimEvent&);
-
-  // Constants
+  void SetSimConstants();
 
   // Static members
 #ifdef FAKEHEL
   static ifstream fgHelfile;   // fake helicity data file
 #endif
 
-//    static TRandom fgR;      // Random number object
-//    static Double_t fDetVsBcm[4];
-//    static Double_t fDetNoiseR[4];
-//    // modify position by dithering slope for 12x, 4a x,y and 4b x,y given value
-//    //  and ident of dithering object
-//    static Double_t fBpm4AXvCoil[7];   static Double_t fBpm4AYvCoil[7];
-//    static Double_t fBpm4BXvCoil[7];   static Double_t fBpm4BYvCoil[7];
-//    static Double_t fBpm12XvCoil[7];
-//    // modify detector by position
-//    static Double_t fDetVsBpm12X[4];  
-//    static Double_t fDetVsBpm4AX[4];  static Double_t fDetVsBpm4BX[4];
-//    static Double_t fDetVsBpm4AY[4];  static Double_t fDetVsBpm4BY[4];
-//    static Double_t fDet12Xoff;  
-//    static Double_t fDet4AXoff; static  Double_t fDet4BXoff;
-//    static Double_t fDet4AYoff; static  Double_t fDet4BYoff;
 
   TRandom fgR;      // Random number object
   Double_t fDetVsBcm[4];
@@ -104,8 +88,6 @@ private:
   Double_t fDet12Xoff;  
   Double_t fDet4AXoff; Double_t fDet4BXoff;
   Double_t fDet4AYoff; Double_t fDet4BYoff;
-
-
 
   // Data members
   
