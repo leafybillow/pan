@@ -6,6 +6,41 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by K. Paschke on  11 Oct 2004
+--------------------------------------
+
+Added new detector "devices" det_l, det_r, det_lo, det_hi, and det_all.
+These provide the various sums of the 4 hydrogen detectors, with weights
+as prescribed in the database detwts  field.  These weights should be set
+as:
+
+wt = 1/( raw_signal_size * (regressed_asym_rms)^2 )
+
+The sums are recorded in the raw tree.  These sums are not "re-normalized" to
+the sum of the weights (so this is a weighted sum, not a weighted average) to 
+allow for the use of other combos with negative weights, if desired.
+These sums are also not beam normalized in the raw tree.
+
+For the pair tree, asymmetries are calculated for each of these sums exactly 
+as if they were the standard detectors (this is implemented in TaStandardAna).
+That is, each sum is beam normalized, then the asymmetry is calculated and 
+a blinding offset added.  That beam-normalized, blinded asymmetry of the 
+detector sum is inserted in the pair tree.
+
+For debugging, I've checked that the calculated asymmetries come out exactly the
+same for both the new and older versions of pan (which makes sense: the arithmetic
+is exactly the same).  The major difference is that now that these sums are
+available in the raw tree, dithering can calculate slopes directly for those
+sums (rather than relying on weighted averages of ditheirng-corrected asymmetries
+from individual detector segments).
+
+For the Helium analysis, the only detector combination which is valid is "det_lo"
+(detector segments 1 and 3).   The detector weights vector assumes
+four detectors, and so should have zeros in the second and fourth field for
+the Helium runs. 
+
+
+
 Changes by K. Paschke on  29 Sep 2004
 --------------------------------------
 

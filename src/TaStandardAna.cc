@@ -142,6 +142,7 @@ TaStandardAna::InitChanLists ()
   f = ChanListFromName ("bpm", "4bmx",  fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
+
   // Channels for which to store differences
   f = ChanList ("batt", "~", "mchan", fgDIFF + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
@@ -184,8 +185,15 @@ TaStandardAna::InitChanLists ()
   f = ChanList ("det", "~", "ppm", fgNO_BEAM_NO_ASY + fgASYN + fgBLIND);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
-  // multi-detector asymmetries
+  f = ChanListFromName ("det_", "ppm",  fgNO_BEAM_NO_ASY + fgASYN + fgBLIND);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
+//   f = ChanList ("det_", "~", "ppm", fgNO_BEAM_NO_ASY + fgASYN + fgBLIND);
+//   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+
+  // multi-detector asymmetries - 
+  // ***  mostly removed from here and generated from raw tree entries  -KDP
+  //
   // Here we assume there are four detector signals:
   //   det1 = left spectrometer,  low Q^2
   //   det2 = left spectrometer,  high Q^2
@@ -193,7 +201,7 @@ TaStandardAna::InitChanLists ()
   //   det4 = right spectrometer, high Q^2
   // We do sums of left and right, sums of high and low, sum of all,
   // and average of all.
-
+  //
   // (Unfortunate terminology: here "right" and "left" refer to which
   // spectrometer, not which helicity.)
 
@@ -240,62 +248,62 @@ TaStandardAna::InitChanLists ()
       fTreeList.push_back (AnaList ("flumi_ave", keys, wts, "ppm", 
 				    fgNO_BEAM_NO_ASY + fgASYN + fgAVE + fgBLINDSIGN));
     }
-  if (fRun->GetDevices().IsUsed(IDET1R) &&
-      fRun->GetDevices().IsUsed(IDET2R))
-    {
-      keys.clear(); keys.push_back(IDET1);  keys.push_back(IDET2);
-      wtsa = fRun->GetDataBase().GetDetWts();
-      wts.clear(); wts.push_back (wtsa[0]); wts.push_back (wtsa[1]); 
-      if (!WtsOK (wts)) 
-	{
-	  cerr << "TaStandardAna::InitChanLists WARNING: det1/2 weights bad, ignored" << endl;
-	  wts.clear();
-	}
-      fTreeList.push_back (AnaList ("det_l", keys, wts, "ppm", 
-				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
-    }
-  if (fRun->GetDevices().IsUsed(IDET3R) &&
-      fRun->GetDevices().IsUsed(IDET4R))
-    {
-      keys.clear(); keys.push_back(IDET3);  keys.push_back(IDET4);
-      wtsa = fRun->GetDataBase().GetDetWts();
-      wts.clear(); wts.push_back (wtsa[2]); wts.push_back (wtsa[3]); 
-      if (!WtsOK (wts)) 
-	{
-	  cerr << "TaStandardAna::InitChanLists WARNING: det3/4 weights bad, ignored" << endl;
-	  wts.clear();
-	}
-      fTreeList.push_back (AnaList ("det_r", keys, wts, "ppm", 
-				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
-    }
-  if (fRun->GetDevices().IsUsed(IDET1R) &&
-      fRun->GetDevices().IsUsed(IDET3R))
-    {
-      keys.clear(); keys.push_back(IDET1);  keys.push_back(IDET3);
-      wtsa = fRun->GetDataBase().GetDetWts();
-      wts.clear(); wts.push_back (wtsa[0]); wts.push_back (wtsa[2]); 
-      if (!WtsOK (wts)) 
-	{
-	  cerr << "TaStandardAna::InitChanLists WARNING: det1/3 weights bad, ignored" << endl;
-	  wts.clear();
-	}
-      fTreeList.push_back (AnaList ("det_lo", keys, wts, "ppm", 
-				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
-    }
-  if (fRun->GetDevices().IsUsed(IDET2R) &&
-      fRun->GetDevices().IsUsed(IDET4R))
-    {
-      keys.clear(); keys.push_back(IDET2);  keys.push_back(IDET4);
-      wtsa = fRun->GetDataBase().GetDetWts();
-      wts.clear(); wts.push_back (wtsa[1]); wts.push_back (wtsa[3]); 
-      if (!WtsOK (wts)) 
-	{
-	  cerr << "TaStandardAna::InitChanLists WARNING: det2/4 weights bad, ignored" << endl;
-	  wts.clear();
-	}
-      fTreeList.push_back (AnaList ("det_hi", keys, wts, "ppm", 
-				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
-    }
+//   if (fRun->GetDevices().IsUsed(IDET1R) &&
+//       fRun->GetDevices().IsUsed(IDET2R))
+//     {
+//       keys.clear(); keys.push_back(IDET1);  keys.push_back(IDET2);
+//       wtsa = fRun->GetDataBase().GetDetWts();
+//       wts.clear(); wts.push_back (wtsa[0]); wts.push_back (wtsa[1]); 
+//       if (!WtsOK (wts)) 
+// 	{
+// 	  cerr << "TaStandardAna::InitChanLists WARNING: det1/2 weights bad, ignored" << endl;
+// 	  wts.clear();
+// 	}
+//       fTreeList.push_back (AnaList ("det_l", keys, wts, "ppm", 
+// 				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
+//     }
+//   if (fRun->GetDevices().IsUsed(IDET3R) &&
+//       fRun->GetDevices().IsUsed(IDET4R))
+//     {
+//       keys.clear(); keys.push_back(IDET3);  keys.push_back(IDET4);
+//       wtsa = fRun->GetDataBase().GetDetWts();
+//       wts.clear(); wts.push_back (wtsa[2]); wts.push_back (wtsa[3]); 
+//       if (!WtsOK (wts)) 
+// 	{
+// 	  cerr << "TaStandardAna::InitChanLists WARNING: det3/4 weights bad, ignored" << endl;
+// 	  wts.clear();
+// 	}
+//       fTreeList.push_back (AnaList ("det_r", keys, wts, "ppm", 
+// 				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
+//     }
+//   if (fRun->GetDevices().IsUsed(IDET1R) &&
+//       fRun->GetDevices().IsUsed(IDET3R))
+//     {
+//       keys.clear(); keys.push_back(IDET1);  keys.push_back(IDET3);
+//       wtsa = fRun->GetDataBase().GetDetWts();
+//       wts.clear(); wts.push_back (wtsa[0]); wts.push_back (wtsa[2]); 
+//       if (!WtsOK (wts)) 
+// 	{
+// 	  cerr << "TaStandardAna::InitChanLists WARNING: det1/3 weights bad, ignored" << endl;
+// 	  wts.clear();
+// 	}
+//       fTreeList.push_back (AnaList ("det_lo", keys, wts, "ppm", 
+// 				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
+//     }
+//   if (fRun->GetDevices().IsUsed(IDET2R) &&
+//       fRun->GetDevices().IsUsed(IDET4R))
+//     {
+//       keys.clear(); keys.push_back(IDET2);  keys.push_back(IDET4);
+//       wtsa = fRun->GetDataBase().GetDetWts();
+//       wts.clear(); wts.push_back (wtsa[1]); wts.push_back (wtsa[3]); 
+//       if (!WtsOK (wts)) 
+// 	{
+// 	  cerr << "TaStandardAna::InitChanLists WARNING: det2/4 weights bad, ignored" << endl;
+// 	  wts.clear();
+// 	}
+//       fTreeList.push_back (AnaList ("det_hi", keys, wts, "ppm", 
+// 				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
+//     }
   if (fRun->GetDevices().IsUsed(IDET1R) &&
       fRun->GetDevices().IsUsed(IDET2R) &&
       fRun->GetDevices().IsUsed(IDET3R) &&
@@ -309,8 +317,8 @@ TaStandardAna::InitChanLists ()
 	  cerr << "TaStandardAna::InitChanLists WARNING: det1-4 weights bad, ignored" << endl;
 	  wts.clear();
 	}
-      fTreeList.push_back (AnaList ("det_all", keys, wts, "ppm", 
-				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
+//       fTreeList.push_back (AnaList ("det_all", keys, wts, "ppm", 
+// 				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
       fTreeList.push_back (AnaList ("det_ave", keys, wts, "ppm", 
 				    fgNO_BEAM_NO_ASY + fgASYN + fgAVE + fgBLIND));
     }

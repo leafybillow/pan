@@ -155,13 +155,17 @@ private:
   static UInt_t fgOversample;  // oversample factor
   static UInt_t fgCurMon;      // index to current monitor for cuts
   static UInt_t fgCurMonC;     // index to current monitor for cuts
-  static UInt_t fgDet[4];      // index to detectors for cuts
+  static UInt_t fgDetRaw[4];      // index to raw detector values for cuts
   static UInt_t fgNPosMon;     // number of Position Monitors for Pos Burp cut.
   static UInt_t fgPosMon[fgMaxNumPosMon];   
                                // index to beam monitors for cuts
   static UInt_t fgSizeConst;   // size of first physics event should be size of all
   static UInt_t fgNCuts;       // Length of cut array
   static Bool_t fgCalib;       // True to include calibration variables
+
+  static UInt_t fgDetKey[DETNUM];  // index to calibrated detector values, used for det combos
+  static Double_t fgCombWt[DETCOMBNUM][DETNUM];  // wts for detector combinations
+
 
   // Data members
   Int_t *fEvBuffer;            // Raw event data
@@ -178,6 +182,7 @@ private:
   EHelicity fPrevHel;          // True helicity for previous event
 
   Double_t fQPD1Pars[6];    // QPD calibration parameters
+
 
 #ifndef NODICT
 ClassDef(VaEvent,0)  // An event

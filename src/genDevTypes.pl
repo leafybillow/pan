@@ -33,6 +33,8 @@
 @battlist =      qw / IBATT1 IBATT2 IBATT3 IBATT4 IBATT5 IBATT6 IBATT7 IBATT8/;
 # Detectors
 @detlist =       qw / IDET1 IDET2 IDET3 IDET4 /;
+# Detector combos
+@detcomblist =       qw / IDET_L IDET_R IDET_LO IDET_HI IDET_ALL /;
 # Lumi detectors
 @lumilist =      qw / IBLUMI1 IBLUMI2 IBLUMI3 IBLUMI4 IBLUMI5 IBLUMI6 IBLUMI7 IBLUMI8 IFLUMI1 IFLUMI2 IFLUMI3 ILUMI1 ILUMI2 ILUMI3 ILUMI4/;
 # V2F clocks
@@ -61,6 +63,7 @@ $out = "";   # output being built
 &do_profile();
 &do_batts();
 &do_dets();
+&do_detcombs();
 &do_adcs();
 &do_scalers();
 &do_tirs();
@@ -493,6 +496,39 @@ sub add_detcorr
     $ret .= "\n";
     return $ret;
 }
+
+
+sub do_detcombs
+{
+# Detector Combinations
+
+    $detcomboff = $p;
+    $detcombnum = scalar (@detcomblist);
+    $out1 = "";
+    foreach $detcomb (@detcomblist)
+    {
+	$out1 .= &add_detcomb ($detcomb);
+    }
+    $out .= << "ENDDETCOMBCOM";
+// Detector Combinations
+
+\#define   DETCOMBOFF     $detcomboff     // Detector Combinations start here
+\#define   DETCOMBNUM     $detcombnum     // number of detector combos defined below
+
+$out1
+ENDDETCOMBCOM
+}
+
+sub add_detcomb
+{
+    my ($detcomb) = @_;
+    my ($ret);
+    $ret = "";
+    $ret .= "\#define   ${detcomb}      $p\n"; $p++;
+    $ret .= "\n";
+    return $ret;
+}
+
 
 sub do_adcs
 {

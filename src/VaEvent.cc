@@ -60,12 +60,14 @@ Cut_t VaEvent::fgCBurpNo;
 UInt_t VaEvent::fgOversample;
 UInt_t VaEvent::fgCurMon;
 UInt_t VaEvent::fgCurMonC;
-UInt_t VaEvent::fgDet[4];
+UInt_t VaEvent::fgDetRaw[4];
 UInt_t VaEvent::fgNPosMon;
 UInt_t VaEvent::fgPosMon[fgMaxNumPosMon];   
 UInt_t VaEvent::fgSizeConst;
 UInt_t VaEvent::fgNCuts;
 Bool_t VaEvent::fgCalib;
+UInt_t VaEvent::fgDetKey[4];
+Double_t VaEvent::fgCombWt[DETCOMBNUM][DETNUM];
 
 VaEvent::VaEvent(): 
   fEvType(0),  
@@ -232,11 +234,10 @@ VaEvent::RunInit(const TaRun& run)
   string scurmonc = run.GetDataBase().GetCurMonC();
   if (scurmonc == "none") scurmonc = "bcm10";
   fgCurMonC = run.GetKey (scurmonc);
-  fgDet[0] = run.GetKey (string ("det1r"));
-  fgDet[1] = run.GetKey (string ("det2r"));
-  fgDet[2] = run.GetKey (string ("det3r"));
-  fgDet[3] = run.GetKey (string ("det4r"));
-
+  fgDetRaw[0] = run.GetKey (string ("det1r"));
+  fgDetRaw[1] = run.GetKey (string ("det2r"));
+  fgDetRaw[2] = run.GetKey (string ("det3r"));
+  fgDetRaw[3] = run.GetKey (string ("det4r"));
 
   fgOversample = run.GetOversample();
   fgLastEv = VaEvent();
@@ -248,6 +249,32 @@ VaEvent::RunInit(const TaRun& run)
 
   fgCalib = run.GetDataBase().GetCalVar();
 
+
+  
+  fgDetKey[0] = run.GetKey (string ("det1"));
+  fgDetKey[1] = run.GetKey (string ("det2"));
+  fgDetKey[2] = run.GetKey (string ("det3"));
+  fgDetKey[3] = run.GetKey (string ("det4"));
+
+
+  UInt_t combo[DETCOMBNUM][DETNUM] = { { 1, 1, 0, 0 },
+				       { 0, 0, 1, 1 },
+				       { 1, 0, 1, 0 },
+				       { 0, 1, 0, 1 },
+				       { 1, 1, 1, 1 } };
+  // Weight detector combos with decimal values from det wts database line
+  vector<Double_t> wtsa(0);      
+  wtsa = run.GetDataBase().GetDetWts();
+  for (Int_t ic =0; ic<DETCOMBNUM; ic++) {
+    for (Int_t id =0; id<DETNUM; id++) {
+      if (combo[ic][id]) {
+	fgCombWt[ic][id] = wtsa[id];
+      } else {
+	fgCombWt[ic][id] = 0.0;
+      }
+    }
+  }
+  
   return fgTAEVT_OK;
 
 }
@@ -543,6 +570,24 @@ VaEvent::Decode(TaDevice& devices)
     if (devices.IsUsed(key)) devices.SetUsed(key+2);
   }
 
+// Detector Combos
+  for (Int_t ic=0; ic<DETCOMBNUM; ic++) {
+    key = DETCOMBOFF+ic;  
+    sum = 0;
+    Bool_t use = kTRUE;
+    for (Int_t id = 0; id < DETNUM; id++) 
+      if ( fgCombWt[ic][id]!=0 && !(devices.IsUsed(fgDetKey[id]))) use=kFALSE;
+    if (use) {
+      //      cout << "Combo " << ic << " is in use!" << endl;
+      for (Int_t id = 0; id < DETNUM; id++)
+	if (fgCombWt[ic][id]!=0) sum += fgCombWt[ic][id]*fData[fgDetKey[id]];
+      fData[key] = sum;
+      devices.SetUsed(key);
+    } else {    
+      fData[key] = -1.E6;
+    }
+  }
+
   // UMass Profile scanners
   for (i = 0; i < PROFNUM; i++) {
      key = PROFOFF + 3*i;
@@ -822,13 +867,13 @@ VaEvent::CheckEvent(TaRun& run)
       Bool_t saturated = false;
       UInt_t i;
       for (i = 0; i < DETNUM && !saturated; i++) 
-	saturated = GetData (fgDet[i]) >= fgSatCut;
+	saturated = GetData (fgDetRaw[i]) >= fgSatCut;
       
       if (saturated)
 	{
 #ifdef NOISY
 	  clog << "Event " << fEvNum << " failed saturation cut, det"
-	       << i << " raw = " << GetData (fgDet[i-1]) << " > " << fgSatCut << endl;
+	       << i << " raw = " << GetData (fgDetRaw[i-1]) << " > " << fgSatCut << endl;
 #endif
 	  thisval = 1;
 	}
