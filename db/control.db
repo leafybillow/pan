@@ -2,23 +2,42 @@
 # in summer 2001.
     run 1824
 # number of events to process (leave this out to get infinite)
-#    maxevents 5000
+    maxevents 2000
 # run type and analysis type (why do we need both ?)
     runtype BEAM      
     anatype BEAM      
     lobeam  2000  
     burpcut 500
     oversamp 1
-    windelay  0     # helicity delay in windows
-    pairtype  pair
-# feedback     type  switch on/off  timescale (mn)   
-    feedback    AQ       on               1
-    feedback    PZT      on               1                
+    windelay  8     # helicity delay in windows
+    pairtype  quad
+# feedback     type   switch on/off/onc(compute)   timescale (mn)  monitor  
+    feedback    IA       onc                          1              bcm1
+    feedback    PZT      onc                           1             bpm4b
+# add this line when pita feedback is operationnal
+#    feedback    PITA     off                           1                
 # IA feedback parameters 
-    IAparam   slope -500  
+    IAparam   slope -500 
+#    PITAparam slope  0      
 # PZT matrix and offset
     PZTparam  M11 1400.1  M12 2524.2  M21 4200.1  M22 3012.2 
 # dacnoise values, these need to be calibrated
+    dacnoise adc 0 chan 0 slope 0.0 int 0
+    dacnoise adc 0 chan 1 slope 0.0 int 0
+    dacnoise adc 0 chan 2 slope 0.0 int 0
+    dacnoise adc 0 chan 3 slope 0.0 int 0
+    dacnoise adc 1 chan 0 slope 0.0 int 0
+    dacnoise adc 1 chan 1 slope 0.0 int 0
+    dacnoise adc 1 chan 2 slope 0.0 int 0
+    dacnoise adc 1 chan 3 slope 0.0 int 0
+    dacnoise adc 2 chan 0 slope 0.0 int 0
+    dacnoise adc 2 chan 1 slope 0.0 int 0
+    dacnoise adc 2 chan 2 slope 0.0 int 0
+    dacnoise adc 2 chan 3 slope 0.0 int 0
+    dacnoise adc 3 chan 0 slope 0.0 int 0
+    dacnoise adc 3 chan 1 slope 0.0 int 0
+    dacnoise adc 3 chan 2 slope 0.0 int 0
+    dacnoise adc 3 chan 3 slope 0.0 int 0
     dacnoise adc 4 chan 0 slope 0.0 int 0
     dacnoise adc 4 chan 1 slope 0.0 int 0
     dacnoise adc 4 chan 2 slope 0.0 int 0
@@ -44,6 +63,22 @@
     dacnoise adc 9 chan 2 slope 0.0 int 0
     dacnoise adc 9 chan 3 slope 0.0 int 0
 # pedestals to subtract from ADCs
+    ped adc 0 chan 0 value 5117
+    ped adc 0 chan 1 value 4996
+    ped adc 0 chan 2 value 4947
+    ped adc 0 chan 3 value 5395
+    ped adc 1 chan 0 value 5117
+    ped adc 1 chan 1 value 4996
+    ped adc 1 chan 2 value 4947
+    ped adc 1 chan 3 value 5395
+    ped adc 2 chan 0 value 5117
+    ped adc 2 chan 1 value 4996
+    ped adc 2 chan 2 value 4947
+    ped adc 2 chan 3 value 5395
+    ped adc 3 chan 0 value 5117
+    ped adc 3 chan 1 value 4996
+    ped adc 3 chan 2 value 4947
+    ped adc 3 chan 3 value 5395
     ped adc 4 chan 0 value 5117
     ped adc 4 chan 1 value 4996
     ped adc 4 chan 2 value 4947
@@ -92,8 +127,12 @@
 # See ./doc/DATABASE.RULES for definitions.
 #   table  device-type dev-name read-type dev-num startchan evbuff-offset channel-names(keys)
     datamap   tir        tir      tir        0     0       104             tirdata  
-    datamap   batt       batt1    adc        4      0       67             batt1 
-    datamap   batt       batt2    adc        4      1       68             batt2 
+    datamap   adc        adc0     adc        0     -9       47             csr0 dac0  
+    datamap   adc        adc1     adc        1     -9       53             csr1 dac1  
+    datamap   adc        adc2     adc        2     -9       59             csr2 dac2  
+    datamap   batt       batt1    adc        3      0       61             batt1 
+    datamap   batt       batt2    adc        3      1       62             batt2 
+    datamap   adc        adc3     adc        3     -9       65             csr3 dac3  
     datamap   bcm        bcm1     adc        4      2       69              bcm1r
     datamap   bcm        bcm2     adc        4      3       70              bcm2r
     datamap   adc        adc4     adc        4     -9       71             csr4 dac4  
@@ -106,7 +145,7 @@
     datamap   bpm        bpm12    adc        7      0       85    bpm12xp bpm12xm bpm12yp bpm12ym 
     datamap   adc        adc7     adc        7     -9       89             csr7 dac7
     datamap   bpm        bpm4a    adc        8      0       91    bpm4axp bpm4axm bpm4ayp bpm4aym 
-    datamap   adc        adc8     adc        8     -9       89             csr8 dac8
+    datamap   adc        adc8     adc        8     -9       95             csr8 dac8
     datamap   bpm        bpm4b    adc        9      0       97    bpm4bxp bpm4bxm bpm4byp bpm4bym 
     datamap   adc        adc9     adc        9     -9      101             csr9 dac9
     datamap   adc        adc0     adc        0      0       43    adc0_0  adc0_1  adc0_2  adc0_3
