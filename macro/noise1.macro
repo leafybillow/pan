@@ -1,6 +1,7 @@
 {
 // Macro to plot the noise in Lumi
-// 1st version.  R. Michaels, Apr 04
+// Both the ped-diff and the sigma are plotted.
+// R. Michaels, Apr 04
 // You must first ".x open.macro" to read in the root file.
 //
 // Usage:
@@ -41,12 +42,13 @@
     char ccut[100],cvar[100];
     float hmean,fmean,hrms,frms;
 
-    TGraphErrors *gr[numlumi];
+    TGraphErrors *grdx[numlumi],*grsig[numlumi];
     Float_t xdata[numlumi*numinteg],
             ydata[numlumi*numinteg],
             exdata[numlumi*numinteg],
             eydata[numlumi*numinteg],
-            xpt[numinteg],ypt[numinteg],
+            ndata[numlumi*numinteg];
+    Float_t xpt[numinteg],ypt[numinteg],
             ex[numinteg],ey[numinteg];
 
 // Utility histogram. Note the name "blumiP" must 
@@ -102,6 +104,8 @@
        exdata[iup*numlumi+lumi] = 0.0;
        ydata[iup*numlumi+lumi]  = hmean;
        eydata[iup*numlumi+lumi] = hrms;
+       ndata[iup*numlumi+lumi] = 
+                    histo->GetEntries(); 
        if (printall) {
         cout << endl << endl;
         cout << "Lumi # "<<lumi+1<<"  update# "<<iup<<endl;
@@ -117,13 +121,16 @@
 
 
 // Make TGraphErrors of results
+
   for (lumi = 0; lumi < numlumi; lumi++) {
 
      for (iup = 0; iup < numinteg; iup++) {
        xpt[iup] = xdata[iup*numlumi+lumi];
        ex[iup]  = exdata[iup*numlumi+lumi];
        ypt[iup] = ydata[iup*numlumi+lumi];
-       ey[iup]  = eydata[iup*numlumi+lumi];
+       ey[iup]  = 0;
+       if (ndata[iup] > 0) ey[iup] = 
+         eydata[iup*numlumi+lumi]/sqrt(ndata[iup]);
        if (printall) {
           cout << "update "<<iup;
           cout << "   x, ex "<<xpt[iup]<<"  "<<ex[iup];
@@ -131,20 +138,53 @@
        }
      }
 
-     gr[lumi] = new TGraphErrors(numinteg,xpt,ypt,ex,ey);
+     grdx[lumi] = 
+        new TGraphErrors(numinteg,xpt,ypt,ex,ey);
      sprintf(ctitle,
        "Ped diff (avg %dK evt) vs time, lumi#%d",
            integevt/1000,lumi+1);
-     gr[lumi]->SetTitle(ctitle);
-     gr[lumi]->SetMarkerColor(4);
-     gr[lumi]->SetMarkerStyle(21);
+     grdx[lumi]->SetTitle(ctitle);
+     grdx[lumi]->SetMarkerColor(4);
+     grdx[lumi]->SetMarkerStyle(21);
+     Axis_t xmin = grdx[lumi]->GetXaxis()->GetXmin();
+     Axis_t xmax = grdx[lumi]->GetXaxis()->GetXmax();
+     Int_t nbins = grdx[lumi]->GetXaxis()->GetNbins();
+// Increase the X axis 
+     grdx[lumi]->GetXaxis()->Set(nbins,xmin-1,xmax+1);
 
      c1->Clear();
-     gr[lumi]->Draw("AP");
+     grdx[lumi]->Draw("AP");
      c1->Update();
 
-     cout << endl << "Ready to continue ?  (enter 0)"<<endl;
+     cout << endl << "Ready to continue ?  (enter 0)"<<lumi<<endl;
      cin >> dummy;
+
+// Next plot sigma versus time.
+     for (iup = 0; iup < numinteg; iup++) {
+       ypt[iup] = eydata[iup*numlumi+lumi];
+       ey[iup]  = 0;
+     }
+
+     grsig[lumi] = 
+        new TGraphErrors(numinteg,xpt,ypt,ex,ey);
+     sprintf(ctitle,
+       "Ped Diff Sigma vs time, lumi#%d",lumi+1);
+     grsig[lumi]->SetTitle(ctitle);
+     grsig[lumi]->SetMarkerColor(4);
+     grsig[lumi]->SetMarkerStyle(21);
+     Axis_t xmin = grsig[lumi]->GetXaxis()->GetXmin();
+     Axis_t xmax = grsig[lumi]->GetXaxis()->GetXmax();
+     Int_t nbins = grsig[lumi]->GetXaxis()->GetNbins();
+// Increase the X axis 
+     grsig[lumi]->GetXaxis()->Set(nbins,xmin-1,xmax+1);
+
+     c1->Clear();
+     grsig[lumi]->Draw("AP");
+     c1->Update();
+
+     cout << endl << "Ready to continue ?  (enter 0)"<<lumi<<endl;
+     cin >> dummy;
+
    }
  
 } 
