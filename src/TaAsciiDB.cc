@@ -32,6 +32,16 @@ TaAsciiDB::TaAsciiDB() {
 TaAsciiDB::~TaAsciiDB() {
      delete [] dacparam;
      delete [] pedvalue;
+     tables.clear();
+     for (multimap<string, vector<dtype*> >::iterator im = database.begin();
+	  im != database.end();  im++) {
+       vector<dtype *> ddata = im->second;
+       for (vector<dtype* >::iterator id = ddata.begin();  
+	    id != ddata.end(); id++) {
+          	 delete *id;
+       }
+     }
+     database.clear();
 }
 
 void TaAsciiDB::Load(int run) {
@@ -77,6 +87,7 @@ void TaAsciiDB::Load(int run) {
     }
     LoadTable(FindTable(strvect[0]), datavect);
   }
+  delete dbfile;
 };
 
 void TaAsciiDB::Write() {
