@@ -169,15 +169,30 @@ void TaEvent::Decode(const TaDevice& devices) {
        - (fData[DACOFF + i] * devices.GetDacSlope(key) - devices.GetDacInt(key));
     }
   }
-
-// Calibrate the Scalers.  They have no DAC noise.
-// FIXME:  Bryan, you want to change this to use the clock frequency.....
-  for (i = 0; i < SCANUM; i++) {
-    for (j = 0; j < 32; j++) {
-      key = i*32 + j;
-      fData[SCCOFF + key] = fData[SCAOFF + key] - devices.GetPedestal(SCAOFF + key);
+  
+  // Calibrate Scalers for use with v2fs
+  // Only one V2F is allowed per scaler.  Sorry.
+  Int_t clockkey;
+  for (i = 0; i < V2FCLKNUM; i++) {
+    clockkey = i + V2FCLKOFF;
+    // If there's no clock... then there's no calibration.
+    if (fData[clockkey] == 0) {
+      for (j = 0; j < 32; j++) {
+	key = j + i*32;
+	fData[SCCOFF + key] = 0;
+      }
+    } else {
+      // HA! There IS a clock!
+      Double_t clock = fData[clockkey];
+      for (j = 0; j < 32; j++) {
+	key = j + i*32;
+	fData[SCCOFF + key] = 
+	  (fData[SCAOFF + key] 
+	   - devices.GetPedestal(SCAOFF + key))/clock;
+      }
     }
-  }
+  }  
+
 
 // Stripline BPMs
   for (i = 0; i < STRNUM; i++) {

@@ -482,7 +482,7 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"csr13",ICSR13));
   fKeyToIdx.insert(make_pair((string)"csr14",ICSR14));
 
-// Scalers
+// Scalers 
   fKeyToIdx.insert(make_pair((string)"scaler0_0",ISCALER0_0));
   fKeyToIdx.insert(make_pair((string)"scaler0_1",ISCALER0_1));
   fKeyToIdx.insert(make_pair((string)"scaler0_2",ISCALER0_2));
@@ -615,6 +615,140 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"scaler3_30",ISCALER3_30));
   fKeyToIdx.insert(make_pair((string)"scaler3_31",ISCALER3_31));
 
+  // Calibrated Scaler Data for V2F (ped subtracted, clk divided)
+  fKeyToIdx.insert(make_pair((string)"calsca0_0",ICALSCA0_0));
+  fKeyToIdx.insert(make_pair((string)"calsca0_1",ICALSCA0_1));
+  fKeyToIdx.insert(make_pair((string)"calsca0_2",ICALSCA0_2));
+  fKeyToIdx.insert(make_pair((string)"calsca0_3",ICALSCA0_3));
+  fKeyToIdx.insert(make_pair((string)"calsca0_4",ICALSCA0_4));
+  fKeyToIdx.insert(make_pair((string)"calsca0_5",ICALSCA0_5));
+  fKeyToIdx.insert(make_pair((string)"calsca0_6",ICALSCA0_6));
+  fKeyToIdx.insert(make_pair((string)"calsca0_7",ICALSCA0_7));
+  fKeyToIdx.insert(make_pair((string)"calsca0_8",ICALSCA0_8));
+  fKeyToIdx.insert(make_pair((string)"calsca0_9",ICALSCA0_9));
+  fKeyToIdx.insert(make_pair((string)"calsca0_10",ICALSCA0_10));
+  fKeyToIdx.insert(make_pair((string)"calsca0_11",ICALSCA0_11));
+  fKeyToIdx.insert(make_pair((string)"calsca0_12",ICALSCA0_12));
+  fKeyToIdx.insert(make_pair((string)"calsca0_13",ICALSCA0_13));
+  fKeyToIdx.insert(make_pair((string)"calsca0_14",ICALSCA0_14));
+  fKeyToIdx.insert(make_pair((string)"calsca0_15",ICALSCA0_15));
+  fKeyToIdx.insert(make_pair((string)"calsca0_16",ICALSCA0_16));
+  fKeyToIdx.insert(make_pair((string)"calsca0_17",ICALSCA0_17));
+  fKeyToIdx.insert(make_pair((string)"calsca0_18",ICALSCA0_18));
+  fKeyToIdx.insert(make_pair((string)"calsca0_19",ICALSCA0_19));
+  fKeyToIdx.insert(make_pair((string)"calsca0_20",ICALSCA0_20));
+  fKeyToIdx.insert(make_pair((string)"calsca0_21",ICALSCA0_21));
+  fKeyToIdx.insert(make_pair((string)"calsca0_22",ICALSCA0_22));
+  fKeyToIdx.insert(make_pair((string)"calsca0_23",ICALSCA0_23));
+  fKeyToIdx.insert(make_pair((string)"calsca0_24",ICALSCA0_24));
+  fKeyToIdx.insert(make_pair((string)"calsca0_25",ICALSCA0_25));
+  fKeyToIdx.insert(make_pair((string)"calsca0_26",ICALSCA0_26));
+  fKeyToIdx.insert(make_pair((string)"calsca0_27",ICALSCA0_27));
+  fKeyToIdx.insert(make_pair((string)"calsca0_28",ICALSCA0_28));
+  fKeyToIdx.insert(make_pair((string)"calsca0_29",ICALSCA0_29));
+  fKeyToIdx.insert(make_pair((string)"calsca0_30",ICALSCA0_30));
+  fKeyToIdx.insert(make_pair((string)"calsca0_31",ICALSCA0_31));
+
+  fKeyToIdx.insert(make_pair((string)"calsca1_0",ICALSCA1_0));
+  fKeyToIdx.insert(make_pair((string)"calsca1_1",ICALSCA1_1));
+  fKeyToIdx.insert(make_pair((string)"calsca1_2",ICALSCA1_2));
+  fKeyToIdx.insert(make_pair((string)"calsca1_3",ICALSCA1_3));
+  fKeyToIdx.insert(make_pair((string)"calsca1_4",ICALSCA1_4));
+  fKeyToIdx.insert(make_pair((string)"calsca1_5",ICALSCA1_5));
+  fKeyToIdx.insert(make_pair((string)"calsca1_6",ICALSCA1_6));
+  fKeyToIdx.insert(make_pair((string)"calsca1_7",ICALSCA1_7));
+  fKeyToIdx.insert(make_pair((string)"calsca1_8",ICALSCA1_8));
+  fKeyToIdx.insert(make_pair((string)"calsca1_9",ICALSCA1_9));
+  fKeyToIdx.insert(make_pair((string)"calsca1_10",ICALSCA1_10));
+  fKeyToIdx.insert(make_pair((string)"calsca1_11",ICALSCA1_11));
+  fKeyToIdx.insert(make_pair((string)"calsca1_12",ICALSCA1_12));
+  fKeyToIdx.insert(make_pair((string)"calsca1_13",ICALSCA1_13));
+  fKeyToIdx.insert(make_pair((string)"calsca1_14",ICALSCA1_14));
+  fKeyToIdx.insert(make_pair((string)"calsca1_15",ICALSCA1_15));
+  fKeyToIdx.insert(make_pair((string)"calsca1_16",ICALSCA1_16));
+  fKeyToIdx.insert(make_pair((string)"calsca1_17",ICALSCA1_17));
+  fKeyToIdx.insert(make_pair((string)"calsca1_18",ICALSCA1_18));
+  fKeyToIdx.insert(make_pair((string)"calsca1_19",ICALSCA1_19));
+  fKeyToIdx.insert(make_pair((string)"calsca1_20",ICALSCA1_20));
+  fKeyToIdx.insert(make_pair((string)"calsca1_21",ICALSCA1_21));
+  fKeyToIdx.insert(make_pair((string)"calsca1_22",ICALSCA1_22));
+  fKeyToIdx.insert(make_pair((string)"calsca1_23",ICALSCA1_23));
+  fKeyToIdx.insert(make_pair((string)"calsca1_24",ICALSCA1_24));
+  fKeyToIdx.insert(make_pair((string)"calsca1_25",ICALSCA1_25));
+  fKeyToIdx.insert(make_pair((string)"calsca1_26",ICALSCA1_26));
+  fKeyToIdx.insert(make_pair((string)"calsca1_27",ICALSCA1_27));
+  fKeyToIdx.insert(make_pair((string)"calsca1_28",ICALSCA1_28));
+  fKeyToIdx.insert(make_pair((string)"calsca1_29",ICALSCA1_29));
+  fKeyToIdx.insert(make_pair((string)"calsca1_30",ICALSCA1_30));
+  fKeyToIdx.insert(make_pair((string)"calsca1_31",ICALSCA1_31));
+
+  fKeyToIdx.insert(make_pair((string)"calsca2_0",ICALSCA2_0));
+  fKeyToIdx.insert(make_pair((string)"calsca2_1",ICALSCA2_1));
+  fKeyToIdx.insert(make_pair((string)"calsca2_2",ICALSCA2_2));
+  fKeyToIdx.insert(make_pair((string)"calsca2_3",ICALSCA2_3));
+  fKeyToIdx.insert(make_pair((string)"calsca2_4",ICALSCA2_4));
+  fKeyToIdx.insert(make_pair((string)"calsca2_5",ICALSCA2_5));
+  fKeyToIdx.insert(make_pair((string)"calsca2_6",ICALSCA2_6));
+  fKeyToIdx.insert(make_pair((string)"calsca2_7",ICALSCA2_7));
+  fKeyToIdx.insert(make_pair((string)"calsca2_8",ICALSCA2_8));
+  fKeyToIdx.insert(make_pair((string)"calsca2_9",ICALSCA2_9));
+  fKeyToIdx.insert(make_pair((string)"calsca2_10",ICALSCA2_10));
+  fKeyToIdx.insert(make_pair((string)"calsca2_11",ICALSCA2_11));
+  fKeyToIdx.insert(make_pair((string)"calsca2_12",ICALSCA2_12));
+  fKeyToIdx.insert(make_pair((string)"calsca2_13",ICALSCA2_13));
+  fKeyToIdx.insert(make_pair((string)"calsca2_14",ICALSCA2_14));
+  fKeyToIdx.insert(make_pair((string)"calsca2_15",ICALSCA2_15));
+  fKeyToIdx.insert(make_pair((string)"calsca2_16",ICALSCA2_16));
+  fKeyToIdx.insert(make_pair((string)"calsca2_17",ICALSCA2_17));
+  fKeyToIdx.insert(make_pair((string)"calsca2_18",ICALSCA2_18));
+  fKeyToIdx.insert(make_pair((string)"calsca2_19",ICALSCA2_19));
+  fKeyToIdx.insert(make_pair((string)"calsca2_20",ICALSCA2_20));
+  fKeyToIdx.insert(make_pair((string)"calsca2_21",ICALSCA2_21));
+  fKeyToIdx.insert(make_pair((string)"calsca2_22",ICALSCA2_22));
+  fKeyToIdx.insert(make_pair((string)"calsca2_23",ICALSCA2_23));
+  fKeyToIdx.insert(make_pair((string)"calsca2_24",ICALSCA2_24));
+  fKeyToIdx.insert(make_pair((string)"calsca2_25",ICALSCA2_25));
+  fKeyToIdx.insert(make_pair((string)"calsca2_26",ICALSCA2_26));
+  fKeyToIdx.insert(make_pair((string)"calsca2_27",ICALSCA2_27));
+  fKeyToIdx.insert(make_pair((string)"calsca2_28",ICALSCA2_28));
+  fKeyToIdx.insert(make_pair((string)"calsca2_29",ICALSCA2_29));
+  fKeyToIdx.insert(make_pair((string)"calsca2_30",ICALSCA2_30));
+  fKeyToIdx.insert(make_pair((string)"calsca2_31",ICALSCA2_31));
+
+  fKeyToIdx.insert(make_pair((string)"calsca3_0",ICALSCA3_0));
+  fKeyToIdx.insert(make_pair((string)"calsca3_1",ICALSCA3_1));
+  fKeyToIdx.insert(make_pair((string)"calsca3_2",ICALSCA3_2));
+  fKeyToIdx.insert(make_pair((string)"calsca3_3",ICALSCA3_3));
+  fKeyToIdx.insert(make_pair((string)"calsca3_4",ICALSCA3_4));
+  fKeyToIdx.insert(make_pair((string)"calsca3_5",ICALSCA3_5));
+  fKeyToIdx.insert(make_pair((string)"calsca3_6",ICALSCA3_6));
+  fKeyToIdx.insert(make_pair((string)"calsca3_7",ICALSCA3_7));
+  fKeyToIdx.insert(make_pair((string)"calsca3_8",ICALSCA3_8));
+  fKeyToIdx.insert(make_pair((string)"calsca3_9",ICALSCA3_9));
+  fKeyToIdx.insert(make_pair((string)"calsca3_10",ICALSCA3_10));
+  fKeyToIdx.insert(make_pair((string)"calsca3_11",ICALSCA3_11));
+  fKeyToIdx.insert(make_pair((string)"calsca3_12",ICALSCA3_12));
+  fKeyToIdx.insert(make_pair((string)"calsca3_13",ICALSCA3_13));
+  fKeyToIdx.insert(make_pair((string)"calsca3_14",ICALSCA3_14));
+  fKeyToIdx.insert(make_pair((string)"calsca3_15",ICALSCA3_15));
+  fKeyToIdx.insert(make_pair((string)"calsca3_16",ICALSCA3_16));
+  fKeyToIdx.insert(make_pair((string)"calsca3_17",ICALSCA3_17));
+  fKeyToIdx.insert(make_pair((string)"calsca3_18",ICALSCA3_18));
+  fKeyToIdx.insert(make_pair((string)"calsca3_19",ICALSCA3_19));
+  fKeyToIdx.insert(make_pair((string)"calsca3_20",ICALSCA3_20));
+  fKeyToIdx.insert(make_pair((string)"calsca3_21",ICALSCA3_21));
+  fKeyToIdx.insert(make_pair((string)"calsca3_22",ICALSCA3_22));
+  fKeyToIdx.insert(make_pair((string)"calsca3_23",ICALSCA3_23));
+  fKeyToIdx.insert(make_pair((string)"calsca3_24",ICALSCA3_24));
+  fKeyToIdx.insert(make_pair((string)"calsca3_25",ICALSCA3_25));
+  fKeyToIdx.insert(make_pair((string)"calsca3_26",ICALSCA3_26));
+  fKeyToIdx.insert(make_pair((string)"calsca3_27",ICALSCA3_27));
+  fKeyToIdx.insert(make_pair((string)"calsca3_28",ICALSCA3_28));
+  fKeyToIdx.insert(make_pair((string)"calsca3_29",ICALSCA3_29));
+  fKeyToIdx.insert(make_pair((string)"calsca3_30",ICALSCA3_30));
+  fKeyToIdx.insert(make_pair((string)"calsca3_31",ICALSCA3_31));
+
+
 // TIR data from various crates
   fKeyToIdx.insert(make_pair((string)"tirdata", ITIRDATA));   // 1st crate
   fKeyToIdx.insert(make_pair((string)"tirdata2",ITIRDATA1));
@@ -665,6 +799,10 @@ void TaDevice::InitKeyList() {
 
   fKeyToIdx.insert(make_pair((string)"pitadac",IPITADAC));
 
+  fKeyToIdx.insert(make_pair((string)"v2f_clk0",IV2F_CLK0));
+  fKeyToIdx.insert(make_pair((string)"v2f_clk1",IV2F_CLK1));
+  fKeyToIdx.insert(make_pair((string)"v2f_clk2",IV2F_CLK2));
+  fKeyToIdx.insert(make_pair((string)"v2f_clk3",IV2F_CLK3));
 
 };
 

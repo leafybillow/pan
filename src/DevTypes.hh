@@ -17,7 +17,7 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-#define MAXKEYS  715
+#define MAXKEYS  725
 #define ADCREADOUT     1
 #define SCALREADOUT    2
 
@@ -699,7 +699,14 @@
 #define   ILUMI4R      711
 #define   ILUMI4       712
 
+// V2F Clocks
+#define   V2FCLKOFF    720
+#define   V2FCLKNUM      4
 
+#define   IV2F_CLK0    720
+#define   IV2F_CLK1    721
+#define   IV2F_CLK2    722
+#define   IV2F_CLK3    723
 
 
 
