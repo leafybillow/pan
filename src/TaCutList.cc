@@ -211,7 +211,7 @@ TaCutList::AddName (const ECutType cut, const string& s)
 }
 
 void
-TaCutList::printInt (ostream& s) const
+TaCutList::PrintInt (ostream& s) const
 {
   // Print intervals
   for (size_t i = 0;
@@ -231,7 +231,7 @@ TaCutList::printInt (ostream& s) const
 }
 
 void
-TaCutList::printExt (ostream& s) const
+TaCutList::PrintExt (ostream& s) const
 {
   // Print extensions
   s << "Low extensions:" << endl;
@@ -249,7 +249,7 @@ TaCutList::printExt (ostream& s) const
 }
 
 void
-TaCutList::printTally (ostream& s) const
+TaCutList::PrintTally (ostream& s) const
 {
   // Print tally of events failing cuts
   s << "Events failing cut conditions:" << endl;
@@ -274,8 +274,8 @@ ostream&
 operator<< (ostream& s, const TaCutList q)
 {
   s << "Run " << q.fRunNumber << " cuts:" << endl;
-  q.printInt(s);
-  q.printExt(s);
-  q.printTally(s);
+  q.PrintInt(s);
+  q.PrintExt(s);
+  q.PrintTally(s);
   return s;
 }

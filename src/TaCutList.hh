@@ -41,9 +41,9 @@ public:
   void UpdateCutInterval (const ECutType, const Int_t, const EventNumber_t);  // Update interval for this cut type
   void AddExtension (const ECutType, const UInt_t, const UInt_t);  // Add extensions to list
   void AddName (const ECutType, const string&);  // Add name to list
-  void printInt (ostream&) const;  // Print intervals
-  void printExt (ostream&) const;  // Print extensions
-  void printTally (ostream&) const;  // Print tally of events failing cuts
+  void PrintInt (ostream&) const;  // Print intervals
+  void PrintExt (ostream&) const;  // Print extensions
+  void PrintTally (ostream&) const;  // Print tally of events failing cuts
 
   friend ostream& operator<< (ostream& s, const TaCutList q);
 
