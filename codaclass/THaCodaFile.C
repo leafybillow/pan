@@ -261,8 +261,6 @@ void THaCodaFile::staterr(TString tried_to, int status) {
        cout << "Most likely errors are: " << endl;
        cout << "   1.  You mistyped the name of file ?" << endl;
        cout << "   2.  The file has length zero ? " << endl;
-       cout << "Job aborting !! " << endl;
-       exit(0);
     }
     switch (status) {
       case S_EVFILE_TRUNC :
