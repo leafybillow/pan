@@ -24,7 +24,7 @@ ClassImp(TaCutInterval)
 
 // Constructors/destructors/operators
 
-TaCutInterval::TaCutInterval ( const ECutType cu, 
+TaCutInterval::TaCutInterval ( const Cut_t cu, 
 			       const Int_t val, 
 			       const EventNumber_t e0, 
 			       const EventNumber_t e1 ):
@@ -90,7 +90,7 @@ TaCutInterval::SetEnd( const EventNumber_t e1 )
 }
 
 
-const ECutType
+const Cut_t
 TaCutInterval::GetCut() const 
 {
   // Return the cut type associated with this interval.

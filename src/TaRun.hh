@@ -64,7 +64,7 @@ public:
   void Decode();
   virtual void AccumEvent(const TaEvent&);
   virtual void AccumPair(const VaPair&);
-  void UpdateCutList(const ECutType, const Int_t, EventNumber_t);
+  void UpdateCutList(const Cut_t, const Int_t, EventNumber_t);
   virtual void Finish();
 
   // Data access functions

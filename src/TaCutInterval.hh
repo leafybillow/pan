@@ -28,7 +28,7 @@ public:
 
   // Constructors/destructors/operators
 
-  TaCutInterval ( const ECutType cu, 
+  TaCutInterval ( const Cut_t cu, 
 		  const Int_t val, 
 		  const EventNumber_t e0, 
 		  const EventNumber_t e1 );
@@ -44,14 +44,14 @@ public:
   // Access functions
 
   void SetEnd( const EventNumber_t e1 );
-  const ECutType GetCut() const;
+  const Cut_t GetCut() const;
   const Int_t GetVal() const;
 
   friend ostream& operator<< (ostream& s, const TaCutInterval q);
 
 private:
 
-  ECutType fCut;           // Cut type, e.g. low beam, sequence error, malfunction...
+  Cut_t fCut;           // Cut type, e.g. low beam, sequence error, malfunction...
   Int_t fVal;              // Cut value, nonzero, e.g. type of sequence error
   EventNumber_t fBegin;    // Number of first event of cut interval
   EventNumber_t fEnd;      // Number of first event after end of cut interval
