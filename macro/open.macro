@@ -1,23 +1,26 @@
 {
-   Int_t run;
-   cout << "Enter run number : ";
-   cin >> run;
-   cout << "Run "<<run<<endl;
-   char runfile[50];
-   char *file;
-   file = getenv("ROOT_OUTPUT");
-   if ( file != NULL) {
-     cout << "root file is in "<<file<<endl;
-     sprintf(runfile,"/pan_%d.root",run);
-     strcat(file,runfile);
-     f = new TFile(file);
-   } else {
-     cout << "Environment variable $ROOT_OUTPUT not defined. Using pwd."<<endl;
-     sprintf(runfile,"pan_%d.root",run);
-     f = new TFile(runfile);
-   }
-   TTree *raw = (TTree*)gROOT.FindObject("R");
-   raw->Print();
-   TTree *asy = (TTree*)gROOT.FindObject("P");
-   asy->Print();
+  Int_t run;
+  cout << "Enter run number : ";
+  cin >> run;
+  cout << "Run " << run << endl;
+
+  TString file, path, prefix, suffix;
+  path = getenv("PAN_ROOT_FILE_PATH");
+  prefix = getenv("PAN_FILE_PREFIX");
+  suffix = getenv("PAN_ROOT_FILE_SUFFIX");
+  if ( prefix.IsNull() || suffix.IsNull() ) {
+    prefix = "parity02";
+    suffix = "root";
+  }
+
+  file =  path + "/" + prefix + "_" + run + "_BEAM." + suffix;
+
+  cout << "root file is " << file << endl;
+  f = new TFile(file);
+
+  TTree *raw = (TTree*)gROOT.FindObject("R");
+  raw->Print();
+  TTree *asy = (TTree*)gROOT.FindObject("P");
+  asy->Print();
+  
 }
