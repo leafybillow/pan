@@ -53,6 +53,7 @@
 #include "TaEvent.hh"
 #include "TaLabelledQuantity.hh"
 #include "TaPairFromPair.hh"
+#include "TaPairFromQuad.hh"
 #include "TaRun.hh"
 #include "TaString.hh"
 #include "VaAnalysis.hh"
@@ -178,6 +179,28 @@ VaAnalysis::RunIni(TaRun& run)
 #ifdef LEAKCHECK
   ++fLeakNewEvt;
 #endif
+
+  // Set pair type and make a pair to start with
+
+  string type = fRun->GetDataBase().GetPairType();
+
+  // Remove this ifdef when TaPairFromQuad class exists and FromQuad
+  // added to enum EPairType.
+#define PAIRFROMQUAD
+#ifdef PAIRFROMQUAD
+  if (type == "quad")
+    fPairType = FromQuad;
+  else 
+#endif
+    {
+      if (type != "pair")
+        {
+          cerr << "VaAnalysis::NewPrePair WARNING: "
+               << "Invalid pair type: " << type << endl;
+          cerr << "Pair pairing chosen" << endl;
+        }
+      fPairType = FromPair;
+    }
   NewPrePair();
   if (fPrePair->RunInit(run) != 0)
     return fgVAANA_ERROR;
@@ -266,27 +289,6 @@ VaAnalysis::RunIni(TaRun& run)
 
    }
   
-
-  // Set pair type
-
-  string type = fRun->GetDataBase().GetPairType();
-  
-  // Remove this ifdef when TaPairFromQuad class exists and FromQuad
-  // added to enum EPairType.
-#ifdef PAIRFROMQUAD
-  if (type == "quad")
-    fPairType = FromQuad;
-  else 
-#endif
-    {
-      if (type != "pair")
-        {
-          cerr << "VaAnalysis::NewPrePair WARNING: "
-               << "Invalid pair type: " << type << endl;
-          cerr << "Pair pairing chosen" << endl;
-        }
-      fPairType = FromPair;
-    }
   return fgVAANA_OK;
 }
 
@@ -468,6 +470,9 @@ VaAnalysis::PreProcessEvt()
 #ifdef NOISY
   clog << "Entering PreProcessEvt, fEHelDeque.size() : " <<fEHelDeque.size()<< endl;
 #endif
+#ifdef NOISY
+  clog << "Entering PreProcessEvt, Event is " << fRun->GetEvent().GetEvNumber() << endl;
+#endif
   fRun->GetEvent().CheckEvent(*fRun);
 
   fEHelDeque.push_back(fRun->GetEvent());
@@ -479,6 +484,9 @@ VaAnalysis::PreProcessEvt()
         fPreEvt->SetDelHelicity(fRun->GetEvent().GetHelicity());
 
         fEDeque.push_back (*fPreEvt);
+#ifdef NOISY	
+	clog << "Filling with event " << fPreEvt->GetEvNumber() << endl;
+#endif
         if (fPrePair->Fill (*fPreEvt, *fRun))
         {
 	  // Now push this on the deque and prepare a new PrePair
