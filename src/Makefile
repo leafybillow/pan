@@ -22,7 +22,7 @@
 # export MYSQLDB = 1
 #
 # Would uncommment this if you want rootcint Dictionary.
-# Only works with the CVS version of root as of Dec 21, 2001.
+# Requires Root version 3.02/07 or later.
 # export MAKEDICTIONARY = 1
 
 # Choose the compiler.
@@ -131,10 +131,11 @@ endif
 
 SRC = TaAnalysisManager.cc  \
       TaBeamAna.cc TaDevice.cc \
-      TaCutInterval.cc TaCutList.cc TaEvent.cc TaLabelledQuantity.cc \
-      TaPairFromPair.cc TaRun.cc TaStatistics.cc TaString.cc \
-      VaAnalysis.cc VaDataBase.cc VaPair.cc TaADCCalib.cc \
-      TaFileName.cc
+      TaCutInterval.cc TaCutList.cc TaEvent.cc \
+      TaFileName.cc TaLabelledQuantity.cc \
+      TaPairFromPair.cc TaPairFromQuad.cc \
+      TaRun.cc TaStatistics.cc TaString.cc \
+      VaAnalysis.cc VaDataBase.cc VaPair.cc TaADCCalib.cc 
 
 ifdef MYSQLDB
  SRC +=TaMysql.cc 
