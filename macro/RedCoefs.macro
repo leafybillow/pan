@@ -1,0 +1,116 @@
+// -*- c++ -*-
+
+#ifndef __RedCoefs__
+#define __RedCoefs__
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include "Rtypes.h"
+#include "src/TaIResultsFile.hh"
+
+class RedCoefs
+{
+public:
+  RedCoefs (const UInt_t run = 0, 
+	    const string ctype = "dither",
+	    const string dep = "asym_n_det1",
+	    const string ind = "diff_bpm12x");
+  RedCoefs (const RedCoefs& rc);
+  virtual ~RedCoefs () {};
+  Double_t GetMean () const {return fLoaded ? fMean : 0;}
+  Double_t GetMeanErr () const {return fLoaded ? fMeanErr : -1;}
+
+private:
+  TaIResultsFile* fFi;
+  string fCtype;
+  Bool_t fLoaded;
+  vector<Double_t> fMiniMean;
+  vector<Double_t> fMiniMeanErr;
+  Double_t fMean;
+  Double_t fMeanErr;
+};
+
+RedCoefs::RedCoefs (const UInt_t run, 
+		    const string ctype,
+		    const string dep,
+		    const string ind)
+{
+  // Open the file from redana (<path>/parity02_<run>_<dither or regress>.res)
+
+  fLoaded = false;
+  if (ctype == "dither" || ctype == "regress")
+    {
+      fFi = new TaIResultsFile (run, ctype);
+      fCtype = ctype;
+    }
+  else
+    {
+      cerr << "RedCoefs::Redcoefs: ERROR: Invalid coefficient type: " << ctype << endl;
+      fFi = NULL;
+      fCtype = "";
+      return;
+    }
+
+  fLoaded = false;
+  if (fFi == NULL || !(fFi->is_open()))
+    return;
+
+  string slopest;
+  if (fCtype == "dither")
+    slopest = "";
+  else if (fCtype == "regress")
+    slopest = dep + "_vs_" + ind + "_slope";
+
+  Double_t meanval(0);
+  Double_t errval(0);
+  Double_t meanwsum(0);
+  Double_t wsum(0);
+
+  while (fFi->ReadNextLine())
+    {
+      // Copy input data to output and look for BCM1 asymmetry
+      if (fFi->GetPtag() == "redana")
+	{
+	  string rtag = fFi->GetRtag();
+	  if (rtag.size() > slopest.size() &&
+	      rtag.substr (rtag.size()-slopest.size(), slopest.size()) == slopest)
+	    {
+	      meanval = fFi->GetRes();
+	      errval = fFi->GetErr();
+	      if (errval > 0)
+		{
+		  Double_t wt = 1 / errval / errval;
+		  meanwsum += meanval * wt;
+		  wsum += wt;
+		  fMiniMean.push_back (meanval);
+		  fMiniMeanErr.push_back (errval);
+		}
+	    }
+	}
+    }
+
+  if (wsum > 0)
+    {
+      fMean = meanwsum / wsum;
+      fMeanErr = sqrt (1 / wsum);
+      fLoaded = true;
+    }
+  else
+    {
+      fMean = 0;
+      fMeanErr = -1;
+    }
+}
+
+RedCoefs::RedCoefs (const RedCoefs& rc)
+{
+  fMiniMean = rc.fMiniMean;
+  fMiniMeanErr = rc.fMiniMeanErr;
+  fMean = rc.fMean;
+  fMeanErr = rc.fMeanErr;
+}
+
+
+#endif
