@@ -634,12 +634,14 @@ Int_t
 TaRun::GetBuffer()
 {
   // Pull in a CODA buffer
+  // global_kill31_flag is can be set by kill signal (see main.cc).
 
   int status = fCoda->codaRead();
   if (status != 0) 
     {
       return status;
     } 
+  if (global_kill31_flag == 1) return -1; // forced end-of-run.
 
 #ifdef FAKEDEAD
   static TRandom r;

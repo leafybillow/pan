@@ -22,6 +22,7 @@
 extern void InitGui();
 VoidFuncPtr_t initfuncs[] = { InitGui, 0 };
 TaAnalysisManager *am;
+int global_kill31_flag = 0;
 extern "C" void signalhandler(int s);
 
 static TROOT root( "Pan", "Parity Analyzer Interactive Interface", initfuncs );
@@ -204,9 +205,10 @@ void usage() {
 
 void signalhandler(int sig)
 {  // To deal with the signal "kill -31 pid"
-  cout << "Ending the online analysis"<<endl<<flush;
-  am->End();
-  exit(1);
+   // global_kill31_flag forces am->End()
+  //  which you do NOT want to do here.
+cout << "Ending the online analysis"<<endl<<flush;
+global_kill31_flag = 1; 
 }
 
 

@@ -36,6 +36,10 @@
 #include <string>
 #include <map>
 
+// This flag may be set by signalhandler in main.cc
+// It defines a way to gracefully end a run with "kill -31"
+extern int global_kill31_flag;
+
 class TFile;
 class THaCodaData;
 class VaEvent;
