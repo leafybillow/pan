@@ -148,12 +148,12 @@ VaAnalysis::~VaAnalysis()
 // Major functions
 
 void 
-VaAnalysis::Init(const Int_t& fOnl) 
+VaAnalysis::Init(const Bool_t& onl) 
 { 
   // To be called at the start of each analysis.
   fEvtProc = 0;
   fPairProc = 0;
-  fOnlFlag = fOnl;
+  fOnlFlag = onl;
 }
 
 
@@ -189,7 +189,7 @@ VaAnalysis::RunIni(TaRun& run)
   mx = fRun->GetDataBase().GetMaxEvents();
   if (mx > 0) {
     fMaxNumEv = mx;
-    clog << "\nLimiting analysis to " << fMaxNumEv << "  events "<<endl;
+    clog << "VaAnalysis::RunIni Limiting analysis to " << fMaxNumEv << "  events "<<endl;
   }
 
   // maximum events in fEHelDeque set equal to helicity delay times
@@ -228,7 +228,7 @@ VaAnalysis::RunIni(TaRun& run)
   if ( fQSwitch  ) 
     {
       fQTimeScale = fRun->GetDataBase().GetFdbkTimeScale("AQ");
-      clog<< " feedback timescale "<<fQTimeScale<<endl;
+      clog<< "VaAnalysis::RunIni feedback timescale "<<fQTimeScale<<endl;
       mykey.clear();
       mykey.push_back("slope");
       dtmp = fRun->GetDataBase().GetData("IAparam",mykey);
@@ -241,7 +241,7 @@ VaAnalysis::RunIni(TaRun& run)
   if ( fZSwitch ) 
     {
       fZTimeScale = fRun->GetDataBase().GetFdbkTimeScale("PZT");
-      clog<< " feedback timescale "<<fZTimeScale<<endl;
+      clog<< "VaAnalysis::RunIni feedback timescale "<<fZTimeScale<<endl;
       mykey.clear();
       mykey.push_back("M11");
       mykey.push_back("M12");
@@ -253,7 +253,7 @@ VaAnalysis::RunIni(TaRun& run)
               fPZTMatrix[kk] = dtmp[kk];     
          }
       }
-      cout << "PZT Matrix "<<fPZTMatrix[0]<<"  "<<fPZTMatrix[1]<<"  "<<fPZTMatrix[2]<<"  "<<fPZTMatrix[3]<<endl;
+      clog << "VaAnalysis::RunIni PZT Matrix "<<fPZTMatrix[0]<<"  "<<fPZTMatrix[1]<<"  "<<fPZTMatrix[2]<<"  "<<fPZTMatrix[3]<<endl;
    }
   
 

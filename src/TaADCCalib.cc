@@ -48,7 +48,7 @@ TaADCCalib::TaADCCalib(const string& anName)
   else
     typeFlag = 0;
 
-  //  cout << "TaADCCalib:: analysis type is " << anName << " and typeflag is " 
+  //  clog << "TaADCCalib::TaADCCalib analysis type is " << anName << " and typeflag is " 
   //       << typeFlag << endl;
 
   if (typeFlag == 1) {
@@ -102,26 +102,26 @@ TaADCCalib& TaADCCalib::operator=( const TaADCCalib& assign)
 }
 
 
-void TaADCCalib::Init(const Int_t& onl)
+void TaADCCalib::Init(const Bool_t& onl)
 {
   // Initialization -- determines which channels to analyze, then
   // calls type-specific initialization
 
   VaAnalysis::Init(onl);
-  cout << "Local init of TaADCCalib needed also..." << endl;
+  //  clog << "TaADCCalib::Init Local init of TaADCCalib needed also..." << endl;
 
   char charkey[10];
   string key; 
   // loop over slots, 0-9
-  //  cout << "loop over slots" << endl;
+  //  clog << "TaADCCalib::Init loop over slots" << endl;
   for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
     //  loop over chans 1-4
-    //    cout << "   loop over channels" << endl;
+    //    clog << "   TaADCCalib::Init loop over channels" << endl;
     for (Int_t ich=0; ich < ADC_MaxChan;  ich++) {
       //  make key ADC<slot>_<chan>
       sprintf(charkey, "adc%i_%i", isl,ich);
       key = charkey;
-      //      cout << "      produced key " << key << endl;
+      //      clog << "      produced key " << key << endl;
       //  check for existence of key  
       //     needs utility in TaEvent to search fKeyDev for the key.
       //     if exists, mark existence on [slot,chan] bool array
@@ -136,10 +136,10 @@ void TaADCCalib::Init(const Int_t& onl)
   else if (typeFlag == 2)
     InitDAC();
   else {
-    cout << endl;
-    cout << " Invalid ADC Calibration Procedure Selected: typeFlag = " 
+    cerr << endl;
+    cerr << "TaADCCalib::Init ERROR: Invalid ADC Calibration Procedure Selected: typeFlag = " 
 	 << typeFlag <<endl;
-    cout << endl;
+    cerr << endl;
   }
 
 }
@@ -149,7 +149,7 @@ void TaADCCalib::Finish()
   // End of analysis -- mainly just calls type-specific finish routine
 
   VaAnalysis::Finish();
-  cout << " Local finish of TaADCCalib needed also..." << endl;
+  //  clog << "TaADCCalib::Finish Local finish of TaADCCalib needed also..." << endl;
 
 
   // separate finish calls for each type of analysis
@@ -158,10 +158,10 @@ void TaADCCalib::Finish()
   else if (typeFlag == 2)
     FinishDAC();
   else {
-    cout << endl;
-    cout << " Invalid ADC Calibration Procedure Selected: typeFlag = " 
+    cerr << endl;
+    cerr << "TaADCCalib::Finish ERROR: Invalid ADC Calibration Procedure Selected: typeFlag = " 
 	 << typeFlag <<endl;
-    cout << endl;
+    cerr << endl;
   }
 
 
@@ -207,7 +207,7 @@ void TaADCCalib::FinishDAC()
     }
   }
 
-  cout << "\n The following keys were not found : " << endl;
+  cerr << "TaADCCalib::FinishDAC ERROR: The following keys were not found : " << endl;
   // loop over slots, 0-9
   for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
     //  loop over chans 1-4
@@ -217,11 +217,11 @@ void TaADCCalib::FinishDAC()
       key = charkey;
       id = isl*ADC_MaxChan + ich + 1;
       if (!chanExists[isl][ich])
-	cout << "  " << key << "  was not found." << endl;
+	cerr << "  " << key << "  was not found." << endl;
     }
   }
   
-  cout << "\n The following keys were found with no or incomplete data : " << endl;
+  cerr << "TaADCCalib::FinishDAC ERROR: The following keys were found with no or incomplete data : " << endl;
   // loop over slots, 0-9
   for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
     //  loop over chans 1-4
@@ -231,12 +231,12 @@ void TaADCCalib::FinishDAC()
       key = charkey;
       id = isl*ADC_MaxChan + ich + 1;
       if (chanExists[isl][ich] && !filledOK[id]) 
-	cout << "  " << key << "  could not be fit." << endl;
+	cerr << "  " << key << "  could not be fit." << endl;
     }
   }
   
 
-  cout << "\n Channels found and DAC Noise parameters set" << endl;
+  cout << "TaADCCalib::FinishDAC Channels found and DAC Noise parameters set" << endl;
   // loop over slots, 0-9
   for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
     //  loop over chans 1-4
@@ -350,7 +350,7 @@ void TaADCCalib::FinishPed()
     }
   }
 
-  cout << "\n The following keys were not found : " << endl;
+  cerr << "TaADCCalib::FinishPed ERROR: The following keys were not found : " << endl;
   // loop over slots, 0-9
   for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
     //  loop over chans 1-4
@@ -360,11 +360,11 @@ void TaADCCalib::FinishPed()
 	key = charkey;
         id = isl*ADC_MaxChan + ich + 1;
 	if (!chanExists[isl][ich])
-	  cout << "  " << key << "  was not found." << endl;
+	  cerr << "  " << key << "  was not found." << endl;
     }
   }
 
-  cout << "\n The following keys were found with no data : " << endl;
+  cerr << "TaADCCalib::FinishPed ERROR: The following keys were found with no data : " << endl;
   // loop over slots, 0-9
   for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
     //  loop over chans 1-4
@@ -374,11 +374,11 @@ void TaADCCalib::FinishPed()
 	key = charkey;
         id = isl*ADC_MaxChan + ich + 1;
 	if (chanExists[isl][ich] && (nEntries[id]<=0 || fSumX2[id]<=0)) 
-	  cout << "  " << key << "  returned no data for all events." << endl;
+	  cerr << "  " << key << "  returned no data for all events." << endl;
     }
   }
 
-  cout << "\n Pedestals found and set" << endl;
+  cout << "TaADCCalib::FinishPed Pedestals found and set" << endl;
   // loop over slots, 0-9
   for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
     //  loop over chans 1-4
@@ -417,7 +417,7 @@ void TaADCCalib::InitPed()
 {
   // Pedestal analysis initialization -- sets up pedestal root file
 
-  cout << "TaADCCalib:: Initializing ADC Pedestal analysis" << endl;
+  clog << "TaADCCalib::InitPed Initializing ADC Pedestal analysis" << endl;
 
   // Set up ROOT.  Define output file.
   hfile = new TFile("ADCCalib_Peds.root","RECREATE","Pedestal calibration file");
@@ -448,7 +448,7 @@ void TaADCCalib::InitDAC()
 {
   // DAC calibration analysis initialization -- sets up DAC root file
 
-  cout << "TaADCCalib:: Initializing ADC noise DAC calibration analysis" << endl;
+  clog << "TaADCCalib::InitDAC Initializing ADC noise DAC calibration analysis" << endl;
 
   // Set up ROOT.  Define output file.
   hfile = new TFile("ADCCalib_DAC.root","RECREATE","Noise DAC calibration file");
@@ -507,7 +507,7 @@ void TaADCCalib::EventAnalysis()
   // maybe init phase can be used to check for all valid keys?
 
 
-  //  cout << "TaADCCalib: Processing Event Analaysis for ADC Calib" << endl;
+  //  clog << "TaADCCalib::EventAnalysis Processing Event Analaysis for ADC Calib" << endl;
   string key; 
   Int_t id;
   Double_t dataX;
@@ -522,7 +522,7 @@ void TaADCCalib::EventAnalysis()
       if (chanExists[isl][ich]) {
 	id = isl*ADC_MaxChan + ich + 1;
   	dataY = fEvt->GetRawADCData(isl,ich);
-	//	cout << "Data for " << key << "  Channel  " << ich << " : " 
+	//	clog << "TaADCCalib::EventAnalysis Data for " << key << "  Channel  " << ich << " : " 
 	//	     <<dataY << endl;
 	if (typeFlag == 1) {
 	  // PEDESTAL analysis
@@ -532,7 +532,7 @@ void TaADCCalib::EventAnalysis()
 	  nEntries[id]++;
 	  // fill each 1D pedestal histo  
 	  phist[id]->Fill(dataY);
-	  //	  cout << "TaADCCalib:   Filling histo for " << key << endl;
+	  //	  clog << "TaADCCalib::EventAnalysis   Filling histo for " << key << endl;
 	} else if (typeFlag == 2) {
 	  // Noise DAC analysis
 	  // Accumulate sums for ADC (y) and DAC (x) values
