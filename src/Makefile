@@ -53,7 +53,7 @@ ifeq ($(OSNAME),Linux)
    ROOTGLIBS     = $(shell root-config --glibs)
    INCLUDES      = -I$(ROOTSYS)/include
    CXX           = g++
-   CXXFLAGS      = -Wall -fno-exceptions -fPIC $(INCLUDES) -g
+   CXXFLAGS      = -Wall -fno-exceptions -fPIC $(INCLUDES) 
    LD            = g++
    LDFLAGS       = 
    SOFLAGS       = -shared
@@ -85,7 +85,9 @@ ifdef PROFILE
 endif
 
 ifdef OPTIMIZE
-   CXXFLAGS += -O
+   CXXFLAGS += -O3
+else
+   CXXFLAGS += -g
 endif
 
 # Grow the list of sources here.
