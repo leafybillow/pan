@@ -703,7 +703,8 @@ TaRun::InitRoot()
   // Open the Root file
   TaFileName rootFileName ("root");
   fRootFile = new TFile(rootFileName.String().c_str(),"RECREATE");
-  fRootFile->SetCompressionLevel(0);
+  fCompress = fDataBase->GetCompress();
+  fRootFile->SetCompressionLevel(fCompress);
   fEvtree = new TTree("R","Event data DST");
   fEvtree->Branch ("ev_num", &fAccumEventNumber, "ev_num/I", 5000); // event number
 

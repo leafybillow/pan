@@ -354,6 +354,8 @@ public:
   string GetDataMapName() const;
   string GetDataMapType() const;
   TaKeyMap GetKeyMap(string device) const;
+// Get ROOT file compression factor
+  Int_t GetCompress() const;
 // Get Maximum number of events to process
   Int_t GetMaxEvents() const;
 // Get Window Delay

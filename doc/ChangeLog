@@ -9,6 +9,19 @@ the top of this file.
 Changes by R. Holmes on  21 May 2004
 --------------------------------------
 
+By request, added a "compress" table in the database which takes a
+value from 0 to 9; this is the compression setting for writing the
+ROOT file.
+
+I also fixed a diagnostic output that mismatched its test (oversample
+must be 1-25 but diagnostic said 0-25).
+
+Files modified: TaDataBase.{cc,hh}, TaRun.{cc,hh}.
+
+
+Changes by R. Holmes on  21 May 2004
+--------------------------------------
+
 Bryan noticed the position feedback outputs were different by 1E3 from
 what he was expecting.  I changed 1E6 to 1E3 in three places in
 VaAnalysis::ComputeData, so positions are now converted from mm to um,

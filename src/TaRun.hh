@@ -123,6 +123,7 @@ private:
   TaDataBase* fDataBase;         // Database for this run
   TaCutList* fCutList;           // Cut list for this run
   SlotNumber_t fOversamp;        // Oversample value for this run
+  UInt_t fCompress;              // ROOT file compression for this run
   THaCodaData* fCoda;            // CODA data source
   Int_t mymode;                  // Mode for ET
   string fCodaFileName;          // Name of CODA data file

@@ -314,6 +314,7 @@ void TaDataBase::Print() {
     clog << "   !!!!!!!!!! Simulation : " << str <<  "  !!!!!!!!!!" << endl;
     clog << "   !!!                                        !!!" << endl;
   }
+  clog << "   ROOT file compression :   " << GetCompress() << endl;
   clog << "   Max events :  " << GetMaxEvents() << endl;
   clog << "   Window delay :  " << GetDelay() << endl;
   clog << "   Oversample :   " << GetOverSamp() << endl;
@@ -401,7 +402,12 @@ Bool_t TaDataBase::SelfCheck() {
    }
    itest = GetOverSamp();
    if (itest <= 0 || itest > 25 ) {
-     cerr << "DataBase:: SelfCheck ERROR:  'oversamp' = " << itest << " outside range 0-25" <<endl;
+     cerr << "DataBase:: SelfCheck ERROR:  'oversamp' = " << itest << " outside range 1-25" <<endl;
+     allok = kFALSE;
+   }
+   itest = GetCompress();
+   if (itest < 0 || itest > 9 ) {
+     cerr << "DataBase:: SelfCheck ERROR:  'compression' = " << itest << " outside range 0-9" <<endl;
      allok = kFALSE;
    }
    stest = GetAnaType();
@@ -418,6 +424,7 @@ TaDataBase::Checkout()
  // Thorough debug checkout of database.  Ok, this is
  // partly redundant with Print()
   cout << "\n\nCHECKOUT of DATABASE for Run " << GetRunNum() << endl;
+  cout << "ROOT file compression = " << GetCompress() << endl;
   cout << "Max events = " << GetMaxEvents() << endl;
   cout << "lobeam  cut = " << GetCutValue("LOBEAM") << endl;
   cout << "burpcut  cut = " << GetCutValue("BURPCUT") << endl;
@@ -1124,6 +1131,11 @@ map <Int_t, vector<Int_t> > TaDataBase::GetCutInt() const {
    return result;   
 };
 
+Int_t TaDataBase::GetCompress() const {
+// returns ROOT file compression factor
+   return (Int_t)GetValue("compress");
+};
+ 
 Int_t TaDataBase::GetMaxEvents() const {
 // returns number of events to process
    return (Int_t)GetValue("maxevents");
@@ -1407,6 +1419,7 @@ void TaDataBase::InitDB() {
   tables.push_back("epics");         //  28
   tables.push_back("PZTQcoupling");  //  29
   tables.push_back("IAHallCparam");  //  30
+  tables.push_back("compress");      //  31
 
   pair<string, int> sipair;
   int k;
@@ -1533,6 +1546,7 @@ void TaDataBase::InitDB() {
        columns.push_back(new dtype("s"));
        columns.push_back(new dtype("d"));
     }
+    if (i == 31) columns.push_back(new dtype("i"));  // compress
     sipair.second = columns.size(); 
     colsize.insert(sipair);
     LoadTable(tables[i],columns);
