@@ -14,7 +14,7 @@ void open (Int_t run = 0, TString atype = "")
   cout << "Run " << run << " analysis type " << atype << endl;
 
   TaFileName::Setup (run, atype.Data());
-  TString file = (TaFileName ("root")).C_str();
+  TString file = (TaFileName ("root")).Tstring();
   cout << "ROOT file is " << file << endl;
   f = new TFile(file);
   
