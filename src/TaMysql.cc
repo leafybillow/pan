@@ -1660,15 +1660,6 @@ TaKeyMap TaMysql::GetKeyMap(string devicename) const {
   return mapiter->second;
 };
 
-
-
-
-
-////////////////////////////////////
-
-
-
-
 void TaMysql::InitDataMap() {
   static pair<string, vector<dtype*> > sdt;
   int adc, chan, evb;
@@ -1877,16 +1868,6 @@ void TaMysql::InitDataMap() {
 // Comment: should CHECK datamap, in case of typo errors.
   //  PrintDataMap();   // DEBUG
 };
-
-
-
-
-
-//////////////////////////////////
-
-
-
-
 
 
 void TaMysql::PrintDataMap() {
