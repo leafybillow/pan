@@ -44,6 +44,7 @@
 //#define ASYMCHECK
 #define FDBK1
 //#define FDBK
+//TEST#define DB_PUT_TEST
 
 #include "TaCutList.hh"
 #include "TaDevice.hh"
@@ -54,8 +55,7 @@
 #include "TaRun.hh"
 #include "TaString.hh"
 #include "VaAnalysis.hh"
-#include "VaDataBase.hh"
-#include "TaAsciiDB.hh"
+#include "TaDataBase.hh"
 #include "VaPair.hh"
 #include <iostream>
 #include <stdio.h>
@@ -248,6 +248,7 @@ VaAnalysis::RunIni(TaRun& run)
   if (fDoRoot)
     {
       fRun->InitRoot();
+      fRun->GetDataBase().WriteRoot();
       fPairTree = new TTree("P","Pair data DST");
       InitTree(fRun->GetCutList());
     }
@@ -382,6 +383,57 @@ VaAnalysis::RunFini()
 
   //  if (fQSwitch) QasyEndFeedback();
   //  if (fZSwitch) PZTEndFeedback();
+
+#ifdef DB_PUT_TEST
+// THIS IS A TEST.  In the future we may delete this ifdef section.
+// This illustrates how to use the "Put()" methods of the database, 
+// which one would normally do at the end of the analysis of a run.
+// IMPORTANT:  The "Put()" to database must be done AFTER database
+// is Print()'d to clog, and BEFORE we Write() to database.
+// In this version, fRun->PrintRun() does the Print, and the Write is
+// done below.
+
+// Putting DAC noise parameters and ADC pedestals
+  for (int adc = 0; adc < 10; adc++) {
+    for (int chan = 0; chan < 4; chan++) {
+      Double_t slope = 1. + 0.1*adc + 0.01*chan;  // fake data
+      Double_t intcpt = 2*adc;
+      fRun->GetDataBase().PutDacNoise(adc, chan, slope, intcpt);
+      Double_t pedestal = 1000 + 10*adc + chan;
+      fRun->GetDataBase().PutAdcPed(adc, chan, pedestal);
+    }
+  }
+// Put Scaler pedestals
+  for (int scal = 0; scal < 2; scal++) {
+    for (int chan = 0; chan < 32; chan++) {
+      Double_t pedestal = 5000 + 100*scal + chan;  // fake data
+      fRun->GetDataBase().PutScalPed(scal, chan, pedestal);
+    }
+  }
+// Put cut intervals
+  vector<Int_t > evint;
+  for (int icut = 0; icut < 14; icut++) {
+    evint.clear();
+    Int_t evlo = 10000 + 100*icut;  // fake data
+    Int_t evhi = 20000 + 50*icut;
+    Int_t cutno = icut;
+    Int_t cutval = 1;
+    if (icut % 4 == 0) cutval = 0;
+    evint.push_back(evlo);
+    evint.push_back(evhi);
+    evint.push_back(cutno);
+    evint.push_back(cutval);
+    fRun->GetDataBase().PutCutInt(evint); 
+  }
+#endif
+
+// Write to the database.  It will over-write the content
+// of this run -- but *only* if a Put() method had been used.
+// NOTE: what is Print()ed by database in the run summary is what
+// was read in at start of run and used for this run.  Data that
+// is Put() do not affect the current run unless you re-analyze.
+
+  fRun->GetDataBase().Write();
 
   if (fPairTree != 0)
     {

@@ -81,7 +81,7 @@ TaCutList::operator= (const TaCutList& assign)
 // Major functions
 
 void
-TaCutList::Init(const VaDataBase& db)
+TaCutList::Init(const TaDataBase& db)
 {
   // Initialization of a cut list.  The database is queried for
   // a predefined list of cut intervals.
@@ -116,7 +116,7 @@ TaCutList::Init(const VaDataBase& db)
   // Cut values
   for (size_t i = 0; i < size_t (db.GetNumBadEv()); ++i)
     {
-      temp = db.GetCutValues()[i];
+      temp = db.GetCutInt()[i];
       if (temp[2] >= 0 && (Cut_t) temp[2] < fNumCuts )
 	{
 	  Cut_t ct = (Cut_t) temp[2];

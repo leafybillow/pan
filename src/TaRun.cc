@@ -36,11 +36,7 @@
 #include "TFile.h"
 #include "THaCodaData.h"
 #include "THaCodaFile.h"
-#ifdef MYSQLDB
-#include "TaMysql.hh"
-#else
-#include "TaAsciiDB.hh"
-#endif
+#include "TaDataBase.hh"
 #include "TaCutList.hh"
 #include "TaEvent.hh"
 #include "TaFileName.hh"
@@ -48,7 +44,6 @@
 #include "TaLabelledQuantity.hh"
 #include "TaStatistics.hh"
 #include "VaAnalysis.hh"
-#include "VaDataBase.hh"
 #include "VaPair.hh"
 #ifdef ONLINE
 #include "THaEtClient.h"
@@ -132,7 +127,7 @@ TaRun::TaRun(const string& filename):
 };
 
 ErrCode_t
-TaRun::Init()
+TaRun::Init(const vector<string>& dbcommand)
 {
   // Run initialization: Create event tree, attach data source and
   // database, initialize static variables from these.
@@ -190,13 +185,8 @@ TaRun::Init()
     }
   TaFileName::Setup (fRunNumber, "");
 
-#ifdef MYSQLDB
-  fDataBase = new TaMysql();
-#else
-  fDataBase = new TaAsciiDB();
-#endif
-
-  fDataBase->Load(fRunNumber);
+  fDataBase = new TaDataBase();
+  fDataBase->Read(fRunNumber,dbcommand);
   fDevices = new TaDevice();
   fDevices->Init(*fDataBase);
   fCutList = new TaCutList(fRunNumber);
@@ -514,6 +504,12 @@ TaRun::PrintRun ()
   cout << endl;
   fCutList->PrintTally(cout);
   cout << endl;
+
+// Database Print() must be done BEFORE we Put() data into database
+// as result of this analysis. 
+
+  if (fDataBase) fDataBase->Print();
+
 }
 
 

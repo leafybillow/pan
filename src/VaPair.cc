@@ -25,7 +25,7 @@
 #include "VaPair.hh" 
 #include "TaRun.hh"
 #include "TaString.hh"
-#include "VaDataBase.hh"
+#include "TaDataBase.hh"
 
 #ifdef DICT
 ClassImp(VaPair)

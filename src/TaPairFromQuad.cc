@@ -21,7 +21,6 @@
 #include "TaPairFromQuad.hh"
 #include "TaRun.hh"
 //  #include "TaLabelledQuantity.hh"
-//  #include "VaDataBase.hh"
 
 #ifdef DICT
 ClassImp(TaPairFromQuad)

@@ -45,7 +45,7 @@ class TTree;
 class TaCutList;
 class TaLabelledQuantity;
 class TaRun;
-class VaDataBase;
+class TaDataBase;
 
 class TaEvent {
 

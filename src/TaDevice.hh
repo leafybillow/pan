@@ -26,7 +26,7 @@
 #include <iterator>
 #include <string>
 
-class VaDataBase;
+class TaDataBase;
 
 class TaDevice {
 
@@ -43,7 +43,7 @@ class TaDevice {
     Int_t GetKey(string keystr) const;    // Get key int corresp. to key string
     string GetKey(Int_t key) const;       // inverse map 
 
-    void Init(VaDataBase& db);    // Initalize from database
+    void Init(TaDataBase& db);    // Initalize from database
       
     Int_t GetNumRaw() const;
     Int_t GetRawKey(const Int_t& index) const;

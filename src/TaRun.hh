@@ -42,7 +42,7 @@ class THaCodaData;
 class TaEvent;
 class TaDevice;
 class VaPair;
-class VaDataBase;
+class TaDataBase;
 class TaCutList;
 class TaStatistics;
 
@@ -59,7 +59,7 @@ public:
   // Copy constructor and operator= are defined privately.
 
   // Major functions
-  virtual ErrCode_t Init();
+  virtual ErrCode_t Init(const vector<string>& dbcommand);
   virtual ErrCode_t ReInit();
   Bool_t NextEvent();
   void Decode();
@@ -77,7 +77,7 @@ public:
   Double_t GetDBValue(string key) const;
   TaEvent& GetEvent() const { return *fEvent; };
   Int_t GetRunNumber() const { return fRunNumber; };
-  VaDataBase& GetDataBase() const { return *fDataBase; };
+  TaDataBase& GetDataBase() const { return *fDataBase; };
   Int_t GetKey(string keystr) const;
   string GetKey(Int_t key) const;
   TaDevice& GetDevices() const {return *fDevices;};  // Device map for this run
@@ -107,7 +107,7 @@ private:
   RunNumber_t fRunNumber;        // Number of this run
   Int_t fEventNumber;            // Number of the recently read event
   Int_t fAccumEventNumber;       // Number of the event being accumulated
-  VaDataBase* fDataBase;         // Database for this run
+  TaDataBase* fDataBase;         // Database for this run
   TaCutList* fCutList;           // Cut list for this run
   SlotNumber_t fOversamp;        // Oversample value for this run
   THaCodaData* fCoda;            // CODA data source

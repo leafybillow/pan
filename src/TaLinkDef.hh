@@ -19,7 +19,7 @@
 
 #pragma link C++ class TaADCCalib;
 #pragma link C++ class TaAnalysisManager;
-#pragma link C++ class TaAsciiDB;
+#pragma link C++ class TaDataBase;
 #pragma link C++ class TaBeamAna;
 #pragma link C++ class TaCutInterval;
 #pragma link C++ class TaCutList;
@@ -30,11 +30,11 @@
 #pragma link C++ class TaPairFromPair;
 #pragma link C++ class TaPairFromQuad;
 #pragma link C++ class TaPromptAna;
+#pragma link C++ class TaRootRep;
 #pragma link C++ class TaRun;
 #pragma link C++ class TaStatistics;
 #pragma link C++ class TaString;
 #pragma link C++ class VaAnalysis;
-#pragma link C++ class VaDataBase;
 #pragma link C++ class VaPair;
 
 #endif

@@ -30,7 +30,7 @@
 #include <vector>
 #include <list>
 #include "TaCutInterval.hh"
-#include "VaDataBase.hh"
+#include "TaDataBase.hh"
 
 class TaCutList
 {
@@ -44,7 +44,7 @@ public:
   TaCutList& operator= (const TaCutList& assign);
 
   // Major functions
-  void Init(const VaDataBase&);
+  void Init(const TaDataBase&);
   Bool_t OK (const TaEvent&) const;  // True if event not in any cut interval
   vector<pair<Cut_t,Int_t> > CutsFailed (const TaEvent&) const; // Cuts failed by event
   void UpdateCutInterval (const Cut_t, const Int_t, const EventNumber_t);  // Update interval for this cut type

@@ -12,7 +12,7 @@
 //#define DEBUG 1
 
 #include "TaDevice.hh" 
-#include "VaDataBase.hh"
+#include "TaDataBase.hh"
 #include "TTree.h"
 
 #ifdef DICT
@@ -67,7 +67,7 @@ map<string, Int_t> TaDevice::GetKeyList() const {
   return fKeyToIdx;
 };
 
-void TaDevice::Init(VaDataBase& db) {
+void TaDevice::Init(TaDataBase& db) {
 // Initialized the key mapping to integers, and   
 // the list of raw data defined in the database.
 // The database defines the channel mapping, but the

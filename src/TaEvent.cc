@@ -29,8 +29,7 @@
 #include "TaRun.hh"
 #include "TaString.hh"
 #include "TaDevice.hh"
-#include "VaDataBase.hh"
-#include "TaAsciiDB.hh"
+#include "TaDataBase.hh"
 #include <iostream>
 #include <utility>
 #include <cmath>
