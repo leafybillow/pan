@@ -63,6 +63,7 @@ TaDataBase::TaDataBase() {
      fFirstScalPed = new Bool_t(kTRUE);
      nbadev = 0;
      rootdb = new TaRootRep();
+     fileRead = "None";
      dacparam = new Double_t[MAXADC*MAXCHAN];     
      memset(dacparam,0,MAXADC*MAXCHAN*sizeof(Double_t));
      adcped = new Double_t[MAXADC*MAXCHAN];
@@ -101,6 +102,7 @@ void TaDataBase::Read(int run, const vector<string>& dbcomm) {
   if (useroot) return;  // All done, db was read from ROOT.
   rootdb->Clear();
   TaFileName dbFileName ("db");
+  fileRead = dbFileName.String();
   ifstream *dbfile = new ifstream(dbFileName.String().c_str());
   if ( ! (*dbfile) || usectrl ) {
     if ( !usectrl ) {
@@ -108,7 +110,12 @@ void TaDataBase::Read(int run, const vector<string>& dbcomm) {
 	   << " does not exist" << endl;
     }
     dbFileName = TaFileName ("dbdef");
+    fileRead = dbFileName.String();
     dbfile = new ifstream(dbFileName.String().c_str());
+    if ( ! (*dbfile) ) { // try one last time : control.db from $pwd
+      dbfile = new ifstream("./control.db");
+      fileRead = "./control.db";
+    } 
     if ( ! (*dbfile) ) {
       cerr << "TaDataBase::Load WARNING: no file "
 	   << dbFileName.String() <<endl;
@@ -294,6 +301,7 @@ void TaDataBase::Print() {
   clog << endl; 
   for (i = 0; i < 50; i++) clog << "-"; 
   clog << endl;
+  clog << "DataBase File Used:  " << fileRead << endl;
   clog << "Database Variables Used for This Run " << endl;
   clog << "   Analysis type :  " << GetAnaType() << endl;
   string str = GetSimulationType();

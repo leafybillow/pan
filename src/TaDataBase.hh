@@ -378,6 +378,7 @@ private:
   vector<string> tables;
   multimap<string, vector<dtype*> > database;
   TaRootRep *rootdb;   // ROOT representation
+  string fileRead;
   vector<string> dbcommand;
   map<string, TaKeyMap > datamap; 
   map<string, Bool_t> dbput;
