@@ -4,6 +4,22 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Michaels on 23 Jun 2002
+-----------------------------------
+
+Improving the online feedback software
+
+1) Small bugs fixed to permit ET system to work correctly.
+2) In main.cc, the TaAnalysisManager object is a global pointer
+   and there is a new "killsignal" function (using signal.h)
+   so that "kill -31 pid" will end the run gracefully.
+   The killsignal function calls am->End(), etc.
+3) TaAsciiDB modified to include parameters for feedback.
+4) VaAnalysis reads the feedback parameters, and if and only if we're
+   running online, it applies feedback using the epics_feedback script.  
+   This script (not in 'pan' distribution) can also be used by hand.
+	
+	
 Changes by R. Holmes on 05 Jun 2002
 -----------------------------------
 
