@@ -1,3 +1,19 @@
+Comments by R. Michaels, Oct 21, 2002
+-------------------------------------
+
+The Mysql Perl script must still be developed.  The deadline
+is Christmas 2002.  We will make the start-of-run write automatic
+database files, as well as automatically update the Mysql database.
+Some of the variables must be retrieved from the "Green Monstor"
+(our control software for setting up VME parameters).
+
+We probably should delete the entire ./pandb directory tree,
+or substantially reduce it.  I think the only useful thing 
+there now is the perl script. (?)
+
+When you "Put()" data to database, the output file is in a funny
+order because STL map reshuffles things.  Not a big deal.
+
 Comments by A. Vacheret, 25 Sept 2002
 ----------------------------------
 
