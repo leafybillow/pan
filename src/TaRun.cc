@@ -190,6 +190,7 @@ TaRun::Init()
     {
       cerr << "TaRun::Init Run number is " << fRunNumber << endl;
     }
+  TaFileName::Setup (fRunNumber, "");
 
 #ifdef MYSQLDB
   fDataBase = new TaMysql();
