@@ -396,11 +396,11 @@ vector <TString> OnlineConfig::GetDrawCommand(UInt_t page, UInt_t nCommand)
       i = i+1;
     }
 
-#ifndef DEBUG
+#ifdef DEBUG
     cout << endl;
 #endif
   }
-#ifndef DEBUG
+#ifdef DEBUG
   cout << sConfFile[index].size() << ": ";
   for(UInt_t i=0; i<sConfFile[index].size(); i++) {
     cout << sConfFile[index][i] << " ";
