@@ -4,8 +4,17 @@
    cin >> run;
    cout << "Run "<<run<<endl;
    char runfile[50];
-   sprintf(runfile,"pan_%d.root",run);  
-   f = new TFile(runfile);
+   char *file;
+   file = getenv("ROOT_OUTPUT");
+   if ( file != NULL) {
+     cout << "root file is in "<<file<<endl;
+   } else {
+     cout << "Environment variable ROOT_OUTPUT not defined "<<endl;
+     sprintf(file,"/adaqcp/work1/apar");
+   }
+   sprintf(runfile,"/pan_%d.root",run);
+   strcat(file,runfile);
+   f = new TFile(file);
    TTree *raw = (TTree*)gROOT.FindObject("R");
    raw->Print();
    TTree *asy = (TTree*)gROOT.FindObject("P");
