@@ -24,6 +24,7 @@
 #include "VaDataBase.hh"
 #include "VaAnalysis.hh"
 #include "TaBeamAna.hh"
+#include "TaPromptAna.hh"
 #include "TaADCCalib.hh"
 
 #ifdef DICT
@@ -170,6 +171,8 @@ TaAnalysisManager::InitCommon()
 
   if (theAnaType.CmpNoCase("beam") == 0)
     fAnalysis = new TaBeamAna;
+  else if (theAnaType.CmpNoCase("prompt") == 0)
+    fAnalysis = new TaPromptAna;
   else if (theAnaType.CmpNoCase("adcped") == 0)
     fAnalysis = new TaADCCalib("adcped");
   else if (theAnaType.CmpNoCase("adcdac") == 0)

@@ -133,7 +133,7 @@ SRC = TaAnalysisManager.cc  \
       TaBeamAna.cc TaDevice.cc \
       TaCutInterval.cc TaCutList.cc TaEvent.cc \
       TaFileName.cc TaLabelledQuantity.cc \
-      TaPairFromPair.cc TaPairFromQuad.cc \
+      TaPairFromPair.cc TaPairFromQuad.cc TaPromptAna.cc\
       TaRun.cc TaStatistics.cc TaString.cc \
       VaAnalysis.cc VaDataBase.cc VaPair.cc TaADCCalib.cc 
 
