@@ -263,15 +263,11 @@ while ( <INPUT> ) {
 	    $byte=11;
 	    $size = "$type($byte)";
 	} elsif ($type eq 'char') {
-	    $byte=1024;
 	    $size = "text";
-            $length = 1;
+	} elsif ($type eq 'blob') {
+	    $size = "blob";
 	}
 #
-    if ($length == 6912){
-	$length = 1;
-        $size = "BLOB";
-    }
 #
     for ($i = 1; $i < $length; $i++) {
 	$data[$i] = "value\_$i $size, ";

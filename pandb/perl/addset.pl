@@ -144,7 +144,6 @@ if (($itemId,$length,$type) = $sth->fetchrow_array) {};
 print "length = $length \n"; 
 
 ### 
-if ($type eq "char") {$length = 1}
 
 for ($j = 0; $j < $length-1; $j++) {
     $data[$j] = "$field[$j], ";
@@ -221,7 +220,7 @@ $RunIndextable = "RunIndex";
 
 $sql  = " INSERT INTO ";
 $sql .= " $RunIndextable VALUES ";
-$sql .= " (NULL, $RunNumber, $itemId, $itemValueId, '$officer', ";
+$sql .= " (NULL, $RunNumber, $itemId, $itemValueId, '$author', ";
 $sql .= " NULL, '$comment') ";
 
 print "$sql\n";
