@@ -1,0 +1,85 @@
+
+Comments by R. Michaels, Feb, 2002
+----------------------------------
+
+Several of the problems mentioned below were addressed,
+see ChangeLog.
+
+Still some compiler warnings, and you may get in trouble
+if you don't 'make clean' before 'make'.
+
+Do we need to distinguish between 'run type' and 'analysis
+type' in the database ?  For now I let this distinction exist
+and have awkwardly e.g. runtype = anatype = BEAM
+
+Present status:  I think the event data and database makes
+sense now, but not all is well with the helicity code. (It
+could be a symptom of problem with the decoding but I doubt 
+it.)  There are helicity errors, and no sensible statistic
+results.  The ROOT output, however, looks somewhat reasonable.
+
+The code uses 16.6 Mbytes memory at present, and this remains
+stable.  One should check it by running 'top' during execution.
+There was a memory leak in VaAnalysis::PreProcessEvt() when
+the helicity delay was zero.  See my temporary dirty fix.
+
+
+
+Comments by R. Holmes, Dec 21, 2001
+------------------------------------
+
+VaDataBase.hh had "void DataMapReStart()" which was never defined.
+TaAsciiDatabase had the same and defined it.  That was OK with the
+compiler, I guess, but not with rootcint.  I have changed it to
+"virtual void DataMapReStart()=0" in VaDataBase.hh.
+
+============================================================
+
+I changed the name of TaEvent::Check to CheckEvent, because rootcint
+uses a header file, TError.h, that defines Check as a macro.  Which is
+really stupid programming on their part, of course.
+
+============================================================
+
+User friendliness needs to improve.  For instance:
+
+  Analysis fails if TIR is not defined in datamap, yet no check is
+  made for this.  Analyzer should exit on first event with a message
+  to the effect "TIR must be defined in datamap.".
+
+  Note that at least some of the problems currently seen seem to be
+  related to problems with the database file; for example, it
+  complains about "csr" being used for multiple devices.  I modified
+  the error message to make it a little more informative.  Since users
+  can in principle screw up the database text files, we MUST make all
+  database related error messages as informative as possible to users.
+
+  THaCodaFile::staterr() still aborts the process if the CODA file is
+  not found, which is very unfriendly behavior when running
+  interactively. 
+
+============================================================
+
+Warnings:
+TaADC.cc: In method `void TaADC::Init(const class VaDataBase &)':
+TaADC.cc:45: warning: assignment to `int' from `Double_t'
+
+VaDevice.cc: In method `Double_t VaDevice::GetData(const class string &) const':
+VaDevice.cc:70: warning: passing `const map<basic_string<char,string_char_traits<char>,__default_alloc_template<true,0> >,double,less<basic_string<char,string_char_traits<char>,__default_alloc_template<true,0> > >,__default_alloc_template<true,0> >' as `this' argument of `Double_t & map<basic_string<char,string_char_traits<char>,__default_alloc_template<true,0> >,double,less<basic_string<char,string_char_traits<char>,__default_alloc_template<true,0> > >,__default_alloc_template<true,0> >::operator []<string, Double_t, less<basic_string<char,string_char_traits<char>,__default_alloc_template<true,0> > >, alloc>(const class string &)' discards const
+
+VaDevice.cc: In method `Double_t VaDevice::GetData(const Int_t &) const':
+VaDevice.cc:83: warning: passing `const map<basic_string<char,string_char_traits<char>,__default_alloc_template<true,0> >,double,less<basic_string<char,string_char_traits<char>,__default_alloc_template<true,0> > >,__default_alloc_template<true,0> >' as `this' argument of `Double_t & map<basic_string<char,string_char_traits<char>,__default_alloc_template<true,0> >,double,less<basic_string<char,string_char_traits<char>,__default_alloc_template<true,0> > >,__default_alloc_template<true,0> >::operator []<string, Double_t, less<basic_string<char,string_char_traits<char>,__default_alloc_template<true,0> > >, alloc>(const class string &)' discards const
+
+VaDevice.cc: In method `void VaDevice::FindHeaders(const class TaEvent &)':
+VaDevice.cc:142: warning: comparison between signed and unsigned
+VaDevice.cc:149: warning: comparison between signed and unsigned
+
+============================================================
+
+
+
+
+
+
+
+

@@ -1,0 +1,54 @@
+  ChangeLog
+  =========
+
+This is a detailed list of ongoing changes.  Add changes to 
+the top of this file.
+	
+
+
+* Primary changes leading to Feb 8, 2002 version
+------------------------------------------------
+ 
+TaAnalysisManager -
+   Root file is now pan_%d.dat where %d = run number
+   Upon initialization, the database is checked; if it is 'bad' we exit.
+
+TaAsciiDB -
+   Added GetMaxEvents()
+   Added SelfCheck() - used by analysis manager.
+   
+TaBCM -
+   Modified naming; restriction enforced that bcm1, bcm2 must be 
+   different objects (not sure its a good idea but at least its clarified).
+
+TaBeamAna -
+   Uses 'bcm1r' and 'bcm1' for raw and corrected data.
+   Got rid of the ifdef's since datamap iterator reset works now
+      in VaAnalysis::ChanList and TIR is defined.
+    
+TaEvent -
+   Check if event size is changing (it should not).
+   Check that keys are unique within a device (see DATABASE.RULES)
+   Clearer error messages if a key is not found or rule above broken.
+   Provide GetADCData(slot, chan) method.
+   Remove ifdef about TIR since it exists now (existence is checked).
+   Add DeviceDump() to check all device data.
+
+TaRun -
+   If CHECKOUT defined, makes detailed debug printout.
+
+TaTIR -
+   Simplified.
+   Add timeslot. 
+   Call VaDevice::DataCopy so data shows up in Tree.
+
+VaAnalysis -
+   if CHECKOUT defined, makes detailed debug printout.
+   GetMaxEvents() works now.
+   datamap iterator reset before using NextDataMap, this part works now.
+   Fixed a memory leak in PreProcessEvt().
+ 
+VaDevice -
+   Interface modified to accomodate above changes.
+   FindHeaders() does not need a TaEvent.
+

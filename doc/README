@@ -1,0 +1,93 @@
+
+   ++++++++++++++++++++++++++++++++++
+   +                                +
+   +    PAN  -  Parity  Analyzer    +
+   +                                +
+   ++++++++++++++++++++++++++++++++++
+
+authors:  Richard Holmes, Antonin Vacheret, Robert Michaels
+          (and later others...)
+
+Web documentation about code design:
+    http://www.jlab.org/~rom/pan_design.html
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Directories of this distribution:
+
+      .              where to run.
+      ./doc          documentation  (you're there now)
+      ./src          all sources for 'pan'
+      ./db           database files
+      ./codaclass    CODA class library code
+      ./utils        miscellaneous utilities of possible use
+      ./macro        root macro examples
+
+
+To compile and link:
+
+For STL support, use ROOT version 3 or higher.  
+Info and downloads for ROOT at http://root.cern.ch/root
+
+For now, leave MAKEDICTIONARY commented out of Makefile.
+
+You will need the CODA class library, which is in the /codaclass 
+directory parallel to this /src directory and is documented at 
+http://hallaweb.jlab.org/equipment/daq/codaclass.html
+It would be a good idea to comment out the line 'EXPORT ONLINE=1' 
+in the codaclass Makefile using a '#' symbol, because you probably
+do not have or need the ET library.  That is how it's shipped.
+
+Compile in ./codaclass with 'make libcoda.a' and copy resulting
+library libcoda.a to the /src directory.  The 'DCDIR' in the
+Makefile points to the codaclass directory, where to find the
+headers like THaCodaFile.h.  
+
+Next, you may compile the 'pan' executible with 'make install'.  
+This creates 'pan' and moves it to a running directory.
+When compiling, it may be a good idea to do 'make clean' first.  
+Doing 'make clean' is usually a good idea most of the time you 
+compile, unless someone would kindly fix all the Makefile 
+dependencies perfectly (but they are nearly perfect, I think).
+
+Before running, you will need a 'database' file.  This is an
+ASCII file which contains parameters that control the program
+flow, contains cuts and calibrations, and the datamap.  Some
+database files are kept in the /db directory (parallel to this)
+and you should copy to the main directory and modify it if necessary.
+
+The resulting executable may be invoked with
+
+   pan [-r runnum] [-f filename]
+
+Use *either* -r runnum or -f filename to specify the data file -- or
+neither for online data, if you compiled with ONLINE defined.  (With
+-r, you must have appropriate environment variables set.)
+
+The ROOT output will be pan_%d.root where %d is the run number.
+This contains a 'event' tree "R" and an 'pair' tree "P".  The event
+tree contains raw data plus calibrated data with keywords like
+'bcm1', etc.  The pair tree contains helicity correlated differences
+and asymmetries, etc.
+
+A typical root session to look at data might be:
+root [0] .x ./macro/open.macro
+Enter run number : 1824
+root [1] raw->Draw("bcm1r:bpm4axp+bpm4axm")
+root [2] asy->Draw("diff_bpm4bx")
+
+
+Other documents in /doc
+
+     ChangeLog  -- Detailed list of changes.  Helpful document to 
+                   supplement CVS.  
+
+     DATABASE.RULES  -- Document explaining the rules about database
+                        and datamap.
+
+     README_ISSUES  -- Current issues.  Make sure you date your entries,
+                       since issues rapidly become non-issues.
+
+     CVS_howto -- Advice on how to use CVS     
+
+
+

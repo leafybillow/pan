@@ -1,0 +1,13 @@
+{
+   Int_t run;
+   cout << "Enter run number : ";
+   cin >> run;
+   cout << "Run "<<run<<endl;
+   char runfile[50];
+   sprintf(runfile,"pan_%d.root",run);  
+   f = new TFile(runfile);
+   TTree *raw = (TTree*)gROOT.FindObject("R");
+   raw->Print();
+   TTree *asy = (TTree*)gROOT.FindObject("P");
+   asy->Print();
+}
