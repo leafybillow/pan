@@ -24,6 +24,7 @@
 #include "TaEvent.hh"
 #include "TaLabelledQuantity.hh"
 #include "TaRun.hh"
+#include "TaString.hh"
 #include "TaDevice.hh"
 #include "VaDataBase.hh"
 #include "TaAsciiDB.hh"
@@ -523,7 +524,8 @@ TaEvent::AddToTree (const TaDevice& devices,
 
     for (ECutType icut = ECutType (0); icut < MaxCuts; ++icut)
       {
-	string cutstr = "cut_" + cutlist.GetName(icut);
+	TaString cutstr = "cut_" + cutlist.GetName(icut);
+	cutstr = cutstr.ToLower();
         strcpy (tinfo, cutstr.c_str());  strcat(tinfo,"/I");
   	rawtree.Branch(cutstr.c_str(), 
 		       &fCutArray[(unsigned int) icut], 

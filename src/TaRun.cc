@@ -341,12 +341,10 @@ TaRun::NextEvent()
 void 
 TaRun::Decode()
 {
-  // Decode raw data, store event number, and fill event tree
+  // Decode raw data, store event number
 
    fEvent->Decode(*fDevices);
    fEventNumber = fEvent->GetEvNumber();
-   if (fFirstPass)
-     fEvtree->Fill();
 // Use this to make detailed checks of decoding:
 #ifdef CHECKOUT
    fEvent->RawDump();
@@ -401,6 +399,8 @@ TaRun::AccumEvent(const TaEvent& ev)
   else
     clog << "Event " << ev.GetEvNumber() << " is in cut interval" << endl;
 #endif
+  if (fFirstPass)
+    fEvtree->Fill();
 }
 
 

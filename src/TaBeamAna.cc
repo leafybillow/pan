@@ -96,6 +96,10 @@ TaBeamAna::InitChanLists ()
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanListFromName ("batt", "chan", fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  fTreeList.push_back (AnaList("timeslot", 
+			       fRun->GetKey("timeslot"), 
+			       "", 
+			       fgNO_STATS + fgCOPY));
 
   // List of channels for which to store differences
   f = ChanList ("bpm", "~x", "um", fgDIFF);
