@@ -188,37 +188,37 @@ protected:
   EPairType fPairType;          // Type of beam helicity structure
   Bool_t fFirstPass;            // Pass 1 or 2?
 
-  Bool_t fQSwitch;              // feedback data
-  Bool_t fZSwitch;              // feedback data
-  Int_t fRunNum;                // feedback data
-  UInt_t fQTimeScale;           // feedback data
-  UInt_t fZTimeScale;           // feedback data
-  UInt_t fZNpair;               // feedback data
-  UInt_t fQNpair;               // feedback data
-  Int_t fQStartPair;            // feedback data
-  Int_t fQStopPair;             // feedback data
-  Int_t fQfeedNum;              // feedback data
-  Int_t fZpair[2];              // feedback data
-  Int_t fZStartPair;            // feedback data
-  Int_t fZStopPair;             // feedback data
-  Int_t fZfeedNum;              // feedback data
-  vector<Double_t> fQsum;       // feedback data
-  vector<Double_t> fZsum4B[2];  // feedback data
-  Double_t fQmean1;             // feedback data
-  Double_t fQmean2;             // feedback data
-  Double_t fQRMS;               // feedback data
-  Double_t fQasy;               // feedback data
-  Double_t fQasyEr;             // feedback data
-  Double_t fQslope;             // feedback data
-  Double_t fQSlopeEr;           // feedback data
-  Double_t fZ4Bmean1[2];        // feedback data
-  Double_t fZ4Bmean2[2];        // feedback data
-  Double_t fZ4BRMS[2];          // feedback data
-  Double_t fZ4Bdiff[2];         // feedback data
-  Double_t fZ4BdiffEr[2];       // feedback data
-  Double_t fIAslope;            // slope of IA feedback
+  Bool_t fQSwitch;              // value of the switch for IA feedback
+  Bool_t fZSwitch;              // value of the switch for PZT feedbac
+  Int_t fRunNum;                // current run number 
+  UInt_t fQTimeScale;           // timescale of IA feedback 
+  UInt_t fZTimeScale;           // timescale of PZT feedback
+  UInt_t fZNpair;               // PZT feedback number of pair  
+  UInt_t fQNpair;               // IA feedback number of pair 
+  Int_t fQStartPair;            // IA feedback pair start 
+  Int_t fQStopPair;             // IA feedback pair stop
+  Int_t fQfeedNum;              // IA feedback number
+  Int_t fZpair[2];              // PZT feedback number of pair Dx,Dy
+  Int_t fZStartPair;            // PZT feedback pair start
+  Int_t fZStopPair;             // PZT feedback pair stop
+  Int_t fZfeedNum;              // PZT feedback number
+  vector<Double_t> fQsum;       // IA charge asymmetry sum 
+  vector<Double_t> fZsum4B[2];  // PZT Dx,Dy sum
+  Double_t fQmean1;             // IA charge asymmetry mean value 1st pass  
+  Double_t fQmean2;             // IA charge asymmetry mean value 2nd pass
+  Double_t fQRMS;               // IA charge asymmetry RMS 
+  Double_t fQasy;               // IA charge asymmetry 
+  Double_t fQasyEr;             // IA charge asymmetry error
+  Double_t fZ4Bmean1[2];        // PZT Dx.Dy mean value 1st pass
+  Double_t fZ4Bmean2[2];        // PZT Dx,Dy mean value 2nd pass 
+  Double_t fZ4BRMS[2];          // PZT Dx,Dy RMS
+  Double_t fZ4Bdiff[2];         // PZT BPM4B Dx,Dy  
+  Double_t fZ4BdiffEr[2];       // PZT BPM4B Dx,Dy errors
+  Double_t fIAslope;            // IA feedback claibration slope
   Double_t *fPZTMatrix;         // PZT matrix
-  Double_t fIAlast,fPZTXlast,fPZTYlast;
+  Double_t fIAlast;             // last value of the IA voltage 
+  Double_t fPZTXlast;            // last value of the X PZT voltage
+  Double_t fPZTYlast;           // last valure of the Y PZT voltage
 
   // Define LEAKCHECK to check that new = del
 #define LEAKCHECK
