@@ -43,6 +43,7 @@ class TaDevice;
 class VaPair;
 class TaDataBase;
 class TaCutList;
+class TaOResultsFile;
 class TaStatistics;
 
 class TaRun
@@ -66,6 +67,7 @@ public:
   virtual void AccumPair(const VaPair&, const Bool_t doSlice, const Bool_t doRun);
   void PrintSlice (EventNumber_t n);
   void PrintRun();
+  void WriteRun ();
   void UpdateCutList(const Cut_t, const Int_t, EventNumber_t);
   virtual void Finish();
 
@@ -101,6 +103,11 @@ private:
   Int_t GetBuffer();
   Int_t FindRunNumber();  
   void PrintStats (const TaStatistics& s, const vector<string>& n, const vector<string>& u) const;
+  void WriteStats (const TaStatistics& s, 
+		   const vector<string>& n, 
+		   const vector<string>& u, 
+		   const EventNumber_t ev0,
+		   const EventNumber_t ev1) const;  // Write stats to results file
 
   // Data members
   RunNumber_t fRunNumber;        // Number of this run
@@ -128,6 +135,7 @@ private:
   vector<string> fEStatsUnits;   // Units of event statistics
   vector<string> fPStatsUnits;   // Units of pair statistics
   Bool_t fFirstPass;             // Pass 1 or 2?
+  TaOResultsFile* fResFile;       // Results file
 
 #ifndef NODICT
 ClassDef (TaRun, 0)      //  One run of CODA data

@@ -45,6 +45,7 @@
 #include "TaFileName.hh"
 #include "TaDevice.hh"
 #include "TaLabelledQuantity.hh"
+#include "TaOResultsFile.hh"
 #include "TaStatistics.hh"
 #include "TaString.hh"
 #include "VaAnalysis.hh"
@@ -234,6 +235,16 @@ TaRun::Init(const vector<string>& dbcommand)
     fAccumEvent = new TaEvent();
   }
 
+  TaFileName::Setup (fRunNumber, TaString (fDataBase->GetAnaType()).ToLower());
+
+  // Results file
+
+  fResFile = new TaOResultsFile ("pan", 
+				 fRunNumber, 
+				 fDataBase->GetAnaType(),
+				 fDataBase->GetCksum(), 
+				 "");
+
   return fgTARUN_OK;
 
 }
@@ -283,35 +294,6 @@ TaRun::ReInit()
 
 }
  
-
-Int_t 
-TaRun::FindRunNumber() {
-  // Get run number, from run number file if online or from data
-  // stream if not.
-
-   if (fCodaFileName == "online") {
-      ifstream runfile(getenv("RUNNUMBER_FILE"));
-      if ( !runfile ) return 0;
-      string sinput;
-      getline(runfile,sinput);
-      return atoi(sinput.c_str());
-   } 
-// 1st event is always prestart for an unfiltered CODA file.
-// If (somehow) not, I suppose we could try to find one, but
-// for now we return the presumed fRunNumber.
-   if ( fEvent->IsPrestartEvent() ) {
-      UInt_t runno = fEvent->GetRawData(3);
-      if (fRunNumber != 0 && runno != fRunNumber) {
-        cerr<<"TaRun:: WARNING: Run number in file not what you thought."<<endl;
-	cerr << "Expected " << fRunNumber << ", found " << runno << endl;
-      }  
-      return runno;
-   } else {
-      return fRunNumber;
-   }
-};
-      
-
 
 Bool_t 
 TaRun::NextEvent()
@@ -530,6 +512,25 @@ TaRun::PrintRun ()
 }
 
 
+void
+TaRun::WriteRun ()
+{
+  // Write run statistics to results file
+
+  if (fERunStats != 0)
+    {
+      (*fResFile) << "# Event statistics ===================" << endl;
+      WriteStats (*fERunStats, fEStatsNames, fEStatsUnits, 0, fEventNumber);
+    }
+  if (fPRunStats != 0)
+    {
+      (*fResFile) << endl;
+      (*fResFile) << "# Pair statistics ===================" << endl;
+      WriteStats (*fPRunStats, fPStatsNames, fPStatsUnits, 0, fEventNumber);
+    }
+}
+
+
 void 
 TaRun::UpdateCutList (const Cut_t cut, const Int_t val, EventNumber_t evno) 
 { 
@@ -563,6 +564,44 @@ TaRun::GetDBValue(string key) const
   return fDataBase->GetData(key); 
 }
 
+Int_t 
+TaRun::GetKey(string keystr) const {
+  // return the integer key that corresponds to a string.  
+  return fDevices->GetKey(keystr);
+};
+
+string 
+TaRun::GetKey(Int_t key) const {
+  // return the string key that corresponds to the integer key.
+  return fDevices->GetKey(key);
+};
+
+
+void 
+TaRun::InitRoot() 
+{
+  // Set up the root file and event tree
+
+  // Open the Root file
+  TaFileName rootFileName ("root");
+  fRootFile = new TFile(rootFileName.String().c_str(),"RECREATE");
+  fRootFile->SetCompressionLevel(0);
+  fEvtree = new TTree("R","Event data DST");
+  fEvtree->Branch ("ev_num", &fAccumEventNumber, "ev_num/I", 5000); // event number
+
+  if ( !fDevices ) {
+    cout << "TaRun::InitTree:: ERROR:  You must create and initialize";
+    cout << " fDevices before adding to tree"<<endl;
+    return;
+  }
+  if ( !fCutList ) {
+    cout << "TaRun::InitTree:: ERROR:  You must create and initialize";
+    cout << " fCutList before adding to tree"<<endl;
+    return;
+  }
+  fAccumEvent->AddToTree(*fDevices, *fCutList, *fEvtree);
+};
+
 
 // Private member functions
 
@@ -584,6 +623,7 @@ TaRun::Uncreate()
   delete fERunStats;
   delete fPSliceStats;
   delete fPRunStats;
+  delete fResFile;
   fCutList = 0;
   fCoda = 0;
   fEvent = 0;
@@ -633,43 +673,32 @@ TaRun::GetBuffer()
 }
 
 Int_t 
-TaRun::GetKey(string keystr) const {
-  // return the integer key that corresponds to a string.  
-  return fDevices->GetKey(keystr);
+TaRun::FindRunNumber() {
+  // Get run number, from run number file if online or from data
+  // stream if not.
+
+   if (fCodaFileName == "online") {
+      ifstream runfile(getenv("RUNNUMBER_FILE"));
+      if ( !runfile ) return 0;
+      string sinput;
+      getline(runfile,sinput);
+      return atoi(sinput.c_str());
+   } 
+// 1st event is always prestart for an unfiltered CODA file.
+// If (somehow) not, I suppose we could try to find one, but
+// for now we return the presumed fRunNumber.
+   if ( fEvent->IsPrestartEvent() ) {
+      UInt_t runno = fEvent->GetRawData(3);
+      if (fRunNumber != 0 && runno != fRunNumber) {
+        cerr<<"TaRun:: WARNING: Run number in file not what you thought."<<endl;
+	cerr << "Expected " << fRunNumber << ", found " << runno << endl;
+      }  
+      return runno;
+   } else {
+      return fRunNumber;
+   }
 };
-
-string 
-TaRun::GetKey(Int_t key) const {
-  // return the string key that corresponds to the integer key.
-  return fDevices->GetKey(key);
-};
-
-
-void 
-TaRun::InitRoot() 
-{
-  // Set up the root file and event tree
-
-  // Open the Root file
-  TaFileName::Setup (fRunNumber, TaString (fDataBase->GetAnaType()).ToLower());
-  TaFileName rootFileName ("root");
-  fRootFile = new TFile(rootFileName.String().c_str(),"RECREATE");
-  fRootFile->SetCompressionLevel(0);
-  fEvtree = new TTree("R","Event data DST");
-  fEvtree->Branch ("ev_num", &fAccumEventNumber, "ev_num/I", 5000); // event number
-
-  if ( !fDevices ) {
-    cout << "TaRun::InitTree:: ERROR:  You must create and initialize";
-    cout << " fDevices before adding to tree"<<endl;
-    return;
-  }
-  if ( !fCutList ) {
-    cout << "TaRun::InitTree:: ERROR:  You must create and initialize";
-    cout << " fCutList before adding to tree"<<endl;
-    return;
-  }
-  fAccumEvent->AddToTree(*fDevices, *fCutList, *fEvtree);
-};
+      
 
 
 void 
@@ -699,4 +728,38 @@ TaRun::PrintStats (const TaStatistics& s, const vector<string>& n, const vector<
 	}
     }
   //  cout << *fCutList << endl;
+}
+
+
+void 
+TaRun::WriteStats (const TaStatistics& s, 
+		   const vector<string>& n, 
+		   const vector<string>& u, 
+		   const EventNumber_t ev0,
+		   const EventNumber_t ev1) const
+{
+  // Write statistics to results file
+  
+  for (size_t j = 0; j < s.Size(); ++j)
+    {
+      string nj = n[j];
+      string uj = u[j];
+      // Eliminate invalid characters
+
+      for (string::iterator i = (nj).begin(); i != (nj).end(); ++i)
+	if (!((*i >= 'a' && *i <= 'z') || 
+	      (*i >= 'A' && *i <= 'Z') || 
+	      (*i >= '0' && *i <= '9') || 
+	      *i == '_'))
+	  *i = '_';
+      for (string::iterator i = (uj).begin(); i != (uj).end(); ++i)
+	if (*i == '#')
+	  *i = '_';
+
+      // Write mean, RMS, and Neff
+
+      fResFile->WriteNextLine (nj + "_mean", s.Mean(j), s.MeanErr(j), ev0, ev1, uj, "");
+      fResFile->WriteNextLine (nj + "_RMS ", s.DataRMS(j), 0, ev0, ev1, uj, "");
+      fResFile->WriteNextLine (nj + "_Neff", s.Neff(j), 0, ev0, ev1, "", "");
+    }
 }
