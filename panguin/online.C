@@ -1144,7 +1144,7 @@ void OnlineGUI::TreeDraw(vector <TString> command) {
     TObject *hobj = (TObject*)gROOT->FindObject("htemp");
     if(errcode!=0) {
       if(!command[3].IsNull()) {
-	if(hobj->InheritsFrom("TH2F")) {
+	if(hobj->InheritsFrom("TH2F") || hobj->InheritsFrom("TProfile")) {
 	  TH2F* thathist = (TH2F*)hobj;
 	  thathist->SetTitle(command[3]);
 	}else if(hobj->InheritsFrom("TH1F")) {
