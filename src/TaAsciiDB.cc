@@ -180,6 +180,49 @@ string TaAsciiDB::GetAnaType() const {
    return "unknown";
 };
 
+string TaAsciiDB::GetFdbkSwitch( const string &fdbktype )const {
+  // get the feedback switch state corresponding to feedback type fdbktype.
+  string table = "feedback";
+  if ( database.count("feedback") >1){
+    cout<<" feedback"<<fdbktype<<" switched "
+        <<GetData(table,fdbktype, 0)<<endl;
+    return GetData(table,fdbktype, 0);
+  }
+  else{
+    cout<<"TaAsciiDB::GetFeedbackSwitch( const string &fdbktype ) ERROR\n"
+	<<"TABLE not declared correctly, need feedback table. "
+	<<"Example of line format in .db file:\n"
+        <<" feedback    AQ   on   3 "<<endl;
+    return "";
+  }     
+}; 
+
+Int_t TaAsciiDB::GetFdbkTimeScale( const string &fdbktype ) const{
+  // get the timescale of feedback type fdbktype
+  string table = "feedback";
+ if ( database.count("feedback") >1){ 
+     multimap<string, vector< dtype* > >::const_iterator lb = database.lower_bound(table);        
+     multimap<string, vector< dtype* > >::const_iterator ub = database.upper_bound(table);        
+     for ( multimap<string, vector< dtype* > >::const_iterator dmap = lb; dmap != ub; dmap++){
+       vector< dtype* > datatype = dmap->second;
+       if (datatype[0]->GetType() == "s"){
+	 if ( TaString(datatype[0]->GetS()).CmpNoCase(fdbktype) == 0 ){
+	   if (datatype[2]->GetType() == "i") return datatype[2]->GetI();
+           cout<<" feedback "<<fdbktype<<" timescsale "<<datatype[2]->GetI()<<endl;
+	 }
+       }
+     }
+     return 0;
+ }
+ else{
+   cout<<"TaAsciiDB::GetFeedbackSwitch( const string &fdbktype ) ERROR\n"
+	<<"TABLE not declared correctly, need feedback table. "
+	<<"Example of line format in .db file:\n"
+        <<" feedback    AQ   on   3 "<<endl;
+   return 0;
+ }
+};   
+
 Double_t TaAsciiDB::GetDacNoise(const Int_t& adc, const Int_t& chan, const string& key) const {
 // Get Dac noise parameters for adc,chan with key = 'slope' or 'intercept'
   int idx;
@@ -513,6 +556,7 @@ void TaAsciiDB::InitDB() {
   tables.push_back("windelay");      //  14
   tables.push_back("oversamp");      //  15
   tables.push_back("pairtype");      //  16
+  tables.push_back("feedback");      //  17 
 
   pair<string, int> sipair;
   int k;
@@ -567,6 +611,11 @@ void TaAsciiDB::InitDB() {
     if (i == 14) columns.push_back(new dtype("i"));  // windelay
     if (i == 15) columns.push_back(new dtype("i"));  // oversamp
     if (i == 16) columns.push_back(new dtype("s"));  // pairtype
+    if (i == 17) {
+      columns.push_back(new dtype("s"));
+      columns.push_back(new dtype("s"));
+      columns.push_back(new dtype("i"));
+    }
     sipair.second = columns.size(); 
     colsize.insert(sipair);
     LoadTable(tables[i],columns);
