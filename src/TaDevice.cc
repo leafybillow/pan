@@ -345,6 +345,7 @@ void TaDevice::BpmDefRotate() {
    fRotateList.push_back("bpm0L02");  
    fRotateList.push_back("bpm0L03");  
    fRotateList.push_back("bpm0L04");  
+   fRotateList.push_back("bpm0L05");  
    fRotateList.push_back("bpm0L06");  
    fRotateList.push_back("bpm8");
    fRotateList.push_back("bpm10");
@@ -557,6 +558,16 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"bpm0I02Ayws", IBPM0I02AYWS));
   fKeyToIdx.insert(make_pair((string)"bpm0I02Aws", IBPM0I02AWS));
 
+  fKeyToIdx.insert(make_pair((string)"bpm0I05xp",IBPM0I05XP));
+  fKeyToIdx.insert(make_pair((string)"bpm0I05xm",IBPM0I05XM));
+  fKeyToIdx.insert(make_pair((string)"bpm0I05yp",IBPM0I05YP));
+  fKeyToIdx.insert(make_pair((string)"bpm0I05ym",IBPM0I05YM));
+  fKeyToIdx.insert(make_pair((string)"bpm0I05x", IBPM0I05X));
+  fKeyToIdx.insert(make_pair((string)"bpm0I05y", IBPM0I05Y));
+  fKeyToIdx.insert(make_pair((string)"bpm0I05xws", IBPM0I05XWS));
+  fKeyToIdx.insert(make_pair((string)"bpm0I05yws", IBPM0I05YWS));
+  fKeyToIdx.insert(make_pair((string)"bpm0I05ws", IBPM0I05WS));
+
   fKeyToIdx.insert(make_pair((string)"bpm0L01xp",IBPM0L01XP));
   fKeyToIdx.insert(make_pair((string)"bpm0L01xm",IBPM0L01XM));
   fKeyToIdx.insert(make_pair((string)"bpm0L01yp",IBPM0L01YP));
@@ -596,6 +607,16 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"bpm0L04xws", IBPM0L04XWS));
   fKeyToIdx.insert(make_pair((string)"bpm0L04yws", IBPM0L04YWS));
   fKeyToIdx.insert(make_pair((string)"bpm0L04ws", IBPM0L04WS));
+
+  fKeyToIdx.insert(make_pair((string)"bpm0L05xp",IBPM0L05XP));
+  fKeyToIdx.insert(make_pair((string)"bpm0L05xm",IBPM0L05XM));
+  fKeyToIdx.insert(make_pair((string)"bpm0L05yp",IBPM0L05YP));
+  fKeyToIdx.insert(make_pair((string)"bpm0L05ym",IBPM0L05YM));
+  fKeyToIdx.insert(make_pair((string)"bpm0L05x", IBPM0L05X));
+  fKeyToIdx.insert(make_pair((string)"bpm0L05y", IBPM0L05Y));
+  fKeyToIdx.insert(make_pair((string)"bpm0L05xws", IBPM0L05XWS));
+  fKeyToIdx.insert(make_pair((string)"bpm0L05yws", IBPM0L05YWS));
+  fKeyToIdx.insert(make_pair((string)"bpm0L05ws", IBPM0L05WS));
 
   fKeyToIdx.insert(make_pair((string)"bpm0L06xp",IBPM0L06XP));
   fKeyToIdx.insert(make_pair((string)"bpm0L06xm",IBPM0L06XM));
