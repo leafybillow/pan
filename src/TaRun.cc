@@ -309,9 +309,14 @@ TaRun::NextEvent()
   // Get the next physics event out of the coda file.
   // If end of file or error return false.
 
+  EHelicity ph = UnkHeli;
+  if (fEvent->GetEvNumber() > 0)
+    ph = fEvent->GetHelicity();
+  
   Bool_t gotPhys = false;
   while (!gotPhys)
     {
+
       Int_t status = GetBuffer();
       if (status == -1)
 	{
@@ -325,7 +330,10 @@ TaRun::NextEvent()
 	}
       gotPhys = fEvent->IsPhysicsEvent();
     }
+
   Decode();     // Seems like a good place to put this.
+  fEvent->SetPrevHelicity (ph);
+
   return true;
 }
 
@@ -579,6 +587,7 @@ TaRun::GetBuffer()
       return status;
     } 
   fEvent->Load( fCoda->getEvBuffer() );
+
   return 0;
 }
 
