@@ -398,7 +398,7 @@ VaEvent::Decode(TaDevice& devices)
 
 // Stripline BPMs
   for (i = 0; i < STRNUM; i++) {
-    key = STROFF + 9*i;
+    key = STROFF + 10*i;
     ixp = devices.GetCalIndex(key);
     ixm = devices.GetCalIndex(key+1);
     iyp = devices.GetCalIndex(key+2);
@@ -432,6 +432,12 @@ VaEvent::Decode(TaDevice& devices)
     if (devices.IsUsed(key)) devices.SetUsed(iy);
     fData[key + 8] = fData[key + 6] + fData[key + 7];
     if (devices.IsUsed(key)) devices.SetUsed(key+8);
+    Double_t mx = fData[key];
+    if (mx < fData[key+1]) mx=fData[key+1];
+    if (mx < fData[key+2]) mx=fData[key+2]; // what is the C++
+    if (mx < fData[key+3]) mx=fData[key+3]; // "max" function, anyway?
+    fData[key + 9] = mx;
+    if (devices.IsUsed(key)) devices.SetUsed(key+9);
   }
 
 // Cavity BPM monitors
@@ -628,7 +634,7 @@ VaEvent::CalibDecode(TaDevice& devices)
 
 //  Stripline BPMs (no pedestal subtraction here!)
     for (i = 0; i < STRNUM; i++) {
-      key = STROFF + 9*i;
+      key = STROFF + 10*i;
       corrkey = STRCORROFF + 4*i;
       ixp = devices.GetCorrIndex(key);
       ixm = devices.GetCorrIndex(key+1);

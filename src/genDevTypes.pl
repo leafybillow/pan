@@ -184,6 +184,7 @@ sub add_str
     $ret .= "\#define   ${str}XWS   $p\n"; $p++;
     $ret .= "\#define   ${str}YWS   $p\n"; $p++;
     $ret .= "\#define   ${str}WS    $p\n"; $p++;
+    $ret .= "\#define   ${str}MX    $p\n"; $p++;
     $ret .= "\n";
     return $ret;
 }

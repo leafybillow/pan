@@ -255,7 +255,7 @@ void TaSimEvent::Decode(TaDevice& devices) {
    for (Int_t i = 0; i < 4; ++i)
      {
        // set detector = cal * bcm
-       key = DETOFF + 2*i +1;
+       key = DETOFF + 3*i +1;
        fData[key] = fData[IBCM1]*(fDetVsBcm[i] + fgR.Gaus(0,fDetNoiseR[i]));
        devices.SetUsed(key);
        devices.SetUsed(key-1);
@@ -277,7 +277,7 @@ void TaSimEvent::Decode(TaDevice& devices) {
 
   // modify detector by position
   for (Int_t i = 0; i < DETNUM; i++) {
-    key = DETOFF + 2*i +1;
+    key = DETOFF + 3*i +1;
     fData[key] *= (1.0+fDetVsBpm4AX[i]*(fData[IBPM4AX]-fDet4AXoff));
     fData[key] *= (1.0+fDetVsBpm4BX[i]*(fData[IBPM4BX]-fDet4BXoff));
     fData[key] *= (1.0+fDetVsBpm4AY[i]*(fData[IBPM4AY]-fDet4AYoff));
