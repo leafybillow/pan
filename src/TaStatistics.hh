@@ -27,6 +27,7 @@
 #ifndef PAN_TaStatistics
 #define PAN_TaStatistics
 
+#include <math.h>
 #include "Rtypes.h"
 #include <vector>
 #include <utility>
