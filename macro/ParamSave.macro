@@ -14,7 +14,7 @@
 #include "src/TaFileName.hh"
 
 // Uncomment to load fake correction coefficients
-#define FAKETYFAKE 1
+//#define FAKETYFAKE 1
 
 class ParamSave
 {
