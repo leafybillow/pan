@@ -81,13 +81,28 @@ ParamSave::LoadCorrs ()
   fCorrMonTag.push_back ("bpm4bx");
   fCorrMonTag.push_back ("bpm4ay");
   fCorrMonTag.push_back ("bpm4by");
+  fCorrMonTag.push_back ("bpm1x");
+  fCorrMonTag.push_back ("bpm1y");
   fCorrMonTag.push_back ("bpm12x");
+  fCorrMonTag.push_back ("bpm12y");
+  fCorrMonTag.push_back ("bpm10x");
+  fCorrMonTag.push_back ("bpm10y");
+  fCorrMonTag.push_back ("bpm8x");
+  fCorrMonTag.push_back ("bpm8y");
 
   // Detectors for which to look for coefficients
   vector<string> corrDetTag;
   corrDetTag.clear();
   corrDetTag.push_back ("det1");
   corrDetTag.push_back ("det3");
+  corrDetTag.push_back ("blumi1");
+  corrDetTag.push_back ("blumi2");
+  corrDetTag.push_back ("blumi3");
+  corrDetTag.push_back ("blumi4");
+  corrDetTag.push_back ("blumi5");
+  corrDetTag.push_back ("blumi6");
+  corrDetTag.push_back ("blumi7");
+  corrDetTag.push_back ("blumi8");
   
   vector<Double_t> v;
 #ifndef FAKETYFAKE
@@ -381,9 +396,9 @@ ParamSave::AsyCorr (string det, Bool_t modulation)
       ret += det.c_str();
       for (UInt_t i = 0; i < fCorrMonTag.size(); ++i)
 	{
-	  ret += "+";
+	  ret += "-(";
 	  ret += corrcoef[i];
-	  ret += "*diff_";
+	  ret += ")*diff_";
 	  ret += fCorrMonTag[i].c_str();
 	}
     }
