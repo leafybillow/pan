@@ -307,6 +307,19 @@ Bool_t TaEvent::CutStatus() const {
   return (fCutFail.size() > 0);    
 };
 
+Bool_t 
+TaEvent::BeamCut() const
+{
+  // Return true iff event failed low beam cut
+
+  vector<pair<ECutType,Int_t> >::const_iterator i;
+  for (i = fCutFail.begin();
+       i != fCutFail.end() && i->first != LowBeamCut;
+       ++i)
+    {} // null loop body
+  return (i != fCutFail.end());
+}
+
 Bool_t TaEvent::IsPrestartEvent() const {
   return (fEvType == 17);
 };

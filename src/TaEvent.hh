@@ -64,10 +64,11 @@ public:
   Double_t GetCalADCData(Int_t slot, Int_t chan) const;  // get calib. ADC data in slot and chan.
   Double_t GetScalerData(Int_t slot, Int_t chan) const;  // get scaler data in slot and chan.
 
-  Bool_t CutStatus() const;
-  Bool_t IsPrestartEvent() const;   // run number available in 'prestart' events.
+  Bool_t CutStatus() const;          // Return true iff event failed one or more cut conditions 
+  Bool_t BeamCut() const;            // Return true iff event failed low beam cut
+  Bool_t IsPrestartEvent() const;    // run number available in 'prestart' events.
   Bool_t IsPhysicsEvent() const;
-  EventNumber_t GetEvNumber() const;  // event number
+  EventNumber_t GetEvNumber() const; // event number
   UInt_t GetEvLength() const;        // event length
   UInt_t GetEvType() const;          // event type
   SlotNumber_t GetTimeSlot() const;  // time slot
