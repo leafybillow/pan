@@ -4,6 +4,65 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 11 Apr 2002
+-----------------------------------
+
+Another bunch of changes, to replace scattered string functions with a
+new TaString class and to add some non-default copy constructors and
+operator=.  
+
+TaString inherits from string.  It does not overload anything nor add
+any new data members; it just defines some new string functions.
+There is a TaString(const string) constructor.  So you can convert
+back and forth between strings and TaStrings with impunity, using
+TaStrings only where you need the new functions (of course the
+conversion has some cost, but you shouldn't be using strings in
+time-critical parts of the code anyway.)  For example, this line from
+TaAsciiDB: 
+
+   return TaString (GetData(table, device, 0)).Hex();
+
+The functions bstrstr, stlow, vsplit, and str_to_base16 in VaDataBase,
+cmp_nocase in TaAnalysisManager, and cmp_nocase2 in TaADCCalib are now
+replaced with TaString methods.  Note that TaString::CmpNoCase, like
+the usual C and C++ 3-way compares as well as cmp_nocase and
+cmp_nocase2 but not like bstrstr, returns 0 for equal strings.
+
+MakeFile
+
+ o Add TaString.
+
+TaAnalysisManager.{cc}
+
+ o Replace cmp_nocase with TaString method.
+
+TaADCCalib.cc
+
+ o Replace cmp_nocase2 with TaString method.
+
+TaAsciiDB.cc
+
+ o Replace use of bstrstr, stlow, vsplit, and str_to_base16 with
+   TaString methods.
+
+TaCutInterval.{hh,cc}, TaCutList.{cc,hh}
+
+ o Added copy constructors and operator=.
+
+TaEvent.hh
+
+ o Removed some unused data members.
+
+TaLinkDef.hh
+
+ o Added TaString class.
+
+VaDataBase.{cc,hh}
+
+ o Removed bstrstr, stlow, vsplit, and str_to_base16.
+
+
+
 Changes by R. Michaels on 10 Apr 2002
 -------------------------------------
 

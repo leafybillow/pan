@@ -1,16 +1,6 @@
 Comments by R. Holmes, 10 Apr 2002
 ----------------------------------
 
-I noticed I didn't define a copy constructor or operator= for
-TaCutList.  I believe one of our rules is that I should.  I still
-haven't.  I don't think the analyzer ever copy-constructs or assigns a
-cut list, though, so this probably isn't urgent.
-
-TaDevice::GetKey(string keystr) now uses a find instead of indexing,
-and will crash if find is called with a non-existent string (find
-returns fKeyToIdx.end(), and dereferencing that is bad news).  Need to
-add a check for that and handle the error gracefully.
-
 TaRun::AddCuts() has had its body commented out.  This method should
 be removed entirely once the new approach to updating cut intervals is
 verified to be OK.
