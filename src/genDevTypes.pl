@@ -34,7 +34,7 @@
 # Lumi detectors
 @lumilist =      qw / IBLUMI1 IBLUMI2 IBLUMI3 IBLUMI4 IBLUMI5 IBLUMI6 IBLUMI7 IBLUMI8 IFLUMI1 IFLUMI2 IFLUMI3 ILUMI1 ILUMI2 ILUMI3 ILUMI4/;
 # V2F clocks
-@v2fclocklist =  qw / IV2F_CLK0 IV2F_CLK1 IV2F_CLK2 IV2F_CLK3 /;
+@v2fclocklist =  qw / IV2F_CLK0 IV2F_CLK1 IV2F_CLK2 IV2F_CLK3 IV2F_CLK4 IV2F_CLK5 IV2F_CLK6 /;
 # quad photodiode
 @qpdlist = qw / IQPD1 /;
 # Q2 scanner
@@ -47,7 +47,7 @@
 @synclist = qw / IISYNC0 ICHSYNC0 ICHSYNC1 ICHSYNC2 IRSYNC1 IRSYNC2 ILSYNC1 ILSYNC2 /;
 # Number of ADC modules, scaler modules, and crates
 $adcnum = 31;
-$scanum = 4;
+$scanum = 7;
 $ncrates = 4;
 
 $p = 1;      # next value to be assigned
