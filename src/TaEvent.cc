@@ -260,6 +260,7 @@ Double_t TaEvent::GetData(const string& key) const {
 // Restriction for using this method: key must be unique in the event.
 // If not, then use GetData(device,key) instead.
   static map<string, string>::const_iterator sd;
+  static map <string, int>::const_iterator si;
   if ( !fgDidInit ) {
     cout << "TaEvent:: ERROR: Did not initialize TaEvent"<<endl;
     return 0;
@@ -278,7 +279,9 @@ Double_t TaEvent::GetData(const string& key) const {
       }
       return 0;
     }
-  if ( !fKeyUni[key] ) {
+  si = fKeyUni.find(key);
+
+  if ( si == fKeyUni.end() ) {
     cout << "TaEvent:: GetData ERROR:  Key " << key 
          << " is not unique within the event, so use the"
          << " GetData(device, key) method instead." << endl;
@@ -302,11 +305,16 @@ Double_t TaEvent::GetData(const string& devicename, const Int_t& channel) const 
   return 0;
 };
 
-Double_t TaEvent::GetADCData(const Int_t& slot, const Int_t& chan) {
-// Return the Princeton-ADC data in slot=0,1,2...etc, and channel=0,1,2,3 
+Double_t TaEvent::GetADCData(const Int_t& slot, const Int_t& chan) const {
+// Return the Princeton-ADC data in slot=0,1,2...etc, and channel=0,1,2,3
   static pair<string, string> ssp;
-  ssp = adcs[make_pair(slot,chan)];  // get device and key
-  if (fDevices.find(ssp.first) == fDevices.end()) return 0; 
+  //  cout<<"GETADCData::slot and pair debug, INPUT :"<<slot<<" , "<<chan<<endl;
+  static map<pair<int,int>, pair<string,string> >::const_iterator iiss;
+  iiss = adcs.find(make_pair(slot,chan));
+  ssp = iiss->second;
+  //  ssp  = adcs[make_pair(slot,chan)];  // get device and key
+  if (fDevices.find(ssp.first) == fDevices.end()) return 0;
+  //  cout<< "GETADCData::slot and pair debug, OUTPUT :"<<ssp.first<<" , "<<ssp.second<<endl;
   return GetData(ssp.first, ssp.second);
 };
 
@@ -359,7 +367,7 @@ EHelicity TaEvent::GetDelHelicity() const {
 
 EPairSynch TaEvent::GetPairSynch() const {
   Double_t val = GetData("pairsynch");
-  if (val == 0)
+  if (val == 1)
     return FirstPS;
   else
     return SecondPS;

@@ -57,7 +57,7 @@ public:
   Double_t GetData(const string& devicename, const Int_t& channel) const;
   Double_t GetData(const string& devicename, const string& key) const;
   Double_t GetData(const string& key) const;
-  Double_t GetADCData(const Int_t& slot, const Int_t& chan);  // ADC 0,1.. and chan 0,1..
+  Double_t GetADCData(const Int_t& slot, const Int_t& chan) const;  // ADC 0,1.. and chan 0,1..
 
   Bool_t CutStatus() const;
   Bool_t IsPrestartEvent() const;   // run number available in 'prestart' events.
