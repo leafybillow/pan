@@ -64,6 +64,7 @@ TaCutList::TaCutList (const TaCutList& copy)
   fHighExtension = copy.fHighExtension;
   fTally = copy.fTally;
   fCutNames = copy.fCutNames;
+  fCutNames.push_back ("undefined");
 }
 
 TaCutList::~TaCutList()
@@ -188,6 +189,9 @@ TaCutList::UpdateCutInterval (const Cut_t cut, const Int_t val, const EventNumbe
   // If val is nonzero and no open interval for this cut type exists, make one.
   // If val is zero and an open interval for this cut type exists, close it.
 
+  if (cut >= fNumCuts )
+    return;
+
   // Look for an open interval for this cut
   list<size_t>::iterator oiit;
   for ( oiit = fOpenIntIndices.begin();
@@ -242,6 +246,9 @@ TaCutList::AddExtension (const Cut_t cut, const UInt_t lex, const UInt_t hex)
 {
   // For the given cut type, add a pair of extensions to the extensions lists.
 
+  if (cut >= fNumCuts )
+    return;
+
   fLowExtension[cut] = lex;
   fHighExtension[cut] = hex;
 }
@@ -251,6 +258,9 @@ TaCutList::AddName (const Cut_t cut, const string& s)
 {
   // For the given cut type, add a label to the list of cut type names.
 
+  if (cut >= fNumCuts )
+    return;
+
   fCutNames[cut] = s;
 }
 
@@ -258,6 +268,9 @@ const string&
 TaCutList::GetName (const Cut_t cut) const
 {
   // Get name from list
+
+  if (cut >= fNumCuts )
+    return fCutNames[fNumCuts];
 
   return fCutNames[(unsigned int) cut];
 }

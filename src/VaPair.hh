@@ -78,6 +78,7 @@ protected:
   static UInt_t  fgShreg;      // value for sequence algorithm      
   static UInt_t  fgNShreg;     // count since fgShreg was reset
   static Bool_t  fgPairMade;   // set in Fill to true if pair made, else false
+  static UInt_t  fgNCuts;      // number of cuts defined
   static Cut_t   fgSequenceNo; // cut number for sequence
   static UInt_t  fgOldb;       // old bit for non-random seq check
   static Bool_t  fgRandom;     // random helicity sequence?

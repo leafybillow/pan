@@ -101,123 +101,126 @@ void TaPairFromQuad::CheckSequence( VaEvent& ThisEv, TaRun& run )
   //         << " " << ThisEv.GetTimeSlot()
   //         << endl;
   
-  if (newWin)
-    { 
-      // New window.
-      // Store event for comparison to later ones
-      fgLastWinEv = fgThisWinEv;
-      fgThisWinEv = ThisEv;
-      if (lqs == FirstQS && fgQuadCount == 5)
-	fgQuadCount = 0;
-      else if (fgQuadCount < 5)
-	{
-	  fgQuadCount = (fgQuadCount + 1) % 4;
-	  if (lqs == FirstQS && fgQuadCount != 0)
+  if (fgSequenceNo < fgNCuts)
+    {
+      if (newWin)
+	{ 
+	  // New window.
+	  // Store event for comparison to later ones
+	  fgLastWinEv = fgThisWinEv;
+	  fgThisWinEv = ThisEv;
+	  if (lqs == FirstQS && fgQuadCount == 5)
+	    fgQuadCount = 0;
+	  else if (fgQuadCount < 5)
 	    {
-	      cout << "TaPairFromQuad::CheckSequence ERROR: Event " 
-		   << ThisEv.GetEvNumber() 
-		   << " unexpected first window of quad" << endl;
-	      val = WQSFIRST;
-	      fgQuadCount = 0;
+	      fgQuadCount = (fgQuadCount + 1) % 4;
+	      if (lqs == FirstQS && fgQuadCount != 0)
+		{
+		  cout << "TaPairFromQuad::CheckSequence ERROR: Event " 
+		       << ThisEv.GetEvNumber() 
+		       << " unexpected first window of quad" << endl;
+		  val = WQSFIRST;
+		  fgQuadCount = 0;
+		}
+	      else if (lqs == OtherQS && fgQuadCount == 0)
+		{
+		  cout << "TaPairFromQuad::CheckSequence ERROR: Event " 
+		       << ThisEv.GetEvNumber() 
+		       << " unexpected non-first window of quad" << endl;
+		  val = WQSOTHER;
+		}
 	    }
-	  else if (lqs == OtherQS && fgQuadCount == 0)
+	  
+	  if (fgQuadCount == 0)
+	    // See if helicity is right
 	    {
-	      cout << "TaPairFromQuad::CheckSequence ERROR: Event " 
-		   << ThisEv.GetEvNumber() 
-		   << " unexpected non-first window of quad" << endl;
-	      val = WQSOTHER;
-	    }
-	}
-
-      if (fgQuadCount == 0)
-	// See if helicity is right
-	{
-	  if (!HelSeqOK (ThisEv.GetHelicity()))
+	      if (!HelSeqOK (ThisEv.GetHelicity()))
+		{
+		  cout << "TaPairFromQuad::CheckEvent ERROR: Event " 
+		       << ThisEv.GetEvNumber() 
+		       << " helicity sequence error" << endl;
+		  val = WHELWRONG;
+		}	      
+	    } 
+	  
+	  if (((fgQuadCount == 0 || fgQuadCount == 2) && lps == SecondPS)
+	      ||
+	      ((fgQuadCount == 1 || fgQuadCount == 3) && lps == FirstPS))
+	    // See if pairsynch is right
 	    {
 	      cout << "TaPairFromQuad::CheckEvent ERROR: Event " 
 		   << ThisEv.GetEvNumber() 
-		   << " helicity sequence error" << endl;
-	      val = WHELWRONG;
-	    }	      
-	} 
-
-      if (((fgQuadCount == 0 || fgQuadCount == 2) && lps == SecondPS)
-	  ||
-	  ((fgQuadCount == 1 || fgQuadCount == 3) && lps == FirstPS))
-	// See if pairsynch is right
+		   << " pairsynch/quadsynch mismatch" << endl;
+	      val = WQSPSWRONG;
+	    } 
+	  
+	  if ( fgLastWinEv.GetEvNumber() > 0 )
+	    {
+	      // Comparisons to last window
+	      // See if pairsynch changed since last window
+	      if ( lps == fgLastWinEv.GetPairSynch() )
+		{
+		  cout << "TaPairFromQuad::CheckSequence ERROR: Event " 
+		       << ThisEv.GetEvNumber() 
+		       << " pair synch unchanged" << endl;
+		  val = WPSSAME;
+		}
+	      
+	      if (fgQuadCount == 1 || fgQuadCount == 3)
+		// See if helicity changed
+		{
+		  if ( ThisEv.GetHelicity() == fgLastWinEv.GetHelicity() )
+		    {
+		      cout << "TaPairFromQuad::CheckSequence ERROR: Event " 
+			   << ThisEv.GetEvNumber() 
+			   << " helicity unchanged from previous window" << endl;
+		      val = WHELSAME;
+		    }
+		}
+	      else if (fgQuadCount == 2)
+		// See if helicity unchanged
+		{
+		  if ( ThisEv.GetHelicity() != fgLastWinEv.GetHelicity() )
+		    {
+		      cout << "TaPairFromQuad::CheckSequence ERROR: Event " 
+			   << ThisEv.GetEvNumber() 
+			   << " helicity changed from previous window" << endl;
+		      val = WHELCHANGE;
+		    }
+		}
+	    }
+	}
+      
+      if ( !newWin && fgThisWinEv.GetEvNumber() != 0 )
 	{
-	  cout << "TaPairFromQuad::CheckEvent ERROR: Event " 
-	       << ThisEv.GetEvNumber() 
-	       << " pairsynch/quadsynch mismatch" << endl;
-	  val = WQSPSWRONG;
-	} 
-
-      if ( fgLastWinEv.GetEvNumber() > 0 )
-	{
-	  // Comparisons to last window
-	  // See if pairsynch changed since last window
-	  if ( lps == fgLastWinEv.GetPairSynch() )
+	  // Comparisons to last event
+	  // See if pairsynch stayed the same
+	  if ( lps != fgThisWinEv.GetPairSynch() )
 	    {
 	      cout << "TaPairFromQuad::CheckSequence ERROR: Event " 
-		   << ThisEv.GetEvNumber() 
-		   << " pair synch unchanged" << endl;
-	      val = WPSSAME;
+		   << ThisEv.GetEvNumber()
+		   << " pairsynch change in mid window\n";
+	      val = EPSCHANGE;
 	    }
-	  
-	  if (fgQuadCount == 1 || fgQuadCount == 3)
-	    // See if helicity changed
+	  // See if quadsynch stayed the same
+	  if ( lqs != fgThisWinEv.GetQuadSynch() )
 	    {
-	      if ( ThisEv.GetHelicity() == fgLastWinEv.GetHelicity() )
-		{
-		  cout << "TaPairFromQuad::CheckSequence ERROR: Event " 
-		       << ThisEv.GetEvNumber() 
-		       << " helicity unchanged from previous window" << endl;
-		  val = WHELSAME;
-		}
+	      cout << "TaPairFromQuad::CheckSequence ERROR: Event " 
+		   << ThisEv.GetEvNumber()
+		   << " quadsynch change in mid window\n";
+	      val = EQSCHANGE;
 	    }
-	  else if (fgQuadCount == 2)
-	    // See if helicity unchanged
+	  // See if helicity stayed the same
+	  if ( ThisEv.GetHelicity() != fgThisWinEv.GetHelicity() )
 	    {
-	      if ( ThisEv.GetHelicity() != fgLastWinEv.GetHelicity() )
-		{
-		  cout << "TaPairFromQuad::CheckSequence ERROR: Event " 
-		       << ThisEv.GetEvNumber() 
-		       << " helicity changed from previous window" << endl;
-		  val = WHELCHANGE;
-		}
+	      cout << "TaPairFromQuad::CheckSequence ERROR: Event " 
+		   << ThisEv.GetEvNumber()
+		   << " helicity change in mid window\n";
+	      val = EHELCHANGE;
 	    }
 	}
     }
 
-  if ( !newWin && fgThisWinEv.GetEvNumber() != 0 )
-    {
-      // Comparisons to last event
-      // See if pairsynch stayed the same
-      if ( lps != fgThisWinEv.GetPairSynch() )
-	{
-	  cout << "TaPairFromQuad::CheckSequence ERROR: Event " 
-	       << ThisEv.GetEvNumber()
-	       << " pairsynch change in mid window\n";
-	  val = EPSCHANGE;
-	}
-      // See if quadsynch stayed the same
-      if ( lqs != fgThisWinEv.GetQuadSynch() )
-	{
-	  cout << "TaPairFromQuad::CheckSequence ERROR: Event " 
-	       << ThisEv.GetEvNumber()
-	       << " quadsynch change in mid window\n";
-	  val = EQSCHANGE;
-	}
-      // See if helicity stayed the same
-      if ( ThisEv.GetHelicity() != fgThisWinEv.GetHelicity() )
-	{
-	  cout << "TaPairFromQuad::CheckSequence ERROR: Event " 
-	       << ThisEv.GetEvNumber()
-	       << " helicity change in mid window\n";
-	  val = EHELCHANGE;
-	}
-    }
-  
 #ifdef NOISY
   clog << "This Event  " << ThisEv.GetEvNumber()
        << " hel/ps/qs/ts " << (UInt_t)ThisEv.GetHelicity() 
