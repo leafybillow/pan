@@ -94,7 +94,7 @@ public:
   // constructor and operator= are protected.
 
   // Major functions
-  virtual void Init(const Int_t&);
+  virtual void Init(const Bool_t&);
   virtual ErrCode_t RunIni(TaRun&);
   virtual ErrCode_t RunReIni(TaRun&);
   virtual ErrCode_t ProcessRun();
@@ -182,7 +182,7 @@ protected:
   Int_t fTreeOKCond;            // Pair passes cut conditions
   Int_t fTreeOKCut;             // Pair not in cut interval
   Double_t* fTreeSpace;         // Other data for tree
-  Int_t fOnlFlag;               // Flag whether data are online or not. 
+  Bool_t fOnlFlag;              // Flag whether data are online or not. 
   UInt_t fEvtProc;              // Number of events processed
   UInt_t fPairProc;             // Number of pairs processed
   EPairType fPairType;          // Type of beam helicity structure

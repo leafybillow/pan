@@ -40,7 +40,7 @@ TaAnalysisManager::TaAnalysisManager ():
   fRun(0), 
   fAnalysis(0),
   fRootFile(0),
-  fOnlFlag(0)
+  fOnlFlag(false)
 {
 }
 
@@ -59,7 +59,7 @@ TaAnalysisManager::Init ()
 
 #ifdef ONLINE
   fRun = new TaRun();
-  fOnlFlag = 1;
+  fOnlFlag = true;
   return InitCommon();
 #else
   cerr << "TaAnalysisManager::Init ERROR: Not compiled with ONLINE, cannot analyze online data" << endl;

@@ -65,7 +65,7 @@ class TaAnalysisManager
   TaRun* fRun;              // Requested run
   VaAnalysis* fAnalysis;    // Requested analysis
   TFile* fRootFile;         // Root file for analysis results
-  Int_t fOnlFlag;           // Flag indicating data is online
+  Bool_t fOnlFlag;          // Flag indicating data is online
 
 #ifdef DICT
   ClassDef (TaAnalysisManager, 0) // Drives the entire analysis.  
