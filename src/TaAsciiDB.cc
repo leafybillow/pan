@@ -23,6 +23,10 @@ TaAsciiDB::TaAsciiDB() {
      didinit = kFALSE; 
      initdm  = kFALSE;
      firstiter = kTRUE;
+     // Use pointers for these flags so we can change them without
+     // violating const
+     fFirstgdn = new Bool_t(kTRUE);
+     fFirstped = new Bool_t(kTRUE);
      dacparam = new Double_t[2*MAXADC*MAXCHAN];     
      memset(dacparam,0,2*MAXADC*MAXCHAN*sizeof(Double_t));
      pedvalue = new Double_t[MAXADC*MAXCHAN];
@@ -89,6 +93,7 @@ void TaAsciiDB::Load(int run) {
     LoadTable(FindTable(strvect[0]), datavect);
   }
   delete dbfile;
+  didinit = kTRUE;
 };
 
 void TaAsciiDB::Write() {
@@ -228,10 +233,14 @@ Int_t TaAsciiDB::GetFdbkTimeScale( const string &fdbktype ) const{
 
 Double_t TaAsciiDB::GetDacNoise(const Int_t& adc, const Int_t& chan, const string& key) const {
 // Get Dac noise parameters for adc,chan with key = 'slope' or 'intercept'
+  if (!didinit)
+    {
+      cerr << "TaAsciiDB::GetDacNoise ERROR: Database not initialized\n";
+      return 0;
+    }
   int idx;
-  static Bool_t firstgdn = kTRUE;
-  if (firstgdn)  {
-     firstgdn = kFALSE;
+  if (*fFirstgdn)  {
+     *fFirstgdn = kFALSE;
      vector<string> keys;
      keys.clear();
      keys.push_back("adc");   
@@ -275,12 +284,16 @@ Double_t TaAsciiDB::GetDacNoise(const Int_t& adc, const Int_t& chan, const strin
   return 0;
 };
 
-Double_t TaAsciiDB::GetPedestal(const Int_t& adc, const Int_t& chan) const{
+Double_t TaAsciiDB::GetPedestal(const Int_t& adc, const Int_t& chan) const {
 // Get Pedestals for adc, chan 
+  if (!didinit)
+    {
+      cerr << "TaAsciiDB::GetPedestal ERROR: Database not initialized\n";
+      return 0;
+    }
   int idx;
-  static Bool_t firstped = kTRUE;
-  if (firstped) {
-    firstped = kFALSE;
+  if (*fFirstped) {
+    *fFirstped = kFALSE;
     vector<string> keys;
     keys.clear();
     keys.push_back("adc");   
@@ -441,7 +454,8 @@ string TaAsciiDB::GetString(const string& table) const {
    return 0;
 };
 
-vector<Int_t> TaAsciiDB::GetValueVector(const string& table) const {
+vector<Int_t> 
+TaAsciiDB::GetValueVector(const string& table) const {
    vector<Int_t> result;
    result.clear();
    multimap<string, vector<dtype*> >::const_iterator lb =

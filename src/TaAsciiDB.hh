@@ -157,6 +157,8 @@ private:
   map<string, int> dbinit,colsize;
   Bool_t didinit,initdm,firstiter;
   Double_t *dacparam,*pedvalue;
+  Bool_t *fFirstgdn;
+  Bool_t *fFirstped;
 
 #ifdef DICT
 ClassDef(TaAsciiDB,0)  // Ascii database or control file
@@ -165,12 +167,3 @@ ClassDef(TaAsciiDB,0)  // Ascii database or control file
 };
 
 #endif
-
-
-
-
-
-
-
-
-
