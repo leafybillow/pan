@@ -3,19 +3,116 @@
 
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
-	
+
+More changes by R. Holmes on 7 Mar 2002
+----------------------------------------
+
+TaCutList.cc
+
+  o Return stream from operator<<.
+  o Check cut numbers when initializing from database and ignore any
+    out of range.
+
+TaCutInterval.cc
+
+  o Return stream from operator<<.
+
+
+Changes by R. Holmes on 7 Mar 2002
+----------------------------------------
+
+TaCutInterval.hh,cc
+
+  o Add operator<< .
+
+TaCutList.hh,cc
+
+  o Initialize cut list and cut extensions from database. (This
+    requires a change to the Init interface.) 
+  o Add operator<< .
+
+TaEvent.hh,cc
+
+  o Replace data member fCut with fCutFail and fCutPass. 
+  o Clear these when loading an event (I'm not sure this is
+    necessary). 
+  o Call badly-named AddCut for every event cut on every event, with
+    value zero when cut is passed, nonzero otherwise.
+  o Add GetCutsPassed() as counterpart to GetCuts() (which returns
+    cuts failed). 
+
+TaPairFromPair.cc
+
+  o Call badly-named AddCut for every pair cut on every pair, with
+  value zero when cut is passed, nonzero otherwise.
+
+TaRun.cc
+
+  o Minor changes required due to above changes in TaCutList and
+    TaEvent.
+  o A couple of new debug prints (enabled with NOISY).
+
+VaAnalysis.hh,cc
+
+  o Fixed members of pair tree (event numbers and pair_ok) are stored
+    in their own variables, not in *fTreeSpace.
+  o Initialize fEHelDequeMax to 1 greater than delay * oversample (and 
+    eliminate special treatment for delay = 0.)
+  o Eliminate "dirty fix" for memory leak (now plugged).
+
+VaPair.cc
+
+  o Change sign convention for differences and asymmetries back to 
+    R-L.  (I did this because it is the convention used in HAPPEX I
+    and so far as I know all other parity experiments, and because I
+    do not know the reason why it was changed to L-R.  If there is a
+    problem with R-L please let me know.  There may be a better fix.)
+  o Change PassedCuts to return Bool_t, and require both events to be
+    good.
+
+
+Changes by R. Holmes on 5 Mar 2002
+----------------------------------------
+
+TaBeamAna 
+
+  o Fix bug in InitChanLists causing BCM asymmetries to be stored
+    twice. 
+
+TaRun
+
+  o Changes to prevent Pan from trying to compute and print means and
+    widths of things like the helicity and pairsynch bits.  I decided
+    on a quick and easy but not necessarily best fix, which is to
+    accumulate sums for all "results" (including values of helicity
+    and pairsynch) but compute and print means and widths only for
+    those whose names start with "Asym" or "Diff".  I would be happy
+    to hear suggestions for a better fix, if you have any.
+
+TaStatistics 
+
+  o Remove the error messages from the Neff routines which were
+    printed when the statistics vectors are empty; instead it quietly
+    returns zero, which is a sensible thing to return.  I think it
+    should be legal to call Neff on a possibly empty statistics
+    vector.  You still get error messages if you try to e.g. compute a
+    mean on an empty vector.
+
+
+
+
 * changes leading to March 1 2002 version
-_________________________________________	
+_________________________________________       
 
 TaAnalysisManager -
    Can choose now between two type of analysis, so now the run type and the anatype could
    be different. We still need to put the ana type in the root file name.
-	 
-	
+         
+        
 VaAnalysis -
    Added RunInI() set the value of fEHelDequeMax at 1 in case of no 
    helicity delay. This was the main problem why we didn't have 
-   the pair tree after a run.	
+   the pair tree after a run.   
 
 TaEvent -
    private variable FirstPS was set to 1 to respect the source 
@@ -24,22 +121,22 @@ TaEvent -
 TaRun -
    Added event number (ev_num) explicitly in the tree so we don't have to use scaler1_1 to get it.
    Added SendEPICSInfo( pair< string, Double_t> value, pair<string,Double_t> errvalue) to be able 
-   to send feedbacks infos to the source. 	
+   to send feedbacks infos to the source.       
 
 
 VaAnalysis -
-	 
+         
    Changed the convention for the asymmetry sign  : L - R  
 
 
 TaFdbkAna -
-	 
+         
     Derived from VaAnalysis, this is a 'TaBeamAna'  with charge asymmetry feedback implemented.
-    will add PZT info if needed.	
-    	
-  	
-	
-	
+    will add PZT info if needed.        
+        
+        
+        
+        
 
 * Primary changes leading to Feb 8, 2002 version
 ------------------------------------------------

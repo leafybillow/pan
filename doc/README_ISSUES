@@ -1,3 +1,49 @@
+Comments by R. Holmes, March 2002
+---------------------------------
+
+Compiler warnings at present include:
+
+  TaFdbkAna.hh: In method `TaFdbkAna::TaFdbkAna()':
+  TaFdbkAna.hh:79: warning: member initializers for `Int_t TaFdbkAna::fZsent'
+  TaFdbkAna.hh:81: warning:   and `Double_t TaFdbkAna::fQmevFdbk'
+  TaFdbkAna.cc:39: warning:   will be re-ordered to match declaration order
+
+(Probably just need to swap ordering of a couple of initializers to
+fix this.)
+
+  TaCutList.cc: In method `void TaCutList::Init(const class VaDataBase &)':
+  TaCutList.cc:66: warning: comparison between signed and unsigned
+  TaCutList.cc:69: warning: conversion from `int' to `enum ECutType'
+
+(First is because VaDataBase::GetNumBadEv() returns Int_t and I'm
+comparing to size_t.  I'd prefer it if GetNumBadEv() returned UInt_t.
+
+(Second is because the TaCutInterval constructor takes an ECutType
+argument, which I must initialize from an Int_t returned from
+VaDataBase::GetCutValues().  Probably just need a cast or something.
+
+(While we're on the subject, I have to use loops to initialize
+fLowExtension and fHighExtension in the same routine because they are
+vector<UInt_t> and VaDataBase::GetEvLo() and GetEvHi() return
+vector<Int_t>.  If they returned vector<UInt_t> I could do a vector
+assignment.)
+
+  TaEvent.cc: In method `void TaEvent::Decode()':
+  TaEvent.cc:158: warning: comparison between signed and unsigned
+
+(fSizeConst is UInt_t and it is being compared to (long)GetEvLength().
+Why?  GetEvLength() is a UInt_t too; why cast it to long?)
+
+Other issue: the pair_ok element of the pair tree is filled from
+VaPair::PassedCuts().  I fixed this to return 1 only if *both* events
+have zero CutStatus(), but this just means neither event failed a cut
+condition.  If we want to tag pairs in which neither event lies in a
+cut interval, that requires a different test (and more complicated,
+since it needs access to the cut list; we'd need to change the calling
+routine interface for a couple of levels).
+
+
+
 Comments by A. Vacheret, March, 2002
 ----------------------------------
 
