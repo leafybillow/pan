@@ -170,6 +170,7 @@ public:
   static const ErrCode_t fgVAANA_ERROR;  // returned on error
   static const ErrCode_t fgVAANA_OK;      // returned on success
   static const UInt_t fgNumBpmFdbk;
+  static const EventNumber_t fgSLICELENGTH;  // events in a statistics slice
 
 protected:
 
@@ -248,6 +249,10 @@ protected:
   UInt_t fEvtProc;              // Number of events processed
   UInt_t fPairProc;             // Number of pairs processed
   EPairType fPairType;          // Type of beam helicity structure
+  EventNumber_t fSliceLimit;    // Event number at end of next slice
+  Bool_t fDoSlice;              // To control if slice stats are kept
+  Bool_t fDoRun;                // To control if run stats are kept
+  Bool_t fDoRoot;               // To control whether ROOT file is made
   Bool_t fFirstPass;            // Pass 1 or 2?
 
   Bool_t fQSwitch;              // value of the switch for IA feedback
@@ -283,7 +288,7 @@ protected:
   Double_t fPZTYlast;           // last valure of the Y PZT voltage
 
   // Define LEAKCHECK to check that new = del
-#define LEAKCHECK
+  //#define LEAKCHECK
 #ifdef LEAKCHECK
   void LeakCheck();
   static UInt_t fLeakNewEvt;    // count of event allocations
@@ -299,8 +304,3 @@ protected:
 };
 
 #endif
-
-
-
-
-

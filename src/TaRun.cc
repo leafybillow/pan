@@ -62,7 +62,8 @@ ClassImp(TaRun)
 const ErrCode_t TaRun::fgTARUN_ERROR = -1;  // returned on error
 const ErrCode_t TaRun::fgTARUN_OK = 0;      // returned on success
 const ErrCode_t TaRun::fgTARUN_VERBOSE = 1; // verbose(1) or not(0) warnings
-const EventNumber_t TaRun::fgSLICELENGTH = 1000;  // events in a statistics slice
+
+EventNumber_t TaRun::fNLastSlice = 0; // event number at last slice reset
 
 // Constructors/destructors/operators
 
@@ -80,7 +81,6 @@ TaRun::TaRun():
   fPSliceStats(0),
   fERunStats(0),
   fPRunStats(0),
-  fSliceLimit(fgSLICELENGTH),
   fFirstPass(true)
 {
 #ifdef ONLINE
@@ -107,7 +107,6 @@ TaRun::TaRun(const Int_t& run) :
   fPSliceStats(0),
   fERunStats(0),
   fPRunStats(0),
-  fSliceLimit(fgSLICELENGTH),
   fFirstPass(true)
 {
   TaFileName::Setup (fRunNumber, "");
@@ -128,7 +127,6 @@ TaRun::TaRun(const string& filename):
   fPSliceStats(0),
   fERunStats(0),
   fPRunStats(0),
-  fSliceLimit(fgSLICELENGTH),
   fFirstPass(true)
 {
 };
@@ -223,15 +221,6 @@ TaRun::Init()
   fEvent = new TaEvent();
   fAccumEvent = new TaEvent();
 
-  // Open the Root file
-  TaFileName::Setup (fRunNumber, fDataBase->GetAnaType());
-  TaFileName rootFileName ("root");
-  fRootFile = new TFile(rootFileName.String().c_str(),"RECREATE");
-  fRootFile->SetCompressionLevel(0);
-  fEvtree = new TTree("R","Event data DST");
-  fEvtree->Branch ("ev_num", &fAccumEventNumber, "ev_num/I", 5000); // event number
-  InitTree();
-  
   return fgTARUN_OK;
 
 }
@@ -357,7 +346,7 @@ TaRun::Decode()
 
 
 void 
-TaRun::AccumEvent(const TaEvent& ev) 
+TaRun::AccumEvent(const TaEvent& ev, const Bool_t doSlice, const Bool_t doRun) 
 { 
   // Update event statistics with the results in this event, if it
   // passes cuts.
@@ -365,7 +354,7 @@ TaRun::AccumEvent(const TaEvent& ev)
   fAccumEvent->CopyInPlace(ev);
   fAccumEventNumber = fAccumEvent->GetEvNumber();
   vector<TaLabelledQuantity> lqres = ev.GetResults();
-  if (fESliceStats == 0 && lqres.size() > 0)
+  if ((doSlice || doRun) && fESliceStats == 0 && lqres.size() > 0)
     {
       // Set up statistics
       for (vector<TaLabelledQuantity>::const_iterator i = lqres.begin();
@@ -381,8 +370,10 @@ TaRun::AccumEvent(const TaEvent& ev)
 #ifdef NOISY
       clog << "Setting up event stats - " << fEStatsNames.size() << endl;
 #endif
-      fESliceStats = new TaStatistics (fEStatsNames.size(), false);
-      fERunStats = new TaStatistics (fEStatsNames.size(), false);
+      if (doSlice)
+	fESliceStats = new TaStatistics (fEStatsNames.size(), false);
+      if (doRun)
+	fERunStats = new TaStatistics (fEStatsNames.size(), false);
     }
 
   if ( fCutList->OK(ev) )
@@ -397,27 +388,29 @@ TaRun::AccumEvent(const TaEvent& ev)
 	  if (!i->TestFlags(VaAnalysis::fgNO_STATS))
 	    vres.push_back (i->GetVal());
 	}
-      fESliceStats->Update (vres);
-      fERunStats->Update (vres);
+      if (doSlice)
+	fESliceStats->Update (vres);
+      if (doRun)
+	fERunStats->Update (vres);
     }
 #ifdef NOISY
   else
     clog << "Event " << ev.GetEvNumber() << " is in cut interval" << endl;
 #endif
-  if (fFirstPass)
+  if (fFirstPass && fEvtree != 0)
     fEvtree->Fill();
 }
 
 
 void 
-TaRun::AccumPair(const VaPair& pr) 
+TaRun::AccumPair(const VaPair& pr, const Bool_t doSlice, const Bool_t doRun) 
 { 
   // Update pair statistics with the results in this pair, if its
   // events pass cuts.  Periodically print incremental statistics and
   // cumulative cut tally.
 
   vector<TaLabelledQuantity> lqres = pr.GetResults();
-  if (fPSliceStats == 0 && lqres.size() > 0)
+  if ((doSlice || doRun) && fPSliceStats == 0 && lqres.size() > 0)
     {
       // Set up statistics
       for (vector<TaLabelledQuantity>::const_iterator i = lqres.begin();
@@ -433,8 +426,10 @@ TaRun::AccumPair(const VaPair& pr)
 #ifdef NOISY
       clog << "Setting up pair stats - " << fPStatsNames.size() << endl;
 #endif
-      fPSliceStats = new TaStatistics (fPStatsNames.size(), false);
-      fPRunStats = new TaStatistics (fPStatsNames.size(), false);
+      if (doSlice)
+	fPSliceStats = new TaStatistics (fPStatsNames.size(), false);
+      if (doRun)
+	fPRunStats = new TaStatistics (fPStatsNames.size(), false);
     }
 
   if ( fCutList->OK(pr.GetRight()) && fCutList->OK(pr.GetLeft()) )
@@ -449,8 +444,10 @@ TaRun::AccumPair(const VaPair& pr)
 	  if (!i->TestFlags(VaAnalysis::fgNO_STATS))
 	    vres.push_back (i->GetVal());
 	}
-      fPSliceStats->Update (vres);
-      fPRunStats->Update (vres);
+      if (doSlice)
+	fPSliceStats->Update (vres);
+      if (doRun)
+	fPRunStats->Update (vres);
     }
 #ifdef NOISY
   else
@@ -459,63 +456,42 @@ TaRun::AccumPair(const VaPair& pr)
 	 << " is in cut interval" << endl;
 #endif
 
+}
+
+
+void
+TaRun::PrintSlice (EventNumber_t n)
+{
   // Print a slice and reset its statistics
-  EventNumber_t evr = pr.GetRight().GetEvNumber();
-  EventNumber_t evl = pr.GetLeft().GetEvNumber();
-  if (evr >= fSliceLimit || evl >= fSliceLimit)
+
+  size_t nSlice = n - fNLastSlice;
+  if (nSlice > 5)
     {
-      fSliceLimit += fgSLICELENGTH;
-      if (fFirstPass)
-	{
-	  cout << "TaRun::AccumPair(): At pair " << evr << "/" << evl
-	       << " of run " << fRunNumber << endl;
-	  if (fESliceStats != 0 || fPSliceStats != 0)
-	    cout << "Stats for last " << fgSLICELENGTH
-		 << " events:";
-	  cout << endl;
-	  if (fESliceStats != 0)
-	    PrintStats (*fESliceStats, fEStatsNames, fEStatsUnits);
-	  if (fPSliceStats != 0)
-	    PrintStats (*fPSliceStats, fPStatsNames, fPStatsUnits);
-	  cout << endl;
-	  fCutList->PrintTally(cout);
-	  cout << endl;
-	}
-      if (fESliceStats != 0)
-	fESliceStats->Zero();
-      if (fPSliceStats != 0)
-	fPSliceStats->Zero();
-    }
-}
-
-void 
-TaRun::UpdateCutList (const Cut_t cut, const Int_t val, EventNumber_t evno) 
-{ 
-  // Update this run's cut list with the given cut type, value, and
-  // event number.
-
-  fCutList->UpdateCutInterval ( cut, val, evno );
-}
-
-void 
-TaRun::Finish() 
-{ 
-  // End of run.  Print last incremental statistics, cumulative
-  // statistics, cumulative cut tally.
-
-  cout << "\nTaRun::Finish End of run " << fRunNumber << endl;
-  if (fFirstPass)
-    {
-      size_t nSlice = fEventNumber - (fSliceLimit - fgSLICELENGTH);
-      if ((fESliceStats != 0 || fPSliceStats != 0) && nSlice > 5)
-	cout<< "Stats for last " << nSlice << " events:";
+      if (fESliceStats != 0 || fPSliceStats != 0)
+	cout << "Stats for last " << (n - fNLastSlice) << " events:";
       cout << endl;
-      
-      if (fESliceStats != 0 && nSlice > 5)
+      if (fESliceStats != 0)
 	PrintStats (*fESliceStats, fEStatsNames, fEStatsUnits);
-      if (fPSliceStats != 0 && nSlice > 5)
+      if (fPSliceStats != 0)
 	PrintStats (*fPSliceStats, fPStatsNames, fPStatsUnits);
+      
+      cout << endl;
+      fCutList->PrintTally(cout);
+      cout << endl;
     }
+      
+  if (fESliceStats != 0)
+    fESliceStats->Zero();
+  if (fPSliceStats != 0)
+    fPSliceStats->Zero();
+  fNLastSlice = n;
+}
+
+
+void
+TaRun::PrintRun ()
+{
+  // Print run statistics
 
   if (fERunStats != 0 || fPRunStats != 0)
     cout << "\nCumulative stats for " << fEventNumber 
@@ -530,10 +506,31 @@ TaRun::Finish()
   cout << endl;
   fCutList->PrintTally(cout);
   cout << endl;
+}
 
-  fRootFile->Write();
-  fRootFile->Close();
-  delete fRootFile;
+
+void 
+TaRun::UpdateCutList (const Cut_t cut, const Int_t val, EventNumber_t evno) 
+{ 
+  // Update this run's cut list with the given cut type, value, and
+  // event number.
+
+  fCutList->UpdateCutInterval ( cut, val, evno );
+}
+
+void 
+TaRun::Finish() 
+{ 
+  // End of run.  Write out root file and close it.
+
+  cout << "\nTaRun::Finish End of run " << fRunNumber << endl;
+
+  if (fRootFile != 0)
+    {
+      fRootFile->Write();
+      fRootFile->Close();
+      delete fRootFile;
+    }
 }
 
 
@@ -585,27 +582,6 @@ TaRun::GetBuffer()
   return 0;
 }
 
-void 
-TaRun::InitTree() {
-// Set up the event tree
-  if ( !fDevices ) {
-    cout << "TaRun::InitTree:: ERROR:  You must create and initialize";
-    cout << " fDevices before adding to tree"<<endl;
-    return;
-  }
-  if ( !fEvtree ) {
-    cout << "TaRun::InitTree:: ERROR:  You must create the root tree";
-    cout << " before attempting to add to it."<<endl;
-    return;
-  }
-  if ( !fCutList ) {
-    cout << "TaRun::InitTree:: ERROR:  You must create and initialize";
-    cout << " fCutList before adding to tree"<<endl;
-    return;
-  }
-  fAccumEvent->AddToTree(*fDevices, *fCutList, *fEvtree);
-};
-
 Int_t 
 TaRun::GetKey(string keystr) const {
   // return the integer key that corresponds to a string.  
@@ -616,6 +592,33 @@ string
 TaRun::GetKey(Int_t key) const {
   // return the string key that corresponds to the integer key.
   return fDevices->GetKey(key);
+};
+
+
+void 
+TaRun::InitRoot() 
+{
+  // Set up the root file and event tree
+
+  // Open the Root file
+  TaFileName::Setup (fRunNumber, fDataBase->GetAnaType());
+  TaFileName rootFileName ("root");
+  fRootFile = new TFile(rootFileName.String().c_str(),"RECREATE");
+  fRootFile->SetCompressionLevel(0);
+  fEvtree = new TTree("R","Event data DST");
+  fEvtree->Branch ("ev_num", &fAccumEventNumber, "ev_num/I", 5000); // event number
+
+  if ( !fDevices ) {
+    cout << "TaRun::InitTree:: ERROR:  You must create and initialize";
+    cout << " fDevices before adding to tree"<<endl;
+    return;
+  }
+  if ( !fCutList ) {
+    cout << "TaRun::InitTree:: ERROR:  You must create and initialize";
+    cout << " fCutList before adding to tree"<<endl;
+    return;
+  }
+  fAccumEvent->AddToTree(*fDevices, *fCutList, *fEvtree);
 };
 
 

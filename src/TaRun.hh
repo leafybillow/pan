@@ -63,8 +63,10 @@ public:
   virtual ErrCode_t ReInit();
   Bool_t NextEvent();
   void Decode();
-  virtual void AccumEvent(const TaEvent&);
-  virtual void AccumPair(const VaPair&);
+  virtual void AccumEvent(const TaEvent&, const Bool_t doSlice, const Bool_t doRun);
+  virtual void AccumPair(const VaPair&, const Bool_t doSlice, const Bool_t doRun);
+  void PrintSlice (EventNumber_t n);
+  void PrintRun();
   void UpdateCutList(const Cut_t, const Int_t, EventNumber_t);
   virtual void Finish();
 
@@ -79,13 +81,15 @@ public:
   Int_t GetKey(string keystr) const;
   string GetKey(Int_t key) const;
   TaDevice& GetDevices() const {return *fDevices;};  // Device map for this run
+  virtual void InitRoot();
 
   // Static data
 
   static const ErrCode_t fgTARUN_ERROR;  // returned on error
   static const ErrCode_t fgTARUN_OK;      // returned on success
   static const ErrCode_t fgTARUN_VERBOSE; // verbose(1) or not(0) warnings
-  static const EventNumber_t fgSLICELENGTH;  // events in a statistics slice
+
+  static EventNumber_t fNLastSlice;     // event number at last slice reset
 
 private:
 
@@ -97,7 +101,6 @@ private:
   virtual void Uncreate();
   Int_t GetBuffer();
   Int_t FindRunNumber();  
-  virtual void InitTree();
   void PrintStats (const TaStatistics& s, const vector<string>& n, const vector<string>& u) const;
 
   // Data members
@@ -125,7 +128,6 @@ private:
   vector<string> fPStatsNames;   // Names of pair statistics
   vector<string> fEStatsUnits;   // Units of event statistics
   vector<string> fPStatsUnits;   // Units of pair statistics
-  EventNumber_t fSliceLimit;     // Event number at end of next slice
   Bool_t fFirstPass;             // Pass 1 or 2?
 
 #ifdef DICT

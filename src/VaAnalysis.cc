@@ -73,6 +73,7 @@ const UInt_t VaAnalysis::fgAVE            = 0x40;
 const ErrCode_t VaAnalysis::fgVAANA_ERROR = -1;  // returned on error
 const ErrCode_t VaAnalysis::fgVAANA_OK = 0;      // returned on success
 const UInt_t VaAnalysis::fgNumBpmFdbk     = 2;   // number of BPMs to feedback on
+const EventNumber_t VaAnalysis::fgSLICELENGTH = 1000;  // events in a statistics slice
 
 #ifdef LEAKCHECK
 UInt_t VaAnalysis::fLeakNewEvt(0);
@@ -103,6 +104,10 @@ VaAnalysis::VaAnalysis():
   fCutArray(0),
   fOnlFlag(0),
   fPairType(FromPair),
+  fSliceLimit(fgSLICELENGTH),
+  fDoSlice(true),
+  fDoRun(true),
+  fDoRoot(true),
   fFirstPass(true),
   fIAslope(0),
   fIAlast(0),
@@ -239,10 +244,16 @@ VaAnalysis::RunIni(TaRun& run)
   fNCuts = fRun->GetDataBase().GetNumCuts();
   fCutArray = new Int_t[2*fNCuts];
 
-  fPairTree = 0;
-  fPairTree = new TTree("P","Pair data DST");
   InitChanLists();
-  InitTree(fRun->GetCutList());
+  if (fDoRoot)
+    {
+      fRun->InitRoot();
+      fPairTree = new TTree("P","Pair data DST");
+      InitTree(fRun->GetCutList());
+    }
+  else
+    clog << "VaAnalysis::RunIni No ROOT file created for this analysis" << endl;
+
   fQSwitch = kFALSE;
   fZSwitch = kFALSE;
   fQNpair=0; fQfeedNum=0;
@@ -330,28 +341,38 @@ VaAnalysis::ProcessRun()
     {
       if (PreProcessEvt() != 0)
 	return fgVAANA_ERROR;
+      Bool_t evOK = false;
       if ( fEDeque.size() == fEDequeMax )
         {
           if (ProcessEvt() != 0)
 	    return fgVAANA_ERROR;
-          fRun->AccumEvent (*fEvt);
+          fRun->AccumEvent (*fEvt, fDoSlice, fDoRun);
+	  evOK = true;
         }
       if ( fPDeque.size() == fPDequeMax )
         {
           if (ProcessPair() != 0)
 	    return fgVAANA_ERROR;
-          fRun->AccumPair (*fPair);
+          fRun->AccumPair (*fPair, fDoSlice, fDoRun);
         }
-      if (fRun->GetEvent().GetEvNumber() % 1000 == 0)
-        {
-          clog << "VaAnalysis::ProcessRun: Event " 
-               << fRun->GetEvent().GetEvNumber() 
-               << " read -- processed " << fEvtProc << " (" << fPairProc
-               << ") events (pairs)" << endl;
+
+      // Tell run to print stats occasionally
+      EventNumber_t ev = evOK ? fEvt->GetEvNumber() : 0;
+      if (ev >= fSliceLimit)
+	{
+	  fSliceLimit += fgSLICELENGTH;
+	  clog << "VaAnalysis::ProcessRun: Read event " 
+	       << fRun->GetEvent().GetEvNumber()
+	       << " of run " << fRun->GetRunNumber()
+	       << " -- processed " << fEvtProc << " (" << fPairProc
+	       << ") events (pairs)" << endl;
+	  if (fFirstPass && fDoSlice)
+	    fRun->PrintSlice(ev);
 #ifdef LEAKCHECK
           //LeakCheck();
 #endif
         }
+
       if (fRun->GetEvent().GetEvNumber() >= fMaxNumEv)
         break;
     }
@@ -362,17 +383,18 @@ VaAnalysis::ProcessRun()
   // that we can't process the leftover events in the helicity delay
   // queue because we can't find out their helicity!]
   
+  clog << "VaAnalysis::ProcessRun: Entering cleanup" << endl;
   while ( fEDeque.size() > 0 )
     {
       if (ProcessEvt() != 0)
 	return fgVAANA_ERROR;
-      fRun->AccumEvent (*fEvt);
+      fRun->AccumEvent (*fEvt, fDoSlice, fDoRun);
     }
   while ( fPDeque.size() > 0 )
     {
       if (ProcessPair() != 0)
 	return fgVAANA_ERROR;
-      fRun->AccumPair (*fPair);
+      fRun->AccumPair (*fPair, fDoSlice, fDoRun);
     }
 
   return fgVAANA_OK;
@@ -393,10 +415,15 @@ VaAnalysis::RunFini()
   clog << "VaAnalysis::RunFini: Processed " << fEvtProc 
        << " (" << fPairProc << ") events (pairs)" << endl;
 
+  if (fFirstPass && fDoSlice)
+    fRun->PrintSlice(fPreEvt->GetEvNumber());
+  if (fDoRun)
+    fRun->PrintRun();
+
   if (fQSwitch) QasyEndFeedback();
   if (fZSwitch) PZTEndFeedback();
 
-  if (fFirstPass)
+  if (fPairTree != 0)
     {
       fPairTree->Write();
       delete fPairTree;
@@ -577,7 +604,7 @@ VaAnalysis::ProcessPair()
       clog << " x diff " <<endl;       
 #endif
       PairAnalysis();
-      if (fFirstPass)
+      if (fPairTree != 0)
 	fPairTree->Fill();      
       ++fPairProc;
     }
@@ -856,13 +883,17 @@ VaAnalysis::AutoPairAna()
 
   Double_t* tsptr = fTreeSpace;
 
-  // First store values not associated with a channel
-  fTreeREvNum = fPair->GetRight().GetEvNumber();
-  fTreeLEvNum = fPair->GetLeft().GetEvNumber();
-  fTreeMEvNum = (fPair->GetRight().GetEvNumber()+
-                fPair->GetLeft().GetEvNumber())*0.5;
-  fTreeOKCond = (fPair->PassedCuts() ? 1 : 0);
-  fTreeOKCut  = (fPair->PassedCutsInt(fRun->GetCutList()) ? 1 : 0);
+  if (fPairTree != 0)
+    {
+      // First store values not associated with a channel
+      fTreeREvNum = fPair->GetRight().GetEvNumber();
+      fTreeLEvNum = fPair->GetLeft().GetEvNumber();
+      fTreeMEvNum = (fPair->GetRight().GetEvNumber()+
+		     fPair->GetLeft().GetEvNumber())*0.5;
+      fTreeOKCond = (fPair->PassedCuts() ? 1 : 0);
+      fTreeOKCut  = (fPair->PassedCutsInt(fRun->GetCutList()) ? 1 : 0);
+    }
+
 #ifdef ASYMCHECK
   clog<<" mean ev pair "<<(fPair->GetRight().GetEvNumber()+fPair->GetLeft().GetEvNumber())*0.5<<" passed Cuts :"<<fPair->PassedCuts()<<endl;
 #endif
@@ -882,7 +913,8 @@ VaAnalysis::AutoPairAna()
 	    val = fPair->GetRight().GetDataSum(*(alist.fVarInts), *(alist.fVarWts));
 	  else
 	    val = fPair->GetRight().GetData(alist.fVarInt);
-	  *(tsptr++) = val;
+	  if (fPairTree != 0)
+	    *(tsptr++) = val;
 	  fPair->AddResult (TaLabelledQuantity (string("Right ")+(alist.fVarStr), 
 						val, 
 						alist.fUniStr,
@@ -891,7 +923,8 @@ VaAnalysis::AutoPairAna()
 	    val = fPair->GetLeft().GetDataSum(*(alist.fVarInts), *(alist.fVarWts));
 	  else
 	    val = fPair->GetLeft().GetData(alist.fVarInt);
-	  *(tsptr++) = val;
+	  if (fPairTree != 0)
+	    *(tsptr++) = val;
 	  fPair->AddResult (TaLabelledQuantity (string("Left  ")+(alist.fVarStr), 
 						val, 
 						alist.fUniStr,
@@ -906,7 +939,8 @@ VaAnalysis::AutoPairAna()
 	    val = fPair->GetDiffSum (*(alist.fVarInts), *(alist.fVarWts)) * 1E3;
 	  else
 	    val = fPair->GetDiff(alist.fVarInt) * 1E3;
-	  *(tsptr++) = val;
+	  if (fPairTree != 0)
+	    *(tsptr++) = val;
 	  fPair->AddResult (TaLabelledQuantity (string("Diff ")+(alist.fVarStr), 
 						val, 
 						alist.fUniStr,
@@ -933,7 +967,8 @@ VaAnalysis::AutoPairAna()
 	      else
 		val = fPair->GetAsy(alist.fVarInt) * 1E6;
 	    }
-	  *(tsptr++) = val;
+	  if (fPairTree != 0)
+	    *(tsptr++) = val;
 	  fPair->AddResult (TaLabelledQuantity (string("Asym ")+(alist.fVarStr), 
 						val, 
 						alist.fUniStr,
@@ -963,7 +998,8 @@ VaAnalysis::AutoPairAna()
 		val = fPair->GetAsy(alist.fVarInt);
 	      val = (val - fPair->GetAsy(IBCM1)) * 1E6;
 	    }
-	  *(tsptr++) = val;
+	  if (fPairTree != 0)
+	    *(tsptr++) = val;
 	  fPair->AddResult (TaLabelledQuantity (string("AsyN ")+(alist.fVarStr), 
 						val, 
 						alist.fUniStr,
