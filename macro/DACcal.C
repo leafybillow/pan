@@ -1,10 +1,31 @@
- // Purpose:  examine results of adcped run.
+ // Purpose:  examine results of adcdac run.
 #include <fstream>
 
 #define ADC_MaxSlot 10
 #define ADC_MaxChan 4
 
 void DACcal() {
+  Int_t run;
+  cout << "Enter adcdac run number : ";
+  cin >> run;
+
+  TString txtfile, rootfile, path, prefix, suffix;
+  path = getenv("PAN_OUTPUT_FILE_PATH");
+  prefix = getenv("PAN_FILE_PREFIX");
+  suffix = getenv("PAN_ROOT_FILE_SUFFIX"); 
+  if ( prefix.IsNull() ) {
+    prefix = "parity02";
+  }
+  if ( suffix.IsNull() ) {
+    suffix = "root";
+  }
+
+  txtfile =  path + "/" + prefix + "_" + run + "_adcdac_DAC.txt";
+  rootfile =  path + "/" + prefix + "_" + run + "_DAC." + suffix;
+
+  cout << "text file is " << txtfile << endl;
+  cout << "root file is " << rootfile << endl;
+
 
   Bool_t chanExists[ADC_MaxSlot][ADC_MaxChan];
   Float_t inter[ADC_MaxSlot][ADC_MaxChan];
@@ -19,15 +40,15 @@ void DACcal() {
     }
   }
 
-  ifstream pedfile("ADCCalib_DACNoise.txt",ios::in);
-  while (pedfile >> isl >> ich >> x0 >> slp) {
+  ifstream dacfile(txtfile,ios::in);
+  while (dacfile >> isl >> ich >> x0 >> slp) {
     if (isl<ADC_MaxSlot && ich < ADC_MaxChan && x0 !=0 && slp != 0) {
       chanExists[isl][ich] = kTRUE;
       inter[isl][ich] = x0;
       slope[isl][ich] = slp;
     }
   }
-  pedfile.close();
+  dacfile.close();
 
   gStyle->SetOptStat(1);
   gStyle->SetStatH(0.35);
@@ -38,7 +59,7 @@ void DACcal() {
   gStyle->SetLabelSize(0.08,"y");
   gROOT->ForceStyle();
   
-  TFile *fin = new TFile("ADCCalib_DAC.root");
+  TFile *fin = new TFile(rootfile);
 
   TCanvas *cdac[10];
   TPad* pad[80];

@@ -5,6 +5,27 @@
 #define ADC_MaxChan 4
 
 void ADCPed() {
+  Int_t run;
+  cout << "Enter adcped run number : ";
+  cin >> run;
+
+  TString txtfile, rootfile, path, prefix, suffix;
+  path = getenv("PAN_OUTPUT_FILE_PATH");
+  prefix = getenv("PAN_FILE_PREFIX");
+  suffix = getenv("PAN_ROOT_FILE_SUFFIX"); 
+  if ( prefix.IsNull() ) {
+    prefix = "parity02";
+  }
+  if ( suffix.IsNull() ) {
+    suffix = "root";
+  }
+
+  txtfile =  path + "/" + prefix + "_" + run + "_adcped_Peds.txt";
+  rootfile =  path + "/" + prefix + "_" + run + "_Peds." + suffix;
+
+  cout << "text file is " << txtfile << endl;
+  cout << "root file is " << rootfile << endl;
+
 
   Bool_t chanExists[ADC_MaxSlot][ADC_MaxChan];
   Float_t chanAvg[ADC_MaxSlot][ADC_MaxChan];
@@ -19,7 +40,7 @@ void ADCPed() {
     }
   }
 
-  ifstream pedfile("ADCCalib_Peds.txt",ios::in);
+  ifstream pedfile(txtfile.Data(),ios::in);
   while (pedfile >> isl >> ich >> avg >> sig) {
     if (isl<ADC_MaxSlot && ich < ADC_MaxChan) {
       chanExists[isl][ich] = kTRUE;
@@ -38,7 +59,7 @@ void ADCPed() {
   gStyle->SetLabelSize(0.08,"y");
   gROOT->ForceStyle();
   
-  TFile *fin = new TFile("ADCCalib_Peds.root");
+  TFile *fin = new TFile(rootfile.Data());
 
   TCanvas *cped[10];
   TPad* pad[80];

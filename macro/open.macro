@@ -13,7 +13,7 @@
     suffix = "root";
   }
 
-  file =  path + "/" + prefix + "_" + run + "_BEAM." + suffix;
+  file =  path + "/" + prefix + "_" + run + "_beam." + suffix;
 
   cout << "root file is " << file << endl;
   f = new TFile(file);
