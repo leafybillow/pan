@@ -32,7 +32,7 @@
 # Detectors
 @detlist =       qw / IDET1 IDET2 IDET3 IDET4 /;
 # Lumi detectors
-@lumilist =      qw / ILUMI1 ILUMI2 ILUMI3 ILUMI4 ILUMI5 /;
+@lumilist =      qw / ILUMI1 ILUMI2 ILUMI3 ILUMI4 ILUMI5 ILUMI6 /;
 # V2F clocks
 @v2fclocklist =  qw / IV2F_CLK0 IV2F_CLK1 IV2F_CLK2 IV2F_CLK3 /;
 # quad photodiode

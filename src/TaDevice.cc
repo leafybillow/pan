@@ -1334,6 +1334,8 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"lumi4",  ILUMI4));
   fKeyToIdx.insert(make_pair((string)"lumi5r", ILUMI5R));
   fKeyToIdx.insert(make_pair((string)"lumi5",  ILUMI5));
+  fKeyToIdx.insert(make_pair((string)"lumi6r", ILUMI6R));
+  fKeyToIdx.insert(make_pair((string)"lumi6",  ILUMI6));
 
   fKeyToIdx.insert(make_pair((string)"v2f_clk0",IV2F_CLK0));
   fKeyToIdx.insert(make_pair((string)"v2f_clk1",IV2F_CLK1));
