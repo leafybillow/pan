@@ -14,6 +14,7 @@ void prompt (UInt_t run)
 
   gROOT->LoadMacro("ParamSave.macro+");
   ParamSave* ps = new ParamSave (run);
+  ps->LoadCorrs();
 
   ps->PutMonAsym("bcm1", *tt, "ok_cut");
   ps->PutMonAsym("bcm2", *tt, "ok_cut");

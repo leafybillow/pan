@@ -5,12 +5,16 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <map>
 #include <TH1.h>
 #include <TObject.h>
 #include <TROOT.h>
 #include <TString.h>
 #include <TTree.h>
 #include "src/TaFileName.hh"
+
+// Uncomment to load fake correction coefficients
+//#define FAKETYFAKE 1
 
 class ParamSave
 {
@@ -22,27 +26,34 @@ public:
   ParamSave() {};
   virtual ~ParamSave() {};
   
+  void LoadCorrs (); // load correction coefficients and correction monitor tags
   void PutMonDiff (const string mt, TTree& t, const string sel); // Monitor diffs from plot
   void PutMonAsym (const string mt, TTree& t, const string sel); // Monitor asyms from plot
   void PutMon (const string mt, const string dora, TTree& t, const string sel); // Monitor diffs/asyms from plot
   void PutMon (const string mt, const Double_t m, const Double_t me, const Double_t w); // Monitor diffs/asyms specified
-
-
+  
+  
   void PutMonDDDiff (const string mt1, const string mt2, TTree& t, const string sel); // Monitor ddiffs from plot
   void PutMonDDAsym (const string mt1, const string mt2, TTree& t, const string sel); // Monitor dasyms from plot
   void PutMonDD (const string mt1, const string mt2, const string dora, TTree& t, const string sel); // Monitor ddiffs/dasyms from plot
   void PutMonDD (const string mt1, const string mt2, const Double_t w);         // Monitor ddiffs
-
+  
   void PutDetAsymn (const string dt, TTree& t, const string sel); // Detector norm asyms from plot
   void PutDetAsym (const string dt, TTree& t, const string sel); // Detector asyms from plot
   void PutDet (const string dt, const string naora, TTree& t, const string sel); // Detector norm asyms/asyms from plot
   void PutDet (const string dt, const Double_t m, const Double_t me, const Double_t w); // Detector asyms
   
   void Print();  // Print to file
+  string AsyCorr (string det, Bool_t modulation);
   
 private:
   
   UInt_t fRun;            // run number
+  
+  // Correction quantities
+  vector<string> fCorrMonTag;         // Monitors used
+  map<string,vector<Double_t> > fCorrCoef[2];  // Correction coefficients [regress, modulation]
+  
   // Monitor quantities
   vector<string> fMonTag;
   vector<Double_t> fDifM;  // means
@@ -58,6 +69,42 @@ private:
   vector<Double_t> fAsyME; // errors on means
   vector<Double_t> fAsyW;  // widths
 };
+
+void 
+ParamSave::LoadCorrs ()
+{
+  // For now this is just hardwired
+
+  fCorrMonTag.clear();
+  fCorrMonTag.push_back ("bpm4ax");
+  fCorrMonTag.push_back ("bpm4bx");
+  fCorrMonTag.push_back ("bpm4ay");
+  fCorrMonTag.push_back ("bpm4by");
+  fCorrMonTag.push_back ("bpm12x");
+  
+  fCorrCoef[0].clear();
+  fCorrCoef[1].clear();
+  
+#ifdef FAKETYFAKE  
+  vector<Double_t> v;
+  
+  v.clear();
+  v.push_back (0.1);
+  v.push_back (0.2);
+  v.push_back (0.3);
+  v.push_back (0.4);
+  v.push_back (0.5);
+  fCorrCoef[0]["blumi1"] = v;
+  
+  v.clear();
+  v.push_back (0.5);
+  v.push_back (0.4);
+  v.push_back (0.3);
+  v.push_back (0.2);
+  v.push_back (0.1);
+  fCorrCoef[1]["blumi1"] = v;
+#endif
+}
 
 
 void 
@@ -79,7 +126,7 @@ ParamSave::PutMon (const string mt, const string dora, TTree& t, const string se
 {
   // Story diffs or asyms (dora = "diff" or "asym") for monitor named mt
   // from tree t with selection sel
-
+  
   // NOTE: Provided we're not using an axis sub-range, ROOT's mean
   // and RMS for a histogram created by TTree::Draw come from the
   // *data*, not the histogram (but using only data within
@@ -87,12 +134,12 @@ ParamSave::PutMon (const string mt, const string dora, TTree& t, const string se
   // are no underflows/overflows).  For our "width" we want the
   // estimated variance, i.e. with sqrt (n-1) in the denominator,
   // rather than RMS with sqrt (n).
-
+  
   Double_t m = 1e99;
   Double_t me = 1e99;
   Double_t w = 1e99;
   Double_t n;
-
+  
   t.Draw ((dora + "_" + mt).c_str(), sel.c_str());
   TH1* htemp = (TH1*)gROOT->FindObject ("htemp");
   if (htemp)
@@ -139,10 +186,10 @@ ParamSave::PutMonDD (const string mt1, const string mt2, const string dora, TTre
 {
   // Store ddiffs or dasyms (dora = "diff" or "asym") for monitors
   // named mt1, mt2 from tree t with selection sel
-
+  
   Double_t w = 1e99;
   Double_t n;
-
+  
   t.Draw ((dora + "_" + mt1 + "-" + dora + "_" + mt2).c_str(), sel.c_str());
   TH1* htemp = (TH1*)gROOT->FindObject ("htemp");
   if (htemp)
@@ -184,30 +231,47 @@ ParamSave::PutDet (const string dt, const string naora, TTree& t, const string s
 {
   // Story norm asyms or asyms (naora = "asym_n" or "asym") for
   // detector named dt from tree t with selection sel
-
+  // If correction coefficients exist, do corrected asyms too.
+  
   Double_t m = 1e99;
   Double_t me = 1e99;
   Double_t w = 1e99;
   Double_t n;
-
-  t.Draw ((naora + "_" + dt).c_str(), sel.c_str());
-  TH1* htemp = (TH1*)gROOT->FindObject ("htemp");
-  if (htemp)
+  string adetstring = (naora + "_" + dt);
+  
+  for (UInt_t i = 0; i < 3; ++i)
     {
-      n = htemp->GetEntries();
-      if (n > 1)
+      // Do raw, regression, modulation
+      string drawstring = 
+	i == 0 ? adetstring :
+	i == 1 ? AsyCorr (dt, 0) :
+	AsyCorr (dt, 1);
+      if (drawstring != "")
 	{
-	  m = htemp->GetMean(); 
-	  me = htemp->GetRMS() / sqrt (n-1);
-	  w = me * sqrt (n);
+	  cerr << "Drawing " << drawstring << endl;
+	  t.Draw (drawstring.c_str(), sel.c_str());
+	  TH1* htemp = (TH1*)gROOT->FindObject ("htemp");
+	  if (htemp)
+	    {
+	      n = htemp->GetEntries();
+	      if (n > 1)
+		{
+		  m = htemp->GetMean(); 
+		  me = htemp->GetRMS() / sqrt (n-1);
+		  w = me * sqrt (n);
+		}
+	    }
+	  else
+	    cerr << "htemp not found" << endl;
+	  string tag = dt + 
+	    (i == 0 ? " raw" :
+	     i == 1 ? " reg" :
+	     " mod");
+	  PutDet (tag, m, me, w); 
 	}
     }
-  else
-    cerr << "htemp not found" << endl;
-  PutDet (dt, m, me, w); 
-}
-
-
+}  
+  
 void 
 ParamSave::PutDet (const string dt, const Double_t m, const Double_t me, const Double_t w)
 {
@@ -266,14 +330,34 @@ ParamSave::Print()
   for (UInt_t iasy = 0; iasy < fDetTag.size(); ++iasy)
     {
       ofile << setw(8) << fDetTag[iasy]
-	    << " Raw " 
 	    << " Mean " 
 	    << setw(8) << fAsyM[iasy]
 	    << " +- " << setw(8) << fAsyME[iasy]
 	    << "  Width " 
 	    << "   " << setw(8) << fAsyW[iasy] << endl;
     }
-
-ofile.close();
+  
+  ofile.close();
 }
 
+string 
+ParamSave::AsyCorr (string det, Bool_t modulation)
+{
+  TString ret("");
+  UInt_t imr = modulation ? 1 : 0;
+
+  vector<Double_t> corrcoef = fCorrCoef[imr][det];
+  if (corrcoef.size())
+    {
+      ret = TString("asym_n_");
+      ret += det.c_str();
+      for (UInt_t i = 0; i < fCorrMonTag.size(); ++i)
+	{
+	  ret += "+";
+	  ret += corrcoef[i];
+	  ret += "*diff_";
+	  ret += fCorrMonTag[i].c_str();
+	}
+    }
+  return string(ret.Data());
+}
