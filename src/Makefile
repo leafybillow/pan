@@ -16,7 +16,7 @@
 # export OPTIMIZE = 1
 # 
 # To use "insure" from parasoft.com.  Must first type "use insure" on ifarml1.
-export INSURE = 1
+# export INSURE = 1
 #
 # Uncomment this if you want to use MySQL database
 export MYSQLDB = 1
