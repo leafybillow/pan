@@ -525,6 +525,7 @@
 #define   IPRECDAC2    538
 #define   IPRECDAC3    539
 
+#define   IPITADAC     540
 
 
 

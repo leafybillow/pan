@@ -1,3 +1,4 @@
+
 //////////////////////////////////////////////////////////////////////////
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
@@ -607,6 +608,8 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"precdac1",IPRECDAC1));
   fKeyToIdx.insert(make_pair((string)"precdac2",IPRECDAC2));
   fKeyToIdx.insert(make_pair((string)"precdac3",IPRECDAC3));
+
+  fKeyToIdx.insert(make_pair((string)"pitadac",IPITADAC));
 
 
 };

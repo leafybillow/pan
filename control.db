@@ -2,7 +2,7 @@
 # in summer 2001.
     run 1824
 # number of events to process (leave this out to get infinite)
-    maxevents 10000
+    maxevents 50000
 # run type and analysis type (why do we need both ?)
     runtype BEAM      
     anatype BEAM      
@@ -93,7 +93,7 @@
     datamap   adc        adc7       7    0       85    adc7_0  adc7_1  adc7_2  adc7_3
     datamap   adc        adc8       8    0       91    adc8_0  adc8_1  adc8_2  adc8_3
     datamap   adc        adc9       9    0       97    adc9_0  adc9_1  adc9_2  adc9_3
-    datamap   timeboard  timeboard  0    0      107  rampdelay integtime oversample precdac 
+    datamap   timeboard  timeboard  0    0      107  rampdelay integtime oversample precdac pitadac 
     datamap   scaler     scaler1    0    0       10  scaler0_0 scaler0_1 scaler0_2 scaler0_3
     datamap   scaler     scaler1    0    4       14  scaler0_4 scaler0_5 scaler0_6 scaler0_7
     datamap   scaler     scaler1    0    8       18  scaler0_8 scaler0_9 scaler0_10 scaler0_11
