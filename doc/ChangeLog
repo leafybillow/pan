@@ -6,6 +6,35 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 26 Dec 2002
+-----------------------------------
+
+I fixed some bugs in what I did on 23 Dec.
+
+I also incorporated blinding into the analysis.  There are two new
+alist flags: fgBLIND and fgBLINDSIGN; if fgBLIND is turned on then the
+corresponding result is blinded with TaBlind::Blind before being
+written to the tree and the pair results list.  If fgBLINDSIGN is
+turned on then the result is blinded with TaBlind::BlindSignOnly.  The
+standard analysis sets fgBLIND for all detector asymmetries and
+fgBLINDSIGN for all BPM differences, BCM asymmetries, and lumi
+asymmetries.  Blinded results are tagged as such in the stats outputs.
+
+Blinding is controlled with two new database tables, blindstring and
+blindparams; see new version of control.db.  The value of blindstring
+can be "none" in which case blinding is turned off.  Blinding
+parameters are: sign (1 or -1, corresponding to slow helicity
+reversals), mean (the detector asymmetry around which the distribution
+may be flipped, in ppm), and offscale (the scale on which the detector
+asymmetry may be offset, in ppm).
+
+
+control.db TaBlind.{cc,hh} TaDataBase.{cc,hh} TaStandardAna.cc
+VaAnalysis.{cc,hh}
+
+ o Blind analysis, plus some bug fixes
+
+
 Changes by R. Holmes on 23 Dec 2002
 -----------------------------------
 
