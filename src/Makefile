@@ -12,8 +12,11 @@
 # Uncomment this if profiling (note: it slows down the code)
 # export PROFILE = 1
 #
-# To compile optimized
+# To compile optimized  (10% faster run time but very slow compilation)
 # export OPTIMIZE = 1
+# 
+# To use "insure" from parasoft.com.  Must first type "use insure" on ifarml1.
+export INSURE = 1
 #
 # Uncomment this if you want to use MySQL database
 export MYSQLDB = 1
@@ -22,6 +25,16 @@ export MYSQLDB = 1
 # Only works with the CVS version of root as of Dec 21, 2001.
 # export MAKEDICTIONARY = 1
 
+# Choose the compiler.
+GCC=g++
+GLD=g++
+ifdef INSURE
+  GCC=insure
+  GLD=insure
+endif
+
+
+
 export OSNAME := $(shell uname)
 
 ifeq ($(OSNAME),SunOS)
@@ -29,10 +42,10 @@ ifeq ($(OSNAME),SunOS)
    ROOTCFLAGS    = $(shell root-config --cflags)
    ROOTLIBS      = $(shell root-config --libs)
    ROOTGLIBS     = $(shell root-config --glibs)
-   CXX           = g++
+   CXX           = $(GCC)
    CXXFLAGS      = -KPIC -DSUNVERS -I$(ROOTSYS)/include -I$(MAINDIR)
    CXXFLAGS     += $(ROOTCFLAGS)
-   LD            = g++
+   LD            = $(GLD)
    LDFLAGS       = -g -D
    SOFLAGS       = -G
    LIBCODACLASS=libcoda.a
@@ -51,13 +64,12 @@ endif
 # Linux with egcs
 
 ifeq ($(OSNAME),Linux)
-
    ROOTLIBS      = $(shell root-config --libs)
    ROOTGLIBS     = $(shell root-config --glibs)
    INCLUDES      = -I$(ROOTSYS)/include
-   CXX           = g++
+   CXX           = $(GCC)
    CXXFLAGS      = -Wall -fno-exceptions -fPIC $(INCLUDES) 
-   LD            = g++
+   LD            = $(GLD)
    LDFLAGS       = 
    SOFLAGS       = -shared 
    GLIBS         = $(ROOTGLIBS) -L/usr/X11R6/lib -lXpm -lX11
@@ -72,7 +84,7 @@ ifeq ($(OSNAME),Linux)
 
 endif
 
-MAKEDEPEND    = g++
+MAKEDEPEND    = $(GCC)
 
 ALL_LIBS = $(LIBS) $(LIBCODACLASS)
 
@@ -159,10 +171,10 @@ all: $(PROGS)
 
 $(PROGS): main.o $(OBJS) $(SRC) $(HEAD) 
 	rm -f $@
-	$(CXX) $(CXXFLAGS) -o $@ main.o $(OBJS) $(ALL_LIBS)
+	$(LD) $(CXXFLAGS) -o $@ main.o $(OBJS) $(ALL_LIBS)
 
 main.o: main.cc
-	g++ -c $(INCLUDES) $<	
+	$(CXX) -c $(INCLUDES) $<	
 
 
 # Dictionary
