@@ -40,7 +40,7 @@
 # BMW words
 @bmwlist = qw / IBMW_CLN IBMW_OBJ IBMW_VAL IBMW_CYC /;
 # Number of ADC modules, scaler modules, and crates
-$adcnum = 30;
+$adcnum = 31;
 $scanum = 4;
 $ncrates = 4;
 
