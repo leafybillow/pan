@@ -100,6 +100,8 @@ VaAnalysis::VaAnalysis():
   fTreeMEvNum(0),
   fTreeOKCond(0),
   fTreeOKCut(0),
+  fTreePrevHel(-1),
+  fTreePrevDelHel(-1),
   fTreeSpace(0),
   fNCuts(0),
   fCutArray(0),
@@ -465,6 +467,7 @@ VaAnalysis::PreProcessEvt()
         *fPreEvt = fEHelDeque.front();
         fEHelDeque.pop_front();
         fPreEvt->SetDelHelicity(fRun->GetEvent().GetHelicity());
+        fPreEvt->SetPrevDelHelicity(fRun->GetEvent().GetPrevHelicity());
 
         fEDeque.push_back (*fPreEvt);
 #ifdef NOISY	
@@ -640,8 +643,19 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
   clog << "m_ev_num" << endl;
   clog << "ok_cond"  << endl;
   clog << "ok_cut"   << endl;
+  clog << "prev_intime_hel"   << endl;
+  clog << "prev_hel"   << endl;
 #endif
 
+  fPairTree->Branch ("evt_ev_num",   &fTreeREvNum, "evt_ev_num[2]/I", bufsize); 
+  fPairTree->Branch ("m_ev_num", &fTreeMEvNum, "m_ev_num/D",  bufsize); 
+  fPairTree->Branch ("ok_cond",  &fTreeOKCond, "ok_cond/I",   bufsize); 
+  fPairTree->Branch ("ok_cut",   &fTreeOKCut,  "ok_cut/I",    bufsize); 
+  fPairTree->Branch ("prev_intime_hel", &fTreePrevHel, "prev_intime_hel/I", bufsize); 
+  fPairTree->Branch ("prev_hel", &fTreePrevDelHel, "prev_hel/I", bufsize); 
+  
+  // Add branches corresponding to channels in the channel lists
+  
   size_t treeListSize = 0;
   for (vector<AnaList>::const_iterator i = fTreeList.begin();
        i != fTreeList.end();
@@ -658,20 +672,18 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
 	++treeListSize;
     }
 
-  fTreeSpace = new Double_t[5+treeListSize];
+  fTreeSpace = new Double_t[treeListSize];
   Double_t* tsptr = fTreeSpace;
-  fPairTree->Branch ("evt_ev_num",   &fTreeREvNum, "evt_ev_num[2]/I", bufsize); 
-  fPairTree->Branch ("m_ev_num", &fTreeMEvNum, "m_ev_num/D",  bufsize); 
-  fPairTree->Branch ("ok_cond",  &fTreeOKCond, "ok_cond/I",   bufsize); 
-  fPairTree->Branch ("ok_cut",   &fTreeOKCut,  "ok_cut/I",    bufsize); 
 
-  // Add branches corresponding to channels in the channel lists
-  
   for (vector<AnaList>::const_iterator i = fTreeList.begin();
        i != fTreeList.end();
        ++i )
     {
       AnaList alist = *i;
+
+      if (alist.fVarStr == "helicity")
+	alist.fVarStr = "intime_helicity";  // to reduce human confusion
+
       if (alist.fFlagInt & fgCOPY)
 	{
 	  // Channels for which to copy right and left values to tree
@@ -850,6 +862,10 @@ VaAnalysis::AutoPairAna()
 		     fPair->GetLeft().GetEvNumber())*0.5;
       fTreeOKCond = (fPair->PassedCuts() ? 1 : 0);
       fTreeOKCut  = (fPair->PassedCutsInt(fRun->GetCutList()) ? 1 : 0);
+      EHelicity ph = fPair->GetFirst().GetPrevHelicity();
+      fTreePrevHel = (ph == RightHeli) ? 0 : ((ph == LeftHeli) ? 1 : -1);
+      EHelicity pdh = fPair->GetFirst().GetPrevDelHelicity();
+      fTreePrevDelHel = (pdh == RightHeli) ? 0 : ((pdh == LeftHeli) ? 1 : -1);
     }
 
 #ifdef ASYMCHECK
