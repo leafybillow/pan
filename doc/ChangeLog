@@ -72,8 +72,10 @@ Other details:
      TaEvent.hh
      TaRun.cc
      TaRun.hh
+     VaAnalysis.cc
      VaAnalysis.hh
-     VaAnalysis.hh
+     VaPair.cc
+     VaPair.hh
      TaFdbkAna.cc
 
   - New files:
