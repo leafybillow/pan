@@ -16,7 +16,7 @@ ASCII files will be produced automatically by CODA for each run
 and distributed to users.  They can also be produced by a Perl 
 script which reads MYSQL and generates the ASCII files. 
 
-  The format of the database is that that the first word in each 
+  The format of the database is such that the first word in each 
 line is a "table" string, indicating a table in the MYSQL sense.  
 The columns of data that follow in that line are associated data 
 (data are strings, integers, or doubles) which belong to that table.  
@@ -40,7 +40,7 @@ PART II:  LEARN BY EXAMPLE
 
 Here are examples of how to use the database when running "pan":
 
-  1.  The database is read from ./db/run_1454.db if 
+  1.  The database is read from ./db/parity02_1454.db  if 
       it exists, otherwise from ./control.db
 
           ./pan -r 1454 
