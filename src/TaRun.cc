@@ -135,7 +135,7 @@ TaRun::TaRun(const string& filename):
 {
 };
 
-Int_t
+ErrCode_t
 TaRun::Init()
 {
   // Run initialization: Create event tree, attach data source and

@@ -42,22 +42,22 @@ class TaAnalysisManager
   
   // Major functions
 
-  Int_t Init ();              // Initialization with online data
-  Int_t Init (RunNumber_t);   // Initialization with run number
-  Int_t Init (string);        // Initialization with file path
-  Int_t Process();            // Process all data
-  Int_t End();                // End all analysis
+  ErrCode_t Init ();              // Initialization with online data
+  ErrCode_t Init (RunNumber_t);   // Initialization with run number
+  ErrCode_t Init (string);        // Initialization with file path
+  ErrCode_t Process();            // Process all data
+  ErrCode_t End();                // End all analysis
   
  private:
 
   // Private member functions
-  Int_t InitCommon ();        // Code common to all Init routines
+  ErrCode_t InitCommon ();        // Code common to all Init routines
   TaAnalysisManager (const TaAnalysisManager&) {}  // Do not use
   TaAnalysisManager& operator= (const TaAnalysisManager&) { return *this; } // Do not use
 
   // Static constants
-  static const Int_t fgTAAM_ERROR = -1;
-  static const Int_t fgTAAM_OK = 0;
+  static const ErrCode_t fgTAAM_ERROR = -1;
+  static const ErrCode_t fgTAAM_OK = 0;
 
   // Data members
   TaRun* fRun;              // Requested run
