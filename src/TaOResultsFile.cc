@@ -36,7 +36,7 @@ TaOResultsFile::TaOResultsFile (const string ptag,
 				const RunNumber_t run, 
 				const string atype, 
 				const UInt_t chksum,
-				const string com)  
+				const string com = "")  
   : ofstream ()
 {
   Create (ptag, run, atype, chksum, com);
@@ -47,7 +47,7 @@ TaOResultsFile::TaOResultsFile (const char* ptag,
 				const RunNumber_t run, 
 				const char* atype, 
 				const UInt_t chksum,
-				const char* com )
+				const char* com  = "")
   : ofstream ()
 {
   // Non-stringy constructor for use in CINT
