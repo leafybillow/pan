@@ -25,6 +25,9 @@ Beam_burp and Startup are optional; you just get a warning if these
 are undefined.  The choice of required/optional is somewhat arbitrary
 and I am open to suggestions.
 
+Lumi event data now are written to the pair tree in the standard
+analysis. 
+
 db/control.db
 
  o Startup cut.
@@ -32,6 +35,10 @@ db/control.db
 src/TaCutList.cc TaPairFromPair.cc TaPairFromQuad.cc VaPair.{hh,cc} 
 
  o Good behavior if a cut is undefined.
+
+src/TaStandardAna.cc
+
+ o Lumi event data in tree
 
 src/VaEvent.{hh,cc} 
 
