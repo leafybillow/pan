@@ -1048,7 +1048,7 @@ VaAnalysis::AutoPairAna()
       if (alist.fFlagInt & fgASY)
 	{
 	  // Channels for which to put asymmetry in tree
-
+	  unit = alist.fUniStr;
 	  if ((alist.fFlagInt & fgNO_BEAM_NO_ASY) &&
 	      (fPair->GetRight().BeamCut() ||
 	       fPair->GetLeft().BeamCut()))
@@ -1078,7 +1078,6 @@ VaAnalysis::AutoPairAna()
 		    }
 		}
 	    }
-	  unit = alist.fUniStr;
 	  if (fPairTree != 0)
 	    *(tsptr++) = val;
 	  fPair->AddResult (TaLabelledQuantity (string("Asym ")+(alist.fVarStr), 
@@ -1093,6 +1092,7 @@ VaAnalysis::AutoPairAna()
 	  // Actually we assume small asymmetries in which case
 	  // asy(a/b) = asy(a) - asy(b)
 
+	  unit = alist.fUniStr;
 	  if ((alist.fFlagInt & fgNO_BEAM_NO_ASY) &&
 	      (fPair->GetRight().BeamCut() ||
 	       fPair->GetLeft().BeamCut()))
@@ -1123,7 +1123,6 @@ VaAnalysis::AutoPairAna()
 		    }
 		}
 	    }
-	  unit = alist.fUniStr;
 	  if (fPairTree != 0)
 	    *(tsptr++) = val;
 	  fPair->AddResult (TaLabelledQuantity (string("AsyN ")+(alist.fVarStr), 
