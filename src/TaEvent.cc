@@ -191,7 +191,7 @@ void TaEvent::DecodeCook(TaDevice& devices) {
 // This uses a feature of Decode() but ensures that users of
 // this class don't think it is a physics event.
 
-  fEvType = -100;   // Negative event type to "trick" Decode().
+  fEvType = 999;   // Large event type to "trick" Decode().
   Decode(devices);
 };
 
