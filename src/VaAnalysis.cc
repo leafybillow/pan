@@ -74,6 +74,7 @@ const UInt_t VaAnalysis::fgASYN           = 0x20;
 const UInt_t VaAnalysis::fgAVE            = 0x40;
 const UInt_t VaAnalysis::fgBLIND          = 0x80;
 const UInt_t VaAnalysis::fgBLINDSIGN      = 0x100;
+const UInt_t VaAnalysis::fgORDERED        = 0x200;
 const ErrCode_t VaAnalysis::fgVAANA_ERROR = -1;  // returned on error
 const ErrCode_t VaAnalysis::fgVAANA_OK = 0;      // returned on success
 const UInt_t VaAnalysis::fgNumBpmFdbk     = 2;   // number of BPMs to feedback on

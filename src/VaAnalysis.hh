@@ -179,6 +179,7 @@ public:
   static const UInt_t fgASYN;            // Store normalized asymmetry as result
   static const UInt_t fgBLIND;           // Blind this result
   static const UInt_t fgBLINDSIGN;       // Blind sign only of this result
+  static const UInt_t fgORDERED;         // Also do order dependent stats
   static const UInt_t fgAVE;             // Use average asymmetry, not sum
   static const ErrCode_t fgVAANA_ERROR;  // returned on error
   static const ErrCode_t fgVAANA_OK;      // returned on success
