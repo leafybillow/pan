@@ -4,6 +4,68 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+
+Changes by R. Holmes on 30 Jul 2002
+-----------------------------------
+
+Two sets of changes:
+
+First, the root file is now a data member of TaRun, not
+TaAnalysisManager.  Originally it was make a member of
+TaAnalysisManager against the future possibility of including more
+than one run in an analysis.  However, in its present form the root
+file is specific to a single run, and putting it in TaRun allows much
+simpler and more user-friendly setup of the file (i.e. we don't have
+to give it a temporary name and then rename it at end of analysis.)
+
+TaAnalysisManager.{hh,cc}
+
+ o Root file moved to TaRun
+
+TaRun.{hh,cc}
+
+ o Root file moved here from TaAnalysisManager
+
+Second, we now store event data in the pair tree differently, and add
+more event data in the BEAM analysis.  Event data are stored as arrays
+of length 2, under names of the form evt_xxxx.  So, for example, from
+Root we can plot values of BCM1 in the "right" helicity timeslot using
+P->Draw("evt_bcm1[0]"); index [1] would give the "left" helicity
+timeslot.  This replaces the old nomenclature of r_xxxx and l_xxxx,
+and applies also to the event numbers for right and left timeslot; the
+mean event number is still a scalar named m_ev_num.  In BEAM analysis,
+the tree contains
+
+  o calibrated event data for devices of type batt, bpm, and bcm
+  o event data for event number, helicities, pairsynchs, pitadac,
+    timeslots
+  o mean event number
+  o flags for pairs that pass cut conditions and pairs that are not in
+    cut intervals 
+  o differences for batt, bpm
+  o asymmetries for bcm
+
+NOTE that getting battery data into the tree requires the database to
+define the battery channels as device type batt, as in the new version
+of control.db.  Run-specific database files will have to be changed.
+
+control.db
+
+ o Batt1 and batt2 are device type batt (instead of adc)
+
+TaBeamAna.cc
+
+ o Add event data for pitadac, batt, bpm, and bcm
+
+VaAnalysis.cc 1007  history
+
+ o Event data (copy flag) are stored with name evt_xxxx as 2-element
+   array
+
+ o asym = -1E6 ppm (instead of 0) if low beam and fNO_BEAM_NO_ASY flag
+   set 
+
+
 Changes by R. Holmes on 26 Jul 2002
 -----------------------------------
 
