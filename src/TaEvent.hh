@@ -47,6 +47,7 @@ public:
   virtual ~TaEvent();
   TaEvent(const TaEvent &ev);
   TaEvent& operator=(const TaEvent &ev);
+  TaEvent& CopyInPlace (const TaEvent& rhs);
 
   // Major functions
   static ErrCode_t RunInit(const TaRun& run);    // initialization at start of run
@@ -67,6 +68,8 @@ public:
 
   Bool_t CutStatus() const;          // Return true iff event failed one or more cut conditions 
   Bool_t BeamCut() const;            // Return true iff event failed low beam cut
+  UInt_t GetNCuts () const;          // Return size of cut array
+  Int_t CutCond (const Cut_t c) const; // Return value of cut condition c
   Bool_t IsPrestartEvent() const;    // run number available in 'prestart' events.
   Bool_t IsPhysicsEvent() const;
   EventNumber_t GetEvNumber() const; // event number
@@ -110,6 +113,7 @@ private:
   static Cut_t fgBurpNo;    // cut number for beam burp
   static Cut_t fgOversampleNo; // cut number for oversample
   static UInt_t fgSizeConst;   // size of first physics event should be size of all
+  static UInt_t fgNCuts;       // Length of cut array
 
   // Data members
   Int_t *fEvBuffer;            // Raw event data

@@ -47,16 +47,26 @@ Cut_t TaEvent::fgLoBeamNo;
 Cut_t TaEvent::fgBurpNo;  
 Cut_t TaEvent::fgOversampleNo;
 UInt_t TaEvent::fgSizeConst;
+UInt_t TaEvent::fgNCuts;
 
 TaEvent::TaEvent(): 
-  fEvType(0),  fEvNum(0),  fEvLen(0), fFailedACut(false), fDelHel(UnkHeli)
+  fEvType(0),  
+  fEvNum(0),  
+  fEvLen(0), 
+  fFailedACut(false), 
+  fDelHel(UnkHeli)
 {
   fEvBuffer = new Int_t[fgMaxEvLen];
   memset(fEvBuffer, 0, fgMaxEvLen*sizeof(Int_t));
   fData = new Double_t[MAXKEYS];
   memset(fData, 0, MAXKEYS*sizeof(Double_t));
-  fCutArray = new Int_t[fgMaxCuts];
-  memset(fCutArray, 0, fgMaxCuts*sizeof(Int_t));
+  if (fgNCuts > 0)
+    {
+      fCutArray = new Int_t[fgNCuts];
+      memset(fCutArray, 0, fgNCuts*sizeof(Int_t));
+    }
+  else
+    fCutArray = 0;
   fResults.clear();
 }
 
@@ -79,6 +89,34 @@ TaEvent &TaEvent::operator=(const TaEvent &ev)
   return *this;
 }
 
+TaEvent& 
+TaEvent::CopyInPlace (const TaEvent& rhs)
+{
+  // Like operator=, but copy an event into existing memory, not
+  // deleting and reallocating.  This should always be safe, but just
+  // to minimize possible problems use this instead of operator= only
+  // when pointers must be preserved.
+
+  if ( &rhs != this )
+    {
+      fEvType = rhs.fEvType;
+      fEvNum = rhs.fEvNum;
+      fEvLen = rhs.fEvLen;
+      fFailedACut = rhs.fFailedACut;
+      fResults = rhs.fResults;
+      fDelHel = rhs.fDelHel;
+      memset (fEvBuffer, 0, fgMaxEvLen*sizeof(Int_t));
+      memcpy(fEvBuffer, rhs.fEvBuffer, fEvLen*sizeof(Int_t));
+      memcpy(fData, rhs.fData, MAXKEYS*sizeof(Double_t));
+      if (rhs.fCutArray != 0 && fgNCuts > 0)
+	memcpy(fCutArray, rhs.fCutArray, fgNCuts*sizeof(Int_t));
+      else
+	fCutArray = 0;
+    }
+  return *this;
+};
+
+
 // Major functions
 
 ErrCode_t
@@ -92,21 +130,14 @@ TaEvent::RunInit(const TaRun& run)
   fgLoBeam = run.GetDataBase().GetCutValue("lobeam");
   fgBurpCut = run.GetDataBase().GetCutValue("burpcut");
 
-  UInt_t ncuts = (UInt_t) run.GetDataBase().GetNumCuts();
-  if (ncuts > fgMaxCuts)
-    {
-      cerr << "TaEvent::RunInit ERROR: fgMaxCuts = " << fgMaxCuts
-	   << " < number of cuts in database -- recompile with "
-	   << " larger fgMaxCuts" << endl;
-      return fgTAEVT_ERROR;
-    }
+  fgNCuts = (UInt_t) run.GetDataBase().GetNumCuts();
 
   fgLoBeamNo = run.GetDataBase().GetCutNumber("Low_beam");
   fgBurpNo = run.GetDataBase().GetCutNumber("Beam_burp");
   fgOversampleNo = run.GetDataBase().GetCutNumber("Oversample");
-  if (fgLoBeamNo == ncuts ||
-      fgBurpNo == ncuts ||
-      fgOversampleNo == ncuts)
+  if (fgLoBeamNo == fgNCuts ||
+      fgBurpNo == fgNCuts ||
+      fgOversampleNo == fgNCuts)
     {
       cerr << "TaEvent::RunInit ERROR: Low_beam, Beam_burp, and Oversample"
 	   << " cuts must be defined in database" << endl;
@@ -121,7 +152,6 @@ TaEvent::Load (const Int_t* buff)
 {
   // Put a raw event into the buffer, and pull out event type and number.
 
-  memset(fCutArray, 0, fgMaxCuts*sizeof(Int_t));
   fFailedACut = false;
   fEvLen = buff[0] + 1;
   if (fEvLen >= fgMaxEvLen) {
@@ -354,7 +384,8 @@ void TaEvent::AddCut (const Cut_t cut, const Int_t val)
 {
   // Store information about cut conditions passed or failed by this event.
 
-  fCutArray[(unsigned int) cut] = val;
+  if (fCutArray != 0)
+    fCutArray[(unsigned int) cut] = val;
   if (val != 0)
     fFailedACut = true;
 };
@@ -394,7 +425,23 @@ TaEvent::BeamCut() const
 {
   // Return true iff event failed low beam cut
 
-  return (fCutArray[(unsigned int) fgLoBeamNo] != 0);
+  return (CutCond(fgLoBeamNo) != 0);
+}
+
+UInt_t 
+TaEvent::GetNCuts () const
+{
+  // Return size of cut array
+
+  return fgNCuts;
+}
+
+Int_t 
+TaEvent::CutCond (const Cut_t c) const
+{
+  // Return value of cut condition c
+
+  return (c < fgNCuts ? fCutArray[(unsigned int) c] : 0);
 }
 
 Bool_t TaEvent::IsPrestartEvent() const {
@@ -608,7 +655,7 @@ TaEvent::AddToTree (const TaDevice& devices,
 
     for (Cut_t icut = Cut_t (0); icut < cutlist.GetNumCuts(); ++icut)
       {
-	TaString cutstr = "cut_" + cutlist.GetName(icut);
+	TaString cutstr = "cond_" + cutlist.GetName(icut);
 	cutstr = cutstr.ToLower();
         strcpy (tinfo, cutstr.c_str());  strcat(tinfo,"/I");
   	rawtree.Branch(cutstr.c_str(), 
@@ -652,8 +699,13 @@ void TaEvent::Create(const TaEvent& rhs)
  memcpy(fEvBuffer, rhs.fEvBuffer, fEvLen*sizeof(Int_t));
  fData = new Double_t[MAXKEYS];
  memcpy(fData, rhs.fData, MAXKEYS*sizeof(Double_t));
- fCutArray = new Int_t[fgMaxCuts];
- memcpy(fCutArray, rhs.fCutArray, fgMaxCuts*sizeof(Int_t));
+ if (rhs.fCutArray != 0 && fgNCuts > 0)
+   {
+     fCutArray = new Int_t[fgNCuts];
+     memcpy(fCutArray, rhs.fCutArray, fgNCuts*sizeof(Int_t));
+   }
+ else
+   fCutArray = 0;
 };
 
 void TaEvent::Uncreate()
@@ -662,5 +714,8 @@ void TaEvent::Uncreate()
 
   delete [] fEvBuffer;
   delete [] fData;
-  delete [] fCutArray;
+  if (fCutArray != 0)
+    delete [] fCutArray;
 };
+
+
