@@ -27,6 +27,7 @@
 #include <iostream>
 #include <iomanip>
 #include "TaCutInterval.hh"
+#include "TaDataBase.hh"
 
 #ifndef NODICT
 ClassImp(TaCutList)
@@ -43,16 +44,21 @@ ClassImp(TaCutList)
 
 TaCutList::TaCutList(RunNumber_t run): fRunNumber(run)
 {
+  fIntervals = new vector<TaCutInterval>;
 }
 
 TaCutList::TaCutList()
 {
+  fIntervals = new vector<TaCutInterval>;
 }
 
 TaCutList::TaCutList (const TaCutList& copy)
 {
   fRunNumber = copy.fRunNumber;
-  fIntervals = copy.fIntervals;
+  if (copy.fIntervals != 0)
+    fIntervals = new vector<TaCutInterval> (*copy.fIntervals);
+  else
+    fIntervals = 0;
   fOpenIntIndices = copy.fOpenIntIndices;
   fLowExtension = copy.fLowExtension;
   fHighExtension = copy.fHighExtension;
@@ -60,6 +66,10 @@ TaCutList::TaCutList (const TaCutList& copy)
   fCutNames = copy.fCutNames;
 }
 
+TaCutList::~TaCutList()
+{
+  delete fIntervals;
+}
 
 TaCutList& 
 TaCutList::operator= (const TaCutList& assign)
@@ -67,7 +77,10 @@ TaCutList::operator= (const TaCutList& assign)
   if (this != &assign)
     {
       fRunNumber = assign.fRunNumber;
-      fIntervals = assign.fIntervals;
+      if (assign.fIntervals != 0)
+	fIntervals = new vector<TaCutInterval> (*assign.fIntervals);
+      else
+	fIntervals = 0;
       fOpenIntIndices = assign.fOpenIntIndices;
       fLowExtension = assign.fLowExtension;
       fHighExtension = assign.fHighExtension;
@@ -122,7 +135,7 @@ TaCutList::Init(const TaDataBase& db)
 	  Cut_t ct = (Cut_t) temp[2];
 	  EventNumber_t elo = temp[0];
 	  EventNumber_t ehi = temp[1];
-	  fIntervals.push_back(TaCutInterval (ct, temp[3], elo, ehi));
+	  fIntervals->push_back(TaCutInterval (ct, temp[3], elo, ehi));
 	}
       else
 	cerr << "TaCutList::Init WARNING: Unknown cut type = " << temp[2]
@@ -138,8 +151,8 @@ TaCutList::OK (const TaEvent& ev) const
   // has nonzero value..
 
   Bool_t oksofar = true;
-  for (vector<TaCutInterval>::const_iterator c = fIntervals.begin();
-       oksofar && (c != fIntervals.end()); 
+  for (vector<TaCutInterval>::const_iterator c = fIntervals->begin();
+       oksofar && (c != fIntervals->end()); 
        ++c )
     {
       if (c->Inside(ev, fLowExtension[c->GetCut()], fHighExtension[c->GetCut()]) && c->GetVal() != 0)
@@ -155,8 +168,8 @@ TaCutList::CutsFailed (const TaEvent& ev) const
   // the given event is inside an interval with nonzero value.
 
   vector<pair<Cut_t,Int_t> > cf;
-  for (vector<TaCutInterval>::const_iterator c = fIntervals.begin();
-       c != fIntervals.end(); 
+  for (vector<TaCutInterval>::const_iterator c = fIntervals->begin();
+       c != fIntervals->end(); 
        ++c )
     {
       if (c->Inside(ev, fLowExtension[c->GetCut()], fHighExtension[c->GetCut()]) && c->GetVal() != 0)
@@ -178,23 +191,23 @@ TaCutList::UpdateCutInterval (const Cut_t cut, const Int_t val, const EventNumbe
   // Look for an open interval for this cut
   list<size_t>::iterator oiit;
   for ( oiit = fOpenIntIndices.begin();
-	oiit != fOpenIntIndices.end() && fIntervals[*oiit].GetCut() != cut;
+	oiit != fOpenIntIndices.end() && (*fIntervals)[*oiit].GetCut() != cut;
 	++oiit )
     { } // empty loop body
-  size_t oi = ( oiit == fOpenIntIndices.end() ) ? fIntervals.size() : *oiit;
+  size_t oi = ( oiit == fOpenIntIndices.end() ) ? fIntervals->size() : *oiit;
 
   if ( val )
     {
       ++fTally[cut];
-      if ( oi != fIntervals.size() )
+      if ( oi != fIntervals->size() )
 	{
 	  // Found open cut interval for this cut
-	  if ( fIntervals[oi].GetVal() != val )
+	  if ( (*fIntervals)[oi].GetVal() != val )
 	    {
-	      fIntervals[oi].SetEnd(ev);
+	      (*fIntervals)[oi].SetEnd(ev);
 	      fOpenIntIndices.erase(oiit);
-	      fIntervals.push_back(TaCutInterval(cut, val, ev, fgMaxEvent));
-	      fOpenIntIndices.push_back(fIntervals.size()-1);
+	      fIntervals->push_back(TaCutInterval(cut, val, ev, fgMaxEvent));
+	      fOpenIntIndices.push_back(fIntervals->size()-1);
 #ifdef NOISY
 	      clog << *this;
 #endif
@@ -203,8 +216,8 @@ TaCutList::UpdateCutInterval (const Cut_t cut, const Int_t val, const EventNumbe
       else
 	{
 	  // No open cut interval for this cut
-	  fIntervals.push_back(TaCutInterval(cut, val, ev, fgMaxEvent));
-	  fOpenIntIndices.push_back(fIntervals.size()-1);
+	  fIntervals->push_back(TaCutInterval(cut, val, ev, fgMaxEvent));
+	  fOpenIntIndices.push_back(fIntervals->size()-1);
 #ifdef NOISY
 	      clog << *this;
 #endif
@@ -212,10 +225,10 @@ TaCutList::UpdateCutInterval (const Cut_t cut, const Int_t val, const EventNumbe
     }
   else
     {
-      if ( oi != fIntervals.size() )
+      if ( oi != fIntervals->size() )
 	{
 	  // Found open cut interval for this cut
-	  fIntervals[oi].SetEnd(ev);
+	  (*fIntervals)[oi].SetEnd(ev);
 	  fOpenIntIndices.erase(oiit);
 #ifdef NOISY
 	      clog << *this;
@@ -256,10 +269,10 @@ TaCutList::PrintInt (ostream& s) const
   // Open intervals are tagged with an asterisk.
 
   for (size_t i = 0;
-       i < fIntervals.size();
+       i < fIntervals->size();
        ++i)
     {
-      s << fIntervals[i];
+      s << (*fIntervals)[i];
       list<size_t>::const_iterator j;
       for (j = fOpenIntIndices.begin();
 	   (j != fOpenIntIndices.end()) && (*j != i);

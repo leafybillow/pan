@@ -29,8 +29,11 @@
 #include "PanTypes.hh"
 #include <vector>
 #include <list>
-#include "TaCutInterval.hh"
-#include "TaDataBase.hh"
+#include <string>
+
+class TaCutInterval;
+class TaDataBase;
+class TaEvent;
 
 class TaCutList
 {
@@ -39,7 +42,7 @@ public:
   // Constructors/destructors/operators
   TaCutList(RunNumber_t run);
   TaCutList();
-  virtual ~TaCutList() {}
+  virtual ~TaCutList();
   TaCutList (const TaCutList& copy);
   TaCutList& operator= (const TaCutList& assign);
 
@@ -64,7 +67,7 @@ private:
 
   // Data members
   RunNumber_t fRunNumber;            // Run number associated with this list
-  vector<TaCutInterval> fIntervals;  // List of cut intervals
+  vector<TaCutInterval>* fIntervals; // List of cut intervals
   list<size_t> fOpenIntIndices;      // Indices of open interval (if any) for each cut type
   UInt_t fNumCuts;                   // Number of cuts defined
   vector<UInt_t> fLowExtension;      // Low-end extension for each cut type

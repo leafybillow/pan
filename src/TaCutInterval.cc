@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include "TaCutInterval.hh"
+#include "TaEvent.hh"
 
 #ifndef NODICT
 ClassImp(TaCutInterval)

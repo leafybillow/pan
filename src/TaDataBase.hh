@@ -60,7 +60,6 @@
 #endif
 #include <stdlib.h>
 #include "PanTypes.hh"
-#include "TaFileName.hh"
 #include "TFile.h"
 #include "TArrayC.h"
 #include "TObject.h"

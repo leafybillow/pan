@@ -41,6 +41,7 @@
 #define TURN_OFF_MYSQL
 
 #include "TaDataBase.hh"
+#include "TaFileName.hh"
 #include "TaString.hh"
 
 #ifndef NODICT

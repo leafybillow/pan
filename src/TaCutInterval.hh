@@ -19,7 +19,9 @@
 #define PAN_TaCutInterval
 
 #include "TObject.h"
-#include "TaEvent.hh"
+#include "PanTypes.hh"
+
+class TaEvent;
 
 class TaCutInterval
 {
