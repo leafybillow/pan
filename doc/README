@@ -90,4 +90,28 @@ Other documents in /doc
      CVS_howto -- Advice on how to use CVS     
 
 
+Here is some info regarding online feedback on charge asymmetry, etc.
+---------------------------------------------------------------------
+
+At the start of a CODA run, an executible ~apar/feedback/panFFB
+(which is simply the compiled "pan") is called with "-o" argument.                          
+control.db is taken from ~apar/feedback/control.db
+
+The code invokes the epics script I told you about before, i.e.
+~apar/epics/epics_feedback, which can also be run by hand.
+
+A historical log of all feedback values is kept in
+     ~apar/feedback/feedback.log
+The stdout and stderr output from "pan" is put in 
+     ~apar/feedback/runlog/ffb_$run.log
+where $run = run number, i.e. a file for each run.
+
+At the end of a run, "pan" is killed with kill signal 31.  This 
+forces "pan" to do its final end-of-run feedback and any other
+stuff it wants to do at end of a run.
+
+
+
+
+
 
