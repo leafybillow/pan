@@ -53,10 +53,10 @@ private:
   static TaEvent fgLastWinEv;  // first ev of last window
   static UInt_t  fgShreg;      // value for sequence algorithm      
 #ifdef HSDEB
-  static UInt_t  fgShreg2;      // value for sequence algorithm      
+  static UInt_t  fgShreg2;     // value for sequence algorithm      
 #endif
   static UInt_t  fgNShreg;     // count since fgShreg was reset
-
+  static Bool_t  fgPairMade;   // set in Fill to true if pair made, else false
 #ifdef DICT
   ClassDef(TaPairFromPair, 0);
 #endif

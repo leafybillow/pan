@@ -32,7 +32,7 @@ UInt_t TaPairFromPair::fgShreg = 1;      // value for sequence algorithm
 UInt_t TaPairFromPair::fgShreg2 = 1;      // value for sequence algorithm      
 #endif
 UInt_t TaPairFromPair::fgNShreg = 0;     // count since fgShreg was reset
-
+Bool_t TaPairFromPair::fgPairMade = false;   // set in Fill to true if pair made, else false
 
 TaPairFromPair::TaPairFromPair():VaPair()
 {
@@ -170,22 +170,49 @@ TaPairFromPair::Fill( TaEvent& ThisEv )
 #endif
       // If first of a pair, store it
       if ( ThisEv.GetPairSynch() == FirstPS )
-	fgEventQueue.push_back(ThisEv);
+	{
+	  if (fgPairMade && fgEventQueue.size() > 0)
+	    {
+	      // If event queue isn't empty, something is wrong: we
+	      // didn't pair off all first events with second events
+	      // before another first event came along.
+	      cerr << "TaPairFromPair::Fill ERROR: Nothing to pair first event "
+		   << fgEventQueue[0].GetEvNumber() << " with\n";
+	      fgEventQueue.clear();
+	      if (ThisEv.GetTimeSlot() == 1)
+		fgEventQueue.push_back(ThisEv);
+	      else
+		fgSkipping = true;
+	    }
+	  else
+	    fgEventQueue.push_back(ThisEv);
+	}
       else
 	{
 	  // If second of a pair, get its partner and build the pair
-	  if (fgEventQueue[0].GetDelHelicity() == RightHeli)
+	  if (fgEventQueue.size() > 0)
 	    {
-	      fEvRight = fgEventQueue[0];
-	      fEvLeft = ThisEv;
+	      if (fgEventQueue[0].GetDelHelicity() == RightHeli)
+		{
+		  fEvRight = fgEventQueue[0];
+		  fEvLeft = ThisEv;
+		}
+	      else
+		{
+		  fEvRight = ThisEv;
+		  fEvLeft = fgEventQueue[0];
+		}
+	      fgEventQueue.pop_front();
+	      PairMade = true;
 	    }
 	  else
 	    {
-	      fEvRight = ThisEv;
-	      fEvLeft = fgEventQueue[0];
+	      // Something's wrong.  This is a second event but the
+	      // queue of first events is empty.
+	      cerr << "TaPairFromPair::Fill ERROR: Nothing to pair second event "
+		   << ThisEv.GetEvNumber() << " with\n";
+	      fgSkipping = true;
 	    }
-	  fgEventQueue.pop_front();
-	  PairMade = true;
 	}
     }
 #ifdef NOISY
@@ -193,6 +220,7 @@ TaPairFromPair::Fill( TaEvent& ThisEv )
     clog << "Skipping event " << ThisEv.GetEvNumber() << endl;
 #endif
 
+  fgPairMade = PairMade;
   return PairMade;
 }
 
