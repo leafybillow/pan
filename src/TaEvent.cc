@@ -172,12 +172,24 @@ TaEvent::Load (const Int_t* buff)
   if ( IsPhysicsEvent() ) fEvNum = fEvBuffer[4];
 };
 
-void TaEvent::Decode(const TaDevice& devices) {
+void TaEvent::DecodeCook(TaDevice& devices) {
+// Determine at start-up which cooked data to add to tree.
+// This uses a feature of Decode() but ensures that users of
+// this class don't think it is a physics event.
+
+  fEvType = -100;   // Negative event type to "trick" Decode().
+  Decode(devices);
+};
+
+void TaEvent::Decode(TaDevice& devices) {
 // Decodes all the raw data and applies all the calibrations and BPM
 // rotations..  Note: This assumes the event structure remains
 // constant.  We check this by verifying a constant event length.
+// Also note that in order for cooked data to appear in the output,
+// everywhere we have fData[cook_key] = function of fData[raw_key], 
+// we MUST have a line devices.SetUsed(cook_key) if we want it.
 
-  Int_t i,j,key,idx,ok,ixp,ixm,iyp,iym,ix,iy;
+  Int_t i,j,key,idx,ixp,ixm,iyp,iym,ix,iy;
   Double_t sum,xrot,yrot;
   memset(fData, 0, MAXKEYS*sizeof(Double_t));
   if ( IsPhysicsEvent() )  {
@@ -203,6 +215,7 @@ void TaEvent::Decode(const TaDevice& devices) {
       key = i*4 + j;
       fData[ACCOFF + key] = fData[ADCOFF + key] - devices.GetPedestal(ADCOFF + key)
        - (fData[DACOFF + i] * devices.GetDacSlope(key) - devices.GetDacInt(key));
+      if (devices.IsUsed(ADCOFF+key)) devices.SetUsed(ACCOFF+key);
     }
   }
   
@@ -216,6 +229,7 @@ void TaEvent::Decode(const TaDevice& devices) {
       for (j = 0; j < 32; j++) {
 	key = j + i*32;
 	fData[SCCOFF + key] = 0;
+        if (devices.IsUsed(SCAOFF+key)) devices.SetUsed(SCCOFF+key);
       }
     } else {
       // HA! There IS a clock!
@@ -225,24 +239,13 @@ void TaEvent::Decode(const TaDevice& devices) {
 	fData[SCCOFF + key] = 
 	  (fData[SCAOFF + key] 
 	   - devices.GetPedestal(SCAOFF + key))/clock;
+        if (devices.IsUsed(SCAOFF+key)) devices.SetUsed(SCCOFF+key);
       }
     }
   }  
 
-
 // Stripline BPMs
   for (i = 0; i < STRNUM; i++) {
-    ok = 1;
-//      for (j = 0; j < 4; j++) {
-//        key = STROFF + 9*i + j;
-//        idx = devices.GetRawIndex(key);
-//        if (idx < 0) {
-//            ok = 0;      // A device channel was not found.
-//            continue;
-//        }
-//        fData[key] = fData[idx];
-//      }
-    if ( !ok ) continue;
     key = STROFF + 9*i;
     ixp = devices.GetCalIndex(key);
     ixm = devices.GetCalIndex(key+1);
@@ -253,17 +256,22 @@ void TaEvent::Decode(const TaDevice& devices) {
     iy  = key + 5;
     sum = fData[ixp] + fData[ixm];
     fData[key + 6] = sum;
+    if (devices.IsUsed(key)) devices.SetUsed(key+6);
     xrot = 0;
     if ( sum > 0 ) xrot = 
           fgKappa * (fData[ixp] - fData[ixm])/ sum;
     sum = fData[iyp] + fData[iym]; 
     fData[key + 7] = sum;
+    if (devices.IsUsed(key)) devices.SetUsed(key+7);
     yrot = 0;
     if ( sum > 0 ) yrot = 
           fgKappa * (fData[iyp] - fData[iym])/ sum;
     fData[ix] = Rotate (ix, xrot, yrot, 1);
+    if (devices.IsUsed(key)) devices.SetUsed(ix);
     fData[iy] = Rotate (iy, xrot, yrot, 2);
+    if (devices.IsUsed(key)) devices.SetUsed(iy);
     fData[key + 8] = fData[key + 6] + fData[key + 7];
+    if (devices.IsUsed(key)) devices.SetUsed(key+8);
   }
 
 // Cavity BPM monitors (when they exist)
@@ -274,6 +282,7 @@ void TaEvent::Decode(const TaDevice& devices) {
        idx = devices.GetCalIndex(key);
        if (idx < 0) continue;
        fData[key+2] = fData[idx];
+       if (devices.IsUsed(key)) devices.SetUsed(key+2);
 // This needs to be divided by current... when they exist.
     }
   }
@@ -281,40 +290,31 @@ void TaEvent::Decode(const TaDevice& devices) {
   for (i = 0; i < BCMNUM; i++) {
     key = BCMOFF + 2*i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
-    // raw and corrected BCM data
-//      idx = devices.GetRawIndex(key);
-//      if (idx < 0) continue;
-//      fData[key] = fData[idx];
     idx = devices.GetCalIndex(key);
     if (idx < 0) continue;
     fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
   }
 
 // Lumi monitors
   for (i = 0; i < LMINUM; i++) {
     key = LMIOFF + 2*i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
-//      // raw LUMI data
-//      idx = devices.GetRawIndex(key);
-//      if (idx < 0) continue;
-//      fData[key] = fData[idx];
-    // corrected LUMI data
+// corrected LUMI data
     idx = devices.GetCalIndex(key);
     if (idx < 0) continue;
     fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
   }
 
 // Detectors
   for (i = 0; i < DETNUM; i++) {
     key = DETOFF + 2*i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
-    // raw and corrected detector data
-//      idx = devices.GetRawIndex(key);
-//      if (idx < 0) continue;
-//      fData[key] = fData[idx];
     idx = devices.GetCalIndex(key);
     if (idx < 0) continue;
     fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
   }
 #ifndef FAKEHEL
   fData[IHELICITY] = (Double_t)(((int)GetData(ITIRDATA) & 0x40) >> 6);
@@ -330,6 +330,14 @@ void TaEvent::Decode(const TaDevice& devices) {
 //         << " " << fData[IQUADSYNCH]
 //         << " " << fData[ITIMESLOT] << endl;
 #endif
+// Remember to set the "used" flag (to use for root output).
+// Probably safer to put this outside of the "ifndef"
+  if (devices.IsUsed(ITIRDATA)) {  
+     devices.SetUsed(IHELICITY);
+     devices.SetUsed(IPAIRSYNCH); 
+// Don't forget to add quadsynch
+  }
+  if (devices.IsUsed(IOVERSAMPLE)) devices.SetUsed(ITIMESLOT);
 };
 
 void
@@ -654,13 +662,13 @@ Double_t TaEvent::GetScalerData( Int_t scaler, Int_t chan ) const {
 }; 
 
 void 
-TaEvent::AddToTree (const TaDevice& devices, 
+TaEvent::AddToTree (TaDevice& devices, 
 		    const TaCutList& cutlist,
 		    TTree& rawtree ) 
 {
   // Add the data of this device to the raw data tree (root output)
   // Called by TaRun::InitDevices()
-
+    DecodeCook(devices);
     Int_t bufsize = 5000;
     char tinfo[20];
     Int_t key;

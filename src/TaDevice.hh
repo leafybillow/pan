@@ -56,6 +56,7 @@ class TaDevice {
     Int_t GetRawIndex(const Int_t& key) const;
     Int_t GetCalIndex(const Int_t& key) const;
     Bool_t IsUsed(const Int_t& key) const;
+    void SetUsed(const Int_t& key) const;
     map<string, Int_t> GetKeyList() const;
 
  protected:
@@ -113,6 +114,11 @@ inline Bool_t TaDevice::IsUsed(const Int_t& key) const {
     if (fIsUsed[key] == 1) return kTRUE;
   }
   return kFALSE;
+};
+
+inline void TaDevice::SetUsed(const Int_t& key) const {
+  if (key >= 0 && key < MAXKEYS) fIsUsed[key] = 1;
+  return;
 };
 
 #endif

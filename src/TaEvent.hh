@@ -57,7 +57,7 @@ public:
   // Major functions
   static ErrCode_t RunInit(const TaRun& run);    // initialization at start of run
   void Load ( const Int_t *buffer );
-  void Decode( const TaDevice& devices );             // decode the event 
+  void Decode( TaDevice& devices );             // decode the event 
   void CheckEvent(TaRun& run);
   void AddCut (const Cut_t, const Int_t); // store cut conditions
   void AddResult( const TaLabelledQuantity& result);
@@ -90,9 +90,10 @@ public:
   void RawDump() const;      // dump raw data for debugging.
   void DeviceDump() const;   // dump device data for debugging.
 
-  void AddToTree (const TaDevice& dev, 
+  void AddToTree (TaDevice& dev, 
 		  const TaCutList& cutlist, 
 		  TTree &tree);    // Add data to root Tree
+
 
 private:
 
@@ -101,6 +102,7 @@ private:
   void Uncreate();
   Int_t Idx(const Int_t& key) const;
   Double_t Rotate(Int_t key, Double_t x, Double_t y, Int_t xy);
+  void DecodeCook( TaDevice& devices );   // Called by AddToTree
 
   // Constants
   static const UInt_t fgMaxEvLen = 2000;    // Maximum length for event buffer
