@@ -4,7 +4,7 @@
 # number of events to process (leave this out to get infinite)
 #    maxevents 2000
 # analysis type
-    anatype BEAM
+    anatype STANDARD
     lobeam  10000
     burpcut 500
     oversamp 1
