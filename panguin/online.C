@@ -157,7 +157,7 @@ Bool_t OnlineConfig::ParseConfig()
     if(sConfFile[i][0] == "definecut") {
       if(sConfFile[i].size()>3) {
 	cerr << "cut command has too many arguments" << endl;
-	break;
+	continue;
       }
       TCut tempCut(sConfFile[i][1],sConfFile[i][2]);
       //      cutList.push_back(make_pair(sConfFile[i][1],sConfFile[i][2]));
@@ -168,13 +168,13 @@ Bool_t OnlineConfig::ParseConfig()
 	cerr << "WARNING: rootfile command does not have the "
 	     << "correct number of arguments"
 	     << endl;
-	break;
+	continue;
       }
       if(!rootfilename.IsNull()) {
 	cerr << "WARNING: too many rootfile's defined. " 
 	     << " Will only use the first one." 
 	     << endl;
-	break;
+	continue;
       }
       rootfilename = sConfFile[i][1];
     }
@@ -455,7 +455,7 @@ void OnlineConfig::OverrideRootFile(UInt_t runnumber)
 //
 //
 
-OnlineGUI::OnlineGUI(OnlineConfig& config):
+OnlineGUI::OnlineGUI(OnlineConfig& config, Bool_t printonly):
   runNumber(0),
   timer(0),
   fFileAlive(kFALSE)
@@ -464,7 +464,13 @@ OnlineGUI::OnlineGUI(OnlineConfig& config):
 
   fConfig = &config;
 
-  CreateGUI(gClient->GetRoot(),200,200);
+  if(printonly) {
+    fPrintOnly=kTRUE;
+    PrintPages();
+  } else {
+    fPrintOnly=kFALSE;
+    CreateGUI(gClient->GetRoot(),200,200);
+  }
 }
 
 void OnlineGUI::CreateGUI(const TGWindow *p, UInt_t w, UInt_t h) 
@@ -681,12 +687,14 @@ void OnlineGUI::DoDraw()
       TreeDraw(drawcommand);
     }
   }
+      
   fCanvas->cd();
-    
   fCanvas->Update();
-  
-  CheckPageButtons();
-  
+
+  if(!fPrintOnly) {
+    CheckPageButtons();
+  }
+
 }
 
 void OnlineGUI::DrawNext()
@@ -1210,6 +1218,67 @@ void OnlineGUI::PrintToFile()
   if(fi.fFilename!=NULL) fCanvas->Print(fi.fFilename);
 }
 
+void OnlineGUI::PrintPages() {
+  // Routine to go through each defined page, and print the output to 
+  // a postscript file. (good for making sample histograms).
+  
+  // Open the RootFile
+    //  unless we're watching a file.
+  fRootFile = new TFile(fConfig->GetRootFile(),"READ");
+  if(!fRootFile->IsOpen()) {
+    cout << "ERROR:  rootfile: " << fConfig->GetRootFile()
+	 << " does not exist"
+	 << endl;
+    return;
+  } else {
+    fFileAlive = kTRUE;
+    ObtainRunNumber();
+    // Open the Root Trees.  Give a warning if it's not there..
+    GetFileObjects();
+    GetRootTree();
+    GetTreeVars();
+    for(UInt_t i=0; i<fRootTree.size(); i++) {
+      if(fRootTree[i]==0) {
+	fRootTree.erase(fRootTree.begin() + i);
+      }
+    }
+    
+  }
+  
+  // I'm not sure exactly how this works.  But it does.
+  fCanvas = new TCanvas("fCanvas","trythis",850,1050);
+//   TCanvas *maincanvas = new TCanvas("maincanvas","whatever",850,1100);
+//   maincanvas->SetCanvas(fCanvas);
+  TLatex *lt = new TLatex();
+
+  TString filename = "sampleplots";
+  if(runNumber!=0) {
+    filename += "_";
+    filename += runNumber;
+  }
+  filename += ".ps";
+
+  TString pagehead = "Sample Plots";
+  if(runNumber!=0) {
+    pagehead += "(Run #";
+    pagehead += runNumber;
+    pagehead += ")";
+  }
+  pagehead += ": ";
+
+  fCanvas->Print(filename+"[");
+  for(UInt_t i=0; i<fConfig->GetPageCount(); i++) {
+    current_page=i;
+    DoDraw();
+    TString pagename = pagehead + fConfig->GetPageTitle(current_page);
+    lt->SetTextSize(0.025);
+    lt->DrawLatex(0,1.00,pagename);
+    fCanvas->Print(filename);
+  }
+  fCanvas->Print(filename+"]");
+  
+}
+
 void OnlineGUI::MyCloseWindow()
 {
   fMain->SendCloseMessage();
@@ -1266,7 +1335,7 @@ OnlineGUI::~OnlineGUI()
   delete fConfig;
 }
 
-void online(TString type="standard",UInt_t run=0) 
+void online(TString type="standard",UInt_t run=0,Bool_t printonly=kFALSE) 
 {
   // "main" routine.  Run this at the ROOT commandline.
 
@@ -1279,7 +1348,7 @@ void online(TString type="standard",UInt_t run=0)
 
   if(run!=0) fconfig->OverrideRootFile(run);
 
-  new OnlineGUI(*fconfig);
+  new OnlineGUI(*fconfig,printonly);
 
 }
 

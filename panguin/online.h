@@ -97,12 +97,13 @@ private:
   TTimer                           *timer;
   Bool_t                            fUpdate;
   Bool_t                            fFileAlive;
+  Bool_t                            fPrintOnly;
   TH1D                             *mytemp1d;
   TH2D                             *mytemp2d;
   TH3D                             *mytemp3d;
 
 public:
-  OnlineGUI(OnlineConfig&);
+  OnlineGUI(OnlineConfig&,Bool_t);
   void CreateGUI(const TGWindow *p, UInt_t w, UInt_t h);
   virtual ~OnlineGUI();
   void DoDraw();
@@ -127,6 +128,7 @@ public:
   Int_t OpenRootFile();
   void ObtainRunNumber();
   void PrintToFile();
+  void PrintPages();
   void MyCloseWindow();
   void CloseGUI();
 };
