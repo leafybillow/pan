@@ -424,7 +424,7 @@ VaEvent::Decode(TaDevice& devices)
     if (devices.IsUsed(key)) devices.SetUsed(key+8);
   }
 
-// Cavity BPM monitors (when they exist)
+// Cavity BPM monitors
   for (i = 0; i < CAVNUM; i++) {
     for (j = 0; j < 2; j++) {
        key = CAVOFF + 4*i + j;
@@ -433,9 +433,19 @@ VaEvent::Decode(TaDevice& devices)
        if (idx < 0) continue;
        fData[key+2] = fData[idx];
        if (devices.IsUsed(key)) devices.SetUsed(key+2);
-// This needs to be divided by current... when they exist.
     }
   }
+
+// Cavity BCM monitors
+  for (i = 0; i < CCMNUM; i++) {
+    key = CCMOFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
 // Happex-1 era BCMs
   for (i = 0; i < BCMNUM; i++) {
     key = BCMOFF + 2*i;
@@ -624,7 +634,7 @@ VaEvent::CalibDecode(TaDevice& devices)
       }
     }
 
-// Cavity BPM monitors (when they exist) (no pedestal subtraction here!)
+// Cavity BPM monitors (no pedestal subtraction here!)
   for (i = 0; i < CAVNUM; i++) {
     for (j = 0; j < 2; j++) {
        key = CAVOFF + 4*i + j;
@@ -635,6 +645,17 @@ VaEvent::CalibDecode(TaDevice& devices)
        fData[corrkey] = fData[idx];
        if (devices.IsUsed(key)) devices.SetUsed(corrkey);
     }
+  }
+
+// Cavity BCM monitors (no pedestal subtraction here!)
+  for (i = 0; i < CCMNUM; i++) {
+    key = CCMOFF + 2*i;
+    corrkey = CCMCORROFF + i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCorrIndex(key);
+    if (idx < 0) continue;
+    fData[corrkey] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(corrkey);
   }
 
 // Happex-1 era BCMs (no pedestal subtraction here!)
