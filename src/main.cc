@@ -41,7 +41,7 @@ int main(int argc, char **argv)
 	{
 	  if (i < argc-1) 
 	    {
-	      cfilename = new char[strlen(argv[i+1]+1)];
+	      cfilename = new char[strlen(argv[i+1])+1];
 	      strcpy(cfilename,argv[i+1]);
 	      choice = 2;
 	    }
