@@ -59,6 +59,7 @@ public:
 
   // Major functions
   virtual ErrCode_t Init();
+  virtual ErrCode_t ReInit();
   Bool_t NextEvent();
   void Decode();
   virtual void AccumEvent(const TaEvent&);
@@ -95,7 +96,7 @@ private:
   Int_t GetBuffer();
   Int_t FindRunNumber();  
   virtual void InitDevices();
-  void PrintStats (TaStatistics s, vector<string> n, vector<string> u) const;
+  void PrintStats (const TaStatistics& s, const vector<string>& n, const vector<string>& u) const;
 
   // Data members
   RunNumber_t fRunNumber;        // Number of this run
@@ -119,6 +120,7 @@ private:
   vector<string> fEStatsUnits;   // Units of event statistics
   vector<string> fPStatsUnits;   // Units of pair statistics
   EventNumber_t fSliceLimit;     // Event number at end of next slice
+  Bool_t fFirstPass;             // Pass 1 or 2?
 
 #ifdef DICT
 ClassDef (TaRun, 0)      //  One run of CODA data

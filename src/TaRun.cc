@@ -75,7 +75,8 @@ TaRun::TaRun():
   fPSliceStats(0),
   fERunStats(0),
   fPRunStats(0),
-  fSliceLimit(fgSLICELENGTH)
+  fSliceLimit(fgSLICELENGTH),
+  fFirstPass(true)
 {
    fCodaFileName = "online";
 #ifdef ONLINE
@@ -101,7 +102,8 @@ TaRun::TaRun(const Int_t& run) :
   fPSliceStats(0),
   fERunStats(0),
   fPRunStats(0),
-  fSliceLimit(fgSLICELENGTH)
+  fSliceLimit(fgSLICELENGTH),
+  fFirstPass(true)
 {
   char *prefix, *suffix, *crun;
   prefix = getenv("CODA_FILE_PREFIX");
@@ -137,7 +139,8 @@ TaRun::TaRun(const string& filename):
   fPSliceStats(0),
   fERunStats(0),
   fPRunStats(0),
-  fSliceLimit(fgSLICELENGTH)
+  fSliceLimit(fgSLICELENGTH),
+  fFirstPass(true)
 {
 };
 
@@ -226,6 +229,53 @@ TaRun::Init()
     }
 
   TaEvent::RunInit(*this);
+
+  return fgTARUN_OK;
+
+}
+ 
+
+ErrCode_t
+TaRun::ReInit()
+{
+  // Run reinitialization for second pass: reattach data source.
+
+  fFirstPass = false;
+  if (fCodaFileName == "")
+    {
+      cerr << "TaRun::ReInit ERROR Empty filename" << endl;
+      return fgTARUN_ERROR;
+    }
+      
+  if (fCodaFileName == "online") 
+    {
+      cerr << "TaRun::ReInit ERROR: Cannot reinitialize online data" << endl;
+    } 
+  else 
+    { 
+      TString tfile(fCodaFileName.c_str()); // hopefully temp. prefer <string>
+      delete fCoda;
+      fCoda = new THaCodaFile(tfile);
+      if (fCoda->status() != 0)
+	{
+	  cerr << "TaRun::ReInit ERROR: Cannot open file" << endl;
+	  return fgTARUN_ERROR;
+	}
+    }
+
+  delete fCutList;
+  fCutList = new TaCutList(fRunNumber);
+  fCutList->Init(*fDataBase);
+  fCutList->AddName(LowBeamCut, "Low beam");
+  fCutList->AddName(BeamBurpCut, "Beam burp");
+  fCutList->AddName(OversampleCut, "Oversample");
+  fCutList->AddName(SequenceCut, "Sequence");
+  TaEvent::RunInit(*this);
+
+  if (fERunStats != 0)
+    fERunStats->SetFirstPass (false);
+  if (fPRunStats != 0)
+    fPRunStats->SetFirstPass (false);
 
   return fgTARUN_OK;
 
@@ -344,6 +394,7 @@ TaRun::AccumEvent(const TaEvent& ev)
 	    vres.push_back (i->GetVal());
 	}
       fESliceStats->Update (vres);
+      fERunStats->Update (vres);
     }
 #ifdef NOISY
   else
@@ -393,6 +444,7 @@ TaRun::AccumPair(const VaPair& pr)
 	    vres.push_back (i->GetVal());
 	}
       fPSliceStats->Update (vres);
+      fPRunStats->Update (vres);
     }
 #ifdef NOISY
   else
@@ -407,27 +459,26 @@ TaRun::AccumPair(const VaPair& pr)
   if (evr >= fSliceLimit || evl >= fSliceLimit)
     {
       fSliceLimit += fgSLICELENGTH;
-      cout << "TaRun::AccumEvent(): At pair " << evr << "/" << evl
-	   << " of run " << fRunNumber << endl;
-      if (fESliceStats != 0 || fPSliceStats != 0)
-	cout << "Stats for last " << fgSLICELENGTH
-	     << " events:";
-      cout << endl;
+      if (fFirstPass)
+	{
+	  cout << "TaRun::AccumEvent(): At pair " << evr << "/" << evl
+	       << " of run " << fRunNumber << endl;
+	  if (fESliceStats != 0 || fPSliceStats != 0)
+	    cout << "Stats for last " << fgSLICELENGTH
+		 << " events:";
+	  cout << endl;
+	  if (fESliceStats != 0)
+	    PrintStats (*fESliceStats, fEStatsNames, fEStatsUnits);
+	  if (fPSliceStats != 0)
+	    PrintStats (*fPSliceStats, fPStatsNames, fPStatsUnits);
+	  cout << endl;
+	  fCutList->PrintTally(cout);
+	  cout << endl;
+	}
       if (fESliceStats != 0)
-	{
-	  PrintStats (*fESliceStats, fEStatsNames, fEStatsUnits);
-	  *fERunStats += *fESliceStats;
-	  fESliceStats->Zero();
-	}
+	fESliceStats->Zero();
       if (fPSliceStats != 0)
-	{
-	  PrintStats (*fPSliceStats, fPStatsNames, fPStatsUnits);
-	  *fPRunStats += *fPSliceStats;
-	  fPSliceStats->Zero();
-	}
-      cout << endl;
-      fCutList->PrintTally(cout);
-      cout << endl;
+	fPSliceStats->Zero();
     }
 }
 
@@ -447,20 +498,18 @@ TaRun::Finish()
   // statistics, cumulative cut tally.
 
   cout << "\nTaRun::Finish End of run " << fRunNumber << endl;
-  size_t nSlice = fEventNumber - (fSliceLimit - fgSLICELENGTH);
-  if ((fESliceStats != 0 || fPSliceStats != 0) && nSlice > 5)
-    cout<< "Stats for last " << nSlice << " events:";
-  cout << endl;
-
-  if (fESliceStats != 0 && nSlice > 5)
-    PrintStats (*fESliceStats, fEStatsNames, fEStatsUnits);
-  if (fPSliceStats != 0 && nSlice > 5)
-    PrintStats (*fPSliceStats, fPStatsNames, fPStatsUnits);
-
-  if (fESliceStats != 0)
-    *fERunStats += *fESliceStats;
-  if (fPSliceStats != 0)
-    *fPRunStats += *fPSliceStats;
+  if (fFirstPass)
+    {
+      size_t nSlice = fEventNumber - (fSliceLimit - fgSLICELENGTH);
+      if ((fESliceStats != 0 || fPSliceStats != 0) && nSlice > 5)
+	cout<< "Stats for last " << nSlice << " events:";
+      cout << endl;
+      
+      if (fESliceStats != 0 && nSlice > 5)
+	PrintStats (*fESliceStats, fEStatsNames, fEStatsUnits);
+      if (fPSliceStats != 0 && nSlice > 5)
+	PrintStats (*fPSliceStats, fPStatsNames, fPStatsUnits);
+    }
 
   if (fERunStats != 0 || fPRunStats != 0)
     cout << "\nCumulative stats for " << fEventNumber 
@@ -554,7 +603,7 @@ TaRun::GetKey(Int_t key) const {
 
 
 void 
-TaRun::PrintStats (TaStatistics s, vector<string> n, vector<string> u) const
+TaRun::PrintStats (const TaStatistics& s, const vector<string>& n, const vector<string>& u) const
 {
   // Print statistics, with given labels and units.
   
