@@ -33,6 +33,7 @@
 #include <iostream>
 #include <iomanip>
 #include <stdlib.h>
+#include "TFile.h"
 #include "THaCodaData.h"
 #include "THaCodaFile.h"
 #ifdef MYSQLDB
@@ -72,6 +73,7 @@ TaRun::TaRun():
   fCodaFileName ("online"),
   fEvent(0),
   fDevices(0),
+  fRootFile(0),
   fEvtree(0),
   fESliceStats(0),
   fPSliceStats(0),
@@ -106,7 +108,6 @@ TaRun::TaRun(const Int_t& run) :
   fSliceLimit(fgSLICELENGTH),
   fFirstPass(true)
 {
-  // Now we know run number, so we can improve our filename setup
   TaFileName::Setup (fRunNumber, "");
   fCodaFileName = TaFileName ("coda").String();
 } 
@@ -190,9 +191,6 @@ TaRun::Init()
       cerr << "TaRun::Init Run number is " << fRunNumber << endl;
     }
 
-  // Now we know run number, so we can improve our filename setup
-  TaFileName::Setup (fRunNumber, "");
-  
 #ifdef MYSQLDB
   fDataBase = new TaMysql();
 #else
@@ -213,6 +211,12 @@ TaRun::Init()
       return fgTARUN_ERROR;
     }
 
+  // Open the Root file
+  TaFileName::Setup (fRunNumber, fDataBase->GetAnaType());
+  TaFileName rootFileName ("root");
+  fRootFile = new TFile(rootFileName.String().c_str(),"RECREATE");
+  fRootFile->SetCompressionLevel(0);
+  
   return TaEvent::RunInit(*this);
 
 }
@@ -509,6 +513,10 @@ TaRun::Finish()
   cout << endl;
   fCutList->PrintTally(cout);
   cout << endl;
+
+  fRootFile->Write();
+  fRootFile->Close();
+  delete fRootFile;
 }
 
 

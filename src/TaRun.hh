@@ -37,6 +37,7 @@
 #include <string>
 #include <map>
 
+class TFile;
 class THaCodaData;
 class TaEvent;
 class TaDevice;
@@ -112,6 +113,7 @@ private:
   string fSession;               // CODA session for online data
   TaEvent* fEvent;               // The most recently read event
   TaDevice* fDevices;            // Device map for this run
+  TFile* fRootFile;              // Root file for analysis results
   TTree *fEvtree;                // Event tree for Root file
   TaStatistics* fESliceStats;    // Incremental event statistics
   TaStatistics* fPSliceStats;    // Incremental pair statistics
