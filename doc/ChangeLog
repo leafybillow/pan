@@ -4,6 +4,26 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Michaels on 23 Jul 2002
+--------------------------------------
+
+This round of changes is mainly aimed at allowing scalers to be
+used for various "cooked" data in a flexible way analgous to the way 
+that ADCs are used.  This must be driven by the database, to permit
+on-the-fly definition of the correspondence of cooked data to raw data.
+Since the database classes and TaDevice were unfortunately riddled with
+a hard-coded assumption that only ADCs would exist (e.g. only ADC pedestals),
+I had to modify them.  I also modified the TaEvent::Decode routine and
+DevTyepes.hh.  A new column appears in control.db datamap table which
+indicates the readout type ("adc" or "scaler").
+
+In addition to this major change, there are a couple minor ones: 
+1) BPMs are not rotated if they are at injector or G0 cavities; and
+2) I implemented wire sums per Kent's request.  
+
+This immediately brings up a few tasks that need to be done; see README_ISSUES.
+		
+
 Changes by R. Holmes on 22 Jul 2002
 ------------------------------------
 

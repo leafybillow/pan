@@ -22,37 +22,38 @@ The following are required to be defined, else the analysis will not continue.
    ALL raw data and ONLY raw data must be listed in the datamap.  
    ^^^              ^^^^
    Each line in the datamap has the form
-table  device-type device-name adc startchan evbuff-offset channel-names(keys
+table  dev-type dev-name read-type devnum startchan evbuff-offset chan-names(keys
    Example:
-datamap   bpm        bpm8       5    0       73  bpm8xp bpm8xm bpm8yp bpm8ym
+datamap   bpm   bpm8     adc   5    0       73  bpm8xp bpm8xm bpm8yp bpm8ym
 
    The 'datamap' is the name of the table in the database.  The other
    quantities are defined below.
 
-2. Device type   (is synonymous with class)
+2. Device type   
 
-   The device type listed is the highest in the class hierarchy that exists
-   for the corresponding keys.  For a BPM for example, one should list
-   list "BPM" instead of "ADC".  But if a key (i.e. channel) is only part of
-   an ADC, list it as "ADC".  After the TaRun sets up the list of defined devices, 
-   the database is checked to see if any device types are not defined, a  
-   fatal error and is probably a typo error in the database.  
+   Formerly this would be thought of as a class, but this concept is
+   obsolete.  However, the dev-type is still used by the code decide the
+   generic type of data being considered on this line.  
 
-3. Device name    (synonymous with object)
+3. Device name    
 
-   The device name is the name of the object which is an instance
-   of a class of 'device type'.  For example, a device-name = bpm12
-   is a instance of an object of device-type = bpm.  
+   Formerly known as an object, this concept is obselete after the
+   decoding was simplified.  A device name is simply what people call
+   the whole device within the code.  It is used to index the device.
 
-4. ADC number  or index   
+4. Readout type
 
-   The index of the ADC must be unique and denotes a physical ADC unit.  
-   For the Princeton ADCs there must be exactly four channels specified 
-   in datamap.  The index of the ADC will be used to determine which dac 
-   value belonged to which adc signal.  For objects that do not derive from 
-   ADC, the adc value should be left zero.
+   This indicates whether the readout is adc or scaler.  If we wanted to
+   change the example above to a scaler, for example, we'd simply need to
+   change "adc" to "scaler" and also adjust the evbuff-offset and possibly
+   devnum and startchan as appropriate.
 
-5. startchan
+5. Device number
+
+   The index of the ADC or scaler must be unique and denotes a physical ADC 
+   or scaler unit.  
+
+6. startchan
 
    The 'startchan' is the first channel that is mapped for that line
    in the datamap table of the database.  If there is only one datamap
@@ -68,42 +69,26 @@ datamap   bpm        bpm8       5    0       73  bpm8xp bpm8xm bpm8yp bpm8ym
    An example follows, where some antennas for bpm4a are distributed across 
    two different ADCs.
 
-      datamap   bpm   bpm4a   7    0    85  bpm4axp bpm4axm 
-      datamap   bpm   bpm4a   9    2    99  bpm4ayp bpm4aym 
+      datamap   bpm   bpm4a  adc  7    0    85  bpm4axp bpm4axm 
+      datamap   bpm   bpm4a  adc  9    2    99  bpm4ayp bpm4aym 
 
    And here is an example of data from one ADC.  Note the negative channel
    numbers for csr and dac.
 
-      datamap   bpm   bpm10   6    0    79  bpm10xp bpm10xm bpm10yp bpm10ym
-      datamap   adc   adc3    6   -9    83    csr dac
+      datamap   bpm   bpm10  adc  6    0    79  bpm10xp bpm10xm bpm10yp bpm10ym
+      datamap   adc   adc3   adc  6   -9    83    csr dac
 
-6. evbuff-offset
+7. evbuff-offset
 
    The event buffer offset is the absolute position of the index for the
    data pertaining to the first key.  It is incremented like startchan and
    the two values (startchan and evbuff-offset) have a one-to-one correspondence.
 
-7. keys  -- 
+8. keys  -- 
 
    In the datamap, keys are unique labels of channels of raw data.
-   Additional keys are created by derived classes of VaDevices at run time, 
-   to denote data that is computed by the class.  For example 'bcm1r' is 
-   the raw data (r) for bcm1, while 'bcm1' is the pedestal-subtracted
-   and dacnoise-corrected bcm1 value.
- 
-   TaEvent::GetData(key) will fetch the data for the channel defined
-   by that key if the key is unique for the event structure.  If the key
-   is not unique (e.g. the key = 'dac' is not unique), then one must fetch
-   the value using TaEvent::GetData(device, key).  Keys must be unique 
-   within a given device.  However, a given device may have multiple keys.
-   For example, it may be convenient to list an ADC channel both as a
-   key = 'bpm10xp' and as a key = 'adc2_1' (ADC #2, channel #1).
-
-   Due to apparent root limitations, it seems best to avoid dashes (-)
-   in key names, and use underscores (_) instead.  Also, although keys
-   do not need to be unique within an event structure, it is a good
-   idea to make them unique if you care about them in the root tree output.
-   Data appears in the root tree with the key names.
+   They are indexed in the code by indices in DevTypes.hh.  See also
+   TaEvent::Decode() method.
  
 Information from the database or the run are checked.
 If they are absent or corrupted, an error message is printed

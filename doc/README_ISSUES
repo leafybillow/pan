@@ -1,3 +1,19 @@
+Comments by R. Michaels, 23 July 2002
+-------------------------------------
+
+After the round of changes to incorporate scalers as alternatives
+to ADCs (see the ChangeLog for details), we have the following issues
+to fix:
+
+1. TaMysql is broken.  To the extent possible, both it and TaAsciiDB
+   classes should use inheritance to minimize the pain of changing the code.
+   (That's what C++ is supposed to do !!)
+
+2. scaler calibration needs to be done correctly in TaEvent::Decode
+
+3. Perl script to generate DevTypes.hh is desirable.
+
+
 Comments by R. Holmes, 16 Apr 2002
 ----------------------------------
 
