@@ -20,11 +20,11 @@
 # Hall A stripline BPMs
 @halla_strlist = qw / IBPM8 IBPM10 IBPM12 IBPM4A IBPM4B /;
 # Injector stripline BPMs
-@inj_strlist =   qw / IBPM1I02 IBPM1I04 IBPM1I06 IBPM0I02 IBPM0I02A IBPM0L02 IBPM0L06 /;  
+@inj_strlist =   qw / IBPM1I02 IBPM1I04 IBPM1I06 IBPM0I02 IBPM0I02A IBPM0L01 IBPM0L02 IBPM0L03 IBPM0L04 IBPM0L06 /;  
 # Cavity BPMs
 @cavlist =       qw / IBPMCAV1 IBPMCAV2 IBPMCAV3 IBPMCAV4 /;
 # Old (HAPPEX-I era) current monitors
-@old_bcmlist =   qw / IBCM1 IBCM2 IBCM3 IBCM4/;
+@old_bcmlist =   qw / IBCM1 IBCM2 IBCM3 IBCM4 IBCM5 IBCM6 /;
 # G0 current monitors
 @g0_bcmlist =    qw / IBCMCAV1 IBCMCAV2 IBCMCAV3 IBCMCAV4 /;
 # Batteries
@@ -32,7 +32,7 @@
 # Detectors
 @detlist =       qw / IDET1 IDET2 IDET3 IDET4 /;
 # Lumi detectors
-@lumilist =      qw / ILUMI1 ILUMI2 ILUMI3 ILUMI4 /;
+@lumilist =      qw / ILUMI1 ILUMI2 ILUMI3 ILUMI4 ILUMI5 /;
 # V2F clocks
 @v2fclocklist =  qw / IV2F_CLK0 IV2F_CLK1 IV2F_CLK2 IV2F_CLK3 /;
 # quad photodiode
