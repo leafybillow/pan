@@ -48,6 +48,7 @@ public:
   virtual Bool_t Fill( TaEvent& ) = 0;
   const TaEvent& GetRight() const;
   const TaEvent& GetLeft() const;
+  Int_t PassedCuts();
   void QueuePrint() const;   
   void AddResult (const TaLabelledQuantity&); 
   Double_t GetDiff (string);

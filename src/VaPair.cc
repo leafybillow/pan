@@ -102,7 +102,7 @@ VaPair::AddResult (const TaLabelledQuantity& lq)
 Double_t 
 VaPair::GetDiff (string key)
 {
-  return GetRight().GetData(key) - GetLeft().GetData(key);
+  return GetLeft().GetData(key) - GetRight().GetData(key);
 }
 
 
@@ -116,9 +116,17 @@ VaPair::GetAsy (string key)
 	   << key << endl;
       return 0;
     }
-  return (GetRight().GetData(key) - GetLeft().GetData(key)) / denom;
+  //  cout<<"GEtAsy() left, right"<<GetRight().GetData(key)<<" ,"<<GetLeft().GetData(key)<<endl; 
+  return (GetLeft().GetData(key) - GetRight().GetData(key)) / denom;
 }
 
+
+Int_t VaPair::PassedCuts(){
+  Int_t status;
+ if ( GetLeft().CutStatus() && GetRight().CutStatus() ) status = 0;
+ else status = 1;  
+ return status;
+}
 
 const vector<TaLabelledQuantity>& 
 VaPair::GetResults() const
