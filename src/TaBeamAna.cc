@@ -92,6 +92,8 @@ TaBeamAna::InitChanLists ()
 
   // Channels for which to store left and right values
   fTreeList = ChanListFromName ("helicity", "", fgNO_STATS + fgCOPY);
+  f = ChanListFromName ("quadsynch", "", fgNO_STATS + fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanListFromName ("pairsynch", "", fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanListFromName ("timeslot", "", fgNO_STATS + fgCOPY);
