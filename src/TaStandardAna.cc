@@ -61,25 +61,25 @@ void TaStandardAna::EventAnalysis()
   fEvt->AddResult ( TaLabelledQuantity ( "bcm2",
 					 fEvt->GetData(IBCM2), 
 					 "chan" ) );
-  if (fRun->GetDevices().IsUsed(IDET1))
+  if (fRun->GetDevices().IsUsed(IDET1R))
     {
       fEvt->AddResult ( TaLabelledQuantity ( "det1",
 					     fEvt->GetData(IDET1), 
 					     "chan" ) );
     }
-  if (fRun->GetDevices().IsUsed(IDET2))
+  if (fRun->GetDevices().IsUsed(IDET2R))
     {
       fEvt->AddResult ( TaLabelledQuantity ( "det2",
 					     fEvt->GetData(IDET2), 
 					     "chan" ) );
     }
-  if (fRun->GetDevices().IsUsed(IDET3))
+  if (fRun->GetDevices().IsUsed(IDET3R))
     {
       fEvt->AddResult ( TaLabelledQuantity ( "det3",
 					     fEvt->GetData(IDET3), 
 					     "chan" ) );
     }
-  if (fRun->GetDevices().IsUsed(IDET4))
+  if (fRun->GetDevices().IsUsed(IDET4R))
     {
       fEvt->AddResult ( TaLabelledQuantity ( "det4",
 					     fEvt->GetData(IDET4), 
@@ -127,19 +127,22 @@ TaStandardAna::InitChanLists ()
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   // Channels for which to store differences
-  f = ChanList ("batt", "~", "mchan", fgDIFF);
+  f = ChanList ("batt", "~", "mchan", fgDIFF + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanList ("bpm", "~x", "um", fgDIFF);
+  f = ChanList ("bpm", "~x", "um", fgDIFF + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanList ("bpm", "~y", "um", fgDIFF);
+  f = ChanList ("bpm", "~y", "um", fgDIFF + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   // Channels for which to store asymmetries
-  f = ChanList ("bcm", "~", "ppm", fgNO_BEAM_NO_ASY + fgASY);
+  f = ChanList ("bcm", "~", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   // Channels for which to store normalized asymmetries
-  f = ChanList ("det", "~", "ppm", fgNO_BEAM_NO_ASY + fgASYN);
+  f = ChanList ("lumi", "~", "ppm", fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+
+  f = ChanList ("det", "~", "ppm", fgNO_BEAM_NO_ASY + fgASYN + fgBLIND);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   // multi-detector asymmetries
@@ -158,44 +161,44 @@ TaStandardAna::InitChanLists ()
   vector<Int_t> keys(0);
   vector<Double_t> wts(0);
 
-  if (fRun->GetDevices().IsUsed(IDET1) &&
-      fRun->GetDevices().IsUsed(IDET2))
+  if (fRun->GetDevices().IsUsed(IDET1R) &&
+      fRun->GetDevices().IsUsed(IDET2R))
     {
       keys.push_back(IDET1);  keys.push_back(IDET2);
       fTreeList.push_back (AnaList ("det_l", keys, wts, "ppm", 
-				    fgNO_BEAM_NO_ASY + fgASYN));
+				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
     }
-  if (fRun->GetDevices().IsUsed(IDET3) &&
-      fRun->GetDevices().IsUsed(IDET4))
+  if (fRun->GetDevices().IsUsed(IDET3R) &&
+      fRun->GetDevices().IsUsed(IDET4R))
     {
       keys.clear(); keys.push_back(IDET3);  keys.push_back(IDET4);
       fTreeList.push_back (AnaList ("det_r", keys, wts, "ppm", 
-				    fgNO_BEAM_NO_ASY + fgASYN));
+				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
     }
-  if (fRun->GetDevices().IsUsed(IDET1) &&
-      fRun->GetDevices().IsUsed(IDET3))
+  if (fRun->GetDevices().IsUsed(IDET1R) &&
+      fRun->GetDevices().IsUsed(IDET3R))
     {
       keys.clear(); keys.push_back(IDET1);  keys.push_back(IDET3);
       fTreeList.push_back (AnaList ("det_lo", keys, wts, "ppm", 
-				    fgNO_BEAM_NO_ASY + fgASYN));
+				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
     }
-  if (fRun->GetDevices().IsUsed(IDET2) &&
-      fRun->GetDevices().IsUsed(IDET4))
+  if (fRun->GetDevices().IsUsed(IDET2R) &&
+      fRun->GetDevices().IsUsed(IDET4R))
     {
       keys.clear(); keys.push_back(IDET2);  keys.push_back(IDET4);
       fTreeList.push_back (AnaList ("det_hi", keys, wts, "ppm", 
-				    fgNO_BEAM_NO_ASY + fgASYN));
+				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
     }
-  if (fRun->GetDevices().IsUsed(IDET1) &&
-      fRun->GetDevices().IsUsed(IDET2) &&
-      fRun->GetDevices().IsUsed(IDET3) &&
-      fRun->GetDevices().IsUsed(IDET4))
+  if (fRun->GetDevices().IsUsed(IDET1R) &&
+      fRun->GetDevices().IsUsed(IDET2R) &&
+      fRun->GetDevices().IsUsed(IDET3R) &&
+      fRun->GetDevices().IsUsed(IDET4R))
     {
       keys.clear(); keys.push_back(IDET1);  keys.push_back(IDET2);
       keys.push_back(IDET3);  keys.push_back(IDET4);
       fTreeList.push_back (AnaList ("det_all", keys, wts, "ppm", 
-				    fgNO_BEAM_NO_ASY + fgASYN));
+				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
       fTreeList.push_back (AnaList ("det_ave", keys, wts, "ppm", 
-				    fgNO_BEAM_NO_ASY + fgASYN + fgAVE));
+				    fgNO_BEAM_NO_ASY + fgASYN + fgAVE + fgBLIND));
     }
 }

@@ -46,6 +46,7 @@
 //#define FDBK
 //TEST#define DB_PUT_TEST
 
+#include "TaBlind.hh"
 #include "TaCutList.hh"
 #include "TaDevice.hh"
 #include "VaEvent.hh"
@@ -71,6 +72,8 @@ const UInt_t VaAnalysis::fgDIFF           = 0x8;
 const UInt_t VaAnalysis::fgASY            = 0x10;
 const UInt_t VaAnalysis::fgASYN           = 0x20;
 const UInt_t VaAnalysis::fgAVE            = 0x40;
+const UInt_t VaAnalysis::fgBLIND          = 0x80;
+const UInt_t VaAnalysis::fgBLINDSIGN      = 0x100;
 const ErrCode_t VaAnalysis::fgVAANA_ERROR = -1;  // returned on error
 const ErrCode_t VaAnalysis::fgVAANA_OK = 0;      // returned on success
 const UInt_t VaAnalysis::fgNumBpmFdbk     = 2;   // number of BPMs to feedback on
@@ -112,6 +115,7 @@ VaAnalysis::VaAnalysis():
   fDoRun(true),
   fDoRoot(true),
   fFirstPass(true),
+  fLastPass(false),
   fIAslope(0),fPITAslope(0)
 { 
   fEHelDeque.clear(); 
@@ -244,6 +248,12 @@ VaAnalysis::RunIni(TaRun& run)
   fNCuts = fRun->GetDataBase().GetNumCuts();
   fCutArray = new Int_t[2*fNCuts];
 
+  // Initialize blinding
+  string bs = fRun->GetDataBase().GetBlindingString();
+  vector<Double_t> bp = fRun->GetDataBase().GetBlindingParams();
+  clog << ">>>> " << bp[0] << " " << bp[1] << " " << bp[2] << endl;
+  fBlind  = new TaBlind (bs, bp[0], bp[1], bp[2]);
+
   InitChanLists();
   InitFeedback();
   
@@ -256,6 +266,7 @@ VaAnalysis::InitLastPass ()
 { 
   // Setup last pass (second if two passes, else first)
 
+  fLastPass = true;
   if (fDoRoot)
     {
       fRun->InitRoot();
@@ -392,7 +403,7 @@ VaAnalysis::RunFini()
   //  if (fQSwitch) QasyEndFeedback();
   //  if (fZSwitch) PZTEndFeedback();
 
-  if (!fFirstPass)
+  if (fLastPass)
     {
       // Database Print() must be done BEFORE we Put() data into
       // database as result of this analysis.
@@ -456,6 +467,8 @@ VaAnalysis::RunFini()
 	  delete fPairTree;
 	  fPairTree = 0;
 	}
+
+      delete fBlind;
     }
 
   delete fPreEvt;
@@ -941,6 +954,7 @@ VaAnalysis::AutoPairAna()
   clog<<" mean ev pair "<<(fPair->GetRight().GetEvNumber()+fPair->GetLeft().GetEvNumber())*0.5<<" passed Cuts :"<<fPair->PassedCuts()<<endl;
 #endif
   Double_t val;
+  string unit;
 
   for (vector<AnaList>::const_iterator i = fTreeList.begin();
        i != fTreeList.end();
@@ -982,11 +996,20 @@ VaAnalysis::AutoPairAna()
 	    val = fPair->GetDiffSum (*(alist.fVarInts), *(alist.fVarWts)) * 1E3;
 	  else
 	    val = fPair->GetDiff(alist.fVarInt) * 1E3;
+	  unit = alist.fUniStr;
+	  if (fBlind->Blinding())
+	    {
+	      if (alist.fFlagInt & (fgBLIND | fgBLINDSIGN))
+		{
+		  val = fBlind->BlindSignOnly (val);
+		  unit += " (blinded sign)";
+		}
+	    }
 	  if (fPairTree != 0)
 	    *(tsptr++) = val;
 	  fPair->AddResult (TaLabelledQuantity (string("Diff ")+(alist.fVarStr), 
 						val, 
-						alist.fUniStr,
+						unit,
 						alist.fFlagInt));
 	}
       
@@ -1010,11 +1033,25 @@ VaAnalysis::AutoPairAna()
 	      else
 		val = fPair->GetAsy(alist.fVarInt) * 1E6;
 	    }
+	  unit = alist.fUniStr;
+	  if (fBlind->Blinding())
+	    {
+	      if (alist.fFlagInt & fgBLIND)
+		{
+		  val = fBlind->Blind (val);
+		  unit += " (blinded)";
+		}
+	      else if (alist.fFlagInt & fgBLINDSIGN)
+		{
+		  val = fBlind->BlindSignOnly (val);
+		  unit += " (blinded sign)";
+		}
+	    }
 	  if (fPairTree != 0)
 	    *(tsptr++) = val;
 	  fPair->AddResult (TaLabelledQuantity (string("Asym ")+(alist.fVarStr), 
 						val, 
-						alist.fUniStr,
+						unit,
 						alist.fFlagInt));
 	}
 
@@ -1041,11 +1078,25 @@ VaAnalysis::AutoPairAna()
 		val = fPair->GetAsy(alist.fVarInt);
 	      val = (val - fPair->GetAsy(IBCM1)) * 1E6;
 	    }
+	  unit = alist.fUniStr;
+	  if (fBlind->Blinding())
+	    {
+	      if (alist.fFlagInt & fgBLIND)
+		{
+		  val = fBlind->Blind (val);
+		  unit += " (blinded)";
+		}
+	      else if (alist.fFlagInt & fgBLINDSIGN)
+		{
+		  val = fBlind->BlindSignOnly (val);
+		  unit += " (blinded sign)";
+		}
+	    }
 	  if (fPairTree != 0)
 	    *(tsptr++) = val;
 	  fPair->AddResult (TaLabelledQuantity (string("AsyN ")+(alist.fVarStr), 
 						val, 
-						alist.fUniStr,
+						unit,
 						alist.fFlagInt));
 	}
     }

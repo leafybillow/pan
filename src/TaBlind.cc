@@ -36,6 +36,10 @@
 //  We might do this too, and in fact I don't know why one would want
 //  a random BlindSign at all, but this class is written to allow it.)
 //
+//  (Also note that E158 does not include Asign in the blinding
+//  methods; instead it is assumed that A_true has the "correct" sign,
+//  as will A_hidden.)
+//
 //  This is done by Blind and undone by UnBlind.
 //
 //  To keep the sign of the asymmetry correlations with beam
@@ -145,7 +149,7 @@ TaBlind::Create (const string s)
       const char* p = s.c_str();
       while (*p) 
 	res = (((res<<1) + (res>>30)) ^ *p++) & 0x7FFFFFFF;
-      clog << "TaBlind::Create: " << s << " hashes to " << res << endl;
+      clog << "TaBlind::Create: '" << s << "' hashes to " << res << endl;
       TRandom r(res);
       fBlindOffset = r.Uniform(-1., 1.);
 #ifdef SIGNFLIP
@@ -158,6 +162,10 @@ TaBlind::Create (const string s)
       // production...
       clog << "TaBlind::Create: Blind sign and offset are " << fBlindSign 
 	   << " " << fBlindOffset << endl;
+      clog << "TaBlind::Create: Input sign, mean, and offscale are "
+	   << fASign
+	   << " " << fAMean
+	   << " " << fAOffScale << endl;
     }
 }
 

@@ -55,6 +55,7 @@ class TaCutList;
 class TaRun;
 class VaEvent;
 class VaPair;
+class TaBlind;
 class AnaList {
 // Utility class of variable info
 public: 
@@ -167,6 +168,8 @@ public:
   static const UInt_t fgDIFF;            // Store R-L difference as result
   static const UInt_t fgASY;             // Store asymmetry as result
   static const UInt_t fgASYN;            // Store normalized asymmetry as result
+  static const UInt_t fgBLIND;           // Blind this result
+  static const UInt_t fgBLINDSIGN;       // Blind sign only of this result
   static const UInt_t fgAVE;             // Use average asymmetry, not sum
   static const ErrCode_t fgVAANA_ERROR;  // returned on error
   static const ErrCode_t fgVAANA_OK;      // returned on success
@@ -258,7 +261,9 @@ protected:
   Bool_t fDoSlice;              // To control if slice stats are kept
   Bool_t fDoRun;                // To control if run stats are kept
   Bool_t fDoRoot;               // To control whether ROOT file is made
-  Bool_t fFirstPass;            // Pass 1 or 2?
+  Bool_t fFirstPass;            // Pass 1 or not?
+  Bool_t fLastPass;             // Last pass or not?
+  TaBlind* fBlind;              // For blinding
 
   Int_t fRunNum;                // current run number 
   

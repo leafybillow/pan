@@ -510,6 +510,44 @@ TaDataBase::GetTimestamp() const
 };
 
 
+string 
+TaDataBase::GetBlindingString () const
+{
+  // Return the (first word of the) blinding string 
+  
+  string bs = GetString ("blindstring");
+  if (bs == " ")
+    bs = "none";
+  return bs;
+}
+
+vector<Double_t>
+TaDataBase::GetBlindingParams() const
+{
+  // Return the blinding parameters -- sign, mean, and offscale.
+  // Return defaults if absent from database.  Length of returned
+  // vector is always 3.
+
+  vector<string> keys;
+  keys.clear();
+  keys.push_back ("sign");   
+  keys.push_back ("mean");
+  keys.push_back ("offscale");
+  vector<Double_t> data = GetData ("blindparams", keys);
+
+  // If parameters missing, push default values.
+  if (data.size() == 0)
+    data.push_back (1.);
+  if (data.size() == 1)
+    data.push_back (0.);
+  if (data.size() == 2)
+    data.push_back (0.);
+
+  // Flush excess entries
+  data.resize (3);
+  return data;
+}
+
 string TaDataBase::GetSimulationType()  const {
 // returns pair type (pair or quad) for this run.
   string stest = GetString("simtype");
@@ -1198,6 +1236,8 @@ void TaDataBase::InitDB() {
   tables.push_back("cutnames");      //  19
   tables.push_back("timestamp");     //  20
   tables.push_back("simtype");       //  21
+  tables.push_back("blindstring");   //  22
+  tables.push_back("blindparams");   //  23
 
   pair<string, int> sipair;
   int k;
@@ -1279,6 +1319,17 @@ void TaDataBase::InitDB() {
     if (i == 21) { // simtype
 	columns.push_back (new dtype ("s"));  // first spec
 	columns.push_back (new dtype ("s"));  // 
+      }
+    if (i == 22)   // blindstring
+      columns.push_back(new dtype("s"));
+    if (i == 23) 
+      {  // blindparams
+	columns.push_back(new dtype("s"));
+	columns.push_back(new dtype("d"));
+	columns.push_back(new dtype("s"));
+	columns.push_back(new dtype("d"));
+	columns.push_back(new dtype("s"));
+	columns.push_back(new dtype("d"));
       }
 
     sipair.second = columns.size(); 

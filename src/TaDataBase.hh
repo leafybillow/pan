@@ -282,6 +282,9 @@ public:
   string GetSimulationType() const;
 // Get timestamp
   string GetTimestamp() const;
+// Get blinding parameters
+  string GetBlindingString() const;
+  vector<Double_t> GetBlindingParams() const;
 // Get feedback switch
   string GetFdbkSwitch( const string &fdbktype) const;
 // Get feedback timescale 

@@ -39,6 +39,10 @@
 //  We might do this too, and in fact I don't know why one would want
 //  a random BlindSign at all, but this class is written to allow it.)
 //
+//  (Also note that E158 does not include Asign in the blinding
+//  methods; instead it is assumed that A_true has the "correct" sign,
+//  as will A_hidden.)
+//
 //  This is done by Blind and undone by UnBlind.
 //
 //  To keep the sign of the asymmetry correlations with beam
@@ -71,6 +75,7 @@ public:
   Double_t Blind (Double_t atrue) const;     // blind a true asymmetry
   Double_t UnBlind (Double_t ablind) const;  // unblind a blinded asymmetry
   Double_t BlindSignOnly (Double_t atrue) const; // blind or unblind with no offset
+  Bool_t Blinding () const {return !(fBlindSign == 1 && fBlindOffset == 0);} // is blinding on?
 
 private:
   
