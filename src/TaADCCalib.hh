@@ -90,7 +90,7 @@ private:
   //
   // Member functions
   //
-  virtual void TaADCCalib::Init();
+  virtual void TaADCCalib::Init(const Int_t&);
   void TaADCCalib::InitPed();
   void TaADCCalib::InitDAC();
   virtual ErrCode_t TaADCCalib::ProcessRun();

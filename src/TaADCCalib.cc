@@ -102,12 +102,12 @@ TaADCCalib& TaADCCalib::operator=( const TaADCCalib& assign)
 }
 
 
-void TaADCCalib::Init()
+void TaADCCalib::Init(const Int_t& onl)
 {
   // Initialization -- determines which channels to analyze, then
   // calls type-specific initialization
 
-  VaAnalysis::Init();
+  VaAnalysis::Init(onl);
   cout << "Local init of TaADCCalib needed also..." << endl;
 
   char charkey[10];

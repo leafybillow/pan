@@ -39,7 +39,8 @@ const ErrCode_t TaAnalysisManager::fgTAAM_OK = 0;
 TaAnalysisManager::TaAnalysisManager (): 
   fRun(0), 
   fAnalysis(0),
-  fRootFile(0)
+  fRootFile(0),
+  fOnlFlag(0)
 {
 }
 
@@ -58,6 +59,7 @@ TaAnalysisManager::Init ()
 
 #ifdef ONLINE
   fRun = new TaRun();
+  fOnlFlag = 1;
   return InitCommon();
 #else
   cerr << "TaAnalysisManager::Init ERROR: Not compiled with ONLINE, cannot analyze online data" << endl;
@@ -100,7 +102,7 @@ TaAnalysisManager::InitPass2()
     return status;
 
   // Reinitialize the analysis
-  fAnalysis->Init();
+  fAnalysis->Init(fOnlFlag);
   return fAnalysis->RunReIni (*fRun);
 }
 
@@ -210,7 +212,7 @@ TaAnalysisManager::InitCommon()
       return fgTAAM_ERROR;
     }
   
-  fAnalysis->Init();
+  fAnalysis->Init(fOnlFlag);
   return fAnalysis->RunIni (*fRun);
 }
 

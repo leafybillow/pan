@@ -96,6 +96,7 @@ VaAnalysis::VaAnalysis():
   fTreeOKCond(0),
   fTreeOKCut(0),
   fTreeSpace(0),
+  fOnlFlag(0),
   fPairType(FromPair),
   fFirstPass(true)
 { 
@@ -138,11 +139,12 @@ VaAnalysis::~VaAnalysis()
 // Major functions
 
 void 
-VaAnalysis::Init() 
+VaAnalysis::Init(const Int_t& fOnl) 
 { 
   // To be called at the start of each analysis.
   fEvtProc = 0;
   fPairProc = 0;
+  fOnlFlag = fOnl;
 }
 
 
@@ -212,13 +214,13 @@ VaAnalysis::RunIni(TaRun& run)
     fZsum4B[i].clear();
   }  
   if ( fRun->GetDataBase().GetFdbkSwitch("AQ") == "on") fQSwitch = kTRUE;
-  if ( fQSwitch) 
+  if ( fQSwitch && fOnlFlag ) 
     {
       fQTimeScale = fRun->GetDataBase().GetFdbkTimeScale("AQ");
       clog<< " feedback timescale "<<fQTimeScale<<endl;
     }
   if ( fRun->GetDataBase().GetFdbkSwitch("PZT") == "on") fZSwitch = kTRUE;
-  if ( fZSwitch) 
+  if ( fZSwitch && fOnlFlag ) 
     {
       fZTimeScale = fRun->GetDataBase().GetFdbkTimeScale("PZT");
       clog<< " feedback timescale "<<fZTimeScale<<endl;
@@ -349,8 +351,8 @@ VaAnalysis::RunFini()
   clog << "VaAnalysis::RunFini: Processed " << fEvtProc 
        << " (" << fPairProc << ") events (pairs)" << endl;
 
-  if (fQSwitch) QasyEndFeedback();
-  if (fZSwitch) PZTEndFeedback();
+  if (fQSwitch && fOnlFlag) QasyEndFeedback();
+  if (fZSwitch && fOnlFlag) PZTEndFeedback();
 
   if (fFirstPass)
     {
@@ -812,15 +814,15 @@ VaAnalysis::AutoPairAna()
 	}
     }
 
-  if (fQSwitch) QasyRunFeedback();
-  if (fZSwitch) PZTRunFeedback();
+  if (fQSwitch && fOnlFlag) QasyRunFeedback();
+  if (fZSwitch && fOnlFlag) PZTRunFeedback();
 }
 
 void 
 VaAnalysis::QasyRunFeedback(){
   // Intensity feedback routine.
 
-  if ( fQSwitch ){ 
+  if ( fQSwitch && fOnlFlag ){ 
     if ( fPair->PassedCuts() && fPair->PassedCutsInt(fRun->GetCutList()) ){
       fQNpair++;
       fQsum.push_back(fPair->GetAsy(IBCM1)*1E6);
@@ -907,7 +909,7 @@ void VaAnalysis::QasyEndFeedback(){
   // a feedback, this function needs enough pairs.
   // It checks the QAsym vector size, computes an error and 
   // tests the value and sends it.
- if ( fQSwitch ){ 
+ if ( fQSwitch && fOnlFlag ){ 
   if (fQsum.size() > fQTimeScale ) {     
     fQNpair = fQsum.size();
     fQfeedNum = -1; // arbitrary end feedback number is -1
@@ -996,6 +998,7 @@ void VaAnalysis::QasySendEPICS(){
         // CRITERIA are OK.  
       //      clog<<" fQasy and fQasy/fQasyEr :"<<fQasy<<" "<< abs(Int_t(fQasy)/(Int_t(fQasyEr)))<<endl;
       clog<<" \n             *** Pan is sending EPICS values for PC *** "<<endl;
+
       char* thevar[2];   
       thevar[0]= "HA:Q_ASY"; 
       thevar[1]= "HA:DQ_ASY";   
@@ -1030,7 +1033,7 @@ void VaAnalysis::PZTRunFeedback(){
   // do feedback at bpms at the injector in the 5 MeV region....if it is the case 
   // just replace the name of the bpm.  
 
-  if (fZSwitch){ 
+  if (fZSwitch && fOnlFlag){ 
     if ( fPair->PassedCuts() && fPair->PassedCutsInt(fRun->GetCutList())){     
        fZNpair++;
        //       clog<<"good pair for PZT"<<endl;
@@ -1127,7 +1130,7 @@ void VaAnalysis::PZTRunFeedback(){
 
 void VaAnalysis::PZTEndFeedback(){
   // Position feedback at end of run
-  if (fZSwitch){
+  if (fZSwitch && fOnlFlag){
      if ((fZsum4B[0].size() > fQTimeScale*900) && 
          (fZsum4B[1].size() > fQTimeScale*900)){     
          fZfeedNum = -1; // arbitrary end feedback number is -1
