@@ -1,0 +1,279 @@
+// -*- c++ -*-
+
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <TH1.h>
+#include <TObject.h>
+#include <TROOT.h>
+#include <TString.h>
+#include <TTree.h>
+#include "src/TaFileName.hh"
+
+class ParamSave
+{
+  // Class to save parameters of distributions and print them
+  
+public:
+  
+  ParamSave (UInt_t run): fRun(run) {};
+  ParamSave() {};
+  virtual ~ParamSave() {};
+  
+  void PutMonDiff (const string mt, TTree& t, const string sel); // Monitor diffs from plot
+  void PutMonAsym (const string mt, TTree& t, const string sel); // Monitor asyms from plot
+  void PutMon (const string mt, const string dora, TTree& t, const string sel); // Monitor diffs/asyms from plot
+  void PutMon (const string mt, const Double_t m, const Double_t me, const Double_t w); // Monitor diffs/asyms specified
+
+
+  void PutMonDDDiff (const string mt1, const string mt2, TTree& t, const string sel); // Monitor ddiffs from plot
+  void PutMonDDAsym (const string mt1, const string mt2, TTree& t, const string sel); // Monitor dasyms from plot
+  void PutMonDD (const string mt1, const string mt2, const string dora, TTree& t, const string sel); // Monitor ddiffs/dasyms from plot
+  void PutMonDD (const string mt1, const string mt2, const Double_t w);         // Monitor ddiffs
+
+  void PutDetAsymn (const string dt, TTree& t, const string sel); // Detector norm asyms from plot
+  void PutDetAsym (const string dt, TTree& t, const string sel); // Detector asyms from plot
+  void PutDet (const string dt, const string naora, TTree& t, const string sel); // Detector norm asyms/asyms from plot
+  void PutDet (const string dt, const Double_t m, const Double_t me, const Double_t w); // Detector asyms
+  
+  void Print();  // Print to file
+  
+private:
+  
+  UInt_t fRun;            // run number
+  // Monitor quantities
+  vector<string> fMonTag;
+  vector<Double_t> fDifM;  // means
+  vector<Double_t> fDifME; // errors on means
+  vector<Double_t> fDifW;  // widths
+  vector<string> fMonTag1;   // first tags for double differences
+  vector<string> fMonTag2;   // first tags for double differences
+  vector<Double_t> fDDifW;    // widths
+  
+  // Detector quantities
+  vector<string> fDetTag;
+  vector<Double_t> fAsyM;  // means
+  vector<Double_t> fAsyME; // errors on means
+  vector<Double_t> fAsyW;  // widths
+};
+
+
+void 
+ParamSave::PutMonDiff (const string mt, TTree& t, const string sel)
+{
+  PutMon (mt, "diff", t, sel);
+}
+
+
+void 
+ParamSave::PutMonAsym (const string mt, TTree& t, const string sel)
+{
+  PutMon (mt, "asym", t, sel);
+}
+
+
+void 
+ParamSave::PutMon (const string mt, const string dora, TTree& t, const string sel)
+{
+  // Story diffs or asyms (dora = "diff" or "asym") for monitor named mt
+  // from tree t with selection sel
+
+  // NOTE: Provided we're not using an axis sub-range, ROOT's mean
+  // and RMS for a histogram created by TTree::Draw come from the
+  // *data*, not the histogram (but using only data within
+  // histogram limits) -- so should be accurate (provided there
+  // are no underflows/overflows).  For our "width" we want the
+  // estimated variance, i.e. with sqrt (n-1) in the denominator,
+  // rather than RMS with sqrt (n).
+
+  Double_t m = 1e99;
+  Double_t me = 1e99;
+  Double_t w = 1e99;
+  Double_t n;
+
+  t.Draw ((dora + "_" + mt).c_str(), sel.c_str());
+  TH1* htemp = (TH1*)gROOT->FindObject ("htemp");
+  if (htemp)
+    {
+      n = htemp->GetEntries();
+      if (n > 1)
+	{
+	  m = htemp->GetMean(); 
+	  me = htemp->GetRMS() / sqrt (n-1);
+	  w = me * sqrt (n);
+	}
+    }
+  else
+    cerr << "htemp not found" << endl;
+  PutMon (mt, m, me, w); 
+}
+
+
+void 
+ParamSave::PutMon (const string mt, const Double_t m, const Double_t me, const Double_t w)
+{
+  fMonTag.push_back (mt);
+  fDifM.push_back (m);
+  fDifME.push_back (me);
+  fDifW.push_back (w);
+}
+
+void 
+ParamSave::PutMonDDDiff (const string mt1, const string mt2, TTree& t, const string sel)
+{
+  PutMonDD (mt1, mt2, "diff", t, sel);
+}
+
+
+void 
+ParamSave::PutMonDDAsym (const string mt1, const string mt2, TTree& t, const string sel)
+{
+  PutMonDD (mt1, mt2, "asym", t, sel);
+}
+
+
+void 
+ParamSave::PutMonDD (const string mt1, const string mt2, const string dora, TTree& t, const string sel)
+{
+  // Store ddiffs or dasyms (dora = "diff" or "asym") for monitors
+  // named mt1, mt2 from tree t with selection sel
+
+  Double_t w = 1e99;
+  Double_t n;
+
+  t.Draw ((dora + "_" + mt1 + "-" + dora + "_" + mt2).c_str(), sel.c_str());
+  TH1* htemp = (TH1*)gROOT->FindObject ("htemp");
+  if (htemp)
+    {
+      n = htemp->GetEntries();
+      if (n > 1)
+	w = htemp->GetRMS() * sqrt (n / (n-1));
+    }
+  else
+    cerr << "htemp not found" << endl;
+  PutMonDD (mt1, mt2, w); 
+}
+
+
+void 
+ParamSave::PutMonDD (const string mt1, const string mt2, const Double_t w)
+{
+  fMonTag1.push_back (mt1);
+  fMonTag2.push_back (mt2);
+  fDDifW.push_back (w);
+}
+
+void 
+ParamSave::PutDetAsymn (const string dt, TTree& t, const string sel)
+{
+  PutDet (dt, "asym_n", t, sel);
+}
+
+
+void 
+ParamSave::PutDetAsym (const string dt, TTree& t, const string sel)
+{
+  PutDet (dt, "asym", t, sel);
+}
+
+
+void 
+ParamSave::PutDet (const string dt, const string naora, TTree& t, const string sel)
+{
+  // Story norm asyms or asyms (naora = "asym_n" or "asym") for
+  // detector named dt from tree t with selection sel
+
+  Double_t m = 1e99;
+  Double_t me = 1e99;
+  Double_t w = 1e99;
+  Double_t n;
+
+  t.Draw ((naora + "_" + dt).c_str(), sel.c_str());
+  TH1* htemp = (TH1*)gROOT->FindObject ("htemp");
+  if (htemp)
+    {
+      n = htemp->GetEntries();
+      if (n > 1)
+	{
+	  m = htemp->GetMean(); 
+	  me = htemp->GetRMS() / sqrt (n-1);
+	  w = me * sqrt (n);
+	}
+    }
+  else
+    cerr << "htemp not found" << endl;
+  PutDet (dt, m, me, w); 
+}
+
+
+void 
+ParamSave::PutDet (const string dt, const Double_t m, const Double_t me, const Double_t w)
+{
+  fDetTag.push_back (dt);
+  fAsyM.push_back (m);
+  fAsyME.push_back (me);
+  fAsyW.push_back (w);
+}
+
+
+void
+ParamSave::Print()
+{
+  // Print distribution parameters
+  
+  TaFileName fn (fRun, "standard", "output", "macro", "txt");
+  ofstream ofile(fn.String().c_str());
+  if (!ofile)
+    {
+      cerr << "ParamSave::Print ERROR: Cannot open output file " << fn.String() << endl;
+      exit (1);
+    }
+  else
+    clog << "Output file is " << fn.String() << endl;
+  
+  ofile << "Distribution parameters for run " << fRun << endl;
+  ofile << "======================================" << endl;
+  
+  ofile.setf(ios::left,ios::adjustfield);
+  
+  ofile << "\nMonitor differences / asymmetries:" << endl;
+  UInt_t idif;
+  for (idif = 0; idif < fMonTag.size(); ++idif)
+    {
+      ofile << setw(8) << fMonTag[idif]
+	    << " Mean " 
+	    << setw(8) << fDifM[idif]
+	    << " +- " << setw(8) << fDifME[idif]
+	    << "  Width " 
+	    << setw(8) << fDifW[idif]
+	    << endl;
+    }
+  
+  ofile << "\nMonitor double differences:" << endl;
+  for (UInt_t iddif = 0; iddif < fMonTag1.size(); ++iddif)
+    {
+      ofile << setw(8) << fMonTag1[iddif]
+	    << " - " << setw(8) << fMonTag2[iddif]
+	    << "  Width " 
+	    << setw(8) << fDDifW[iddif]
+	    << endl;
+    }
+  
+  
+  ofile << "\nDetector Asymmetries:" << endl;
+  for (UInt_t iasy = 0; iasy < fDetTag.size(); ++iasy)
+    {
+      ofile << setw(8) << fDetTag[iasy]
+	    << " Raw " 
+	    << " Mean " 
+	    << setw(8) << fAsyM[iasy]
+	    << " +- " << setw(8) << fAsyME[iasy]
+	    << "  Width " 
+	    << "   " << setw(8) << fAsyW[iasy] << endl;
+    }
+
+ofile.close();
+}
+
