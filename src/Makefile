@@ -126,7 +126,7 @@ endif
 # Grow the list of sources here.
 
 SRC = TaAnalysisManager.cc  \
-      TaBeamAna.cc TaDevice.cc TaDataBase.cc \
+      TaBeamAna.cc TaDebugAna.cc TaDevice.cc TaDataBase.cc \
       TaCutInterval.cc TaCutList.cc TaEvent.cc \
       TaFileName.cc TaLabelledQuantity.cc \
       TaPairFromPair.cc TaPairFromQuad.cc TaPromptAna.cc\

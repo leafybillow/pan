@@ -23,6 +23,7 @@
 #pragma link C++ class TaBeamAna;
 #pragma link C++ class TaCutInterval;
 #pragma link C++ class TaCutList;
+#pragma link C++ class TaDebugAna;
 #pragma link C++ class TaDevice;
 #pragma link C++ class TaEvent;
 #pragma link C++ class TaFileName;
