@@ -456,6 +456,13 @@ TaDataBase::Checkout()
      cout << "  from event " << cutint[0] << " to " << cutint[1];
      cout << "  mask " << cutint[2] << "   veto " << cutint[3] << endl;
   }
+  vector<Double_t> qpd1const = GetQpd1Const();
+  for(vector<Double_t>::iterator iconst = qpd1const.begin();
+      iconst != qpd1const.end(); iconst++) {
+    Double_t qval = *iconst;
+    cout << "qpd1 const "<< qval <<endl;
+  }
+
 }
 
 void TaDataBase::PrintDataBase() {
@@ -564,6 +571,26 @@ TaDataBase::GetBlindingParams() const
 
   // Flush excess entries
   data.resize (3);
+  return data;
+}
+
+vector<Double_t>
+TaDataBase::GetQpd1Const() const
+{
+  // Return the blinding parameters -- sign, mean, and offscale.
+  // Return defaults if absent from database.  Length of returned
+  // vector is always 3.
+
+  vector<string> keys;
+  keys.clear();
+  keys.push_back ("pp");   
+  keys.push_back ("pm");
+  keys.push_back ("mp");
+  keys.push_back ("mm");
+  keys.push_back ("x-const");
+  keys.push_back ("y-const");
+  
+  vector<Double_t> data = GetData ("qpd1const", keys);
   return data;
 }
 
@@ -758,11 +785,11 @@ TaDataBase::GetCutNumber (TaString s) const
   return i;
 }
 
-Double_t TaDataBase::GetData(const string& key) const {
-// FIXME -- this needs to be written
-// Generic Get method, works if the key is unique
-   Double_t dummy = 0;
-   return dummy; 
+Double_t TaDataBase::GetData(const string& table) const {
+// Return single value from table "table".  This assumes the data
+// are in a pair  "table   value" where table is a unique string and
+// value the single Double_t that belongs to it.
+   return GetValue(table); 
 };
 
 vector<Double_t> TaDataBase::GetData(string table, vector<string> keys) const {
@@ -1280,6 +1307,7 @@ void TaDataBase::InitDB() {
   tables.push_back("blindparams");   //  23
   tables.push_back("randomheli");    //  24
   tables.push_back("curmon");        //  25
+  tables.push_back("qpd1const");     //  26
 
   pair<string, int> sipair;
   int k;
@@ -1376,6 +1404,20 @@ void TaDataBase::InitDB() {
       columns.push_back(new dtype("s"));
     if (i == 25)   // curmon
       columns.push_back(new dtype("s"));
+    if (i == 26) {  // qpd1const
+      columns.push_back(new dtype("s"));
+      columns.push_back(new dtype("d"));
+      columns.push_back(new dtype("s"));
+      columns.push_back(new dtype("d"));
+      columns.push_back(new dtype("s"));
+      columns.push_back(new dtype("d"));
+      columns.push_back(new dtype("s"));
+      columns.push_back(new dtype("d"));
+      columns.push_back(new dtype("s"));
+      columns.push_back(new dtype("d"));
+      columns.push_back(new dtype("s"));
+      columns.push_back(new dtype("d"));
+    }
 
     sipair.second = columns.size(); 
     colsize.insert(sipair);

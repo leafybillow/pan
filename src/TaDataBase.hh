@@ -380,8 +380,10 @@ public:
   string GetString(const string& table) const;
 // Return cut number for name
   Cut_t GetCutNumber (TaString s) const;  
-  // Return value of checksum
+// Return value of checksum
   UInt_t GetCksum () const { return fCksum; }
+// Get the Qpd1 constants (pp, pm, mp, mm, x-const, y-const)
+  vector<Double_t> GetQpd1Const() const;
 
 // -------------------------------------------------
 // Put() methods to modify the database.
