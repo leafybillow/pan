@@ -1,4 +1,4 @@
-//////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
@@ -8,11 +8,10 @@
 //    Authors :  R. Holmes, A. Vacheret, R. Michaels
 //
 //    An event of data.
-//    Includes methods to get data using keys.  For ADCs one
-//    can also get the data by ADC number and channel.
-//    The user (presumaby a TaRun) must LoadDevice() at
-//    least once in the life of TaEvent, presumably once
-//    per run.
+//    Includes methods to get data using keys.  For ADCs and 
+//    scalers can also get the data by slot number and channel.
+//    The user (presumably a TaRun) must LoadDevice() 
+//    once at start of run.
 //
 //////////////////////////////////////////////////////////////////////////
 
@@ -22,7 +21,7 @@
 #include "TaEvent.hh"
 #include "TaLabelledQuantity.hh"
 #include "TaRun.hh"
-#include "VaDevice.hh"
+#include "TaDevice.hh"
 #include "VaDataBase.hh"
 #include "TaAsciiDB.hh"
 #include <iostream>
@@ -37,19 +36,21 @@ TaEvent
 TaEvent::fgLastEv;
 
 Bool_t 
-TaEvent::fgDidInit = false;
-
-Bool_t 
 TaEvent::fFirstDecode = true;
 
 TaEvent::TaEvent(): 
   fEvType(0),  fEvNum(0),  fEvLen(0), fSizeConst(0), fDelHel(UnkHeli)
 {
+  fFirstCheck = kTRUE;
   fEvBuffer = new Int_t[fgMaxEvLen];
   memset(fEvBuffer, 0, fgMaxEvLen*sizeof(Int_t));
+  fData = new Double_t[MAXKEYS];
+  memset(fData, 0, MAXKEYS*sizeof(Double_t));
   fCutFail.clear();
   fCutPass.clear();
   fResults.clear();
+  fLoBeam = 0;
+  fBurpCut = 0;
 }
 
 TaEvent::~TaEvent() {
@@ -60,7 +61,6 @@ TaEvent::TaEvent(const TaEvent& ev)
 {
   Create (ev);
 } 
-
 
 TaEvent &TaEvent::operator=(const TaEvent &ev)
 {
@@ -74,68 +74,15 @@ TaEvent &TaEvent::operator=(const TaEvent &ev)
 
 // Major functions
 
-void TaEvent::InitDevices( map<string, VaDevice* >& dev) {
-// Initialize the map of devices and the map of keys.
-// The device map is a non-const copy obtained from TaRun 
-// since TaRun initializes this map.  This method MUST be called 
-// at least once, and presumably only once per run.
-  fDevices = dev;
-  fgDidInit = kTRUE;
-  pair<string, string> ssp;
-  pair<string, int> sip;
-  pair<int, int> iip;
-  for (map<string, VaDevice* >::iterator dmap = dev.begin(); 
-   dmap != dev.end();  dmap++) {
-    VaDevice *device = dmap->second;
-    vector<string> keys = device->GetKeys();
-    for (vector<string>::iterator ikey = keys.begin(); 
-      ikey != keys.end();  ikey++) {
-        string key = *ikey;
-  	ssp.first = key;  ssp.second = dmap->first;
-        pair<map<string, string>::iterator,bool> p = fKeyDev.insert(ssp);
-        sip.first = key;  sip.second = 1;          
-        if ( !(p.second) ) sip.second = 0;  // device key not unique in event.
-        fKeyUni.insert(sip);  
-        if (device->IsADC() && device->IsRaw(key)) {
-          if (device->GetChannel(key) >= 0) {
-   	    iip.first = device->GetADCNumber(); iip.second = device->GetChannel(key);
-            ssp.first = device->GetName();  ssp.second = key;
-            adcs.insert( make_pair (iip, ssp) );                      
-	  }
-	}
-    }
-  }
-#ifdef DEBUG
-   for (map<string, VaDevice* >::iterator dmap = dev.begin(); 
-   dmap != dev.end();  dmap++) {
-    VaDevice *device = dmap->second;
-    vector<string> keys = device->GetKeys();
-    cout << "------ Device : "<<device->GetName()<<endl;
-    for (vector<string>::iterator ikey = keys.begin(); 
-      ikey != keys.end();  ikey++) {
-        string key = *ikey;
-        cout << "       -- Key   "<<key<<endl;
-        if (device->IsADC() && device->IsRaw(key)) {
-          cout << "             Is a raw ADC "<<endl;
-          cout << "             adc num "<<device->GetADCNumber();
-          cout << "   channel "<<device->GetChannel(key)<<endl;
-          iip = make_pair(device->GetADCNumber(),device->GetChannel(key));
-          ssp = adcs[iip];
-          cout << "             corresp. device "<<ssp.first;
-          cout << "   and key "<<ssp.second<<endl;
-	}
-    }
-   }
-#endif
-};
-
 void TaEvent::Load (const Int_t* buff) {
-  // Put a raw event into the buffer, and pull out event type and number.
+// Put a raw event into the buffer, and pull out event type and number.
   fCutFail.clear();
   fCutPass.clear();
   fEvLen = buff[0] + 1;
   if (fEvLen >= fgMaxEvLen) {
-      cout << "TaEvent::Load Warning, event is anomalously large"<<endl;
+      cout << "TaEvent::Load ERROR  fEvLen = "<<fEvLen; 
+      cout << "  is greater than fgMaxEvLen = "<<fgMaxEvLen<<endl;
+      cout << "(perhaps compile with larger fgMaxEvLen parameter)"<<endl;
       fEvLen = fgMaxEvLen;
   }
   memset(fEvBuffer,0,fgMaxEvLen*sizeof(Int_t));
@@ -145,23 +92,95 @@ void TaEvent::Load (const Int_t* buff) {
   if ( IsPhysicsEvent() ) fEvNum = fEvBuffer[4];
 };
 
-void TaEvent::Decode() {
-// Decode all raw data, which are VaDevices.
-// Note: This assumes the event structure remains constant for
-// the given run (a rather safe assumption for parity DAQ).  One
-// somewhat weak check on this is to verify a constant event length.
-    if ( IsPhysicsEvent() )  {
-      if (fFirstDecode) {
-         fSizeConst = GetEvLength();
-         fFirstDecode = false;
-      }
-      if ( fSizeConst != (long)GetEvLength() ) {
-         cout << "VaDevice:: WARNING: Event structure is changing !!"<<endl;
-         cout << "As a result, decoding may fail."<<endl;
-      }
+void TaEvent::Decode(const TaDevice& devices) {
+// Decodes all the raw data and applies all the calibrations.
+// Note: This assumes the event structure remains constant.  
+// We check this by verifying a constant event length.
+  Int_t i,j,key,ok,ixp,ixm,iyp,iym,ix,iy;
+  Double_t sum,xrot,yrot;
+  memset(fData, 0, MAXKEYS*sizeof(Double_t));
+  if ( IsPhysicsEvent() )  {
+    if (fFirstDecode) {
+        fSizeConst = GetEvLength();
+        fFirstDecode = false;
     }
-    for (map < string, VaDevice* >::iterator devmap = fDevices.begin();
-       devmap != fDevices.end(); devmap++) (devmap->second)->Decode(*this);
+    if ( fSizeConst != (UInt_t)GetEvLength() ) {
+        cout << "TaEvent:: WARNING: Event structure is changing !!"<<endl;
+        cout << "As a result, decoding may fail."<<endl;
+    }
+  }
+  for (i = 0; i < devices.GetNumRaw(); i++) {
+     key = devices.GetRawKey(i);
+     fData[key] =  GetRawData(devices.GetEvPointer(key));
+  }
+// Calibrate the ADCs first
+  for (i = 0;  i < ADCNUM; i++) {
+    for (j = 0; j < 4; j++) {
+      key = i*4 + j;
+      fData[ACCOFF + key] = fData[ADCOFF + key] - devices.GetPedestal(key)
+       - (fData[DACOFF + i] * devices.GetDacSlope(key) - devices.GetDacInt(key));
+    }
+  }
+// Stripline BPMs
+  for (i = 0; i < STRNUM; i++) {
+    ok = 1;
+    for (j = 0; j < 4; j++) {
+      key = STROFF + 6*i + j;
+      if (devices.GetAdcNum(key) < 0 || devices.GetChanNum(key) < 0) {
+         ok = 0;   // An adc or channel not found.
+         continue;
+      }
+      fData[key] = fData[ADCOFF + 4*devices.GetAdcNum(key) + devices.GetChanNum(key)];    
+    }
+    if ( !ok ) continue;
+    key = STROFF + 6*i;
+    ixp = ACCOFF + 4*devices.GetAdcNum(key) + devices.GetChanNum(key); 
+    ixm = ACCOFF + 4*devices.GetAdcNum(key+1) + devices.GetChanNum(key+1);
+    iyp = ACCOFF + 4*devices.GetAdcNum(key+2) + devices.GetChanNum(key+2);
+    iym = ACCOFF + 4*devices.GetAdcNum(key+3) + devices.GetChanNum(key+3);
+    ix  = key + 4;
+    iy  = key + 5;
+    sum = fData[ixp] + fData[ixm];
+    xrot = 0;
+    if ( sum > 0 ) xrot = 
+          fgKappa * (fData[ixp] - fData[ixm])/ sum;
+    sum = fData[iyp] + fData[iym]; 
+    yrot = 0;
+    if ( sum > 0 ) yrot = 
+          fgKappa * (fData[iyp] - fData[iym])/ sum;
+    fData[ix] = Rotate (xrot, yrot, 1);
+    fData[iy] = Rotate (xrot, yrot, 2);
+  }
+// Cavity BPM monitors (when they exist)
+  for (i = 0; i < CAVNUM; i++) {
+    for (j = 0; j < 2; j++) {
+       key = CAVOFF + 4*i + j;
+       if (devices.GetAdcNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+       fData[key+2] = 
+         fData[ACCOFF + 4*devices.GetAdcNum(key) + devices.GetChanNum(key)];
+// This needs to be divided by current... when they exist.
+    }
+  }
+// Happex-1 era BCMs
+  for (i = 0; i < BCMNUM; i++) {
+    key = BCMOFF + 2*i;
+    if (devices.GetAdcNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    // raw and corrected BCM data
+    fData[key] = fData[ADCOFF + 4*devices.GetAdcNum(key) + devices.GetChanNum(key)];
+    fData[key+1] = fData[ACCOFF + 4*devices.GetAdcNum(key) + devices.GetChanNum(key)];  
+  }
+// Detectors
+  for (i = 0; i < DETNUM; i++) {
+    key = DETOFF + 2*i;
+    if (devices.GetAdcNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    // raw and corrected detector data
+    fData[key] = fData[ADCOFF + 4*devices.GetAdcNum(key) + devices.GetChanNum(key)];
+    fData[key+1] = fData[ACCOFF + 4*devices.GetAdcNum(key) + devices.GetChanNum(key)];  
+  }
+  fData[IHELICITY] = (Double_t)(((int)GetData(ITIRDATA) & 0x40) >> 6);
+  fData[IPAIRSYNCH] = (Double_t)(((int)GetData(ITIRDATA) & 0x80) >> 7);
+  fData[ITIMESLOT] = (Double_t)(((int)GetData(IOVERSAMPLE) & 0xff00) >> 8);
+
 };
 
 const vector<pair<ECutType,Int_t> >& TaEvent::CheckEvent(const TaRun& run)
@@ -169,14 +188,20 @@ const vector<pair<ECutType,Int_t> >& TaEvent::CheckEvent(const TaRun& run)
   // Analysis-independent checks of event quality; adds failed cuts
   // to event's list and returns that list.
 
-  Double_t current = GetData("bcm1");
+  Double_t current = GetData(IBCM1);
 
   Int_t val = 0;
-  if ( current < run.GetDataBase()->GetCutValue("lobeam") )
+  if (fFirstCheck) {   // this works only if the run doesn't change.
+    fLoBeam = run.GetDataBase()->GetCutValue("lobeam");
+    fBurpCut = run.GetDataBase()->GetCutValue("burpcut");
+    fFirstCheck = kFALSE;
+  }
+
+  if ( current < fLoBeam )
     {
 #ifdef NOISY
       clog << "Event " << fEvNum << " failed lobeam cut, "
-	   << current << " < " << run.GetDataBase()->GetCutValue("lobeam") << endl;
+	   << current << " < " << fLoBeam;
 #endif
       val = 1;
     }
@@ -188,12 +213,11 @@ const vector<pair<ECutType,Int_t> >& TaEvent::CheckEvent(const TaRun& run)
       
       // Beam burp -- current change greater than limit?
       val = 0;
-      if (abs (current-fgLastEv.GetData("bcm1")) > 
-	  run.GetDataBase()->GetCutValue("burpcut") )
+      if (abs (current-fgLastEv.GetData(IBCM1)) > fBurpCut)
 	{
 #ifdef NOISY
 	  clog << "Event " << fEvNum << " failed beam burp cut, "
-	       << abs (current-fgLastEv.GetData("bcm1")) << " > " << run.GetDataBase()->GetCutValue("burpcut") << endl;
+	       << abs (current-fgLastEv.GetData(IBCM1)) << " > " << fBurpCut << endl;
 #endif
 	  val = 1;
 	}
@@ -255,89 +279,6 @@ Int_t TaEvent::GetRawData(Int_t index) const {
     }
 };
 
-Double_t TaEvent::GetData(const string& devicename, const string& key) const {
-// Get data from device "devicename" with key "key"
-// Restriction:  Keys must be unique for a given devicename.
-  static map<string, VaDevice* >::const_iterator d;
-  if ( !fgDidInit ) {
-    cout << "TaEvent:: ERROR: Did not initialize TaEvent"<<endl;
-    return 0;
-  }
-  d = fDevices.find(devicename);
-  if (d != fDevices.end()) 
-    return (d->second)->GetData(key);
-  else
-    {
-      cout << "TaEvent::GetData ERROR: Device " << devicename 
-	   << " not found" << endl;
-      return 0;
-    }
-}; 
-
-Double_t TaEvent::GetData(const string& key) const {  
-// Get data for a key (e.g. key = 'bcm1', 'bpm8xp', 'bpm8x')
-// Restriction for using this method: key must be unique in the event.
-// If not, then use GetData(device,key) instead.
-  static map<string, string>::const_iterator sd;
-  static map <string, int>::const_iterator si;
-  if ( !fgDidInit ) {
-    cout << "TaEvent:: ERROR: Did not initialize TaEvent"<<endl;
-    return 0;
-  }
-  sd = fKeyDev.find(key);
-
-  if (sd == fKeyDev.end()) 
-    {
-      cout << "TaEvent::GetData ERROR: Key " << key << " not found. "<<endl;
-      if (TAEVENT_VERBOSE) {
- 	 cout << "Reasons why a key may not be found :"<<endl;
-         cout << "   > 1. A TaEvent you are using is out of scope ?"<<endl;
-         cout << "     2. For raw data, key omitted from database ?"<<endl;
-         cout << "     3. For processed data, the key not added by any class ?"<<endl;
-         cout << "     4. Typo, etc"<<endl;
-      }
-      return 0;
-    }
-  si = fKeyUni.find(key);
-
-  if ( si == fKeyUni.end() ) {
-    cout << "TaEvent:: GetData ERROR:  Key " << key 
-         << " is not unique within the event, so use the"
-         << " GetData(device, key) method instead." << endl;
-    return 0;
-  }
-  string device = sd->second;
-  return GetData(device, key);
-};
-
-Double_t TaEvent::GetData(const string& devicename, const Int_t& channel) const {
-// Get data from device "devicename" at a channel offset, if defined.
-// This works for device channels with name devicename-K in database, where
-// K = channel, e.g. "scaler1-24" is devicename="scaler1" and channel 24.
-  static map<string, VaDevice* >::const_iterator d;
-  if ( !fgDidInit ) {
-    cout << "TaEvent:: ERROR: Did not initialize TaEvent"<<endl;
-    return 0;
-  }
-  d = fDevices.find(devicename);
-  if (d != fDevices.end()) return (d->second)->GetData(channel);
-  return 0;
-};
-
-Double_t TaEvent::GetADCData(const Int_t& slot, const Int_t& chan) const {
-// Return the Princeton-ADC data in slot=0,1,2...etc, and channel=0,1,2,3
-  static pair<string, string> ssp;
-  //  cout<<"GETADCData::slot and pair debug, INPUT :"<<slot<<" , "<<chan<<endl;
-  static map<pair<int,int>, pair<string,string> >::const_iterator iiss;
-  iiss = adcs.find(make_pair(slot,chan));
-  ssp = iiss->second;
-  //  ssp  = adcs[make_pair(slot,chan)];  // get device and key
-  if (fDevices.find(ssp.first) == fDevices.end()) return 0;
-  //  cout<< "GETADCData::slot and pair debug, OUTPUT :"<<ssp.first<<" , "<<ssp.second<<endl;
-  return GetData(ssp.first, ssp.second);
-};
-
-
 Bool_t TaEvent::CutStatus() const {
   return (fCutFail.size() > 0);    
 };
@@ -363,14 +304,7 @@ UInt_t TaEvent::GetEvType() const {
 };
 
 SlotNumber_t TaEvent::GetTimeSlot() const {
-  // In all cases, it appears that this function has been used
-  // with the idea that it returns the value of the
-  // current oversampling period.
-  // Remember: the TIR timeslot has nothing to do with oversampling
-  // We should probably rename this function to avoid future confusion
-
-  //  return (SlotNumber_t)GetData("timeslot");  
-  return (SlotNumber_t)GetData("oversample_bin");
+  return (SlotNumber_t)GetData(ITIMESLOT);
 };
 
 void TaEvent::SetDelHelicity(EHelicity h)
@@ -380,7 +314,7 @@ void TaEvent::SetDelHelicity(EHelicity h)
 
 EHelicity TaEvent::GetHelicity() const 
 {
-  Double_t val = GetData("helicity");
+  Double_t val = GetData(IHELICITY);
   if (val == 1)
     return RightHeli;
   else
@@ -392,10 +326,10 @@ EHelicity TaEvent::GetDelHelicity() const {
 }
 
 EPairSynch TaEvent::GetPairSynch() const {
-  Double_t val = GetData("pairsynch");
-  if (val == 1)
+  Double_t val = GetData(IPAIRSYNCH);
+  if (val == 1) 
     return FirstPS;
-  else
+  else 
     return SecondPS;
 };
 
@@ -444,68 +378,112 @@ void TaEvent::RawDump() const {
 
 void TaEvent::DeviceDump() const {
 // Diagnostic dump of device data for debugging purposes.
-// Of course this presumes prior knowledge of the device keys, which
-// violates our philosophy, but it is only for debugging & illustration.
-  static string bpmraw[] = { "bpm8xp", "bpm8xm", "bpm8yp", "bpm8ym", 
-                             "bpm10xp", "bpm10xm", "bpm10yp", "bpm10ym",
-                             "bpm12xp", "bpm12xm", "bpm12yp", "bpm12ym",
-                             "bpm4axp", "bpm4axm", "bpm4ayp", "bpm4aym",
-                             "bpm4bxp", "bpm4bxm", "bpm4byp", "bpm4bym" };
-  static string bpmcook[] = { "bpm8x", "bpm8y", "bpm10x", "bpm10y",
-               "bpm12x", "bpm12y", "bpm4ax", "bpm4ay", "bpm4ba", "bpm4by" };
-  static string scalers[] = { "scaler1_1", "scaler1_2", "scaler1_3", "scaler1_4" };
-  
+  static int bpmraw[] = {  IBPM8XP, IBPM8XM, IBPM8YP, IBPM8YM, 
+                           IBPM10XP, IBPM10XM, IBPM10YP, IBPM10YM, 
+                           IBPM12XP, IBPM12XM, IBPM12YP, IBPM12YM, 
+                           IBPM4AXP, IBPM4AXM, IBPM4AYP, IBPM4AYM, 
+                           IBPM4BXP, IBPM4BXM, IBPM4BYP, IBPM4BYM };
+  static int bpmcalib[] = { IBPM8X, IBPM8Y, IBPM10X, IBPM10Y, 
+                           IBPM4AX, IBPM4AY, IBPM4BX, IBPM4BY };
+  static int scalers[] = { ISCALER0_0, ISCALER0_1, ISCALER0_2, ISCALER0_3 };
   cout << "\n============   Device Data for Event "<<dec<<GetEvNumber()<<"  ======== "<<endl;
-  cout << "Raw BCM1 = 0x"<<hex<<(Int_t)GetData("bcm1r");
-  cout <<"    BCM2 = 0x"<<(Int_t)GetData("bcm2r")<<endl;
-  cout << "Calibrated BCM1 = "<<GetData("bcm1")<<"  BCM2 = "<<GetData("bcm2")<<endl; 
+  cout << "Raw BCM1 = 0x"<<hex<<(Int_t)GetData(IBCM1R);
+  cout <<"    BCM2 = 0x"<<(Int_t)GetData(IBCM2R)<<endl;
+  cout << "Calibrated BCM1 = "<<GetData(IBCM1)<<"  BCM2 = "<<GetData(IBCM2)<<endl; 
   cout << "Raw BPM antenna:   (hex Int_t)"<<endl;
   for (int i = 0; i < 20; i++) {
-    cout << bpmraw[i] << "  = 0x"<<hex<<(Int_t)GetData(bpmraw[i])<<"   ";
+    cout << dec << bpmraw[i] << "  = 0x"<<hex<<(Int_t)GetData(bpmraw[i])<<"   ";
     if (i > 0 && (((i+1) % 4) == 0)) cout << endl;
   }
-  cout << "Calibrated BPM data:  (Double_t) "<<endl;
-  for (int i = 0; i < 10; i++) {
-    cout << bpmcook[i] << "   "<<GetData(bpmraw[i])<<"   ";
+  cout << "Calibrated BPM positions:  (Double_t) "<<endl;
+  for (int i = 0; i < 8; i++) {
+    cout << bpmcalib[i] << " = "<<GetData(bpmcalib[i])<<"    ";
     if (i > 0 && (((i+1) % 2) == 0)) cout << endl;
   }
   cout << "Scalers: "<<endl;
   for (int i = 0; i < 4; i++) {
-    cout << scalers[i] << "  = 0x"<<hex<<(Int_t)GetData(scalers[i])<<"   ";
+    cout << dec << scalers[i] << "  = 0x"<<hex<<(Int_t)GetData(scalers[i])<<"   ";
   }
   cout <<endl;
-  DumpBits (false);
-  cout << "Data by ADC  (hex Int_t)"<<endl;
+  cout << "tirdata = 0x"<<hex<<(Int_t)GetData(ITIRDATA);  
+  cout << "   helicity = "<<dec<<(Int_t)GetData(IHELICITY);
+  cout << "   timeslot = "<<(Int_t)GetData(ITIMESLOT);
+  cout << "   pairsynch = "<<(Int_t)GetData(IPAIRSYNCH)<<endl;
+  cout << "Data by ADC "<<endl;
   for (int adc = 0; adc < 10; adc++) {
-    cout << "ADC "<<dec<<adc<<"  = "<<hex;
-    for (int chan = 0; chan < 4; chan++) cout << "  "<<(Int_t)GetADCData(adc,chan);
+    cout << " -> ADC "<<dec<<adc<<endl;
+    for (int chan = 0; chan < 4; chan++) {
+      cout << "  chan "<<  chan;
+      cout << " raw= 0x" << hex << (Int_t)GetRawADCData(adc,chan)<<dec;
+      cout << "  cal= " << GetCalADCData(adc,chan);
+      if (chan == 0 || chan == 2) cout << "  |   ";
+      if (chan == 1) cout << endl;
+    }
     cout << endl;
   }
 }
 
+Double_t TaEvent::GetData( Int_t key ) const { 
+// To find a value corresponding to a data key 
+  return fData[Idx(key)];
+}; 
 
-void
-TaEvent::DumpBits (const Bool_t showEvNum = true) const
-{
-  // Diagnostic dump of trigger, helicity, timeslot, and pairsynch for
-  // debugging purposes
+Int_t TaEvent::Idx(const Int_t& index) const {
+  if (index >= 0 && index < MAXKEYS) return index;
+  return 0;
+};
 
-  Int_t timeslot = (Int_t) GetData ("timeslot");
-  Int_t OSslot = (Int_t) GetData ("oversample_bin");
-  if (showEvNum)
-    cout << "Event " << GetEvNumber() << "   ";
-  cout << "tirdata = 0x" << hex << (Int_t) GetData ("tirdata");  
-  cout << "   helicity = " << dec << (Int_t) GetData ("helicity");
-  cout << "   timeslot = " << timeslot;
-  cout << "   pairsynch = " << (Int_t) GetData ("pairsynch");
-  cout << "   oversample_slot = " << OSslot;
-  if (OSslot == 1)
-    cout << " *** ";
-  cout <<endl;
-}
+Double_t TaEvent::GetRawADCData( Int_t adc, Int_t chan ) const {
+// Data raw data for adc # 0, 1, 2...  and channel # 0,1,2,3
+  return GetData(ADCOFF + 4*adc + chan);
+}; 
 
+Double_t TaEvent::GetCalADCData( Int_t adc, Int_t chan ) const {
+// Data calibrated data for adc # 0, 1, 2...and channel # 0,1,2,3
+  return GetData(ACCOFF + 4*adc + chan);
+}; 
+
+Double_t TaEvent::GetScalerData( Int_t scaler, Int_t chan ) const {
+// Data from scaler # 1,2,3..  and channel # 1,2,3...
+  return GetData(SCAOFF + 32*scaler + chan);
+}; 
+
+void TaEvent::AddToTree(const TaDevice& devices, TTree& rawtree ) {
+// Add the data of this device to the raw data tree (root output)
+// Called by TaRun::InitDevices()
+    Int_t bufsize = 5000;
+    char tinfo[20];
+    Int_t key;
+    map<string, Int_t> fKeyToIdx = devices.GetKeyList();
+    for (map<string, Int_t>::iterator ikey = fKeyToIdx.begin(); 
+      ikey != fKeyToIdx.end(); ikey++) {
+        string keystr = ikey->first;
+        key = devices.GetKey(keystr);
+        if (key <= 0) continue;
+        if (key >= MAXKEYS) {
+          cout << "TaEvent::AddToTree::ERROR:  Attempt to add a key = "<<key;
+          cout << " larger than array size MAXKEYS = "<<MAXKEYS<<endl;
+          cout << "Compile with a bigger MAXKEYS value."<<endl;
+          continue;
+        }
+        strcpy(tinfo,keystr.c_str());  strcat(tinfo,"/D");
+  	rawtree.Branch(keystr.c_str(), &fData[key], tinfo, bufsize);
+    }
+};
 
 // Private methods
+
+Double_t TaEvent::Rotate(Double_t x, Double_t y, Int_t xy) {
+// Rotation to get X or Y depending on xy flag
+   Double_t result = 0;
+   Double_t root2 = (Double_t)sqrt(2);
+   if (xy == 2) {
+       result = ( x + y ) / root2;
+   } else {
+       result = ( x - y ) / root2;
+   }
+   return result;
+};
 
 void TaEvent::Create(const TaEvent& rhs)
 {
@@ -516,27 +494,25 @@ void TaEvent::Create(const TaEvent& rhs)
  fCutFail = rhs.fCutFail;
  fCutPass = rhs.fCutPass;
  fResults = rhs.fResults;
- fKeyDev = rhs.fKeyDev;
- fKeyUni = rhs.fKeyUni; 
  fDelHel = rhs.fDelHel;
+ fFirstCheck = rhs.fFirstCheck;
+ fLoBeam = rhs.fLoBeam;
+ fBurpCut = rhs.fBurpCut;
  fEvBuffer = new Int_t[fgMaxEvLen];
  memset (fEvBuffer, 0, fgMaxEvLen*sizeof(Int_t));
  memcpy(fEvBuffer, rhs.fEvBuffer, fEvLen*sizeof(Int_t));
- map < string, VaDevice* > devs = rhs.fDevices;
- for (map<string, VaDevice*>::iterator imap = devs.begin();
-     imap != devs.end(); imap++) {
-       string name = imap->first;
-       VaDevice *dev = new VaDevice(*(imap->second));
-       fDevices.insert ( make_pair(name,dev) );
- }
+ fData = new Double_t[MAXKEYS];
+ memcpy(fData, rhs.fData, MAXKEYS*sizeof(Double_t));
 };
 
 void TaEvent::Uncreate()
 {
   delete [] fEvBuffer;
-  for (map<string, VaDevice*>::iterator imap = fDevices.begin();
-      imap != fDevices.end(); imap++) {
-         delete imap->second;
-  }
-  fDevices.clear();
+  delete [] fData;
 };
+
+
+
+
+
+

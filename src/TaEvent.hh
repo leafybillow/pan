@@ -11,26 +11,27 @@
 //    Authors :  R. Holmes, A. Vacheret, R. Michaels
 //
 //    An event of data.
-//    Includes methods to get data using keys.  For ADCs one
-//    can also get the data by ADC number and channel.
-//    The user (presumaby a TaRun) must LoadDevice() at
-//    least once in the life of TaEvent, presumably once
-//    per run.
+//    Includes methods to get data using keys.  For ADCs and 
+//    scalers can also get the data by slot number and channel.
 //
 //////////////////////////////////////////////////////////////////////////
 
 #define TAEVENT_VERBOSE 1
+
 #include "Rtypes.h"
 #include "PanTypes.hh"
+#include "DevTypes.hh"
 #include <map>
 #include <vector>
 #include <iterator>
 #include <string>
 #include <utility>
 
-class VaDevice;
+class TaDevice;
+class TTree;
 class TaLabelledQuantity;
 class TaRun;
+class VaDataBase;
 
 class TaEvent {
 
@@ -43,9 +44,8 @@ public:
   TaEvent& operator=(const TaEvent &ev);
 
   // Major functions
-  void InitDevices( map < string, VaDevice* >& devices );
   void Load ( const Int_t *buffer );
-  void Decode();             // decode the event 
+  void Decode( const TaDevice& devices );             // decode the event 
   const vector<pair<ECutType,Int_t> >& CheckEvent(const TaRun& run);
   void AddCut (const ECutType cut, const Int_t val);
   void AddResult( const TaLabelledQuantity& result);
@@ -54,18 +54,18 @@ public:
   static Int_t BuffSize() { return fgMaxEvLen; };
   static Int_t GetMaxEvNumber() { return fgMaxEvNum; }; // Maximum event number
   Int_t GetRawData(Int_t index) const; // raw data, index = location in buffer 
-  Double_t GetData(const string& devicename, const Int_t& channel) const;
-  Double_t GetData(const string& devicename, const string& key) const;
-  Double_t GetData(const string& key) const;
-  Double_t GetADCData(const Int_t& slot, const Int_t& chan) const;  // ADC 0,1.. and chan 0,1..
+  Double_t GetData(Int_t key) const;   // get data by unique key
+  Double_t GetRawADCData(Int_t slot, Int_t chan) const;  // get raw ADC data in slot and chan.
+  Double_t GetCalADCData(Int_t slot, Int_t chan) const;  // get calib. ADC data in slot and chan.
+  Double_t GetScalerData(Int_t slot, Int_t chan) const;  // get scaler data in slot and chan.
 
   Bool_t CutStatus() const;
   Bool_t IsPrestartEvent() const;   // run number available in 'prestart' events.
   Bool_t IsPhysicsEvent() const;
-  EventNumber_t GetEvNumber() const;        // event number
+  EventNumber_t GetEvNumber() const;  // event number
   UInt_t GetEvLength() const;        // event length
   UInt_t GetEvType() const;          // event type
-  SlotNumber_t GetTimeSlot() const;        // time slot
+  SlotNumber_t GetTimeSlot() const;  // time slot
   void SetDelHelicity (EHelicity);   // set delayed helicity
   EHelicity GetHelicity() const;     // (in time) helicity
   EHelicity GetDelHelicity() const;  // delayed helicity
@@ -75,34 +75,40 @@ public:
   const vector <pair<ECutType,Int_t> > & GetCutsPassed() const; // cut conditions passed by event
   void RawDump() const;      // dump raw data for debugging.
   void DeviceDump() const;   // dump device data for debugging.
-  void DumpBits (const Bool_t) const;     // dump trigger, helicity, timeslot, and pairsynch for debugging
+
+  void AddToTree(const TaDevice& dev, TTree &tree);    // Add data to root Tree
 
 private:
+
+  Bool_t fInited;
+  Int_t fNumRaw;
+  Double_t *fData;
 
   // Private methods
   void Create(const TaEvent&);
   void Uncreate();
+  Int_t Idx(const Int_t& key) const;
+  Double_t Rotate(Double_t x, Double_t y, Int_t xy);
 
   // Constants
-  static const UInt_t fgMaxEvLen = 20000;    // Maximum length for event buffer
+  static const UInt_t fgMaxEvLen = 2000;    // Maximum length for event buffer
   static const EventNumber_t fgMaxEvNum = 10000000;  // Maximum event number
+  static const Double_t fgKappa = 18.76;   // stripline BPM calibration
 
   // Static members
   static TaEvent fgLastEv;  // last ev
-  static Bool_t fgDidInit,fFirstDecode;
+  static Bool_t fFirstDecode;
 
   // Data members
-  map < string, VaDevice* > fDevices;
-  map<pair<int,int>, pair<string,string> > adcs;
   Int_t *fEvBuffer;
   UInt_t fEvType;
   EventNumber_t fEvNum;
   UInt_t fEvLen,fSizeConst;
+  Bool_t fFirstCheck;
+  Double_t fLoBeam, fBurpCut;
   vector<pair<ECutType,Int_t> > fCutFail;
   vector<pair<ECutType,Int_t> > fCutPass;
   vector<TaLabelledQuantity> fResults;
-  map <string, string> fKeyDev;
-  map <string, int> fKeyUni;
   EHelicity fDelHel; // Delayed helicity
 
 #ifdef DICT
