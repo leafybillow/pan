@@ -44,11 +44,11 @@ public:
 
   // Major functions
 
-  int CmpNoCase (const string& s); // case insensitive compare
-  vector<string> Split();   // split on whitespace
-  UInt_t Hex();      // conversion to to unsigned interpreting as hex
-  TaString ToLower (); // conversion to lower case
-  TaString ToUpper (); // conversion to lower case
+  int CmpNoCase (const string& s) const; // case insensitive compare
+  vector<string> Split (size_t n = 0) const;   // split on whitespace
+  UInt_t Hex() const;      // conversion to to unsigned interpreting as hex
+  TaString ToLower () const; // conversion to lower case
+  TaString ToUpper () const; // conversion to lower case
 
 private:
   

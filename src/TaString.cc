@@ -34,7 +34,7 @@ ClassImp(TaString)
 // Major functions
 
 int 
-TaString::CmpNoCase (const string& s)
+TaString::CmpNoCase (const string& s) const
 {
   // Case insensitive compare.  Returns -1 if "less", 0 if equal, 1 if
   // "greater".
@@ -54,21 +54,45 @@ TaString::CmpNoCase (const string& s)
 }
 
 vector<string> 
-TaString::Split()
+TaString::Split (size_t n = 0) const
 {
-  // Split on whitespace.
-  istrstream ist(this->c_str());
-  string w;
+  // Split on whitespace (to a maximum of n strings if n>0)
   vector<string> v;
 
-  while (ist >> w)
-    v.push_back(w);
+  size_t i(0);
+  size_t j(0);
+  i = this->find_first_not_of (" \n\t\v\b\r\f", j);
+  while ((n == 0 || v.size() < n-1) && i < this->size())
+    {
+      j = this->find_first_of (" \n\t\v\b\r\f", i+1);
+      if (i < this->size())
+	{
+	  if (j < this->size())
+	    {
+	      v.push_back (this->substr (i, j-i));
+	      i = this->find_first_not_of (" \n\t\v\b\r\f", j);
+	    }
+	  else
+	    {
+	      v.push_back (this->substr (i));
+	      i = this->size();
+	    }
+	}
+    }
+
+  if (j < this->size())
+    {
+      i = this->find_first_not_of (" \n\t\v\b\r\f", j);
+      if (i < this->size())
+	v.push_back (this->substr (i));
+    }
+
   return v;
 }
 
 
 UInt_t 
-TaString::Hex()
+TaString::Hex() const
 {
   // Conversion to to unsigned interpreting as hex.
   istrstream ist(this->c_str());
@@ -78,7 +102,7 @@ TaString::Hex()
 }
 
 TaString 
-TaString::ToLower ()
+TaString::ToLower () const
 {
   // Conversion to lower case.
   TaString::const_iterator p = this->begin();
@@ -92,7 +116,7 @@ TaString::ToLower ()
 }
 
 TaString 
-TaString::ToUpper ()
+TaString::ToUpper () const
 {
  // Conversion to lower case.
   TaString::const_iterator p = this->begin();
