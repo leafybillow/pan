@@ -43,7 +43,7 @@ Int_t cmp_nocase2 (const string& s, const string& s2)
 TaADCCalib::TaADCCalib():VaAnalysis()
 {
   typeFlag = 0;
-  hist = new TH1F* [(ADC_MaxSlot+1)*ADC_MaxChan];
+//  phist = new TH1F* [(ADC_MaxSlot+1)*ADC_MaxChan];
 }
 
 TaADCCalib::TaADCCalib(const string& anName)
@@ -56,15 +56,37 @@ TaADCCalib::TaADCCalib(const string& anName)
   else
     typeFlag = 0;
 
-  hist = new TH1F* [(ADC_MaxSlot+1)*ADC_MaxChan];
-  // initialize sum, sum2 arrays
-  fSumX    = vector<Double_t>((size_t) (ADC_MaxSlot+1)*ADC_MaxChan,0);
-  fSumX2   = vector<Double_t>((size_t) (ADC_MaxSlot+1)*ADC_MaxChan,0);
-  nEntries = vector<Int_t>((size_t) (ADC_MaxSlot+1)*ADC_MaxChan,0);
-	
-  cout << "TaADCCalib:: analysis type is " << anName << " and typeflag is " 
-       << typeFlag << endl;
-   
+  //  cout << "TaADCCalib:: analysis type is " << anName << " and typeflag is " 
+  //       << typeFlag << endl;
+
+  if (typeFlag == 1) {
+    phist = new TH1F* [(ADC_MaxSlot+1)*ADC_MaxChan];
+    // initialize sum, sum2 arrays
+    fSumX    = vector<Double_t>((size_t) (ADC_MaxSlot+1)*ADC_MaxChan,0);
+    fSumX2   = vector<Double_t>((size_t) (ADC_MaxSlot+1)*ADC_MaxChan,0);
+    nEntries = vector<Int_t>((size_t) (ADC_MaxSlot+1)*ADC_MaxChan,0);
+  }
+
+  if (typeFlag == 2) {
+    // initialize sum, sum2 arrays
+    fSumX    = vector<Double_t>((size_t) (ADC_MaxSlot+1)*ADC_MaxChan,0);
+    fSumX2   = vector<Double_t>((size_t) (ADC_MaxSlot+1)*ADC_MaxChan,0);
+    fSumXY   = vector<Double_t>((size_t) (ADC_MaxSlot+1)*ADC_MaxChan,0);
+    fSumY    = vector<Double_t>((size_t) (ADC_MaxSlot+1)*ADC_MaxChan,0);
+    nEntries = vector<Int_t>((size_t) (ADC_MaxSlot+1)*ADC_MaxChan,0);
+
+    Int_t MaxDACBin = MaxNoiseDACBin;
+    dgraphs = new TGraphErrors* [(ADC_MaxSlot+1)*ADC_MaxChan];
+    rgraphs = new TGraphErrors* [(ADC_MaxSlot+1)*ADC_MaxChan];
+    dEntries =  vector< vector<Int_t> >((size_t) (ADC_MaxSlot+1)*ADC_MaxChan);
+    dADCsum  =  vector< vector<Double_t> >((size_t) (ADC_MaxSlot+1)*ADC_MaxChan);
+    dADCsum2 =  vector< vector<Double_t> >((size_t) (ADC_MaxSlot+1)*ADC_MaxChan);
+    for (Int_t id=0; id< (ADC_MaxSlot+1)*ADC_MaxChan; id++) {
+      dEntries[id] = vector<Int_t> ((size_t) MaxDACBin,0);
+      dADCsum[id] = vector<Double_t> ((size_t) MaxDACBin,0);
+      dADCsum2[id] = vector<Double_t> ((size_t) MaxDACBin,0);
+    }
+  }   
 }
 
 
@@ -107,9 +129,9 @@ void TaADCCalib::Init()
       //      cout << "      produced key " << key << endl;
       //  check for existence of key  
       //     needs utility in TaEvent to search fKeyDev for the key.
-      //     if exists, mark existence on slot, chan bool array
+      //     if exists, mark existence on [slot,chan] bool array
       //     for now, just assume it exists
-      chanExists[isl][ich] = true;
+      chanExists[isl][ich] = kTRUE;
     }
   }
 
@@ -133,7 +155,7 @@ void TaADCCalib::Finish()
   cout << " Local finish of TaADCCalib needed also..." << endl;
 
 
-  // separate init calls for each type of analysis
+  // separate finish calls for each type of analysis
   if (typeFlag == 1) 
     FinishPed();
   else if (typeFlag == 2)
@@ -151,10 +173,165 @@ void TaADCCalib::Finish()
 
 }
 
+void TaADCCalib::FinishDAC()
+{
+
+  char charkey[10];
+  string key; 
+  Int_t id;
+  vector<Double_t> x0 = vector<Double_t>((size_t) (ADC_MaxSlot+1)*ADC_MaxChan,0);
+  vector<Double_t> slope = vector<Double_t>((size_t) (ADC_MaxSlot+1)*ADC_MaxChan,0);
+  vector<Double_t> Ex0 = vector<Double_t>((size_t) (ADC_MaxSlot+1)*ADC_MaxChan,0);
+  vector<Double_t> Eslope = 
+    vector<Double_t>((size_t) (ADC_MaxSlot+1)*ADC_MaxChan,0);
+  vector<Bool_t> filledOK = 
+    vector<Bool_t>((size_t) (ADC_MaxSlot+1)*ADC_MaxChan,kFALSE);
+
+  // loop over slots, 0-9
+  for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
+    //  loop over chans 1-4
+    for (Int_t ich=0; ich < ADC_MaxChan;  ich++) {
+      id = isl*ADC_MaxChan + ich + 1;
+      Double_t delta = nEntries[id]*fSumX2[id] - fSumX[id]*fSumX[id];
+      if (delta>0) {
+	x0[id] = (fSumX2[id]*fSumY[id] - fSumX[id]*fSumXY[id])/delta;
+	slope[id] = (nEntries[id]*fSumXY[id] - fSumX[id]*fSumY[id])/delta;
+	Ex0[id] = sqrt( fSumX2[id]/delta);
+	Eslope[id] = sqrt( nEntries[id]/delta);
+	filledOK[id] = kTRUE;
+      } else {
+	x0[id] = 0.;
+	slope[id] = 0.;
+	Ex0[id] = 0.;
+	Eslope[id] = 0.;
+      }
+    }
+  }
+
+  cout << "\n The following keys were not found : " << endl;
+  // loop over slots, 0-9
+  for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
+    //  loop over chans 1-4
+    for (Int_t ich=0; ich < ADC_MaxChan;  ich++) {
+      //  make key ADC<slot>_<chan>
+      sprintf(charkey, "adc%i_%i", isl,ich);
+      key = charkey;
+      id = isl*ADC_MaxChan + ich + 1;
+      if (!chanExists[isl][ich])
+	cout << "  " << key << "  was not found." << endl;
+    }
+  }
+  
+  cout << "\n The following keys were found with no or incomplete data : " << endl;
+  // loop over slots, 0-9
+  for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
+    //  loop over chans 1-4
+    for (Int_t ich=0; ich < ADC_MaxChan;  ich++) {
+      //  make key ADC<slot>_<chan>
+      sprintf(charkey, "adc%i_%i", isl,ich);
+      key = charkey;
+      id = isl*ADC_MaxChan + ich + 1;
+      if (chanExists[isl][ich] && !filledOK[id]) 
+	cout << "  " << key << "  could not be fit." << endl;
+    }
+  }
+  
+
+  cout << "\n Channels found and DAC Noise parameters set" << endl;
+  // loop over slots, 0-9
+  for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
+    //  loop over chans 1-4
+    for (Int_t ich=0; ich < ADC_MaxChan;  ich++) {
+      //  make key ADC<slot>_<chan>
+      sprintf(charkey, "adc%i_%i", isl,ich);
+      key = charkey;
+      id = isl*ADC_MaxChan + ich + 1;
+      if (chanExists[isl][ich] && filledOK[id]) {
+	cout << "  " << key << " : ";
+	cout << " Pedestal: " << x0[id] << " +/- " << Ex0[id] 
+	     << "   Slope: " << slope[id] << " +/- " << Eslope[id] << endl;
+      }
+    }
+  }
+  
+
+  ofstream ofile("ADCCalib_DACNoise.txt",ios::out);
+  // loop over slots, 0-9
+  for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
+    //  loop over chans 1-4
+    for (Int_t ich=0; ich < ADC_MaxChan;  ich++) {
+      id = isl*ADC_MaxChan + ich + 1;
+      if (chanExists[isl][ich] && filledOK[id]) {
+	ofile << isl << "  " << ich << "  " << x0[id] << "  " 
+	      << slope[id] << endl;
+      }
+    }
+  }
+  ofile.close();
+
+  
+  hfile->cd();
+  // loop over slots, 0-9
+  for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
+    //  loop over chans 1-4
+    for (Int_t ich=0; ich < ADC_MaxChan;  ich++) {
+      id = isl*ADC_MaxChan + ich + 1;
+      Double_t dDACval[MaxNoiseDACBin];
+      Double_t dEDACval[MaxNoiseDACBin];
+      Double_t dADCavg[MaxNoiseDACBin];
+      Double_t dADCvar[MaxNoiseDACBin];
+      Double_t dRes[MaxNoiseDACBin];
+      Int_t nGood = 0;
+      for (Int_t ib=0; ib<MaxNoiseDACBin; ib++) {
+	if (dEntries[id][ib] >=1) {
+	  Double_t avg = dADCsum[id][ib]/dEntries[id][ib];
+	  Double_t ms = (dADCsum2[id][ib]*dEntries[id][ib] 
+			 -dADCsum[id][ib]*dADCsum[id][ib])
+	    / (dEntries[id][ib]*dEntries[id][ib]);
+	  Double_t rms;
+	  Double_t res = avg - x0[id] - slope[id]*ib;
+	  if (ms>0) {
+	    rms = sqrt(ms);
+	    dDACval[nGood] = (Double_t) ib;
+	    dEDACval[nGood] = 0.25;
+	    dADCavg[nGood] = avg;
+	    dADCvar[nGood] = rms/sqrt(dEntries[id][ib]);
+            dRes[nGood] = res;
+	    nGood++;
+	  } else if (dEntries[id][ib]==1) {
+	    dDACval[nGood] = (Double_t) ib;
+	    dEDACval[nGood] = 0.25;
+	    dADCavg[nGood] = avg;
+	    dADCvar[nGood] = 1.;
+            dRes[nGood] = res;
+	    nGood++;
+	  }
+	} 
+      }
+      // create and fill graphs
+      if (nGood>0) {
+	char *hid = new char[100];
+	char *title = new char[100];
+	Int_t ihid = isl*ADC_MaxChan + ich + 1;
+	sprintf(hid,"DAC:%d-%d",isl,ich);
+	sprintf(title,"DAC Noise: ADC slot %d, channel %d",isl, ich); 
+	dgraphs[ihid] = new TGraphErrors(nGood,dDACval,dADCavg,dEDACval,dADCvar);
+	dgraphs[ihid]->SetNameTitle(hid,title);
+	dgraphs[ihid]->Write();
+
+	sprintf(hid,"RES:%d-%d",isl,ich);
+	sprintf(title,"Residual: ADC slot %d, channel %d",isl, ich); 
+	rgraphs[ihid] = new TGraphErrors(nGood,dDACval,dRes,dEDACval,dADCvar);
+	rgraphs[ihid]->SetNameTitle(hid,title);
+	rgraphs[ihid]->Write();
+      }
+    }
+  }
+}
+
 void TaADCCalib::FinishPed()
 {
 
-  cout << "Output from event accumulation." << endl;
   char charkey[10];
   string key; 
   Int_t id;
@@ -165,12 +342,11 @@ void TaADCCalib::FinishPed()
   for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
     //  loop over chans 1-4
     for (Int_t ich=0; ich < ADC_MaxChan;  ich++) {
-        id = isl*ADC_MaxChan + ich + 1;
-	if (nEntries[id]>0 && fSumX2[id]>0) {
-	  avg[id] = fSumX[id] / nEntries[id];
-	  sigma[id] = sqrt(fSumX2[id]/nEntries[id] - avg[id]*avg[id]);
-	}
-
+      id = isl*ADC_MaxChan + ich + 1;
+      if (nEntries[id]>0 && fSumX2[id]>0) {
+	avg[id] = fSumX[id] / nEntries[id];
+	sigma[id] = sqrt(fSumX2[id]/nEntries[id] - avg[id]*avg[id]);
+      }
     }
   }
 
@@ -232,33 +408,8 @@ void TaADCCalib::FinishPed()
   }
   ofile.close();
 
-  
-
 }
 
-void TaADCCalib::FinishDAC()
-{
-
-  cout << "Output from event accumulation." << endl;
-  char charkey[10];
-  string key; 
-  Int_t id;
-  // loop over slots, 0-9
-  for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
-    //  loop over chans 1-4
-    for (Int_t ich=0; ich < ADC_MaxChan;  ich++) {
-	//  make key ADC<slot>_<chan>
-	sprintf(charkey, "adc%i_%i", isl,ich);
-	key = charkey;
-        id = isl*ADC_MaxChan + ich + 1;
-	cout << "        key       = " << key << endl;
-	cout << "        Exists    = " << chanExists[isl][ich] << endl;
-	cout << "        nEntries  = " << nEntries[id] << endl;
-	cout << "        fSumX     = " << fSumX[id] << endl;
-	cout << "        fSumX2    = " << fSumX2[id] << endl;
-    }
-  }
-}
 
 
 
@@ -275,14 +426,13 @@ void TaADCCalib::InitPed()
   // loop over slots, 0-9
   for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
     //  loop over chans 1-4
-    //    cout << "   loop over channels" << endl;
     for (Int_t ich=0; ich < ADC_MaxChan;  ich++) {
       if ( chanExists[isl][ich] ) {
 	//  if exists, Book 1D histo for ADC value	
 	Int_t ihid = isl*ADC_MaxChan + ich + 1;
 	sprintf(hid,"Ped:%d-%d",isl,ich);
 	sprintf(title,"ADC slot %d, channel %d",isl, ich); 
-	hist[ihid] = new TH1F(hid,title,25000,0,25000);
+	phist[ihid] = new TH1F(hid,title,25000,0,25000);
 	// initialize sum, sum2 arrays
 	fSumX[ihid]   = 0.0;
 	fSumX2[ihid]  = 0.0;
@@ -296,28 +446,47 @@ void TaADCCalib::InitDAC()
 {
   cout << "TaADCCalib:: Initializing ADC noise DAC calibration analysis" << endl;
 
+  // Set up ROOT.  Define output file.
+  hfile = new TFile("ADCCalib_DAC.root","RECREATE","Noise DAC calibration file");
+
+  char *hid = new char[100];
+  char *title = new char[100];
+
   // loop over slots, 0-9
-  //   loop over chans 1-4
-  //     check existence of key from array filled in Init()
-  //     if exists, Book 2D histo for ADC value vs DAC value
-  //                create vectors for adc vs DACVal graph
+  for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
+    //  loop over chans 1-4
+    for (Int_t ich=0; ich < ADC_MaxChan;  ich++) {
+      //  check existence of key from array filled in Init()
+      if ( chanExists[isl][ich] ) {
+	//     if exists, Book 2D histo for ADC value vs DAC value
+	Int_t ihid = isl*ADC_MaxChan + ich + 1;
+	sprintf(hid,"hDAC-%d-%d",isl,ich);
+	sprintf(title,"Noise DAC, ADC slot %d, channel %d",isl, ich); 
+	// initialize arrays
+	fSumX[ihid]   = 0.0;
+	fSumX2[ihid]  = 0.0;
+	fSumXY[ihid]  = 0.0;
+	fSumY[ihid]   = 0.0;
+	nEntries[ihid]= 0;
+      }
+    }
+  }
 }
 
 
 void TaADCCalib::ProcessRun()
 {
-  // Main analysis routine -- this is the event loop, over-ride this
-  // from VaAnalysis because it is such a pain to deal with helicity
-
-  while ( fRun->NextEvent() )
+  // Main analysis routine -- this is the event loop, override this
+  // from VaAnalysis because it is such a pain to deal with helicity,
+  // which isn't necessary in calibration runs.
+  while ( fRun->NextEvent() ) 
     {
       fRun->GetEvent().CheckEvent(*fRun);
       *fEvt = fRun->GetEvent();
       EventAnalysis();
       if (fRun->GetEvent().GetEvNumber() >= fMaxNumEv)
 	break;
-    }
-  
+    }  
 }
 
 
@@ -337,9 +506,15 @@ void TaADCCalib::EventAnalysis()
   string key; 
   Int_t id;
   Double_t dataX;
+  Double_t dataY;
   // loop over slots, 0-9
   for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
     //  loop over chans 1-4
+    if (typeFlag == 2) {
+      sprintf(charkey, "dac%i", isl);
+      key = charkey;
+      dataX = fEvt->GetData(key);
+    }
     for (Int_t ich=0; ich < ADC_MaxChan;  ich++) {
       if (chanExists[isl][ich]) {
 	id = isl*ADC_MaxChan + ich + 1;
@@ -349,54 +524,57 @@ void TaADCCalib::EventAnalysis()
 	//  1) make (globally unique) key ADC<slot>_<chan>
 	//	sprintf(charkey, "adc%i_%i", isl,ich+1);
 	//	key = charkey;
-	//	dataX = fEvt->GetData(key);
-	//	cout << "Data for " << key << " : " <<dataX << endl;
+	//	dataY = fEvt->GetData(key);
+	//	cout << "Data for " << key << " : " <<dataY << endl;
 	//
 	//   2) **  GetADCData(slot, channel) doesn't work... **
-	//	dataX = fEvt->GetADCData(isl,ich);
-	//	cout << "Data for Slot " << isl << "  Channel  " << ich << " : " 
-	//	     <<dataX << endl;
+	//  	cout << "Data for Slot " << isl << "  Channel  " << ich << " : ";
+	//  	dataY = fEvt->GetADCData(isl,ich);
+	//  	cout <<dataY << endl;
 	//
 	//   3) make device name, check individual channel by number:
-	sprintf(charkey, "adc%i", isl);
-	key = charkey;
-	dataX = fEvt->GetData(key,ich+1);
+  	sprintf(charkey, "adc%i", isl);
+  	key = charkey;
+  	dataY = fEvt->GetData(key,ich+1);
 	//	cout << "Data for " << key << "  Channel  " << ich << " : " 
-	//	     <<dataX << endl;
+	//	     <<dataY << endl;
+	if (typeFlag == 1) {
+	  // PEDESTAL analysis
+	  // accumulate sums for ADC pedestal averages, widths
+	  fSumX[id]  += dataY;
+	  fSumX2[id] += dataY*dataY;
+	  nEntries[id]++;
+	  // fill each 1D pedestal histo  
+	  phist[id]->Fill(dataY);
+	  //	  cout << "TaADCCalib:   Filling histo for " << key << endl;
+	} else if (typeFlag == 2) {
+	  // Noise DAC analysis
+	  // Accumulate sums for ADC (y) and DAC (x) values
+ 	  fSumX[id]  += dataX;
+	  fSumX2[id] += dataX*dataX;
+ 	  fSumY[id]  += dataY;
+	  fSumXY[id] += dataX*dataY;
+	  nEntries[id]++;
+	  // fill vectors for graphing of data
+	  Int_t iDAC = (Int_t) dataX;
+	  dADCsum[id][iDAC]  += dataY;
+	  dADCsum2[id][iDAC] += dataY*dataY;
+	  dEntries[id][iDAC]++;
+	}
 
-	// PEDESTAL analysis
-	// accumulate sums for ADC pedestal averages, widths
-	fSumX[id]  += dataX;
-	fSumX2[id] += dataX*dataX;
-	nEntries[id]++;
-	// fill each 1D pedestal histo  
-	hist[id]->Fill(dataX);
-	//	cout << "TaADCCalib:   Filling histo for " << key << endl;
       }
     }
   }
-
-
-
-  // DACCalib analysis
-  // accumulate sums for ADC vs DAC lin fit for slope, intercept, and uncertainties
-  // fill each 2D histo?
-  // fill ADC vs DACVal vector, to be later turned into a graph 
-
 }
 
 void TaADCCalib::PairAnalysis()
 { 
-  // no pair analysis for ADC calib runs
+  // no pair analysis for ADC calib runs, leave this empty
 }
 
 
 void TaADCCalib::InitChanLists ()
 {
   // not using any external framework for output in root files, etc. 
-  // so this routine is commented out.
+  // so this routine is empty.
 }
-
-
-
-
