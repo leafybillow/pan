@@ -9,74 +9,160 @@ authors:  Richard Holmes, Antonin Vacheret, Robert Michaels
           (and later others...)
 
 Web documentation about code design:
-    http://www.jlab.org/~rom/pan_design.html
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    <http://mepserv.phy.syr.edu/~rsholmes/happex/pan>
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Directories of this distribution:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-      .              where to run.
-      ./doc          documentation  (you're there now)
-      ./src          all sources for 'pan'
-      ./db           database files
-      ./codaclass    CODA class library code
-      ./utils        miscellaneous utilities of possible use
-      ./macro        root macro examples
+      pan              where to run.
+      pan/doc          documentation  (you're there now)
+      pan/src          all sources for 'pan'
+      pan/db           database files
+      pan/codaclass    CODA class library code
+      pan/utils        miscellaneous utilities of possible use
+      pan/macro        ROOT macro examples
 
 
 To compile and link:
+^^^^^^^^^^^^^^^^^^^^
 
-For STL support, use ROOT version 3 or higher.  
-Info and downloads for ROOT at http://root.cern.ch/root
+For STL support, use ROOT version 3 or higher.  Info and downloads for
+ROOT at <http://root.cern.ch/root>
 
-For now, leave MAKEDICTIONARY commented out of Makefile.
+Pan is shipped with MAKEDICTIONARY commented out of Makefile.  If you
+want to use the Pan classes from the ROOT command line you will need
+MAKEDICTIONARY defined, but note that you must have ROOT version
+3.02/07 or later for this to work.
 
-You will need the CODA class library, which is in the /codaclass 
-directory parallel to this /src directory and is documented at 
-http://hallaweb.jlab.org/equipment/daq/codaclass.html
-It would be a good idea to comment out the line 'EXPORT ONLINE=1' 
-in the codaclass Makefile using a '#' symbol, because you probably
-do not have or need the ET library.  That is how it's shipped.
+You will need the CODA class library, which is in the pan/codaclass/
+directory and is documented at
+<http://hallaweb.jlab.org/equipment/daq/codaclass.html>.  (The version
+in this distribution is modified slightly.)  The codaclass Makefile is
+shipped with ONLINE commented out; you probably will want to leave it
+that way since you probably do not have or need the ET library.
 
-Compile in ./codaclass with 'make libcoda.a' and copy resulting
-library libcoda.a to the /src directory.  The 'DCDIR' in the
-Makefile points to the codaclass directory, where to find the
-headers like THaCodaFile.h.  
+Compile in pan/codaclass with 'make libcoda.a' and copy resulting
+library libcoda.a to the pan/src directory.  The 'DCDIR' in the
+Makefile points to the codaclass directory, where to find the headers
+like THaCodaFile.h.
 
-Next, you may compile the 'pan' executible with 'make install'.  
-This creates 'pan' and moves it to a running directory.
-When compiling, it may be a good idea to do 'make clean' first.  
-Doing 'make clean' is usually a good idea most of the time you 
-compile, unless someone would kindly fix all the Makefile 
-dependencies perfectly (but they are nearly perfect, I think).
+Next, you may compile the 'pan' executible with 'make install'.  This
+creates 'pan' and moves it to the pan directory.  When compiling, it
+may be a good idea to do 'make clean' first.  Doing 'make clean' is
+usually a good idea most of the time you compile, unless someone would
+kindly fix all the Makefile dependencies perfectly (but they are
+nearly perfect, I think).
 
-Before running, you will need a 'database' file.  This is an
-ASCII file which contains parameters that control the program
-flow, contains cuts and calibrations, and the datamap.  Some
-database files are kept in the /db directory (parallel to this)
-and you should copy to the main directory and modify it if necessary.
+To run Pan:
+^^^^^^^^^^^
 
-The resulting executable may be invoked with
+You may modify what files and paths Pan looks for and creates, if you
+like, by defining suitable environment variables.  See below.  The
+behavior described here assumes you have not done so.
 
-   pan [-r runnum] [-f filename]
+Before running, you will need a 'database' file.  This is an ASCII
+file which contains parameters that control the program flow, cuts and
+calibrations, and the datamap.  Some database files are kept in the
+pan/db directory and you should copy to the pan directory and modify
+it if necessary.  The file name should be parityYY-XXXX.db, where YY
+is the last two digits of the present year and XXXX is the four-digit
+run number of the run to which the database file applies.  If Pan
+cannot find this file it will try to fall back to a generic database
+file called control.db in the pan directory; if it cannot find that,
+it will exit.
 
-Use *either* -r runnum or -f filename to specify the data file -- or
-neither for online data, if you compiled with ONLINE defined.  (With
--r, you must have appropriate environment variables set.)
+You can invoke Pan as follows
 
-The ROOT output will be pan_%d.root where %d is the run number.
-This contains a 'event' tree "R" and an 'pair' tree "P".  The event
-tree contains raw data plus calibrated data with keywords like
-'bcm1', etc.  The pair tree contains helicity correlated differences
-and asymmetries, etc.
+   pan [-2] [-r XXXX | -f file | -o]
 
-A typical root session to look at data might be:
+Use "pan -r XXXX" to analyze run number XXXX, from data file
+parityYY-XXXX.dat in the pan directory.  (Again YY is the current
+year.)  Use "pan -f file" to analyze whatever run is in the specified
+file.  Use "pan -o" to analyze online data, if you compiled with
+ONLINE defined.  Or use none of the above, just "pan", to start with a
+ROOT prompt, from which you can invoke Pan methods interactively or
+through ROOT macros.
+
+The somewhat esoteric -2 option tells Pan to do a 2-pass analysis
+which in principle gives better results with less roundoff error.  In
+practice the difference is usually negligible.  Use it, if at all,
+with the -r or -f options only.
+
+Pan will analyze the given run, producing some diagnostic outputs, and
+creating a ROOT output file, parityYY_XXXX_ZZZZ.root in the pan
+directory.  YY and XXXX are year and run number, as above, and ZZZZ is
+a tag denoting the analysis type specified in the database.  Some
+analyses may produce an additional ROOT file and/or output files, with
+names like parityYY_XXXX_ZZZZ_WWWW.root and
+parityYY_XXXX_ZZZZ_WWWW.VVV, respectively, where WWWW is a tag and VVV
+is a suffix provided by the analysis.
+
+The principal ROOT file contains a 'event' tree "R" and an 'pair' tree
+"P".  The event tree contains raw data plus calibrated data with
+keywords like 'bcm1', etc.  The pair tree contains helicity correlated
+differences and asymmetries, etc.
+
+A typical ROOT session to look at data might be:
 root [0] .x ./macro/open.macro
 Enter run number : 1824
 root [1] raw->Draw("bcm1r:bpm4axp+bpm4axm")
 root [2] asy->Draw("diff_bpm4bx")
 
 
-Other documents in /doc
+Environment variables:
+^^^^^^^^^^^^^^^^^^^^^^
+
+The above file names and directories where Pan reads and writes may be
+modified by setting several environment variables before running Pan.
+Again, fairly reasonable behavior is obtained if you do not set any
+environment variables, but if you need to do so, here is how.
+
+If PAN_FILE_PREFIX is set, it replaces "parityYY" as the base of all
+filenames. 
+
+If PAN_CODA_FILE_PATH is set, the input data file is looked for at
+that path.  Likewise, if PAN_DB_FILE_PATH is set, the ASCII database
+file is looked for at that path, and if PAN_ROOT_FILE_PATH or
+PAN_OUTPUT_FILE_PATH is set, the ROOT file(s) or the other output
+file(s), respectively, are written at those paths.
+
+If PAN_CODA_FILE_SUFFIX, PAN_DB_FILE_SUFFIX, or PAN_ROOT_FILE_SUFFIX
+is set, they replace "dat", "db", or "root", respectively, as the file
+suffix for the data, database, or ROOT files.
+
+To set an environment variable in the bash (or other sh-like) shell
+use the command "export variable=value"; use "export -n variable" to
+unset it.  In the tcsh (or other csh-line) shell use "setenv variable
+value" to set, "unsetenv variable" to unset.  In either case use
+"printenv variable" to examine the value of a variable.
+
+EXAMPLE: John Gradstudent is finishing his research and just needs to
+reanalyze data from the 2005 run to complete his analysis.
+Unfortunately the year is now 2078, so Pan's default behavior when
+invoked with "pan -r 6666" is to look for a data file called
+parity78_6666.dat and a database file called parity78_6666.db.
+Furthermore the data file is in the directory /adaql944/data/parity,
+and John wants his ROOT and output files to go to
+/adaql944/work/parity.  So he does the following:
+
+   $ export PAN_FILE_PREFIX=parity05
+   $ export PAN_CODA_FILE_PATH=/adaql944/data/parity
+   $ export PAN_ROOT_FILE_PATH=/adaql944/work/parity
+   $ export PAN_OUTPUT_FILE_PATH=/adaql944/work/parity
+   $ pan -r 6666
+
+Now Pan reads data from /adaql944/data/parity/parity05_6666.dat,
+writes the ROOT trees to
+/adaql944/work/parity/parity05_6666_PHYSICS.root, and so on.
+(Assuming Pan still works in 2078, that is.)  If John puts these in
+his login file, he can analyze all the 2005 data he wants without
+having to re-enter all the above at each session.
+
+
+
+Other documents in pan/doc
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
      ChangeLog  -- Detailed list of changes.  Helpful document to 
                    supplement CVS.  
