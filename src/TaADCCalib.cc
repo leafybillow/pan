@@ -254,9 +254,11 @@ void TaADCCalib::FinishDAC()
     }
   }
   
-
   TaFileName fn = TaFileName("output", "DAC", "txt");
   ofstream ofile(fn.String().c_str(),ios::out);
+  TaFileName fndb = TaFileName("output", "DAC", "db");
+  ofstream ofiledb(fndb.String().c_str(),ios::out);
+  ofiledb << "# dacnoise values, these need to be calibrated" << endl;
   // loop over slots, 0-9
   for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
     //  loop over chans 1-4
@@ -265,10 +267,24 @@ void TaADCCalib::FinishDAC()
       if (chanExists[isl][ich] && filledOK[id]) {
 	ofile << isl << "  " << ich << "  " << x0[id] << "  " 
 	      << slope[id] << endl;
+	ofiledb << "    dacnoise adc " << isl << " chan " << ich
+		<< " slope " << slope[id] << " int 0" << endl;
       }
     }
   }
+  ofiledb << "# pedestals to subtract from ADCs" << endl;
+  for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
+    for (Int_t ich=0; ich < ADC_MaxChan;  ich++) {
+      id = isl*ADC_MaxChan + ich + 1;
+      if (chanExists[isl][ich] && filledOK[id]) {
+	ofiledb	<< "    ped adc " << isl << " chan " << ich 
+		<< " value " << x0[id] << endl;
+      }
+    }
+  }
+
   ofile.close();
+  ofiledb.close();
 
   
   hfile->cd();
@@ -398,6 +414,9 @@ void TaADCCalib::FinishPed()
 
   TaFileName fn = TaFileName("output", "Peds", "txt");
   ofstream ofile(fn.String().c_str(),ios::out);
+  TaFileName fndb = TaFileName("output", "Peds", "db");
+  ofstream ofiledb(fndb.String().c_str(),ios::out);
+  ofiledb << "# pedestals to subtract from ADCs" << endl;
   // loop over slots, 0-9
   for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
     //  loop over chans 1-4
@@ -406,10 +425,13 @@ void TaADCCalib::FinishPed()
 	if (chanExists[isl][ich] && nEntries[id]>0 && fSumX2[id]>0) {
 	  ofile << isl << "  " << ich << "  " << avg[id] << "  " 
 		<< sigma[id] << endl;
+	  ofiledb	<< "    ped adc " << isl << " chan " << ich 
+			<< " value " << avg[id] << endl;
 	}
     }
   }
   ofile.close();
+  ofiledb.close();
 
 }
 
