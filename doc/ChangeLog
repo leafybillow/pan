@@ -4,6 +4,75 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 04 Jun 2002
+-----------------------------------
+
+A few generic types of change, distributed among many classes:
+
+(1) Methods that return error codes now return ErrCode_t instead of
+    Int_t.  ErrCode_t is typedefed to Int_t.
+
+(2) Some methods in VaAnalysis now return error codes, which are
+    passed up to the main program.
+
+(3) TaRun::GetDataBase(), which had been returning a pointer, now
+    returns a ref.
+
+(4) Database checkout code removed from VaAnalysis to become a new
+    VaDataBase method.
+
+(5) Database classes now assign value to runnum.
+
+(6) Some obsolete classes removed.
+
+
+PanTypes.hh 
+
+ o Typedef for ErrCode_t
+
+TaADCCalib.{cc,hh}
+
+ o ProcessRun returns ErrCode_t
+
+TaAnalysisManager.cc
+
+ o Int_t --> ErrCode_t for error returns
+ o Pass up results from RunIni and ProcessRun
+ o TaRun::GetDataBase() usage change
+
+TaAnalysisManager.hh
+
+ o Int_t --> ErrCode_t for error returns
+
+TaAsciiDB.cc, TaMysql.cc
+
+ o Initialize runnum in Load
+
+TaEvent.cc
+
+ o TaRun::GetDataBase() usage change
+
+TaFdbkAna.{cc,hh}, TaRunFeedback.{cc,hh}
+
+ o Removed (obsolete) 
+
+TaRun.{cc,hh}
+
+ o Int_t --> ErrCode_t for error returns
+ o GetDataBase returns ref, not pointer
+
+VaAnalysis.{cc,hh}
+
+ o Various error returns instead of exiting
+ o Database checkout code moved to VaDataBase
+ o TaRun::GetDataBase() usage change
+
+VaDataBase.{cc,hh}
+
+ o Add Checkout method (based on code removed from VaAnalysis)
+
+
+
 Changes by R. Holmes on 31 May 2002
 -----------------------------------
 

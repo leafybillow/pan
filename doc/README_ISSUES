@@ -1,26 +1,7 @@
 Comments by R. Holmes, 22 May 2002
 ----------------------------------
 
-(1) I have made some changes in which code that used to exit on a serious
-error now just prints a message and passes back a failure status.
-This required changing some method types from void to Int_t in TaRun
-and TaAnalysisManager, so the error could be propagated up the calling
-chain.  
-
-Finally, main.cc was changed to look for these errors and return 1
-when found -- likewise macro/run.macro.
-
-This program of changes is incomplete, in that there are still places
-where Pan exits rather than passing errors upward; in addition, there
-are some routines that are defined as Int_t but always return 0
-because I haven't worked on getting status returns into its called
-routines.
-
-The goal is to have no exits anywhere in the code.  Turning on
-exception handling would presumably make this easier but would slow
-things down, so we'll see if we can do it without using exceptions.
-
-(2) There are a couple of things I've noticed in TaAsciiDB which I think
+There are a couple of things I've noticed in TaAsciiDB which I think
 should be addressed.
 
 One is, if one calls GetPedestal before Load has been called, the
