@@ -858,28 +858,47 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"det4c", IDET4C));
   fKeyToIdx.insert(make_pair((string)"det4",  IDET4));
 
-// UMass Profile scanner (signal, X, Y) 
+// UMass Profile scanner (signal, X, Y, and
+//       control voltages v1, v2, v3) 
 // raw data (suffix "r") and calibrated.
 // "c" = data before pedestal subtracted
 // Prefix "l"=left spectrometer, "r"=right
   fKeyToIdx.insert(make_pair((string)"rprofr",IRPROFR));
   fKeyToIdx.insert(make_pair((string)"rprofxr",IRPROFXR));
   fKeyToIdx.insert(make_pair((string)"rprofyr",IRPROFYR));
+  fKeyToIdx.insert(make_pair((string)"rprofv1r",IRPROFV1R));
+  fKeyToIdx.insert(make_pair((string)"rprofv2r",IRPROFV2R));
+  fKeyToIdx.insert(make_pair((string)"rprofv3r",IRPROFV3R));
   fKeyToIdx.insert(make_pair((string)"rprofc",IRPROFC));
   fKeyToIdx.insert(make_pair((string)"rprofxc",IRPROFXC));
   fKeyToIdx.insert(make_pair((string)"rprofyc",IRPROFYC));
+  fKeyToIdx.insert(make_pair((string)"rprofv1c",IRPROFV1C));
+  fKeyToIdx.insert(make_pair((string)"rprofv2c",IRPROFV2C));
+  fKeyToIdx.insert(make_pair((string)"rprofv3c",IRPROFV3C));
   fKeyToIdx.insert(make_pair((string)"rprof",IRPROF));
   fKeyToIdx.insert(make_pair((string)"rprofx",IRPROFX));
   fKeyToIdx.insert(make_pair((string)"rprofy",IRPROFY));
+  fKeyToIdx.insert(make_pair((string)"rprofv1",IRPROFV1));
+  fKeyToIdx.insert(make_pair((string)"rprofv2",IRPROFV2));
+  fKeyToIdx.insert(make_pair((string)"rprofv3",IRPROFV3));
   fKeyToIdx.insert(make_pair((string)"lprofr",ILPROFR));
   fKeyToIdx.insert(make_pair((string)"lprofxr",ILPROFXR));
   fKeyToIdx.insert(make_pair((string)"lprofyr",ILPROFYR));
+  fKeyToIdx.insert(make_pair((string)"lprofv1r",ILPROFV1R));
+  fKeyToIdx.insert(make_pair((string)"lprofv2r",ILPROFV2R));
+  fKeyToIdx.insert(make_pair((string)"lprofv3r",ILPROFV3R));
   fKeyToIdx.insert(make_pair((string)"lprofc",ILPROFC));
   fKeyToIdx.insert(make_pair((string)"lprofxc",ILPROFXC));
   fKeyToIdx.insert(make_pair((string)"lprofyc",ILPROFYC));
+  fKeyToIdx.insert(make_pair((string)"lprofv1c",ILPROFV1C));
+  fKeyToIdx.insert(make_pair((string)"lprofv2c",ILPROFV2C));
+  fKeyToIdx.insert(make_pair((string)"lprofv3c",ILPROFV3C));
   fKeyToIdx.insert(make_pair((string)"lprof",ILPROF));
   fKeyToIdx.insert(make_pair((string)"lprofx",ILPROFX));
   fKeyToIdx.insert(make_pair((string)"lprofy",ILPROFY));
+  fKeyToIdx.insert(make_pair((string)"lprofv1",ILPROFV1));
+  fKeyToIdx.insert(make_pair((string)"lprofv2",ILPROFV2));
+  fKeyToIdx.insert(make_pair((string)"lprofv3",ILPROFV3));
   
 // ADCs first index is ADC slot, second is channel
 // These are RAW data

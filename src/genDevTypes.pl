@@ -28,7 +28,7 @@
 # G0 current monitors
 @g0_bcmlist =    qw / IBCMCAV1 IBCMCAV2 IBCMCAV3 IBCMCAV4 /;
 # UMass profile scanner
-@prof_list =    qw / IRPROF IRPROFX IRPROFY ILPROF ILPROFX ILPROFY /;
+@prof_list =    qw / IRPROF IRPROFX IRPROFY IRPROFV1 IRPROFV2 IRPROFV3 ILPROF ILPROFX ILPROFY ILPROFV1 ILPROFV2 ILPROFV3 /;
 # Batteries
 @battlist =      qw / IBATT1 IBATT2 IBATT3 IBATT4 IBATT5 IBATT6 IBATT7 IBATT8/;
 # Detectors
@@ -284,6 +284,7 @@ sub do_profile
 \#define   PROFNUM     $profnum     // num. prof. devices defined below
 
 // "PROFX", "PROFY" = positions, "PROF" = amplitude.
+// "PROFV1" "V2" "V3" = control voltage levels.
 // Prefix "IR","IL" = right, left spectrometer.
 // Suffix "R" = raw data.
 // Suffix "C" = corrected but no pedestal subtraction.
