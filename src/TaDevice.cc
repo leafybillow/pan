@@ -38,6 +38,7 @@ TaDevice::TaDevice() {
    fScalptr = new Int_t[MAXROC];
    fTbdptr = new Int_t[MAXROC];
    fTirptr = new Int_t[MAXROC];
+   fDaqptr = new Int_t[MAXROC];
    memset(fRawKeys, 0, MAXKEYS*sizeof(Int_t));
    memset(fEvPointer, 0, MAXKEYS*sizeof(Int_t));
    memset(fCrate, 0, MAXKEYS*sizeof(Int_t));
@@ -53,6 +54,7 @@ TaDevice::TaDevice() {
    memset(fScalptr, 0, MAXROC*sizeof(Int_t));
    memset(fTbdptr, 0, MAXROC*sizeof(Int_t));
    memset(fTirptr, 0, MAXROC*sizeof(Int_t));
+   memset(fDaqptr, 0, MAXROC*sizeof(Int_t));
 }
 
 TaDevice::~TaDevice() {
@@ -102,6 +104,8 @@ void TaDevice::Init(TaDataBase& db) {
    fgTbdMask = db.GetMask("timeboard");
    fgTirHeader = db.GetHeader("tir");
    fgTirMask = db.GetMask("tir");
+   fgDaqHeader = db.GetHeader("daqflag");
+   fgDaqMask = db.GetMask("daqflag");
 // Try to recover from a database that doesn't define header, mask.
    if (fgAdcHeader == 0) {
      fgAdcHeader = 0xffadc000;
@@ -143,6 +147,16 @@ void TaDevice::Init(TaDataBase& db) {
      cout << "WARNING:  Mask for TIR was zero.";
      cout <<"  Using default  " << hex << fgTirMask << endl;
    }
+   if (fgDaqHeader == 0) {
+     fgDaqHeader = 0xfdacf000;
+     cout << "WARNING:  Header for DAQ flags was zero.";
+     cout <<"  Using default  " << hex << fgDaqHeader << endl;
+   }
+   if (fgDaqMask == 0) {
+     fgDaqMask = 0xfffff000;
+     cout << "WARNING:  Mask for DAQ flags was zero.";
+     cout <<"  Using default  " << hex << fgDaqMask << endl;
+   }
    fTiedKeys.clear();
    fNtied = 0;
    while ( db.NextDataMap() ) {
@@ -173,6 +187,7 @@ void TaDevice::Init(TaDataBase& db) {
            if (keymap.IsScaler(keystr)) fReadOut[key] = SCALREADOUT;
            if (keymap.IsTimeboard(keystr)) fReadOut[key] = TBDREADOUT;
            if (keymap.IsTir(keystr)) fReadOut[key] = TIRREADOUT;
+           if (keymap.IsDaqFlag(keystr)) fReadOut[key] = DAQFLAG;
            fDevNum[key]  = keymap.GetDevNum(keystr);
            fChanNum[key] = keymap.GetChan(keystr);
 // Rotate state first set from default but can over-ridden by database
@@ -297,18 +312,24 @@ void TaDevice::FindHeaders(const Int_t& roc,
     fTirptr[roc] = ipt;
     return;
   }     
+  if ((data & fgDaqMask) == fgDaqHeader) {
+    fDaqptr[roc] = ipt;
+    return;
+  }     
   return;
 }
 
 
 void TaDevice::PrintHeaders() {
 //  Printout for debugging multiroc decoding.
-  cout << "Headers for adc, scaler, timebd, tir "<<hex;
+  cout << "Headers for adc, scaler, timebd, tir, daqflag "<<hex;
   cout << fgAdcHeader<<"   "<<fgScalHeader<<"   ";
-  cout << fgTbdHeader<<"   "<<fgTirHeader<<endl;
-  cout << "Masks for adc, scaler, timebd, tir "<<hex;
+  cout << fgTbdHeader<<"   "<<fgTirHeader;
+  cout << "   " << fgDaqHeader << endl;
+  cout << "Masks for adc, scaler, timebd, tir, daqflag "<<hex;
   cout << fgAdcMask<<"   "<<fgScalMask<<"   ";
-  cout << fgTbdMask<<"   "<<fgTirMask<<endl;
+  cout << fgTbdMask<<"   "<<fgTirMask;
+  cout << "    "<<fgDaqMask<<endl;
   cout << "Pointers to data : "<<dec<<endl;
   for (Int_t iroc = 1; iroc < MAXROC; iroc++) {
    if (fAdcptr[iroc] > 0) {
@@ -322,6 +343,9 @@ void TaDevice::PrintHeaders() {
    }
    if (fTirptr[iroc] > 0) {
        cout << "roc "<<iroc << "  Tirptr= "<<fTirptr[iroc]<<endl;
+   }
+   if (fDaqptr[iroc] > 0) {
+       cout << "roc "<<iroc << "  Daqptr= "<<fDaqptr[iroc]<<endl;
    }
   }
 }
@@ -1733,6 +1757,37 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"pitadac2",IPITADAC2));
   fKeyToIdx.insert(make_pair((string)"pitadac3",IPITADAC3));
 
+// Scan data
+  fKeyToIdx.insert(make_pair((string)"scanclean",ISCANCLEAN));
+  fKeyToIdx.insert(make_pair((string)"scandata1",ISCANDATA1));
+  fKeyToIdx.insert(make_pair((string)"scandata2",ISCANDATA2));
+  fKeyToIdx.insert(make_pair((string)"scandata3",ISCANDATA3));
+  fKeyToIdx.insert(make_pair((string)"scandata4",ISCANDATA4));
+
+// DAQ flags.  
+  fKeyToIdx.insert(make_pair((string)"daq1flag",IDAQ1FLAG));
+  fKeyToIdx.insert(make_pair((string)"daq1flag1",IDAQ1FLAG1));
+  fKeyToIdx.insert(make_pair((string)"daq1flag2",IDAQ1FLAG2));
+  fKeyToIdx.insert(make_pair((string)"daq1flag3",IDAQ1FLAG3));
+  fKeyToIdx.insert(make_pair((string)"daq2flag",IDAQ2FLAG));
+  fKeyToIdx.insert(make_pair((string)"daq2flag1",IDAQ2FLAG1));
+  fKeyToIdx.insert(make_pair((string)"daq2flag2",IDAQ2FLAG2));
+  fKeyToIdx.insert(make_pair((string)"daq2flag3",IDAQ2FLAG3));
+  fKeyToIdx.insert(make_pair((string)"daq3flag",IDAQ3FLAG));
+  fKeyToIdx.insert(make_pair((string)"daq3flag1",IDAQ3FLAG1));
+  fKeyToIdx.insert(make_pair((string)"daq3flag2",IDAQ3FLAG2));
+  fKeyToIdx.insert(make_pair((string)"daq3flag3",IDAQ3FLAG3));
+  fKeyToIdx.insert(make_pair((string)"daq4flag",IDAQ4FLAG));
+  fKeyToIdx.insert(make_pair((string)"daq4flag1",IDAQ4FLAG1));
+  fKeyToIdx.insert(make_pair((string)"daq4flag2",IDAQ4FLAG2));
+  fKeyToIdx.insert(make_pair((string)"daq4flag3",IDAQ4FLAG3));
+
+// BMW words BMW words are also devtype = daqflag
+  fKeyToIdx.insert(make_pair((string)"bmwcln",IBMWCLN));
+  fKeyToIdx.insert(make_pair((string)"bmwobj",IBMWOBJ ));
+  fKeyToIdx.insert(make_pair((string)"bmwval",IBMWVAL));
+  fKeyToIdx.insert(make_pair((string)"bmwcyc",IBMWCYC));
+
 // Luminosity Monitors, raw data ("r") and calibrated data
 // "c" = data before pedestal subtracted
   fKeyToIdx.insert(make_pair((string)"lumi1r", ILUMI1R));
@@ -1823,11 +1878,6 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"scanrdet",ISCANRDET));
   fKeyToIdx.insert(make_pair((string)"scanrdetc",ISCANRDETC));
 
-  fKeyToIdx.insert(make_pair((string)"bmw_clean",IBMW_CLN));
-  fKeyToIdx.insert(make_pair((string)"bmw_obj",IBMW_OBJ));
-  fKeyToIdx.insert(make_pair((string)"bmw_val",IBMW_VAL));
-  fKeyToIdx.insert(make_pair((string)"bmw_cyc",IBMW_CYC));
-
   fKeyToIdx.insert(make_pair((string)"isync0",IISYNC0));
   fKeyToIdx.insert(make_pair((string)"chsync0",ICHSYNC0));
   fKeyToIdx.insert(make_pair((string)"chsync1",ICHSYNC1));
@@ -1871,6 +1921,8 @@ void TaDevice::Create(const TaDevice& rhs)
    memcpy(fTbdptr, rhs.fTbdptr, MAXROC*sizeof(Int_t));
    fTirptr = new Int_t[MAXROC];
    memcpy(fTirptr, rhs.fTirptr, MAXROC*sizeof(Int_t));
+   fDaqptr = new Int_t[MAXROC];
+   memcpy(fDaqptr, rhs.fDaqptr, MAXROC*sizeof(Int_t));
 };
 
 void TaDevice::Uncreate()
@@ -1889,6 +1941,7 @@ void TaDevice::Uncreate()
    delete [] fScalptr;
    delete [] fTbdptr;
    delete [] fTirptr;
+   delete [] fDaqptr;
 };
 
 

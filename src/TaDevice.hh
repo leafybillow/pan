@@ -71,20 +71,24 @@ class TaDevice {
     Bool_t IsScaler(const Int_t& key) const;
     Bool_t IsTimeboard(const Int_t& key) const;
     Bool_t IsTir(const Int_t& key) const;
+    Bool_t IsDaqFlag(const Int_t& key) const;
     void SetUsed(const Int_t& key) const;
     map<string, Int_t> GetKeyList() const;
 
  protected:
 
     Int_t fNumRaw, fNtied;
-    UInt_t fgAdcHeader, fgScalHeader, fgTbdHeader, fgTirHeader;      
-    UInt_t fgAdcMask, fgScalMask, fgTbdMask, fgTirMask;       
+    UInt_t fgAdcHeader, fgScalHeader, fgTbdHeader;
+    UInt_t fgTirHeader, fgDaqHeader;
+    UInt_t fgAdcMask, fgScalMask, fgTbdMask;
+    UInt_t fgTirMask,  fgDaqMask;       
     Int_t *fRawKeys, *fEvPointer, *fCrate;
     Int_t *fReadOut, *fIsUsed, *fIsRotated;
     Double_t *fAdcPed, *fScalPed, *fDacSlope;
     Int_t *fDevNum, *fChanNum;
     Int_t *fAdcptr, *fScalptr;   
     Int_t *fTbdptr, *fTirptr;    
+    Int_t *fDaqptr;
     map<string, Int_t> fKeyToIdx;
     vector<TaKeyMap> fTiedKeys;
     vector<string> fRotateList;
@@ -128,6 +132,7 @@ inline Int_t TaDevice::GetOffset(const Int_t& key) const {
   if (IsScaler(key)) return fScalptr[crate];
   if (IsTimeboard(key)) return fTbdptr[crate];
   if (IsTir(key)) return fTirptr[crate];
+  if (IsDaqFlag(key)) return fDaqptr[crate];
   return 0;
 };
 
@@ -181,6 +186,13 @@ inline Bool_t TaDevice::IsTimeboard(const Int_t& key) const {
 inline Bool_t TaDevice::IsTir(const Int_t& key) const {
   if (key >= 0 && key < MAXKEYS) {
     if (fReadOut[key] == TIRREADOUT) return kTRUE;
+  }
+  return kFALSE;
+};
+
+inline Bool_t TaDevice::IsDaqFlag(const Int_t& key) const {
+  if (key >= 0 && key < MAXKEYS) {
+    if (fReadOut[key] == DAQFLAG) return kTRUE;
   }
   return kFALSE;
 };

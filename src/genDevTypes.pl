@@ -40,7 +40,9 @@
 # Q2 scanner
 @scanlist = qw / ISCANL ISCANR /;
 # BMW words
-@bmwlist = qw / IBMW_CLN IBMW_OBJ IBMW_VAL IBMW_CYC /;
+@bmwlist = qw / IBMWCLN IBMWOBJ IBMWVAL IBMWCYC /;
+# scanflags
+@scanflist = qw / ISCANCLEAN ISCANDATA1 ISCANDATA2 ISCANDATA3 ISCANDATA4 /;
 # SYNC words
 @synclist = qw / IISYNC0 ICHSYNC0 ICHSYNC1 ICHSYNC2 IRSYNC1 IRSYNC2 ILSYNC1 ILSYNC2 /;
 # Number of ADC modules, scaler modules, and crates
@@ -59,12 +61,14 @@ $out = "";   # output being built
 &do_adcs();
 &do_scalers();
 &do_tirs();
+&do_daqflag();
 &do_timeboards();
 &do_lumis();
 &do_v2fclocks();
 &do_qpds();
 &do_scans();
 &do_bmwwords();
+&do_scanflags();
 &do_syncwords();
 
 print << "END";
@@ -100,6 +104,7 @@ print << "END";
 \#define   SCALREADOUT    2
 \#define   TBDREADOUT     3
 \#define   TIRREADOUT     4
+\#define   DAQFLAG        5
 
 // Keys for getting data from devices.
 // They keys are mapped to devices automatically.
@@ -727,6 +732,33 @@ $out1
 ENDQUDCOM
 }
 
+
+sub do_daqflag
+{
+# DAQ flags
+
+    $daqoff = $p;
+    $out1 = "";
+    $out1 .= &add_tir ("IDAQ1FLAG");
+    $out1 .= "\n";
+    $out1 .= &add_tir ("IDAQ2FLAG");
+    $out1 .= "\n";
+    $out1 .= &add_tir ("IDAQ3FLAG");
+    $out1 .= "\n";
+    $out1 .= &add_tir ("IDAQ4FLAG");
+
+    $out .= << "ENDDAQCOM";
+// DAQ Flag data from various crates
+// (note: BMW data only comes from one crate)
+
+\#define   DAQOFF     $daqoff     // DAQ flags start here
+\#define   DAQNUM     $ncrates    // number of DAQ flags defined below
+
+$out1
+ENDDAQCOM
+}
+
+
 sub do_timeboards
 {
 # Timeboards
@@ -1033,6 +1065,35 @@ sub add_bmwword
     my ($bmwword) = @_;
     my ($ret);
     $ret = "\#define   ${bmwword}      $p\n"; $p++;
+    return $ret;
+}
+
+sub do_scanflags
+{
+# Scan flags
+
+    $scanfloff = $p;
+    $scanflnum = scalar (@scanflist);
+    $out1 = "";
+    foreach $scanfl (@scanflist)
+    {
+	$out1 .= &add_scanflag ($scanfl);
+    }
+    $out .= << "ENDSCANFLCOM";
+// scan flags
+
+\#define   SCANFLAGOFF     $scanfloff     // scanflags start here
+\#define   SCANFLAGNUM     $scanflnum     // number of scanflags defined below
+
+$out1
+ENDSCANFLCOM
+}
+
+sub add_scanflag
+{
+    my ($scanfl) = @_;
+    my ($ret);
+    $ret = "\#define   ${scanfl}      $p\n"; $p++;
     return $ret;
 }
 

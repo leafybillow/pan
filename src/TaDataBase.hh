@@ -236,6 +236,10 @@ public:
     if (GetReadOut(key) == "tir") return kTRUE;
     return kFALSE;
   };     
+  Bool_t IsDaqFlag(const string& key) {
+    if (GetReadOut(key) == "daqflag") return kTRUE;
+    return kFALSE;
+  };     
   Int_t GetAdc(const string& key) {
     if (IsAdc(key)) return devnum[key];
     return 0;
