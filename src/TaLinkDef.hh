@@ -17,7 +17,6 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-#pragma link C++ class TaADC;
 #pragma link C++ class TaADCCalib;
 #pragma link C++ class TaAnalysisManager;
 #pragma link C++ class TaAsciiDB;
