@@ -110,42 +110,42 @@ void TaDevice::Init(TaDataBase& db) {
    if (fgAdcHeader == 0) {
      fgAdcHeader = 0xffadc000;
      cout << "WARNING:  Header for ADC was zero.";
-     cout <<"  Using default  " << hex << fgAdcHeader << endl;
+     cout <<"  Using default  " << hex << fgAdcHeader << dec << endl;
    }
    if (fgAdcMask == 0) {
      fgAdcMask = 0xfffff000;
      cout << "WARNING:  Mask for ADC was zero.";
-     cout <<"  Using default  " << hex << fgAdcMask << endl;
+     cout <<"  Using default  " << hex << fgAdcMask << dec << endl;
    }
    if (fgScalHeader == 0) {
      fgScalHeader = 0xfffca000;
      cout << "WARNING:  Header for Scaler was zero.";
-     cout <<"  Using default  " << hex << fgScalHeader << endl;
+     cout <<"  Using default  " << hex << fgScalHeader << dec << endl;
    }
    if (fgScalMask == 0) {
      fgScalMask = 0xfffff000;
      cout << "WARNING:  Mask for Scaler was zero.";
-     cout <<"  Using default  " << hex << fgScalMask << endl;
+     cout <<"  Using default  " << hex << fgScalMask << dec << endl;
    }
    if (fgTbdHeader == 0) {
      fgTbdHeader = 0xfffbd000;
      cout << "WARNING:  Header for TimeBd was zero.";
-     cout <<"  Using default  " << hex << fgTbdHeader << endl;
+     cout <<"  Using default  " << hex << fgTbdHeader << dec << endl;
    }
    if (fgTbdMask == 0) {
      fgTbdMask = 0xfffff000;
      cout << "WARNING:  Mask for TimeBd was zero.";
-     cout <<"  Using default  " << hex << fgTbdMask << endl;
+     cout <<"  Using default  " << hex << fgTbdMask << dec << endl;
    }
    if (fgTirHeader == 0) {
      fgTirHeader = 0xffdaf000;
      cout << "WARNING:  Header for TIR was zero.";
-     cout <<"  Using default  " << hex << fgTirHeader << endl;
+     cout <<"  Using default  " << hex << fgTirHeader << dec << endl;
    }
    if (fgTirMask == 0) {
      fgTirMask = 0xfffff000;
      cout << "WARNING:  Mask for TIR was zero.";
-     cout <<"  Using default  " << hex << fgTirMask << endl;
+     cout <<"  Using default  " << hex << fgTirMask << dec << endl;
    }
    if (fgDaqHeader == 0) {
      fgDaqHeader = 0xfdacf000;
@@ -155,7 +155,7 @@ void TaDevice::Init(TaDataBase& db) {
    if (fgDaqMask == 0) {
      fgDaqMask = 0xfffff000;
      cout << "WARNING:  Mask for DAQ flags was zero.";
-     cout <<"  Using default  " << hex << fgDaqMask << endl;
+     cout <<"  Using default  " << hex << fgDaqMask << dec << endl;
    }
    fTiedKeys.clear();
    fNtied = 0;

@@ -283,7 +283,7 @@ VaEvent::Decode(TaDevice& devices)
         }
         cout << endl;
         cout << " Data word = (dec) "<<dec<<(Int_t)fData[key];
-        cout << "   = (hex) "<<hex<<(Int_t)fData[key]<<endl; 
+        cout << "   = (hex) "<<hex<<(Int_t)fData[key]<<dec<<endl; 
       }
     }
   }
@@ -1076,6 +1076,7 @@ void VaEvent::DeviceDump() const {
     }
     cout << endl;
   }
+  cout << dec;
 }
 
 void 
