@@ -115,7 +115,7 @@ void TaEvent::Decode(const TaDevice& devices) {
 // rotations..  Note: This assumes the event structure remains
 // constant.  We check this by verifying a constant event length.
 
-  Int_t i,j,key,ok,ixp,ixm,iyp,iym,ix,iy;
+  Int_t i,j,key,idx,ok,ixp,ixm,iyp,iym,ix,iy;
   Double_t sum,xrot,yrot;
   memset(fData, 0, MAXKEYS*sizeof(Double_t));
   if ( IsPhysicsEvent() )  {
@@ -138,65 +138,89 @@ void TaEvent::Decode(const TaDevice& devices) {
   for (i = 0;  i < ADCNUM; i++) {
     for (j = 0; j < 4; j++) {
       key = i*4 + j;
-      fData[ACCOFF + key] = fData[ADCOFF + key] - devices.GetPedestal(key)
+      fData[ACCOFF + key] = fData[ADCOFF + key] - devices.GetPedestal(ADCOFF + key)
        - (fData[DACOFF + i] * devices.GetDacSlope(key) - devices.GetDacInt(key));
     }
   }
+
+// Calibrate the Scalers.  They have no DAC noise.
+// FIXME:  Bryan, you want to change this to use the clock frequency.....
+  for (i = 0; i < SCANUM; i++) {
+    for (j = 0; j < 32; j++) {
+      key = i*32 + j;
+      fData[SCCOFF + key] = fData[SCAOFF + key] - devices.GetPedestal(SCAOFF + key);
+    }
+  }
+
 // Stripline BPMs
   for (i = 0; i < STRNUM; i++) {
     ok = 1;
     for (j = 0; j < 4; j++) {
-      key = STROFF + 6*i + j;
-      if (devices.GetAdcNum(key) < 0 || devices.GetChanNum(key) < 0) {
-         ok = 0;   // An adc or channel not found.
-         continue;
+      key = STROFF + 9*i + j;
+      idx = devices.GetRawIndex(key);
+      if (idx < 0) {
+          ok = 0;      // A device channel was not found.
+          continue;
       }
-      fData[key] = fData[ADCOFF + 4*devices.GetAdcNum(key) + devices.GetChanNum(key)];    
+      fData[key] = fData[idx];
     }
     if ( !ok ) continue;
-    key = STROFF + 6*i;
-    ixp = ACCOFF + 4*devices.GetAdcNum(key) + devices.GetChanNum(key); 
-    ixm = ACCOFF + 4*devices.GetAdcNum(key+1) + devices.GetChanNum(key+1);
-    iyp = ACCOFF + 4*devices.GetAdcNum(key+2) + devices.GetChanNum(key+2);
-    iym = ACCOFF + 4*devices.GetAdcNum(key+3) + devices.GetChanNum(key+3);
+    key = STROFF + 9*i;
+    ixp = devices.GetCalIndex(key);
+    ixm = devices.GetCalIndex(key+1);
+    iyp = devices.GetCalIndex(key+2);
+    iym = devices.GetCalIndex(key+3);
+    if (ixp < 0 || ixm < 0 || iyp < 0 || iym < 0) continue;
     ix  = key + 4;
     iy  = key + 5;
     sum = fData[ixp] + fData[ixm];
+    fData[key + 6] = sum;
     xrot = 0;
     if ( sum > 0 ) xrot = 
           fgKappa * (fData[ixp] - fData[ixm])/ sum;
     sum = fData[iyp] + fData[iym]; 
+    fData[key + 7] = sum;
     yrot = 0;
     if ( sum > 0 ) yrot = 
           fgKappa * (fData[iyp] - fData[iym])/ sum;
-    fData[ix] = Rotate (xrot, yrot, 1);
-    fData[iy] = Rotate (xrot, yrot, 2);
+    fData[ix] = Rotate (ix, xrot, yrot, 1);
+    fData[iy] = Rotate (iy, xrot, yrot, 2);
+    fData[key + 8] = fData[key + 6] + fData[key + 7];
   }
 // Cavity BPM monitors (when they exist)
   for (i = 0; i < CAVNUM; i++) {
     for (j = 0; j < 2; j++) {
        key = CAVOFF + 4*i + j;
-       if (devices.GetAdcNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
-       fData[key+2] = 
-         fData[ACCOFF + 4*devices.GetAdcNum(key) + devices.GetChanNum(key)];
+       if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+       idx = devices.GetRawIndex(key);
+       if (idx < 0) continue;
+       fData[key+2] = fData[idx];
 // This needs to be divided by current... when they exist.
     }
   }
 // Happex-1 era BCMs
   for (i = 0; i < BCMNUM; i++) {
     key = BCMOFF + 2*i;
-    if (devices.GetAdcNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
     // raw and corrected BCM data
-    fData[key] = fData[ADCOFF + 4*devices.GetAdcNum(key) + devices.GetChanNum(key)];
-    fData[key+1] = fData[ACCOFF + 4*devices.GetAdcNum(key) + devices.GetChanNum(key)];  
+    idx = devices.GetRawIndex(key);
+    if (idx < 0) continue;
+    fData[key] = fData[idx];
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
   }
 // Detectors
   for (i = 0; i < DETNUM; i++) {
     key = DETOFF + 2*i;
-    if (devices.GetAdcNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
     // raw and corrected detector data
-    fData[key] = fData[ADCOFF + 4*devices.GetAdcNum(key) + devices.GetChanNum(key)];
-    fData[key+1] = fData[ACCOFF + 4*devices.GetAdcNum(key) + devices.GetChanNum(key)];  
+    idx = devices.GetRawIndex(key);
+    if (idx < 0) continue;
+    fData[key] = fData[idx];
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
   }
   fData[IHELICITY] = (Double_t)(((int)GetData(ITIRDATA) & 0x40) >> 6);
   fData[IPAIRSYNCH] = (Double_t)(((int)GetData(ITIRDATA) & 0x80) >> 7);
@@ -536,10 +560,15 @@ TaEvent::AddToTree (const TaDevice& devices,
 
 // Private methods
 
-Double_t TaEvent::Rotate(Double_t x, Double_t y, Int_t xy) {
+Double_t TaEvent::Rotate(Int_t keyx, Double_t x, Double_t y, Int_t xy) {
 // Rotation to get X or Y depending on xy flag
+// However, we do not rotate injector BPMs or cavity BPMs
    Double_t result = 0;
    Double_t root2 = (Double_t)sqrt(2);
+   if (keyx >= IBPMIN1XP) { // Do not rotate injector or cavity BPMs
+     if (xy == 1) return x;
+     if (xy == 2) return y;
+   }
    if (xy == 2) {
        result = ( x + y ) / root2;
    } else {
