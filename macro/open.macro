@@ -1,9 +1,10 @@
+void open()
 {
   Int_t run;
   cout << "Enter run number : ";
   cin >> run;
   cout << "Run " << run << endl;
-
+  
   TString file, path, prefix, suffix;
   path = getenv("PAN_ROOT_FILE_PATH");
   prefix = getenv("PAN_FILE_PREFIX");
@@ -12,12 +13,15 @@
     prefix = "parity02";
     suffix = "root";
   }
-
-  file =  path + "/" + prefix + "_" + run + "_beam." + suffix;
-
+  
+  if (path != "")
+    file =  path + "/";
+  
+  file += prefix + "_" + run + "_beam." + suffix;
+  
   cout << "root file is " << file << endl;
   f = new TFile(file);
-
+  
   TTree *raw = (TTree*)gROOT.FindObject("R");
   raw->Print();
   TTree *asy = (TTree*)gROOT.FindObject("P");
