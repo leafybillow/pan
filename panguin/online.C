@@ -932,11 +932,8 @@ void OnlineGUI::MacroDraw(vector <TString> command) {
   // Called by DoDraw(), this will make a call to the defined macro, and
   //  plot it in it's own pad.  One plot per macro, please.
 
-  if(command.size() > 2) {
-    cout << "macro command has too many arguments" << endl;
-    return;
-  } else if(command.size() < 2) {
-    cout << "macro command has too few arguments" << endl;
+  if(command[1].IsNull()) {
+    cout << "macro command doesn't contain a macro to execute" << endl;
     return;
   }
 
