@@ -1,0 +1,124 @@
+
+   +++++++++++++++++++++++++++++++++++++
+   +                                   +
+   +    PANAM  -  Parity   Analyzer    + 
+   +              Accurate Monitoring  + 
+   +                                   +
+   +++++++++++++++++++++++++++++++++++++
+
+authors:  Antonin Vacheret
+
+Web documentation about code design will come soon at :
+    <http://www.jlab.org/~vacheret/panam/>
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To compile and link:
+^^^^^^^^^^^^^^^^^^^^
+
+For STL support, use ROOT version 3 or higher.  Info and downloads for
+ROOT at <http://root.cern.ch/root>
+
+Panam is, by default, compiled with MAKEDICTIONARY enabled. That means you
+must have ROOT version 3.02/07 or later for this to work. To create the 
+dictionnary Panam use LinkDef.h and generates Dict.h.   
+
+You will need all libraries needed by Pan (See Pan README).
+
+ - COPY main_panam.cc to main.cc FIRST
+Panam used a specific makefile named makefile_panam
+to compile in the Pan directory do :
+
+ make -f makefile_panam 
+
+It will create the executable 'panam' in the pan/ directory.
+
+ 1) To compile a version to monitor a FILE :
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+make sure you enable PANAMTEST in TaRun.cc and CODAFILETEST
+in TaPanam.cc, disable ETCONNECT 
+line 435 of TaPanam.cc put the run number you want.
+
+ 2) To compile an ONLINE version :
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+Make sure you enable ETCONNECT in TaPanam.cc and disable 
+ PANAMTEST in TaRun.cc.
+In the makefile uncomment : # export ONLINE = 1 and # export OPTIMIZE =1
+
+
+To run Panam:
+^^^^^^^^^^^
+
+No Pan output file is created but it requires that in the pan/db/
+the 'monitor' analysis is defined in control.db. Tape at prompt :
+
+  ./panam
+
+The monitoring sequence is ordered as PRESTART-START-STOP-END. 
+before PRESTART you can choose the channels you want to appear in the 
+monitoring. WHEN PRESTART you can turn off/on the canvas (off means 
+iconified).You can START the monitoring or go to END if not HAPPY with 
+channels.you can just STOP the monitoring at any time or END directly. 
+Sometimes PANAM hang when STOP...I will try to understand what. END looks 
+safer. Anyway, I will need a period of test to understand the behaviour in 
+real conditions.  Also, we will perhaps need to modify the code about ET 
+so Pan doesn't time out when coda finish. It will save works to users : 
+they will not have to prestart the sequence.... You can EXIT at any time. 
+you can resize canvas, zoom in-out on histos as you wish.
+
+ 
+ !!! NOTES about VERSION 1.0 !!!
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Panam is toward a working version I think, it still empty pieces and 
+other things to fix
+but it should work online and stay stable for a couple of hour. Please 
+read these important notes of the current Panam status.
+
+1. Since the DAQs are not "unified" and detectors are not yet installed,
+some devices are not working and other not properly defined.
+Example is 'bpm4bxws': it is not defined yet.( by the way, I would prefer 
+we rename them bpmws4bx, it is 
+much easier for generic search in my lists of devices). So in summary 
+what works is :
+
+- what I call "time signals" (if you have other way of calling it 
+I'll take it!) 
+- parity DAQ ADCs 0->9
+- BCM1,BCM2,BCM3(unser) data,asym,all
+- HALL A BPMS (12,10,8,4A,4B) data,diffs,all
+- LUMI  
+
+I have not yet verified the integrity of all channels ! 
+
+2. When you unselect a device before PRESTART, this may cause a crash because 
+ it seems there is some problem of communication between STL vectors and 
+ROOT Frames. It's 
+look like the vector is not correctly updated when selecting-unselecting 
+many times. So 
+avoid doing this as much as you can. I will fix that.
+
+3. Feedback and dithering canvas are empty. For feedback I wanted to 
+display something like
+runbird do so now instead, there is a commented call to runbird 
+(which is less work for me anyway :-)).
+I will implement the integrated asymmetries and diffs very soon. For 
+Dithering We will need to discuss
+what to plot in it but I was thinking about sometihng like in Wilson M. 
+thesis p 38. 1 BPM XY, DAC values, enrgy BPM and 
+det/bcm.
+ 
+4. DO NOT exit a canvas when in START mode (I mean clicking on the cross). 
+I found a way but not completly coded right now (to avoid a seg fault when 
+somebody is doing this),this is number one on my list of fixes. I look for 
+a way to block any access to canvas instead of 
+testing all the time if the canvas is still alive.
+ 
+
+5. The Embended canvas feature is not working yet. I don't think it is a 
+big issue right now so I leave it for later. 
+
+   
+6. Last tests showed that when too many histos are displayed in a canvas, 
+some of them doesn't have time to fill up. So don't try to display to 
+much at the same time. I noticed also that Stack of histos seems quicker 
+so that can be a way to avoid the problem.   
+
