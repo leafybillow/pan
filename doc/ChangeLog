@@ -4,6 +4,38 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 9 Jul 2002
+-----------------------------------
+
+Some steps on the way to putting event data in the pair tree -- if
+Bob's upcoming work doesn't make it all obsolete.  Central is the new
+method VaAnalysis::ChanListFromName (const string& chanbase, const
+string& other, const UInt_t flags = 0).  This looks through all
+devices, finds those whose name starts with the string chanbase, and
+makes a channel list including those devices with the given string and
+flags. Example: ChanListFromName ("batt", "chan", flag) might return: 
+< <"batt1", key1, "chan", flag>, <"batt2", key2, "chan", flag> >
+(if those are the only two channels starting with "batt").
+
+Doing this required a new access function, TaRun::GetDevices().  As an
+illustration of how this works, I added two lines of code to
+TaBeamAna::InitChanLists to put all battery event data in the pair
+tree. 
+
+TaRun.hh
+
+ o Add GetDevices()
+
+VaAnalysis.{hh,cc}
+
+ o Add ChanListFromName
+
+TaBeamAna.cc
+
+ o For illustrative purposes, call ChanListFromName to put battery
+   event data in pair tree
+
+
 Changes by R. Holmes on 26 Jun 2002
 -----------------------------------
 
