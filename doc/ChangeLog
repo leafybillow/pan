@@ -6,6 +6,25 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Michaels on   12 May 2004
+---------------------------------------
+
+Modified TaDataBase.hh, TaDevice, and genDevTypes.pl
+to add "daqflag".  The following example illustrates
+how to obtain raw data like "bmwcln", "daq2flag1", etc.
+Notice that, as usual, if N=1,2,3 in daq*flagN then 
+it indicates a different crate than just daq*flag.
+This is like tir data which can exist in several
+crates.  However, bmw data and scandata are only 
+from one crate.
+
+header daqflag   fdacf000 fffff000
+datamap   daqflag   daqflag1  daqflag  0   0   1  23   bmwcln bmwobj bmwval bmwcyc
+datamap   daqflag   daqflag2  daqflag  1   0   5  23   scanclean scandata1 scandata2
+datamap   daqflag   daqflag3  daqflag  2   0   9  23   daq1flag daq2flag daq3flag daq4flag
+datamap   daqflag   daqflag4  daqflag  4   0   1  24   daq1flag1 daq2flag1 daq3flag1 daq4flag1
+
+
 Changes by R. Michaels on   9 May 2004
 --------------------------------------
 
