@@ -123,44 +123,58 @@ endif
 # libDBTools.a is created in ../pandb/DBTools/
 #
 
-# Grow the list of sources here.
+# Grow the lists of sources here.
+# LSRC is the classes that should go into the Pan library
+# SRC is all the classes needed for Pan
 
-SRC = TaAnalysisManager.cc  \
+LSRC = TaFileName.cc TaLabelledQuantity.cc \
+      TaStatistics.cc TaString.cc 
+
+SRC = $(LSRC) TaAnalysisManager.cc  \
       TaBeamAna.cc TaDebugAna.cc TaDevice.cc TaDataBase.cc \
       TaCutInterval.cc TaCutList.cc TaEvent.cc \
-      TaFileName.cc TaLabelledQuantity.cc \
       TaPairFromPair.cc TaPairFromQuad.cc TaPromptAna.cc\
-      TaRun.cc TaStatistics.cc TaString.cc \
+      TaRun.cc \
       VaAnalysis.cc VaPair.cc TaADCCalib.cc 
 
+LOBJS = $(LSRC:.cc=_NODICT.o)
+LHEAD = $(LSRC:.cc=.hh) 
+LHEAD += PanTypes.hh
+LHEAD += DevTypes.hh
+
 DEPS = $(SRC:.cc=.d)
-OBJS = $(SRC:.cc=.o)
 DEP  = $(SRC:.cc=.d)
 HEAD = $(SRC:.cc=.hh) 
 HEAD += PanTypes.hh
 HEAD += DevTypes.hh
 
 PROGS = pan
+PANLIBS = libpan.a
 
 # Make the dictionary
 ifdef MAKENODICTIONARY
+  OBJS = $(SRC:.cc=_NODICT.o)
   CXXFLAGS += -DNODICT
 else
+  OBJS = $(SRC:.cc=.o)
   OBJS += TaDict.o
 endif
 
 install: all
 	mv pan ../
 
-all: $(PROGS)
+all: $(PROGS) $(PANLIBS)
 
 $(PROGS): main.o $(OBJS) $(SRC) $(HEAD) 
 	rm -f $@
 	$(LD) $(CXXFLAGS) -o $@ main.o $(OBJS) $(ALL_LIBS)
 
+$(PANLIBS): $(LOBJS) $(LSRC) $(LHEAD)
+	rm -f $@
+	ar cr $@ $(LOBJS)
+
 main.o: main.cc
 	$(CXX) -c $(INCLUDES) $(CXXFLAGS) $<	
-
 
 # Dictionary
 
@@ -185,11 +199,11 @@ realclean:  clean
 	rm -f *.d
 
 
-.SUFFIXES:
-.SUFFIXES: .c .cc .cpp .C .o .d
-
 %.o:	%.cc
 	$(CXX) $(CXXFLAGS) -c $<
+
+%_NODICT.o:	%.cc
+	$(CXX) $(CXXFLAGS) -c -DNODICT -o $*_NODICT.o $<
 
 %.d:	%.cc
 	@echo Creating dependencies for $<
