@@ -364,6 +364,7 @@ void TaDataBase::Print() {
   }
   for (i = 0; i < 50; i++) clog << "-"; 
   clog << endl;
+
 };
 
 Bool_t TaDataBase::SelfCheck() {
@@ -398,8 +399,8 @@ Bool_t TaDataBase::SelfCheck() {
      allok = kFALSE;
    }
    itest = GetOverSamp();
-   if (itest <= 0 || itest > 15 ) {
-     cerr << "DataBase:: SelfCheck ERROR:  'oversamp' = " << itest << " outside range 0-15" <<endl;
+   if (itest <= 0 || itest > 25 ) {
+     cerr << "DataBase:: SelfCheck ERROR:  'oversamp' = " << itest << " outside range 0-25" <<endl;
      allok = kFALSE;
    }
    stest = GetAnaType();
@@ -456,6 +457,7 @@ TaDataBase::Checkout()
      cout << "  from event " << cutint[0] << " to " << cutint[1];
      cout << "  mask " << cutint[2] << "   veto " << cutint[3] << endl;
   }
+
   vector<Double_t> qpd1const = GetQpd1Const();
   for(vector<Double_t>::iterator iconst = qpd1const.begin();
       iconst != qpd1const.end(); iconst++) {
@@ -593,7 +595,7 @@ TaDataBase::GetQpd1Const() const
   vector<Double_t> data = GetData ("qpd1const", keys);
 
   // If parameters missing, push default values.
-  if (data.size() == 0) {
+  if (data.size() != 6) {
     data.push_back (1.);  // relative gains
     data.push_back (1.);  // 
     data.push_back (1.);  // 

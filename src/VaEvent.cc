@@ -181,7 +181,10 @@ VaEvent::RunInit(const TaRun& run)
   fgOversample = run.GetOversample();
   fgLastEv = VaEvent();
 
-  fQPD1Pars = run.GetDataBase().GetQpd1Const();
+  vector<Double_t> qpd1const = run.GetDataBase().GetQpd1Const();
+  Int_t ip=0;
+  for(vector<Double_t>::iterator iconst = qpd1const.begin();
+      iconst != qpd1const.end(); iconst++)  fQPD1Pars[ip++] = *iconst;
 
   return fgTAEVT_OK;
 
@@ -226,6 +229,7 @@ void VaEvent::Decode(TaDevice& devices) {
 
   Int_t i,j,key,idx,ixp,ixm,iyp,iym,ix,iy,icra;
   Int_t ixpyp,ixpym,ixmyp,ixmym;
+
   Double_t sum,xval,yval;
   memset(fData, 0, MAXKEYS*sizeof(Double_t));
   if ( IsPhysicsEvent() )  {
@@ -333,11 +337,11 @@ void VaEvent::Decode(TaDevice& devices) {
     ixmym = devices.GetCalIndex(key+3);
     if (ixpyp < 0 || ixpym < 0 || ixmyp < 0 || ixmym < 0) continue;
     if (i==0) {  // kludgey way to use relative gains for qpd1
-      fData[ixpyp] *= fQPD1Pars[0];
-      fData[ixpym] *= fQPD1Pars[1];
-      fData[ixmyp] *= fQPD1Pars[2];
-      fData[ixmym] *= fQPD1Pars[3];
-    }
+       fData[ixpyp] *= fQPD1Pars[0];
+       fData[ixpym] *= fQPD1Pars[1];
+       fData[ixmyp] *= fQPD1Pars[2];
+       fData[ixmym] *= fQPD1Pars[3];
+     }
     ix  = key + 4;
     iy  = key + 5;
     sum = fData[ixpyp] + fData[ixpym] + fData[ixmyp] + fData[ixmym];
@@ -345,7 +349,7 @@ void VaEvent::Decode(TaDevice& devices) {
     if (devices.IsUsed(key)) devices.SetUsed(key+6);
     xval = 0;
     yval = 0;
-    if ( sum > 0 ) { 
+    if ( sum != 0 ) { 
       if (i==0) {
 	xval = fQPD1Pars[4]*
 	  (fData[ixpyp] + fData[ixpym] - fData[ixmyp]- fData[ixmym])/ sum;
