@@ -8,13 +8,14 @@
    file = getenv("ROOT_OUTPUT");
    if ( file != NULL) {
      cout << "root file is in "<<file<<endl;
+     sprintf(runfile,"/pan_%d.root",run);
+     strcat(file,runfile);
+     f = new TFile(file);
    } else {
-     cout << "Environment variable ROOT_OUTPUT not defined "<<endl;
-     sprintf(file,"/adaqcp/work1/apar");
+     cout << "Environment variable $ROOT_OUTPUT not defined. Using pwd."<<endl;
+     sprintf(runfile,"pan_%d.root",run);
+     f = new TFile(runfile);
    }
-   sprintf(runfile,"/pan_%d.root",run);
-   strcat(file,runfile);
-   f = new TFile(file);
    TTree *raw = (TTree*)gROOT.FindObject("R");
    raw->Print();
    TTree *asy = (TTree*)gROOT.FindObject("P");
