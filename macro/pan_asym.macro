@@ -80,7 +80,7 @@ for ( i = 0 ; i < b_bcm1->GetEntries() ; i++)
   // cout<<" asymbcmsum "<<asymbcm1sum<<" "<<asymbcm2sum<<" asymcp"<<asymbcm1cp<<" "<<asymbcm2cp<<endl;  
 
   // compute correlation slope for bcmasym
-  if (asymbcm2cp !=0 && pairokcp == 1 )  rho = asymbcm1cp/asymbcm2cp;
+  if (asymbcm1cp !=0 && pairokcp == 1 )  rho = asymbcm2cp/asymbcm1cp;
   
   
   if ( np != 0 && np % 500  == 0){
