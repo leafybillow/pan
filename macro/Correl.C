@@ -32,43 +32,17 @@ char *Npairp = Npairstg;
 char *Meanp = Meanstg;
 char *Rmsp = Rmstg;
 
-  // run   iscal  ibcm1
-
-  // 1312  240     30000
-  // 1591  120     18000
-  // 1593  120     18000
-  // 1666  120     3500
-  // 1824  240     14800
-  // 1723  120     1700
-  // 1717  240     40000
-  // 1915  120     7000
-  // 1916  120     7300
-  // 1917  120     7300
-  // 1918  120     5320
-  // 1919  120     5300
-  // 1920  120     18000
-  // 1921  120     18000
-  // 1922  240     43000
-  // 1923  120     7000
-  // 1924  120     7000
-  // 1980  120     7370
-  // 1981  120     7480
-  // 1982  120     7480
-  // 1983  120     5400
-  // 1984  120     5400
-  // 1985  120     8200
-  // 1986  240     50000
-  // Run 1791, 1797, 1804, use lumi2 as current monitor
-  // 1791  120     15000
-  // 1796  120     28000
-  // 1804  120     25000
-
 Int_t run = open(0,"beam");    
 
 Int_t ibcm1;
 cout << "Enter ibcm1 : ";
 cin >> ibcm1;
 cout << "ibcm1 = "<< ibcm1 <<endl;
+
+Int_t OS;
+cout << "Enter OS : ";
+cin >> OS;
+cout << "OS = "<< OS <<endl;
 
 Int_t iscal;
 iscal = 120;
@@ -178,24 +152,24 @@ for (Int_t ioffset=0;  ioffset<iscal;  ioffset++) {
 
 // Spectral Density function
 
-for (Int_t omega=0;  omega<iscal;  omega++) {
+for (Int_t freq=0;  freq<iscal;  freq++) {
 
   sum1 = 0;
   sum2 = 0;
   J = 0;
   k = 0;
   for (Int_t tau=0;  tau<iscal;  tau++) {
-    sum1 = sum1 + G[tau]*cos(omega*tau);
-    sum2 = sum2 + G[tau]*sin(omega*tau);
+    sum1 = sum1 + G[tau]*cos(freq*tau);
+    sum2 = sum2 + G[tau]*sin(2*3.14159*freq*0.03333/OS*tau);
   }
 
   J = sum1;
   k = sum2;
 
-  cout << "omega = " << omega << "   k = " << k << endl;
+  cout << "freq = " << freq << "   k = " << k << endl;
 
 
-  spectral->Fill(omega,k);
+  spectral->Fill(freq,k);
 } 
 
 
@@ -310,7 +284,7 @@ spectral->SetMarkerColor(7);spectral->SetMarkerSize(0.7);
 spectral->Draw();
 spectral->GetXaxis()->CenterTitle();
 spectral->GetXaxis()->SetTitleOffset(1.2);
-spectral->GetXaxis()->SetTitle("LUMI1 Spectral Density Function k(#omega)");
+spectral->GetXaxis()->SetTitle("LUMI1 Spectral Density Function k(#font[2]{f})");
 
 
 //
