@@ -400,14 +400,16 @@ int THaEtClient::getheartbeat() {
   if(firstread) {
     status = init("hbstation");
     if(status == CODA_ERROR) {
-      return 0;
       cout << "THaEtClient: ERROR: cannot connect to CODA"<<endl<<flush;
+      firstread=1;
+      return 0;
     }
   }
+  firstread=0;
 
   int heartbeat;
   status = et_system_getheartbeat(id,&heartbeat);
-  codaClose();
+  //  codaClose();
 
   if(status == ET_OK) {
     return heartbeat;
@@ -415,9 +417,11 @@ int THaEtClient::getheartbeat() {
     cout << "THaEtClient: ERROR: heartbeat is NULL" << endl;
     return 0;
   } else if (status == ET_ERROR_READ) {
+    firstread=1;
     cout << "THaEtClient: ERROR: Remote user's network read error" << endl;
     return 0;
   } else if (status == ET_ERROR_WRITE) {
+    firstread=1;
     cout << "THaEtClient: ERROR: Remote user's network write error" << endl;
     return 0;
   }
