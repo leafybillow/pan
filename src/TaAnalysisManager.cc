@@ -20,6 +20,7 @@
 #include "VaDataBase.hh"
 #include "VaAnalysis.hh"
 #include "TaBeamAna.hh"
+#include "TaFdbkAna.hh"
 
 #ifdef DICT
 ClassImp(TaAnalysisManager)
@@ -95,7 +96,6 @@ TaAnalysisManager::Process()
   fAnalysis->ProcessRun();
 }
 
-
 void
 TaAnalysisManager::End()
 {
@@ -104,12 +104,12 @@ TaAnalysisManager::End()
   fAnalysis->RunFini ();
   fAnalysis->Finish(); // take care of end-of-analysis tasks
   fRun->Finish(); // compute and print/store run results
-
   fRootFile->Write();
   fRootFile->Close();
-
   // Move the generic root file to 'pan_%d.root' where %d is the run number.
   char syscommand[50];
+  string anatype;
+  anatype = fRun->GetDataBase()->GetAnaType();
   sprintf(syscommand,"mv pan.root pan_%d.root",fRun->GetRunNumber());
   system(syscommand);
 
@@ -151,9 +151,15 @@ TaAnalysisManager::InitCommon()
     fAnalysis = new TaBeamAna;
   else
     {
-      cout << "TaAnalysisManager::Init ERROR: Invalid analysis type = "
-	   << theAnaType << endl;
-      exit (1);
+      if(cmp_nocase (theAnaType, "fdbk") == 0){
+         fAnalysis = new TaFdbkAna;
+      }      
+      else
+	{
+         cout << "TaAnalysisManager::Init ERROR: Invalid analysis type = "
+	      << theAnaType << endl;
+         exit (1);
+	}
     }
   
   fAnalysis->Init();
