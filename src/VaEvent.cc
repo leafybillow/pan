@@ -792,8 +792,8 @@ VaEvent::CheckEvent(TaRun& run)
 #endif
 	  val = 1;
 	}
-      AddCut (fgLoBeamNo, val);
-      run.UpdateCutList (fgLoBeamNo, val, fEvNum);
+      AddCut (fgSatNo, val);
+      run.UpdateCutList (fgSatNo, val, fEvNum);
     }
 
   if ( fgLastEv.GetEvNumber() == 0 )
