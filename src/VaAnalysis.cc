@@ -251,7 +251,6 @@ VaAnalysis::RunIni(TaRun& run)
   // Initialize blinding
   string bs = fRun->GetDataBase().GetBlindingString();
   vector<Double_t> bp = fRun->GetDataBase().GetBlindingParams();
-  clog << ">>>> " << bp[0] << " " << bp[1] << " " << bp[2] << endl;
   fBlind  = new TaBlind (bs, bp[0], bp[1], bp[2]);
 
   InitChanLists();
@@ -397,7 +396,7 @@ VaAnalysis::RunFini()
     fRun->PrintSlice(fPreEvt->GetEvNumber());
   if (fDoRun)
     fRun->PrintRun();
-  
+
   ProceedLastFeedback();
 
   //  if (fQSwitch) QasyEndFeedback();
@@ -405,6 +404,9 @@ VaAnalysis::RunFini()
 
   if (fLastPass)
     {
+      // Write results file
+      fRun->WriteRun ();
+
       // Database Print() must be done BEFORE we Put() data into
       // database as result of this analysis.
 
