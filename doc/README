@@ -28,6 +28,37 @@ Directories of this distribution:
 To compile and link:
 ^^^^^^^^^^^^^^^^^^^^
 
+  The short version
+  ^^^^^^^^^^^^^^^^^
+
+Starting in the top level pan directory, do the following:
+
+In sh-like shells:
+
+   export ROOTSYS=/usr/local/root/pro
+
+or in csh-like shells:
+
+   setenv ROOTSYS /usr/local/root/pro
+
+(substituting whatever path is appropriate on your system for the top
+level of the ROOT directory structure); then:
+
+   cd codaclass
+   make libcoda.a
+   cd ../src
+   ln -s ../libcoda.a ./
+   make clean
+   make install
+   cd ..
+
+This puts you back where you started, with an executable named pan in
+the current directory.
+
+
+  Some details
+  ^^^^^^^^^^^^
+
 For STL support, use ROOT version 3 or higher.  Info and downloads for
 ROOT at <http://root.cern.ch/root>
 
@@ -55,6 +86,7 @@ usually a good idea most of the time you compile, unless someone would
 kindly fix all the Makefile dependencies perfectly (but they are
 nearly perfect, I think).
 
+
 To run Pan:
 ^^^^^^^^^^^
 
@@ -77,15 +109,19 @@ will exit.
 
 You can invoke Pan as follows
 
-   pan [-t] [-D database-options] [-r XXXX | -f file | -o]
+   ./pan [-t] [-D database-options] [-r XXXX | -f file | -o]
 
-Options may be given in any order.  Use "pan -r XXXX" to analyze run
+(Rather to our surprise, in recent Red Hat Linux releases there is a
+news reader called Pan, which may get invoked instead of our Pan if
+you type "pan" rather than "./pan".)
+
+Options may be given in any order.  Use "./pan -r XXXX" to analyze run
 number XXXX, from data file parityYY-XXXX.dat in the pan directory.
-(Again YY is the current year.)  Use "pan -f file" to analyze whatever
-run is in the specified file.  Use "pan -o" to analyze online data, if
-you compiled with ONLINE defined.  Or use none of the above, just
-"pan", to start with a ROOT prompt, from which you can invoke Pan
-methods interactively or through ROOT macros.
+(Again YY is the current year.)  Use "./pan -f file" to analyze
+whatever run is in the specified file.  Use "./pan -o" to analyze
+online data, if you compiled with ONLINE defined.  Or use none of the
+above, just "./pan", to start with a ROOT prompt, from which you can
+invoke Pan methods interactively or through ROOT macros.
 
 The somewhat esoteric -t option tells Pan to do a 2-pass analysis
 which in principle gives better results with less roundoff error.  In
@@ -106,7 +142,7 @@ parityYY_XXXX_ZZZZ_WWWW.res, and parityYY_XXXX_ZZZZ_WWWW.VVV,
 respectively, where WWWW is a tag and VVV is a suffix provided by the
 analysis.
 
-The principal ROOT file contains a 'event' tree "R" and an 'pair' tree
+The principal ROOT file contains an 'event' tree "R" and a 'pair' tree
 "P".  The event tree contains raw data plus calibrated data with
 keywords like 'bcm1', etc.  The pair tree contains helicity correlated
 differences and asymmetries, etc.
@@ -170,7 +206,7 @@ and John wants his ROOT, results, and output files to go to
    $ export PAN_ROOT_FILE_PATH=/adaql944/work/parity
    $ export PAN_RES_FILE_PATH=/adaql944/work/parity
    $ export PAN_OUTPUT_FILE_PATH=/adaql944/work/parity
-   $ pan -r 6666
+   $ ./pan -r 6666
 
 Now Pan reads data from /adaql944/data/parity/parity05_6666.dat,
 writes the ROOT trees to
