@@ -60,6 +60,9 @@ void prompt (UInt_t run, UInt_t batch)
       ps->PutDetAsymn("det3", *tt, "ok_cut");
       ps->PutDetAsymn("det4", *tt, "ok_cut");
       ps->PutDetAsymn("det_lo", *tt, "ok_cut");
+      ps->PutDetAsymn("det_hi", *tt, "ok_cut");
+      ps->PutDetAsymn("det_all", *tt, "ok_cut");
+      ps->PutDetAsymn("det_ave", *tt, "ok_cut");
       
       ps->Print();
       delete cparsave;
