@@ -774,6 +774,38 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"adc22_1",IADC22_1));
   fKeyToIdx.insert(make_pair((string)"adc22_2",IADC22_2));
   fKeyToIdx.insert(make_pair((string)"adc22_3",IADC22_3));
+  fKeyToIdx.insert(make_pair((string)"adc23_0",IADC23_0));
+  fKeyToIdx.insert(make_pair((string)"adc23_1",IADC23_1));
+  fKeyToIdx.insert(make_pair((string)"adc23_2",IADC23_2));
+  fKeyToIdx.insert(make_pair((string)"adc23_3",IADC23_3));
+  fKeyToIdx.insert(make_pair((string)"adc24_0",IADC24_0));
+  fKeyToIdx.insert(make_pair((string)"adc24_1",IADC24_1));
+  fKeyToIdx.insert(make_pair((string)"adc24_2",IADC24_2));
+  fKeyToIdx.insert(make_pair((string)"adc24_3",IADC24_3));
+  fKeyToIdx.insert(make_pair((string)"adc25_0",IADC25_0));
+  fKeyToIdx.insert(make_pair((string)"adc25_1",IADC25_1));
+  fKeyToIdx.insert(make_pair((string)"adc25_2",IADC25_2));
+  fKeyToIdx.insert(make_pair((string)"adc25_3",IADC25_3));
+  fKeyToIdx.insert(make_pair((string)"adc26_0",IADC26_0));
+  fKeyToIdx.insert(make_pair((string)"adc26_1",IADC26_1));
+  fKeyToIdx.insert(make_pair((string)"adc26_2",IADC26_2));
+  fKeyToIdx.insert(make_pair((string)"adc26_3",IADC26_3));
+  fKeyToIdx.insert(make_pair((string)"adc27_0",IADC27_0));
+  fKeyToIdx.insert(make_pair((string)"adc27_1",IADC27_1));
+  fKeyToIdx.insert(make_pair((string)"adc27_2",IADC27_2));
+  fKeyToIdx.insert(make_pair((string)"adc27_3",IADC27_3));
+  fKeyToIdx.insert(make_pair((string)"adc28_0",IADC28_0));
+  fKeyToIdx.insert(make_pair((string)"adc28_1",IADC28_1));
+  fKeyToIdx.insert(make_pair((string)"adc28_2",IADC28_2));
+  fKeyToIdx.insert(make_pair((string)"adc28_3",IADC28_3));
+  fKeyToIdx.insert(make_pair((string)"adc29_0",IADC29_0));
+  fKeyToIdx.insert(make_pair((string)"adc29_1",IADC29_1));
+  fKeyToIdx.insert(make_pair((string)"adc29_2",IADC29_2));
+  fKeyToIdx.insert(make_pair((string)"adc29_3",IADC29_3));
+  fKeyToIdx.insert(make_pair((string)"adc30_0",IADC30_0));
+  fKeyToIdx.insert(make_pair((string)"adc30_1",IADC30_1));
+  fKeyToIdx.insert(make_pair((string)"adc30_2",IADC30_2));
+  fKeyToIdx.insert(make_pair((string)"adc30_3",IADC30_3));
 
 // These are CALIBRATED data (dac noise and pedestal subtracted)
   fKeyToIdx.insert(make_pair((string)"adc0_0_cal",IADC0_0_CAL));
@@ -868,6 +900,38 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"adc22_1_cal",IADC22_1_CAL));
   fKeyToIdx.insert(make_pair((string)"adc22_2_cal",IADC22_2_CAL));
   fKeyToIdx.insert(make_pair((string)"adc22_3_cal",IADC22_3_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc23_0_cal",IADC23_0_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc23_1_cal",IADC23_1_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc23_2_cal",IADC23_2_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc23_3_cal",IADC23_3_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc24_0_cal",IADC24_0_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc24_1_cal",IADC24_1_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc24_2_cal",IADC24_2_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc24_3_cal",IADC24_3_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc25_0_cal",IADC25_0_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc25_1_cal",IADC25_1_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc25_2_cal",IADC25_2_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc25_3_cal",IADC25_3_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc26_0_cal",IADC26_0_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc26_1_cal",IADC26_1_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc26_2_cal",IADC26_2_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc26_3_cal",IADC26_3_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc27_0_cal",IADC27_0_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc27_1_cal",IADC27_1_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc27_2_cal",IADC27_2_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc27_3_cal",IADC27_3_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc28_0_cal",IADC28_0_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc28_1_cal",IADC28_1_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc28_2_cal",IADC28_2_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc28_3_cal",IADC28_3_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc29_0_cal",IADC29_0_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc29_1_cal",IADC29_1_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc29_2_cal",IADC29_2_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc29_3_cal",IADC29_3_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc30_0_cal",IADC30_0_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc30_1_cal",IADC30_1_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc30_2_cal",IADC30_2_CAL));
+  fKeyToIdx.insert(make_pair((string)"adc30_3_cal",IADC30_3_CAL));
 
 // DAC noise
   fKeyToIdx.insert(make_pair((string)"dac0",IDAC0));
@@ -893,6 +957,14 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"dac20",IDAC20));
   fKeyToIdx.insert(make_pair((string)"dac21",IDAC21));
   fKeyToIdx.insert(make_pair((string)"dac22",IDAC22));
+  fKeyToIdx.insert(make_pair((string)"dac23",IDAC23));
+  fKeyToIdx.insert(make_pair((string)"dac24",IDAC24));
+  fKeyToIdx.insert(make_pair((string)"dac25",IDAC25));
+  fKeyToIdx.insert(make_pair((string)"dac26",IDAC26));
+  fKeyToIdx.insert(make_pair((string)"dac27",IDAC27));
+  fKeyToIdx.insert(make_pair((string)"dac28",IDAC28));
+  fKeyToIdx.insert(make_pair((string)"dac29",IDAC29));
+  fKeyToIdx.insert(make_pair((string)"dac30",IDAC30));
 
 // CSR data
   fKeyToIdx.insert(make_pair((string)"csr0",ICSR0));
@@ -918,6 +990,14 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"csr20",ICSR20));
   fKeyToIdx.insert(make_pair((string)"csr21",ICSR21));
   fKeyToIdx.insert(make_pair((string)"csr22",ICSR22));
+  fKeyToIdx.insert(make_pair((string)"csr23",ICSR23));
+  fKeyToIdx.insert(make_pair((string)"csr24",ICSR24));
+  fKeyToIdx.insert(make_pair((string)"csr25",ICSR25));
+  fKeyToIdx.insert(make_pair((string)"csr26",ICSR26));
+  fKeyToIdx.insert(make_pair((string)"csr27",ICSR27));
+  fKeyToIdx.insert(make_pair((string)"csr28",ICSR28));
+  fKeyToIdx.insert(make_pair((string)"csr29",ICSR29));
+  fKeyToIdx.insert(make_pair((string)"csr30",ICSR30));
 
 // Scalers 
   fKeyToIdx.insert(make_pair((string)"scaler0_0",ISCALER0_0));
