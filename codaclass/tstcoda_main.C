@@ -15,6 +15,7 @@ void usage();
 void do_something(int* data);
 extern "C" void signalhandler (int s);
 THaCodaData *coda;
+int stop_it = 0;
 
 int main(int argc, char* argv[])
 {
@@ -74,12 +75,13 @@ int main(int argc, char* argv[])
 
       status = coda->codaRead();  
 
-      if (status != 0) {
+      if (status != 0 || stop_it == 1) {
+        if (stop_it) cout << "External kill signal seen " <<endl;
         if ( status == -1) {
            if (choice1 == 1) cout << "End of CODA file. Bye bye." << endl;
            if (choice1 == 2) cout << "CODA/ET not running. Bye bye." << endl;
         } else {
-	   cout << "ERROR: codaRread status = " << hex << status << endl;
+	   if (!stop_it) cout << "ERROR: codaRread status = " << hex << status << endl;
         }
         coda->codaClose();
         return 0;
@@ -143,9 +145,17 @@ void do_something (int* data) {
 void signalhandler(int sig)
 {  // To deal with the signal "kill -31 pid"
   cout << "Ending the online analysis"<<endl<<flush;
-  coda->codaClose();
-  exit(1);
+  stop_it = 1;
+
+// No !  You don't want to do this here.  Instead send global signal.
+//  int status = 0;
+//  status = coda->codaRead();  
+//  cout << "Read status "<<dec<<status<<endl<<flush;
+//  coda->codaClose();
+//  exit(1);
+
 }
+
 
 
 
