@@ -7,38 +7,56 @@ void prompt (UInt_t run, UInt_t batch)
   // Prompt analysis tasks for ROOT.  Noninteractive tasks are done
   // first; if batch is zero, we call the online macro as well.
 
-  open (run, "standard");
+  Int_t ret;
+  ret = open (run, "standard");
   TTree* tt = (TTree*) (gROOT->FindObject("P"));
 
-  // Get parameters of asymmetry and difference distributions
-  // and print them to a file.
-
-  gROOT->LoadMacro("ParamSave.macro+");
-  ParamSave* ps = new ParamSave (run);
-  ps->LoadCorrs();
-
-  ps->PutMonAsym("bcm1", *tt, "ok_cut");
-  ps->PutMonAsym("bcm2", *tt, "ok_cut");
-  ps->PutMonAsym("bcm5", *tt, "ok_cut");
-  ps->PutMonAsym("bcm6", *tt, "ok_cut");
-
-  ps->PutMonDiff("bpm4ax", *tt, "ok_cut");
-  ps->PutMonDiff("bpm4ay", *tt, "ok_cut");
-  ps->PutMonDiff("bpm4bx", *tt, "ok_cut");
-  ps->PutMonDiff("bpm4by", *tt, "ok_cut");
-  ps->PutMonDiff("bpm12x", *tt, "ok_cut");
-
-  ps->PutMonDDAsym("bcm1", "bcm2", *tt, "ok_cut");
-  ps->PutMonDDDiff("bpm4ax", "bpm4bx", *tt, "ok_cut");
-  ps->PutMonDDDiff("bpm4ay", "bpm4by", *tt, "ok_cut");
-
-  ps->PutDetAsymn("blumi1", *tt, "ok_cut");
-  ps->PutDetAsymn("blumi2", *tt, "ok_cut");
-  ps->PutDetAsymn("blumi_ave", *tt, "ok_cut");
-  ps->PutDetAsymn("blumi_sum", *tt, "ok_cut");
-
-  ps->Print();
-
+  if (ret && tt)
+    {
+      
+      // Get parameters of asymmetry and difference distributions
+      // and print them to a file.
+      
+      gROOT->LoadMacro("ParamSave.macro+");
+      ParamSave* ps = new ParamSave (run);
+      ps->LoadCorrs();
+      
+      ps->PutMonAsym("bcm1", *tt, "ok_cut");
+      ps->PutMonAsym("bcm2", *tt, "ok_cut");
+      ps->PutMonAsym("bcm5", *tt, "ok_cut");
+      ps->PutMonAsym("bcm6", *tt, "ok_cut");
+      
+      ps->PutMonDiff("bpm4ax", *tt, "ok_cut");
+      ps->PutMonDiff("bpm4ay", *tt, "ok_cut");
+      ps->PutMonDiff("bpm4bx", *tt, "ok_cut");
+      ps->PutMonDiff("bpm4by", *tt, "ok_cut");
+      ps->PutMonDiff("bpm12x", *tt, "ok_cut");
+      
+      ps->PutMonDDAsym("bcm1", "bcm2", *tt, "ok_cut");
+      ps->PutMonDDDiff("bpm4ax", "bpm4bx", *tt, "ok_cut");
+      ps->PutMonDDDiff("bpm4ay", "bpm4by", *tt, "ok_cut");
+      
+      ps->PutDetAsymn("blumi1", *tt, "ok_cut");
+      ps->PutDetAsymn("blumi2", *tt, "ok_cut");
+      ps->PutDetAsymn("blumi_ave", *tt, "ok_cut");
+      ps->PutDetAsymn("blumi_sum", *tt, "ok_cut");
+      
+      ps->Print();
+    }
+ 
   if (!batch)
-    online ("prompt", run);
+    {
+      online ("prompt", run);
+      ret = open (run, "red");
+      if (ret)
+	{
+	  gROOT->LoadMacro("spokes.macro");
+	  TCanvas* c1 = new TCanvas("c1", "spokes", 800, 800);
+	  c1->Divide (2, 2);
+	  c1->cd(1);
+	  spokes (0, "bpm4ax", "bpm4bx", 30.);
+	  c1->cd(2);
+	  spokes (0, "bpm4ay", "bpm4by", 30.);
+	}
+    }
 }
