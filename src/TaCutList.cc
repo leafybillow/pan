@@ -32,12 +32,12 @@
 ClassImp(TaCutList)
 #endif
 
-// Define a ++ for ECutType
+//  // Define a ++ for Cut_t
 
-ECutType& operator++ (ECutType& c)
-{
-  return c = (c == MaxCuts) ? LowBeamCut: ECutType (c+1);
-}
+//  Cut_t& operator++ (Cut_t& c)
+//  {
+//    return c = (c == MaxCuts) ? LowBeamCut: Cut_t (c+1);
+//  }
 
 // Constructors/destructors/operators
 
@@ -89,12 +89,10 @@ TaCutList::Init(const VaDataBase& db)
   clog << "TaCutList::Init Cut list Initialization for run " 
        << fRunNumber << endl;
   
-  vector<Int_t> temp;
+  fNumCuts = (UInt_t) db.GetNumCuts();
+  fTally.resize (fNumCuts, 0);
 
-  fLowExtension.resize (MaxCuts, 0);
-  fHighExtension.resize (MaxCuts, 0);
-  fTally.resize (MaxCuts, 0);
-  fCutNames.resize (MaxCuts, "");
+  fCutNames = db.GetCutNames();
 
   // Cut extensions 
 
@@ -102,22 +100,26 @@ TaCutList::Init(const VaDataBase& db)
   // but stored in terms of events -- i.e. we multiply by the
   // oversample factor.
 
+  vector<Int_t> temp;
   SlotNumber_t os = db.GetOverSamp();
+
+  fLowExtension.resize (fNumCuts, 0);
   temp = db.GetExtLo();
-  for (size_t i = 0; i < temp.size() && i < MaxCuts; ++i)
+  for (size_t i = 0; i < temp.size() && i < fNumCuts; ++i)
     fLowExtension[i] = temp[i] * os;
 
+  fHighExtension.resize (fNumCuts, 0);
   temp = db.GetExtHi();
-  for (size_t i = 0; i < temp.size() && i < MaxCuts; ++i)
+  for (size_t i = 0; i < temp.size() && i < fNumCuts; ++i)
     fHighExtension[i] = temp[i] * os;
 
   // Cut values
   for (size_t i = 0; i < size_t (db.GetNumBadEv()); ++i)
     {
       temp = db.GetCutValues()[i];
-      if (temp[2] >= 0 && temp[2] < MaxCuts)
+      if (temp[2] >= 0 && (Cut_t) temp[2] < fNumCuts )
 	{
-	  ECutType ct = (ECutType) temp[2];
+	  Cut_t ct = (Cut_t) temp[2];
 	  EventNumber_t elo = temp[0];
 	  EventNumber_t ehi = temp[1];
 	  fIntervals.push_back(TaCutInterval (ct, temp[3], elo, ehi));
@@ -146,13 +148,13 @@ TaCutList::OK (const TaEvent& ev) const
     return oksofar;
 }
 
-vector<pair<ECutType,Int_t> >
+vector<pair<Cut_t,Int_t> >
 TaCutList::CutsFailed (const TaEvent& ev) const 
 {
   // Return a vector of cuts (pairs of cut type and value) for which
   // the given event is inside an interval.
 
-  vector<pair<ECutType,Int_t> > cf;
+  vector<pair<Cut_t,Int_t> > cf;
   for (vector<TaCutInterval>::const_iterator c = fIntervals.begin();
        c != fIntervals.end(); 
        ++c )
@@ -165,7 +167,7 @@ TaCutList::CutsFailed (const TaEvent& ev) const
 
 
 void 
-TaCutList::UpdateCutInterval (const ECutType cut, const Int_t val, const EventNumber_t ev)
+TaCutList::UpdateCutInterval (const Cut_t cut, const Int_t val, const EventNumber_t ev)
 {
   // Update the cut list.
   // If val is nonzero and an open interval for this cut type exists, but
@@ -223,7 +225,7 @@ TaCutList::UpdateCutInterval (const ECutType cut, const Int_t val, const EventNu
 }
 
 void 
-TaCutList::AddExtension (const ECutType cut, const UInt_t lex, const UInt_t hex)
+TaCutList::AddExtension (const Cut_t cut, const UInt_t lex, const UInt_t hex)
 {
   // For the given cut type, add a pair of extensions to the extensions lists.
 
@@ -232,7 +234,7 @@ TaCutList::AddExtension (const ECutType cut, const UInt_t lex, const UInt_t hex)
 }
 
 void 
-TaCutList::AddName (const ECutType cut, const string& s)
+TaCutList::AddName (const Cut_t cut, const string& s)
 {
   // For the given cut type, add a label to the list of cut type names.
 
@@ -240,7 +242,7 @@ TaCutList::AddName (const ECutType cut, const string& s)
 }
 
 const string& 
-TaCutList::GetName (const ECutType cut) const
+TaCutList::GetName (const Cut_t cut) const
 {
   // Get name from list
 
@@ -308,6 +310,8 @@ TaCutList::PrintTally (ostream& s) const
       s << setw(6) << fTally[k] << endl;
     }
 }
+
+// Access functions
 
 // Private member functions
 
