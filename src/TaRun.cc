@@ -192,6 +192,10 @@ TaRun::Init(const vector<string>& dbcommand)
 
   fDataBase = new TaDataBase();
   fDataBase->Read(fRunNumber,dbcommand);
+
+  string ts = fDataBase->GetTimestamp();
+  clog << "TaRun::Init Timestamp " << ts << endl;
+
   fDevices = new TaDevice();
   fDevices->Init(*fDataBase);
   fCutList = new TaCutList(fRunNumber);

@@ -474,6 +474,24 @@ string TaDataBase::GetAnaType() const {
    return "unknown";
 };
 
+string 
+TaDataBase::GetTimestamp() const 
+{
+  // Get timestamp in format "yyyy-mm-dd hh:mm:ss"
+   static multimap<string, vector<dtype*> >::const_iterator dmap;
+   dmap = database.lower_bound ("timestamp");
+   if (dmap == database.end()) 
+     return "unknown";
+   if (database.count ("timestamp") != 1) 
+     return "ambiguous";
+   vector<dtype*> datatype = dmap->second;
+   if (datatype.size() != 2) 
+     return "ambiguous";
+   if (datatype[0]->GetType() == "s" && datatype[1]->GetType() == "s") 
+     return datatype[0]->GetS() + " " + datatype[1]->GetS(); 
+   return "unknown";
+};
+
 string TaDataBase::GetFdbkSwitch( const string &fdbktype )const {
   // get the feedback switch state corresponding to feedback type fdbktype.
   string table = "feedback";
@@ -1152,6 +1170,7 @@ void TaDataBase::InitDB() {
   tables.push_back("IAparam");       //  17
   tables.push_back("PZTparam");      //  18
   tables.push_back("cutnames");      //  19
+  tables.push_back("timestamp");     //  20
 
   pair<string, int> sipair;
   int k;
@@ -1226,6 +1245,12 @@ void TaDataBase::InitDB() {
     if (i == 19) {   // cutnames
       for (k = 0; k < 40; k++) columns.push_back(new dtype("s"));
     }
+    if (i == 20) 
+      {
+	columns.push_back (new dtype ("s"));  // timestamp (date)
+	columns.push_back (new dtype ("s"));  // timestamp (time)
+      }
+
     sipair.second = columns.size(); 
     colsize.insert(sipair);
     LoadTable(tables[i],columns);
