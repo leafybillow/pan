@@ -10,16 +10,12 @@
 ////////////////////////////////////////////////////////////////////////
 //
 // Abstract base class of analysis. Derived classes include TaADCCalib
-// (for computation of pedestals and DAC noise slopes) and TaBeamAna
-// (for analysis of beam characteristics).  Future derived classes may
-// include TaAsymAna (for analysis of physics asymmetries),
-// TaModulaAna (for computation of beam modulation coefficients), and
-// TaCorrecAna (for computation of corrections due to
-// helicity-correlated beam differences).  Each of these is
-// responsible for some treatment of TaEvents from a TaRun.  The type
-// of analysis to be done is specified in the database, and the
-// TaAnalysisManager instantiates the appropriate analysis class
-// accordingly.
+// (for computation of pedestals and DAC noise slopes), TaBeamAna (for
+// analysis of beam characteristics), and TaPromptAna (for prompt
+// physics analysis).  Each of these is responsible for some treatment
+// of TaEvents from a TaRun.  The type of analysis to be done is
+// specified in the database, and the TaAnalysisManager instantiates
+// the appropriate analysis class accordingly.
 //
 // VaAnalysis has initialization and termination routines for both the
 // overall analysis and the analysis of a particular run.  At present
@@ -63,9 +59,65 @@ class AnaList {
 // Utility class of variable info
 public: 
   AnaList(string svar, Int_t ivar, string sun, UInt_t iflag) :
-        fVarStr(svar), fVarInt(ivar), fUniStr(sun), fFlagInt(iflag) { }
+    fVarStr(svar), 
+    fVarInt(ivar), 
+    fVarInts(0), 
+    fVarWts(0),
+    fUniStr(sun), 
+    fFlagInt(iflag) { }
+  AnaList(string svar, vector<Int_t> ivars, vector<Double_t> wts, string sun, UInt_t iflag) :
+    fVarStr(svar), 
+    fVarInt(0), 
+    fUniStr(sun), 
+    fFlagInt(iflag) 
+  {
+    fVarInts = new vector<Int_t> (ivars);
+    fVarWts = new vector<Double_t> (wts);
+  }
+  AnaList (const AnaList& al) :
+    fVarStr(al.fVarStr), 
+    fVarInt(al.fVarInt), 
+    fUniStr(al.fUniStr), 
+    fFlagInt(al.fFlagInt) 
+  {
+    if (al.fVarInts != 0)
+      {
+	fVarInts = new vector<Int_t> (*(al.fVarInts));
+	fVarWts = new vector<Double_t> (*(al.fVarWts));
+      }
+    else
+      {
+	fVarInts = 0;
+	fVarWts = 0;
+      }
+  }
+  ~AnaList() { delete fVarInts; delete fVarWts; }
+  AnaList& operator= (const AnaList& al) 
+  {
+    if (this != &al)
+      {
+	fVarStr = al.fVarStr;
+	fVarInt = al.fVarInt;
+	fUniStr = al.fUniStr;
+	fFlagInt = al.fFlagInt;
+	if (al.fVarInts != 0)
+	  {
+	    fVarInts = new vector<Int_t> (*(al.fVarInts));
+	    fVarWts = new vector<Double_t> (*(al.fVarWts));
+	  }
+	else
+	  {
+	    fVarInts = 0;
+	    fVarWts = 0;
+	  }
+      }
+    return *this;
+  }
+
   string fVarStr; 
   Int_t fVarInt;
+  vector<Int_t> *fVarInts;
+  vector<Double_t> *fVarWts;
   string fUniStr;
   UInt_t fFlagInt;
 };
@@ -106,11 +158,15 @@ public:
   size_t PairsLeft() const { return fPDeque.size(); }
 
   // Constants
-  static const UInt_t fgNO_STATS;
-  static const UInt_t fgNO_BEAM_NO_ASY;
-  static const UInt_t fgCOPY;
-  static const UInt_t fgDIFF;
-  static const UInt_t fgASY;
+
+  // Flags for results
+  static const UInt_t fgNO_STATS;        // Do not print statistics
+  static const UInt_t fgNO_BEAM_NO_ASY;  // Do not compute asym if lobeam cut fails
+  static const UInt_t fgCOPY;            // Store right and left values as results
+  static const UInt_t fgDIFF;            // Store R-L difference as result
+  static const UInt_t fgASY;             // Store asymmetry as result
+  static const UInt_t fgASYN;            // Store normalized asymmetry as result
+  static const UInt_t fgAVE;             // Use average asymmetry, not sum
   static const ErrCode_t fgVAANA_ERROR;  // returned on error
   static const ErrCode_t fgVAANA_OK;      // returned on success
   static const UInt_t fgNumBpmFdbk;

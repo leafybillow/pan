@@ -10,16 +10,12 @@
 ////////////////////////////////////////////////////////////////////////
 //
 // Abstract base class of analysis. Derived classes include TaADCCalib
-// (for computation of pedestals and DAC noise slopes) and TaBeamAna
-// (for analysis of beam characteristics).  Future derived classes may
-// include TaAsymAna (for analysis of physics asymmetries),
-// TaModulaAna (for computation of beam modulation coefficients), and
-// TaCorrecAna (for computation of corrections due to
-// helicity-correlated beam differences).  Each of these is
-// responsible for some treatment of TaEvents from a TaRun.  The type
-// of analysis to be done is specified in the database, and the
-// TaAnalysisManager instantiates the appropriate analysis class
-// accordingly.
+// (for computation of pedestals and DAC noise slopes), TaBeamAna (for
+// analysis of beam characteristics), and TaPromptAna (for prompt
+// physics analysis).  Each of these is responsible for some treatment
+// of TaEvents from a TaRun.  The type of analysis to be done is
+// specified in the database, and the TaAnalysisManager instantiates
+// the appropriate analysis class accordingly.
 //
 // VaAnalysis has initialization and termination routines for both the
 // overall analysis and the analysis of a particular run.  At present
@@ -72,6 +68,8 @@ const UInt_t VaAnalysis::fgNO_BEAM_NO_ASY = 0x2;
 const UInt_t VaAnalysis::fgCOPY           = 0x4;
 const UInt_t VaAnalysis::fgDIFF           = 0x8;
 const UInt_t VaAnalysis::fgASY            = 0x10;
+const UInt_t VaAnalysis::fgASYN           = 0x20;
+const UInt_t VaAnalysis::fgAVE            = 0x40;
 const ErrCode_t VaAnalysis::fgVAANA_ERROR = -1;  // returned on error
 const ErrCode_t VaAnalysis::fgVAANA_OK = 0;      // returned on success
 const UInt_t VaAnalysis::fgNumBpmFdbk     = 2;   // number of BPMs to feedback on
@@ -671,6 +669,8 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
 	++treeListSize;
       if (alist.fFlagInt & fgASY)
 	++treeListSize;
+      if (alist.fFlagInt & fgASYN)
+	++treeListSize;
     }
 
   fTreeSpace = new Double_t[5+treeListSize];
@@ -723,10 +723,22 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
 	  clog << (string("asym_")+alist.fVarStr) << endl;
 #endif
 	}
+
+      if (alist.fFlagInt & fgASYN)
+	{
+	  // Channels for which to put normalized asymmetry in tree
+	  fPairTree->Branch ((string("asym_n_")+alist.fVarStr).c_str(), 
+			     tsptr++, 
+			     (string("asym_n_")+alist.fVarStr+string("/D")).c_str(), 
+			     bufsize); 
+#ifdef TREEPRINT
+	  clog << (string("asym_n_")+alist.fVarStr) << endl;
+#endif
+	}
     }
-
+  
   // Add cut values
-
+  
   size_t j(0);
   for (Cut_t icut = Cut_t (0); icut < cutlist.GetNumCuts(); ++icut)
     {
@@ -866,13 +878,19 @@ VaAnalysis::AutoPairAna()
 	{
 	  // Channels for which to copy right and left values to tree
 	  
-	  val = fPair->GetRight().GetData(alist.fVarInt);
+	  if (alist.fVarInts != 0)
+	    val = fPair->GetRight().GetDataSum(*(alist.fVarInts), *(alist.fVarWts));
+	  else
+	    val = fPair->GetRight().GetData(alist.fVarInt);
 	  *(tsptr++) = val;
 	  fPair->AddResult (TaLabelledQuantity (string("Right ")+(alist.fVarStr), 
 						val, 
 						alist.fUniStr,
 						alist.fFlagInt));
-	  val = fPair->GetLeft().GetData(alist.fVarInt);
+	  if (alist.fVarInts != 0)
+	    val = fPair->GetLeft().GetDataSum(*(alist.fVarInts), *(alist.fVarWts));
+	  else
+	    val = fPair->GetLeft().GetData(alist.fVarInt);
 	  *(tsptr++) = val;
 	  fPair->AddResult (TaLabelledQuantity (string("Left  ")+(alist.fVarStr), 
 						val, 
@@ -884,7 +902,10 @@ VaAnalysis::AutoPairAna()
 	{
 	  // Channels for which to put difference in tree
 
-	  val = fPair->GetDiff(alist.fVarInt) * 1E3;
+	  if (alist.fVarInts != 0)
+	    val = fPair->GetDiffSum (*(alist.fVarInts), *(alist.fVarWts)) * 1E3;
+	  else
+	    val = fPair->GetDiff(alist.fVarInt) * 1E3;
 	  *(tsptr++) = val;
 	  fPair->AddResult (TaLabelledQuantity (string("Diff ")+(alist.fVarStr), 
 						val, 
@@ -901,9 +922,49 @@ VaAnalysis::AutoPairAna()
 	       fPair->GetLeft().BeamCut()))
 	    val = -1.0E6;
 	  else
-	    val = fPair->GetAsy(alist.fVarInt) * 1E6;
+	    {
+	      if (alist.fVarInts != 0)
+		{
+		  if (alist.fFlagInt & fgAVE)
+		    val = fPair->GetAsyAve (*(alist.fVarInts), *(alist.fVarWts)) * 1E6;
+		  else
+		    val = fPair->GetAsySum (*(alist.fVarInts), *(alist.fVarWts)) * 1E6;
+		}
+	      else
+		val = fPair->GetAsy(alist.fVarInt) * 1E6;
+	    }
 	  *(tsptr++) = val;
 	  fPair->AddResult (TaLabelledQuantity (string("Asym ")+(alist.fVarStr), 
+						val, 
+						alist.fUniStr,
+						alist.fFlagInt));
+	}
+
+      if (alist.fFlagInt & fgASYN)
+	{
+	  // Channels for which to put normalized asymmetry in tree
+	  // Actually we assume small asymmetries in which case
+	  // asy(a/b) = asy(a) - asy(b)
+
+	  if ((alist.fFlagInt & fgNO_BEAM_NO_ASY) &&
+	      (fPair->GetRight().BeamCut() ||
+	       fPair->GetLeft().BeamCut()))
+	    val = -1.0E6;
+	  else
+	    {
+	      if (alist.fVarInts != 0)
+		{
+		  if (alist.fFlagInt & fgAVE)
+		    val = fPair->GetAsyAve (*(alist.fVarInts), *(alist.fVarWts));
+		  else
+		    val = fPair->GetAsySum (*(alist.fVarInts), *(alist.fVarWts));
+		}
+	      else
+		val = fPair->GetAsy(alist.fVarInt);
+	      val = (val - fPair->GetAsy(IBCM1)) * 1E6;
+	    }
+	  *(tsptr++) = val;
+	  fPair->AddResult (TaLabelledQuantity (string("AsyN ")+(alist.fVarStr), 
 						val, 
 						alist.fUniStr,
 						alist.fFlagInt));
