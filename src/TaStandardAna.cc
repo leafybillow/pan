@@ -111,6 +111,8 @@ TaStandardAna::InitChanLists ()
   fTreeList = ChanListFromName ("helicity", "", fgNO_STATS + fgCOPY);
   f = ChanListFromName ("pairsynch", "", fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanListFromName ("quadsynch", "", fgNO_STATS + fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanListFromName ("timeslot", "", fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanListFromName ("pitadac", "", fgNO_STATS + fgCOPY);
