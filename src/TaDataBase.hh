@@ -351,6 +351,8 @@ public:
   Int_t GetOverSamp() const;
 // Get pair type (pair or quad) for this run
   string GetPairType() const;  // returns 'pair' or 'quad', etc.
+// Get current monitor to use for cuts and normalizations for this run
+  string GetCurMon() const;   // returns 'bcm1', etc.
 // Get a cut value for 'cutname'.  e.g. cutname = 'lowbeam', 'burpcut' 
   Double_t GetCutValue(const string& cutname) const;
 // Get number of cuts 

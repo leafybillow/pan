@@ -1072,6 +1072,15 @@ string TaDataBase::GetPairType()  const {
    return GetString("pairtype");
 };
 
+string TaDataBase::GetCurMon() const
+{
+// Get current monitor to use for cuts and normalizations for this run
+  string cm = GetString ("curmon");
+  if (strlen(cm.c_str())-1 <= 0)
+    cm = "none";
+  return cm;
+};
+
 Double_t TaDataBase::GetValue(const string& table) const {
 // Return single value from table "table".  This assumes the data
 // are in a pair  "table   value" where table is a unique string and
@@ -1108,7 +1117,7 @@ string TaDataBase::GetString(const string& table) const {
      return 0;
    }
    if (database.count(TaString(table).ToLower()) > 1) {
-     cerr << "ERROR: DataBase: Mulitply defined table "<<table<<endl;
+     cerr << "ERROR: DataBase: Multiply defined table "<<table<<endl;
      cerr << "Fix the database to have one instance."<<endl;
      return 0;
    }
@@ -1269,7 +1278,8 @@ void TaDataBase::InitDB() {
   tables.push_back("simtype");       //  21
   tables.push_back("blindstring");   //  22
   tables.push_back("blindparams");   //  23
-  tables.push_back("randomheli");    // 24
+  tables.push_back("randomheli");    //  24
+  tables.push_back("curmon");        //  25
 
   pair<string, int> sipair;
   int k;
@@ -1363,6 +1373,8 @@ void TaDataBase::InitDB() {
 	columns.push_back(new dtype("d"));
       }
     if (i == 24)   // randomheli
+      columns.push_back(new dtype("s"));
+    if (i == 25)   // curmon
       columns.push_back(new dtype("s"));
 
     sipair.second = columns.size(); 

@@ -49,6 +49,7 @@ Cut_t VaEvent::fgBurpNo;
 Cut_t VaEvent::fgEvtSeqNo;
 Cut_t VaEvent::fgStartupNo;
 UInt_t VaEvent::fgOversample;
+UInt_t VaEvent::fgCurMon;
 UInt_t VaEvent::fgSizeConst;
 UInt_t VaEvent::fgNCuts;
 
@@ -172,6 +173,11 @@ VaEvent::RunInit(const TaRun& run)
       if (fgStartupNo == fgNCuts) cerr << " Startup";
       cerr << endl;
     }
+
+  string scurmon = run.GetDataBase().GetCurMon();
+  if (scurmon == "none") scurmon = "bcm1";
+  fgCurMon = run.GetKey (scurmon);
+
   fgOversample = run.GetOversample();
   fgLastEv = VaEvent();
   return fgTAEVT_OK;
@@ -472,7 +478,7 @@ VaEvent::CheckEvent(TaRun& run)
   const Int_t WRONGEVNO  = 0x1;
   const Int_t WRONGTMSL  = 0x2;
 
-  Double_t current = GetData(IBCM1);
+  Double_t current = GetData(fgCurMon);
 
   Int_t val = 0;
 
@@ -501,11 +507,11 @@ VaEvent::CheckEvent(TaRun& run)
       // Beam burp -- current change greater than limit?
       val = 0;
       if (fgBurpNo < fgNCuts &&
-	  abs (current-fgLastEv.GetData(IBCM1)) > fgBurpCut)
+	  abs (current-fgLastEv.GetData(fgCurMon)) > fgBurpCut)
 	{
 #ifdef NOISY
 	  clog << "Event " << fEvNum << " failed beam burp cut, "
-	       << abs (current-fgLastEv.GetData(IBCM1)) << " > " << fgBurpCut << endl;
+	       << abs (current-fgLastEv.GetData(fgCurMon)) << " > " << fgBurpCut << endl;
 #endif
 	  val = 1;
 	}
@@ -902,7 +908,7 @@ VaEvent::MiniDump() const
        << setw(2) << CutCond(2)
        << setw(2) << CutCond(3)
        << setw(2) << CutCond(4)
-       << " BCM1 = " << GetData (IBCM1)
+       << " BCM = " << GetData (fgCurMon)
        << endl; 
 }
 

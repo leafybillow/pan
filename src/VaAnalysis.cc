@@ -117,7 +117,8 @@ VaAnalysis::VaAnalysis():
   fDoRoot(true),
   fFirstPass(true),
   fLastPass(false),
-  fIAslope(0),fPITAslope(0)
+  fIAslope(0),fPITAslope(0),
+  fCurMon(0)
 { 
   fEHelDeque.clear(); 
   fEDeque.clear(); 
@@ -214,6 +215,12 @@ VaAnalysis::RunIni(TaRun& run)
   if (fPrePair->RunInit(run) != 0)
     return fgVAANA_ERROR;
   fPair = 0;
+
+  // Set current monitor for normalizations
+
+  string scurmon = fRun->GetDataBase().GetCurMon();
+  if (scurmon == "none") scurmon = "bcm1";
+  fCurMon = fRun->GetKey (scurmon);
 
 // Define CHECKOUT if you want a printout of the database.  This might be worth
 // leaving in permanently, but should at least be checked sometimes.
@@ -664,7 +671,7 @@ VaAnalysis::ProcessPair()
       clog << " x diff " <<endl;       
 #endif
       PairAnalysis();
-      if (fPairTree != 0)
+      if (fPairTree)
 	fPairTree->Fill();      
       ++fPairProc;
     }
@@ -1099,7 +1106,7 @@ VaAnalysis::AutoPairAna()
 		}
 	      else
 		val = fPair->GetAsy(alist.fVarInt);
-	      val = (val - fPair->GetAsy(IBCM1)) * 1E6;
+	      val = (val - fPair->GetAsy(fCurMon)) * 1E6;
 	    }
 	  unit = alist.fUniStr;
 	  if (fBlind->Blinding())

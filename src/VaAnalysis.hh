@@ -299,7 +299,7 @@ protected:
   Double_t fPITAslope;           // PITA feedback calibration slope
   Double_t *fPZTMatrix;          // PZT matrix
   Double_t fLast[4];              // Last value of the voltage for feeback i  
-
+  UInt_t fCurMon;                // Index for current monitor for normalization
 
 
   // Define LEAKCHECK to check that new = del
