@@ -1,3 +1,73 @@
+Comments by R. Holmes, 22 May 2002
+----------------------------------
+
+(1) I have made some changes in which code that used to exit on a serious
+error now just prints a message and passes back a failure status.
+This required changing some method types from void to Int_t in TaRun
+and TaAnalysisManager, so the error could be propagated up the calling
+chain.  
+
+Finally, main.cc was changed to look for these errors and return 1
+when found -- likewise macro/run.macro.
+
+This program of changes is incomplete, in that there are still places
+where Pan exits rather than passing errors upward; in addition, there
+are some routines that are defined as Int_t but always return 0
+because I haven't worked on getting status returns into its called
+routines.
+
+The goal is to have no exits anywhere in the code.  Turning on
+exception handling would presumably make this easier but would slow
+things down, so we'll see if we can do it without using exceptions.
+
+(2) There are a couple of things I've noticed in TaAsciiDB which I think
+should be addressed.
+
+One is, if one calls GetPedestal before Load has been called, the
+value returned is zero (which I guess is OK) but no error message is
+printed, and also GetPedestal always returns zero from then on, even
+*after* Load has been called.  Here and probably elsewhere, if one
+attempts to access the database without first having Loaded it, there
+should be an error message -- and it shouldn't break the database!
+
+The other, which I think is related, has to do with the fact that I've
+been trying to see what changes are needed in order to run analysis
+twice in the same interactive session.  I've already made some changes
+to allow this, but it appears Load can't be called twice successfully
+-- or some such thing having to do with the database.  The point is
+that the user should be able to do:
+
+  % pan
+  root [0] .x macro/run.macro
+  (enter run number, get analysis)
+  root [1] .x macro/run.macro
+  (enter run number, get analysis)
+
+with the second analysis (as well as the first) being correct.  Yes,
+we did abandon the idea of analyzing multiple runs to get combined
+results, and command-line pan doesn't handle more than one run per
+invocation; but as long as the interactive version allows macros like
+run, it should handle them correctly every time.  Right now, when I
+try this with my modified code (which I'll check in shortly), the
+second run.macro fails to correctly load the database.
+
+It's unfortunate that correct behavior doesn't happen without some
+effort -- that, as written, the first run always pollutes things for
+subsequent runs unless we explicitly clean up.  The problems I've
+fixed have to do with static class members -- for instance, in
+TaPairFromPair there's a list of unpaired events which is static,
+because at any time it ought to be the same for all existing
+pairs... except that when a new run starts, its pairs ought to have
+their own list of unpaired events. I've made a RunInit method for
+VaPair, which wipes the list -- this involves an assumption that one
+will never have around pairs from two different runs.  That's a valid
+assumption, I guess.  Anyway, initialization problems like these need
+to be looked at.
+
+I don't know if the database problem is similar or not.  I don't know
+the class well enough to fix it myself.
+
+
 Comments by R. Holmes, 16 Apr 2002
 ----------------------------------
 
@@ -26,17 +96,6 @@ I've looked into it and I don't think I am.  Strange.
 For now, I comment out delete fEvtree.
 
 TaAsciiDB needs fixes to delete its allocations.
-
-TaFdbkAna::SendEPICSInfo() needs to be rewritten to avoid passing a
-pointer. 
-
-
-Comments by R. Holmes, 10 Apr 2002
-----------------------------------
-
-TaRun::AddCuts() has had its body commented out.  This method should
-be removed entirely once the new approach to updating cut intervals is
-verified to be OK.
 
 
 Comments by R. Michaels, 6 Apr 2002
@@ -133,15 +192,6 @@ is no longer appropriate.
 
 Comments by A. Vacheret, March, 2002
 ----------------------------------
-
-Resolved other 'discard const' warnings
-
-In VaAnalysis::RunInI() I set the value of fEHelDequeMax at 1 in case of no helicity delay.
-That's why we didn't have the pair tree after a run.
-
-TaEvent private variable FirstPS was set to 1 to respect the source convention. 
-
-See other change in ChangeLog
   
 The code uses 32 Mbytes memory at present, I think this is because we have the pair analysis loop
 working now. No evident memory leak during a run but Pan is a kind of slow compared to apar. 
@@ -157,26 +207,6 @@ in the database to be able to change the lenght of a feedback minirun.
 
 
 
-commit -m "added analysis choice BEAM or FDBK" TaAnalysisManager.cc
-commit -m "added analysis choice BEAM or FDBK" TaAnalysisManager.hh
-commit -m "added TaFdbkAna " Makefile
-commit -m "added member functions" TaRun.cc
-commit -m "added member functions" TaRun.hh
-commit -m "added some test for asym debug and other" VaAnalysis.cc
-commit -m "added some test for asym debug and other" VaAnalysis.hh
-commit -m "fixed discard const and bug" TaEvent.cc 
-commit -m "fixed discard const and bug" TaEvent.hh
-commit -m "fixed discard const" TaADC.cc 
-commit -m "fixed conventions" TaPairFromPair.cc
-commit -m "fixed discard const" VaDevice.cc
-commit -m "fixed conventions and add function for cut test" VaPair.cc
-commit -m "fixed conventions and add function for cut test" VaPair.hh
-commit -m "new feedback class" TaFdbkAna.hh
-commit -m "new feedback class" TaFdbkAna.cc
-commit -m "add <math.h>" TaStatistics.hh 
-
-
-
 Comments by R. Michaels, Feb, 2002
 ----------------------------------
 
@@ -189,75 +219,4 @@ if you don't 'make clean' before 'make'.
 Do we need to distinguish between 'run type' and 'analysis
 type' in the database ?  For now I let this distinction exist
 and have awkwardly e.g. runtype = anatype = BEAM
-
-Present status:  I think the event data and database makes
-sense now, but not all is well with the helicity code. (It
-could be a symptom of problem with the decoding but I doubt 
-it.)  There are helicity errors, and no sensible statistic
-results.  The ROOT output, however, looks somewhat reasonable.
-
-The code uses 16.6 Mbytes memory at present, and this remains
-stable.  One should check it by running 'top' during execution.
-There was a memory leak in VaAnalysis::PreProcessEvt() when
-the helicity delay was zero.  See my temporary dirty fix.
-
-
-
-Comments by R. Holmes, Dec 21, 2001
-------------------------------------
-
-VaDataBase.hh had "void DataMapReStart()" which was never defined.
-TaAsciiDatabase had the same and defined it.  That was OK with the
-compiler, I guess, but not with rootcint.  I have changed it to
-"virtual void DataMapReStart()=0" in VaDataBase.hh.
-
-============================================================
-
-I changed the name of TaEvent::Check to CheckEvent, because rootcint
-uses a header file, TError.h, that defines Check as a macro.  Which is
-really stupid programming on their part, of course.
-
-============================================================
-
-User friendliness needs to improve.  For instance:
-
-  Analysis fails if TIR is not defined in datamap, yet no check is
-  made for this.  Analyzer should exit on first event with a message
-  to the effect "TIR must be defined in datamap.".
-
-  Note that at least some of the problems currently seen seem to be
-  related to problems with the database file; for example, it
-  complains about "csr" being used for multiple devices.  I modified
-  the error message to make it a little more informative.  Since users
-  can in principle screw up the database text files, we MUST make all
-  database related error messages as informative as possible to users.
-
-  THaCodaFile::staterr() still aborts the process if the CODA file is
-  not found, which is very unfriendly behavior when running
-  interactively. 
-
-============================================================
-
-Warnings:
-TaADC.cc: In method `void TaADC::Init(const class VaDataBase &)':
-TaADC.cc:45: warning: assignment to `int' from `Double_t'
-
-VaDevice.cc: In method `Double_t VaDevice::GetData(const class string &) const':
-VaDevice.cc:70: warning: passing `const map<basic_string<char,string_char_traits<char>,__default_alloc_template<true,0> >,double,less<basic_string<char,string_char_traits<char>,__default_alloc_template<true,0> > >,__default_alloc_template<true,0> >' as `this' argument of `Double_t & map<basic_string<char,string_char_traits<char>,__default_alloc_template<true,0> >,double,less<basic_string<char,string_char_traits<char>,__default_alloc_template<true,0> > >,__default_alloc_template<true,0> >::operator []<string, Double_t, less<basic_string<char,string_char_traits<char>,__default_alloc_template<true,0> > >, alloc>(const class string &)' discards const
-
-VaDevice.cc: In method `Double_t VaDevice::GetData(const Int_t &) const':
-VaDevice.cc:83: warning: passing `const map<basic_string<char,string_char_traits<char>,__default_alloc_template<true,0> >,double,less<basic_string<char,string_char_traits<char>,__default_alloc_template<true,0> > >,__default_alloc_template<true,0> >' as `this' argument of `Double_t & map<basic_string<char,string_char_traits<char>,__default_alloc_template<true,0> >,double,less<basic_string<char,string_char_traits<char>,__default_alloc_template<true,0> > >,__default_alloc_template<true,0> >::operator []<string, Double_t, less<basic_string<char,string_char_traits<char>,__default_alloc_template<true,0> > >, alloc>(const class string &)' discards const
-
-VaDevice.cc: In method `void VaDevice::FindHeaders(const class TaEvent &)':
-VaDevice.cc:142: warning: comparison between signed and unsigned
-VaDevice.cc:149: warning: comparison between signed and unsigned
-
-============================================================
-
-
-
-
-
-
-
 
