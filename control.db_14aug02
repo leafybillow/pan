@@ -12,70 +12,78 @@
     windelay  0     # helicity delay in windows
     pairtype  pair
 # feedback     type  switch on/off  timescale (mn)   
-    feedback    AQ       on               1
-    feedback    PZT      on               1                
+    feedback    AQ       off               1
+    feedback    PZT      off               1                
 # IA feedback parameters 
     IAparam   slope -500  
 # PZT matrix and offset
     PZTparam  M11 1400.1  M12 2524.2  M21 4200.1  M22 3012.2 
-# dacnoise values, these need to be calibrated
-    dacnoise adc 0 chan 0 slope 0.0 int 0
-    dacnoise adc 0 chan 1 slope 0.0 int 0
-    dacnoise adc 0 chan 2 slope 0.0 int 0
-    dacnoise adc 0 chan 3 slope 0.0 int 0
-    dacnoise adc 1 chan 0 slope 0.0 int 0
-    dacnoise adc 1 chan 1 slope 0.0 int 0
-    dacnoise adc 1 chan 2 slope 0.0 int 0
-    dacnoise adc 1 chan 3 slope 0.0 int 0
-    dacnoise adc 2 chan 0 slope 0.0 int 0
-    dacnoise adc 2 chan 1 slope 0.0 int 0
-    dacnoise adc 2 chan 2 slope 0.0 int 0
-    dacnoise adc 2 chan 3 slope 0.0 int 0
-    dacnoise adc 3 chan 0 slope 0.0 int 0
-    dacnoise adc 3 chan 1 slope 0.0 int 0
-    dacnoise adc 3 chan 2 slope 0.0 int 0
-    dacnoise adc 3 chan 3 slope 0.0 int 0
-    dacnoise adc 4 chan 0 slope 0.0 int 0
-    dacnoise adc 4 chan 1 slope 0.0 int 0
-    dacnoise adc 4 chan 2 slope 0.0 int 0
-    dacnoise adc 4 chan 3 slope 0.0 int 0
-    dacnoise adc 5 chan 0 slope 0.0 int 0
-    dacnoise adc 5 chan 1 slope 0.0 int 0
-    dacnoise adc 5 chan 2 slope 0.0 int 0
-    dacnoise adc 5 chan 3 slope 0.0 int 0
-    dacnoise adc 6 chan 0 slope 0.0 int 0
-    dacnoise adc 6 chan 1 slope 0.0 int 0
-    dacnoise adc 6 chan 2 slope 0.0 int 0
-    dacnoise adc 6 chan 3 slope 0.0 int 0
-    dacnoise adc 7 chan 0 slope 0.0 int 0
-    dacnoise adc 7 chan 1 slope 0.0 int 0
-    dacnoise adc 7 chan 2 slope 0.0 int 0
-    dacnoise adc 7 chan 3 slope 0.0 int 0
+# dacnoise values, calibrated using parity02_1598.dat 9/5/02
+    dacnoise adc 0 chan 0 slope 0.0243846 int 0
+    dacnoise adc 0 chan 1 slope 0.0243424 int 0
+    dacnoise adc 0 chan 2 slope 0.0243531 int 0
+    dacnoise adc 0 chan 3 slope 0.0243638 int 0
+    dacnoise adc 1 chan 0 slope 0.0244046 int 0
+    dacnoise adc 1 chan 1 slope 0.0242997 int 0
+    dacnoise adc 1 chan 2 slope 0.0242569 int 0
+    dacnoise adc 1 chan 3 slope 0.0243975 int 0
+    dacnoise adc 2 chan 0 slope 0.0243426 int 0
+    dacnoise adc 2 chan 1 slope 0.0243697 int 0
+    dacnoise adc 2 chan 2 slope 0.0244385 int 0
+    dacnoise adc 2 chan 3 slope 0.0244554 int 0
+    dacnoise adc 3 chan 0 slope 0.0244546 int 0
+    dacnoise adc 3 chan 1 slope 0.0244254 int 0
+    dacnoise adc 3 chan 2 slope 0.0243343 int 0
+    dacnoise adc 3 chan 3 slope 0.0244061 int 0
+    dacnoise adc 4 chan 0 slope 0.0244489 int 0
+    dacnoise adc 4 chan 1 slope 0.0244521 int 0
+    dacnoise adc 4 chan 2 slope 0.0244592 int 0
+    dacnoise adc 4 chan 3 slope 0.0244087 int 0
+    dacnoise adc 5 chan 0 slope 0.024467  int 0
+    dacnoise adc 5 chan 1 slope 0.0244255 int 0
+    dacnoise adc 5 chan 2 slope 0.0243816 int 0
+    dacnoise adc 5 chan 3 slope 0.0244624 int 0
+    dacnoise adc 6 chan 0 slope 0.0242517 int 0
+    dacnoise adc 6 chan 1 slope 0.0244227 int 0
+    dacnoise adc 6 chan 2 slope 0.0242772 int 0
+    dacnoise adc 6 chan 3 slope 0.0243607 int 0
+    dacnoise adc 7 chan 0 slope 0.0244156 int 0
+    dacnoise adc 7 chan 1 slope 0.0244257 int 0
+    dacnoise adc 7 chan 2 slope 0.0244251 int 0
+    dacnoise adc 7 chan 3 slope 0.0244049 int 0
 # pedestals to subtract from ADCs
-    ped adc 4 chan 0 value 5117
-    ped adc 4 chan 1 value 4996
-    ped adc 4 chan 2 value 4947
-    ped adc 4 chan 3 value 5395
-    ped adc 5 chan 0 value 4203
-    ped adc 5 chan 1 value 4339
-    ped adc 5 chan 2 value 5036
-    ped adc 5 chan 3 value 5073
-    ped adc 6 chan 0 value 5745
-    ped adc 6 chan 1 value 5821
-    ped adc 6 chan 2 value 5738
-    ped adc 6 chan 3 value 5969  
-    ped adc 7 chan 0 value 5325
-    ped adc 7 chan 1 value 5132
-    ped adc 7 chan 2 value 5064
-    ped adc 7 chan 3 value 5125
-    ped adc 8 chan 0 value 4989
-    ped adc 8 chan 1 value 4861
-    ped adc 8 chan 2 value 4690
-    ped adc 8 chan 3 value 4820
-    ped adc 9 chan 0 value 6860
-    ped adc 9 chan 1 value 6842
-    ped adc 9 chan 2 value 5737
-    ped adc 9 chan 3 value 5764  
+    ped adc 0 chan 0 value 4355.64
+    ped adc 0 chan 1 value 4400.3
+    ped adc 0 chan 2 value 4437.26
+    ped adc 0 chan 3 value 4385.07
+    ped adc 1 chan 0 value 4281.65
+    ped adc 1 chan 1 value 4340.44
+    ped adc 1 chan 2 value 4400.56
+    ped adc 1 chan 3 value 4460.48
+    ped adc 2 chan 0 value 4358.21
+    ped adc 2 chan 1 value 4320.93
+    ped adc 2 chan 2 value 4270.13
+    ped adc 2 chan 3 value 4342.25
+    ped adc 3 chan 0 value 4219.3
+    ped adc 3 chan 1 value 4333.63
+    ped adc 3 chan 2 value 4371.21
+    ped adc 3 chan 3 value 4344.82
+    ped adc 4 chan 0 value 4285.77
+    ped adc 4 chan 1 value 4353.16
+    ped adc 4 chan 2 value 4328
+    ped adc 4 chan 3 value 4407.51
+    ped adc 5 chan 0 value 4389.72
+    ped adc 5 chan 1 value 4220.75
+    ped adc 5 chan 2 value 4355.16
+    ped adc 5 chan 3 value 4351.86
+    ped adc 6 chan 0 value 4433.72
+    ped adc 6 chan 1 value 4336.75
+    ped adc 6 chan 2 value 4262.2
+    ped adc 6 chan 3 value 4357.99
+    ped adc 7 chan 0 value 4417.24
+    ped adc 7 chan 1 value 4419.4
+    ped adc 7 chan 2 value 4380.71
+    ped adc 7 chan 3 value 4334.35
 # pedestals to subtract from SCALERS
     ped scaler 0 chan 0 value 1301
     ped scaler 0 chan 1 value 1302
@@ -99,7 +107,7 @@
 # ADC data that are not an ADC channel (e.g. dac) have negative channel number.
 # See ./doc/DATABASE.RULES for definitions.
 #   table  device-type dev-name read-type dev-num startchan evbuff-offset channel-names(keys)
-    datamap   tir        tir      tir        0     0        92             tirdata  
+    datamap   tir        tir      tir        0      0       92             tirdata  
     datamap   batt       batt1    adc        2      0       55             batt1 
     datamap   batt       batt2    adc        2      1       56             batt2 
     datamap   bcm        bcm1     adc        2      2       57             bcm1r
