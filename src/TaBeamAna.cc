@@ -94,6 +94,8 @@ TaBeamAna::InitChanLists ()
   fTreeList = ChanList ("tir", "helicity", "", fgNO_STATS + fgCOPY);
   f = ChanList ("tir", "pairsynch", "", fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanListFromName ("batt", "chan", fgNO_STATS + fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   // List of channels for which to store differences
   f = ChanList ("bpm", "~x", "um", fgDIFF);
