@@ -4,6 +4,14 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 8 Nov 2002
+----------------------------------
+
+Kent pointed out that my 15 Oct "previous helicity" mod was storing
+the helicity of the previous event, but what we really want is the
+helicity of the previous window.  Fixed (in TaRun.cc).
+
+	
 Changes by R. Holmes on 27 Oct 2002
 -----------------------------------
 
@@ -14,8 +22,8 @@ accordingly; unless MAKENODICTIONARY is defined (and comments warn
 against doing so), Pan will be compiled with the dictionary.
 
 
-Changes by R. Holmes on 15 Oct 2002
------------------------------------
+Changes by R. Holmes on or about 25 Oct 2002
+--------------------------------------------
 
 In TaPairFromQuad.cc, added a check on pairsynch -- should be first of
 pair if first or third of quad, second of pair if second or fourth of
