@@ -46,7 +46,7 @@ TaFileName::TaFileName (const string s,
   else if (s == "db")
     {
       suffix = GetEnvOrDef ("PAN_DB_FILE_SUFFIX", "db");
-      path = GetEnvOrDef ("PAN_DB_FILE_PATH", ".");
+      path = GetEnvOrDef ("PAN_DB_FILE_PATH", "./db");
     }
   else if (s == "dbdef")
     {
