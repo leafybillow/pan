@@ -9,6 +9,28 @@ the top of this file.
 Changes by R. Holmes on  21 May 2004
 --------------------------------------
 
+Added macro/panchain.macro, a macro (well, duh) to create a chain of
+pair trees from runs specified in a file whose name is passed as the
+sole argument.  Time trees for these runs are created in the default
+output directory.  A time tree is another tree with the same number of
+entries as the pair tree; it contains only evt_ev_num_off and
+m_ev_num_off, which are evt_ev_num and m_ev_num offset by a given
+quantity, and run_num, the run number.  The offset is just the sum of
+the largest event numbers in each of the preceding runs, so the effect
+is to have event numbers that do not reset at start of run.  The time
+trees are chained and friended to the chain of pair trees.
+
+Thus you can plot anything you want vs. a global event number or
+vs. run number, e.g.
+
+   TChain* ch = panchain(panchain);
+   ch->Draw("asym_bcm1:m_ev_num_off"); // BCM1 asym vs. global evt number
+   ch->Draw("asym_bcm1:run_num"); // BCM1 asym vs. run number
+
+
+Changes by R. Holmes on  21 May 2004
+--------------------------------------
+
 By request, added a "compress" table in the database which takes a
 value from 0 to 9; this is the compression setting for writing the
 ROOT file.
