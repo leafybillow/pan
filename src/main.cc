@@ -1,13 +1,18 @@
-//////////////////////////////////////////////////////////////////////////
+//**********************************************************************
 //
-//  The Hall A Parity ROOT Analyzer
+//     HALL A C++/ROOT Parity Analyzer  Pan           
+//
+//           main.cc
+//
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
+//
+////////////////////////////////////////////////////////////////////////
 //
 //  Main program
 //  Usage:  pan [-r runnum] [-f filename] [-o]
 //
-//  Authors: R. Holmes, A. Vacheret, R. Michaels
-//
-//////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 #include "TaAnalysisManager.hh"
 #include "TROOT.h"
@@ -22,6 +27,8 @@ void usage();
 
 int main(int argc, char **argv) 
 {
+
+  clog << "Pan $Name$:$Id$\n" << endl;
 
   int runnum = 0;
   int choice = 0;
