@@ -43,6 +43,8 @@ public:
   const ECutType GetCut() const;
   const Int_t GetVal() const;
 
+  friend ostream& operator<< (ostream& s, const TaCutInterval q);
+
 private:
 
   ECutType fCut;

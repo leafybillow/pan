@@ -65,3 +65,12 @@ TaCutInterval::GetCut() const
 const Int_t 
 TaCutInterval::GetVal() const 
 { return fVal; }
+
+// Non member functions
+
+ostream& 
+operator<< (ostream& s, const TaCutInterval q)
+{
+  s << int (q.fCut) << " " << q.fVal << " " << q.fBegin << " " << q.fEnd;
+}
+
