@@ -332,8 +332,13 @@ vector <TString> OnlineConfig::GetDrawCommand(UInt_t page, UInt_t nCommand)
 {
   // Returns the vector of strings pertaining to a specific page, and 
   //   draw command from the config.
+  // Return vector of TStrings:
+  //  0: variable
+  //  1: cut
+  //  2: type
+  //  3: title
 
-  vector <TString> out_command;
+  vector <TString> out_command(4);
   vector <UInt_t> command_vector = GetDrawIndex(page);
   UInt_t index = command_vector[nCommand];
 
@@ -341,16 +346,56 @@ vector <TString> OnlineConfig::GetDrawCommand(UInt_t page, UInt_t nCommand)
   cout << "OnlineConfig::GetDrawCommand(" << page << "," 
        << nCommand << ")" << endl;
 #endif
-  for (UInt_t i=0; i<sConfFile[index].size(); i++) {
+  for(UInt_t i=0; i<out_command.size(); i++) {
+    out_command[i] = "";
+  }
+
+
+  // First line is the variable
+  if(sConfFile[index].size()>=1) {
+    out_command[0] = sConfFile[index][0];
+  }
+  if(sConfFile[index].size()>=2) {
+    if((sConfFile[index][1] != "-type") &&
+       (sConfFile[index][1] != "-title"))
+      out_command[1] = sConfFile[index][1];
+  }
+
+  // Now go through the rest of that line..
+  for (UInt_t i=1; i<sConfFile[index].size(); i++) {
 #ifdef DEBUG
     cout << sConfFile[index][i] << " ";
 #endif
-    out_command.push_back(sConfFile[index][i]);
-  }
+    // Check for -title
+    if(sConfFile[index][i]=="-type") {
+      out_command[2] = sConfFile[index][i+1];
+      i = i+1;
+    } else if(sConfFile[index][i]=="-title") {
+      // Put the entire title, surrounded by quotes, as one TString
+      TString title;
+      UInt_t j=0;
+      for(j=i+1; j<sConfFile[index].size(); j++) {
+	TString word = sConfFile[index][j];
+	if(word.BeginsWith("\"")) {
+	  title = word.ReplaceAll("\"","");
+	} else if(word.EndsWith("\"")) {
+	  title += " " + word.ReplaceAll("\"","");
+	  out_command[3] = title;
+	  i += j-1;
+	} else {
+	  title += " " + word;
+	}
+      }
+    }
 #ifdef DEBUG
   cout << endl;
 #endif
-    
+  }
+#ifdef DEBUG
+  for(UInt_t i=0; i<out_command.size(); i++) {
+    cout << i << ": " << out_command[i] << endl;
+  }
+#endif
   return out_command;
 }
 
@@ -615,19 +660,17 @@ void OnlineGUI::DoDraw()
   fCanvas->Clear();
   fCanvas->Divide(dim.first,dim.second);
 
-  TString type;
-  // Draw the histograms.  For now... only tree stuff.
-
+  vector <TString> drawcommand(4);
+  // Draw the histograms.
   for(UInt_t i=0; i<draw_count; i++) {    
-    type = fConfig->GetDrawCommand(current_page,i)[0];
+    drawcommand = fConfig->GetDrawCommand(current_page,i);
     fCanvas->cd(i+1);
-    if (type == "macro") {
-      MacroDraw(fConfig->GetDrawCommand(current_page,i));
-      //    fRootTree[0]->Draw(buff);
-    } else if (IsHistogram(type)) {
-      HistDraw(fConfig->GetDrawCommand(current_page,i));
+    if (drawcommand[0] == "macro") {
+      MacroDraw(drawcommand);
+    } else if (IsHistogram(drawcommand[0])) {
+      HistDraw(drawcommand);
     } else {
-      TreeDraw(fConfig->GetDrawCommand(current_page,i));
+      TreeDraw(drawcommand);
     }
   }
   fCanvas->cd();
@@ -1092,13 +1135,26 @@ void OnlineGUI::TreeDraw(vector <TString> command) {
 
   // Determine which Tree the variable comes from, then draw it.
   UInt_t iTree = GetTreeIndex(var);
-  TString drawopt = "";
+  TString drawopt = command[2];
   Int_t errcode=0;
-  if(var.Contains(":")) drawopt = "box";
+  if(drawopt.IsNull() && var.Contains(":")) drawopt = "box";
   if (iTree <= fRootTree.size() ) {
     errcode = fRootTree[iTree]->Draw(var,cut,drawopt,
 				     1000000000,fTreeEntries[iTree]);
-    if(errcode==0) BadDraw("No Entries to Draw");
+    TObject *hobj = (TObject*)gROOT->FindObject("htemp");
+    if(errcode!=0) {
+      if(!command[3].IsNull()) {
+	if(hobj->InheritsFrom("TH2F")) {
+	  TH2F* thathist = (TH2F*)hobj;
+	  thathist->SetTitle(command[3]);
+	}else if(hobj->InheritsFrom("TH1F")) {
+	  TH1F* thathist = (TH1F*)hobj;
+	  thathist->SetTitle(command[3]);
+	}
+      }
+    } else {
+      BadDraw("No Entries to Draw");
+    }
   } else {
     BadDraw(var+" not found");
     if (fConfig->IsMonitor()){
