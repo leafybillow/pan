@@ -13,7 +13,7 @@
 # export PROFILE = 1
 #
 # To compile optimized  (10% faster run time but very slow compilation)
-# export OPTIMIZE = 1
+# export OPTIMIZE =1
 # 
 # To use "insure" from parasoft.com.  Must first type "use insure" on ifarml1.
 # export INSURE = 1
@@ -78,7 +78,7 @@ ifeq ($(OSNAME),Linux)
    ET_CFLAGS = -02 -fPIC -I. $(ET_AC_FLAGS) -DLINUXVERS
 # Typically CODA is an environment variable,e.g.
 #   CODA = /adaqfs/coda/2.2.1
-   LIBET = $(CODA)/Linux/lib/libet.so
+   LIBET = $(CODA)/lib/libet.so
    ONLIBS = $(LIBET) -lieee -lpthread -ldl -lresolv
    LIBS = $(GLIBS) $(ROOTLIBS) $(ROOTGLIBS)
 
@@ -93,6 +93,7 @@ INCLUDES += -I$(DCDIR)
 
 ifdef ONLINE
     ALL_LIBS += $(ONLIBS)
+    CXXFLAGS += -DONLINE
 endif
 
 ifdef PROFILE
@@ -148,14 +149,6 @@ HEAD = $(SRC:.cc=.hh)
 HEAD += PanTypes.hh
 
 
-ifdef ONLINE
-  SRC += THaEtClient.cc
-  CXXFLAGS += -DONLINE
-endif
-
-
-
-
 PROGS = pan
 
 # Make the dictionary
@@ -174,7 +167,7 @@ $(PROGS): main.o $(OBJS) $(SRC) $(HEAD)
 	$(LD) $(CXXFLAGS) -o $@ main.o $(OBJS) $(ALL_LIBS)
 
 main.o: main.cc
-	$(CXX) -c $(INCLUDES) $<	
+	$(CXX) -c $(INCLUDES) $(CXXFLAGS) $<	
 
 
 # Dictionary

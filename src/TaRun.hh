@@ -105,6 +105,7 @@ private:
   TaCutList* fCutList;           // Cut list for this run
   SlotNumber_t fOversamp;        // Oversample value for this run
   THaCodaData* fCoda;            // CODA data source
+  Int_t mymode;                  // Mode for ET
   string fCodaFileName;          // Name of CODA data file
   string fComputer;              // Computer to ask for online data
   string fSession;               // CODA session for online data

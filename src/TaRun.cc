@@ -80,7 +80,7 @@ TaRun::TaRun():
 {
    fCodaFileName = "online";
 #ifdef ONLINE
-   int mymode    = 1;
+   mymode        = 1;
    fComputer     = "adaqcp";  // DAQ computer
    fSession      = "par1";    // CODA $SESSION
    fCoda         = new THaEtClient();
@@ -165,7 +165,7 @@ TaRun::Init()
   if (fCodaFileName == "online") { 
 #ifdef ONLINE
      fCoda = new THaEtClient();
-     if ( fCoda->codaOpen(fComputer, fSession, mymode) != 0) {
+     if ( fCoda->codaOpen(TString(fComputer.c_str()), TString(fSession.c_str()), mymode) != 0) {
         cerr << "TaRun:: Init ERROR: Cannot open ET connection"<<endl;
         cerr << " to  computer "<<fComputer;
         cerr << " and session "<<fSession<<endl;
