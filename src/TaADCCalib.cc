@@ -516,7 +516,7 @@ void TaADCCalib::EventAnalysis()
   for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
     //  loop over chans 1-4
     if (typeFlag == 2) {
-      dataX = fEvt->GetData(IDAC1 + isl);
+      dataX = fEvt->GetData(DACOFF + isl);
     }
     for (Int_t ich=0; ich < ADC_MaxChan;  ich++) {
       if (chanExists[isl][ich]) {
