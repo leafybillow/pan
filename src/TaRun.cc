@@ -70,6 +70,7 @@ const ErrCode_t TaRun::fgTARUN_ERROR = -1;  // returned on error
 const ErrCode_t TaRun::fgTARUN_OK = 0;      // returned on success
 const ErrCode_t TaRun::fgTARUN_VERBOSE = 1; // verbose(1) or not(0) warnings
 
+vector<string> TaRun::fgORDNAME;            // names of orderings
 EventNumber_t TaRun::fNLastSlice = 0; // event number at last slice reset
 
 // Constructors/destructors/operators
@@ -256,6 +257,11 @@ TaRun::Init(const vector<string>& dbcommand)
 				 fDataBase->GetAnaType(),
 				 fDataBase->GetCksum(), 
 				 "");
+  
+  fgORDNAME.push_back ("RLRL");
+  fgORDNAME.push_back ("LRRL");
+  fgORDNAME.push_back ("LRLR");
+  fgORDNAME.push_back ("RLLR");
 
   return fgTARUN_OK;
 
@@ -539,14 +545,13 @@ TaRun::PrintSlice (EventNumber_t n)
       if (fPSliceStats != 0)
 	{
 	  PrintStats (*fPSliceStats, fPStatsNames, fPStatsUnits);
-	  cout << "RLRL pairs:\n";
-	  PrintStats (*(fPOrdSliceStats[0]), fPOrdStatsNames, fPOrdStatsUnits);
-	  cout << "LRRL pairs:\n";
-	  PrintStats (*(fPOrdSliceStats[1]), fPOrdStatsNames, fPOrdStatsUnits);
-	  cout << "LRLR pairs:\n";
-	  PrintStats (*(fPOrdSliceStats[2]), fPOrdStatsNames, fPOrdStatsUnits);
-	  cout << "RLLR pairs:\n";
-	  PrintStats (*(fPOrdSliceStats[3]), fPOrdStatsNames, fPOrdStatsUnits);
+	  for (UInt_t io= 0; io< 4; ++io)
+	    {
+	      vector<string> fPOSN = fPOrdStatsNames;
+	      for (UInt_t is = 0; is < fPOrdStatsNames.size(); ++is)
+		fPOSN[is] = fPOrdStatsNames[is] + " " + fgORDNAME[io];
+	      PrintStats (*(fPOrdSliceStats[io]), fPOSN, fPOrdStatsUnits);
+	    }
 	}
       
       cout << endl;
@@ -583,14 +588,13 @@ TaRun::PrintRun ()
   if (fPRunStats != 0)
     {
       PrintStats (*fPRunStats, fPStatsNames, fPStatsUnits);
-      cout << "RLRL pairs:\n";
-      PrintStats (*(fPOrdRunStats[0]), fPOrdStatsNames, fPOrdStatsUnits);
-      cout << "LRRL pairs:\n";
-      PrintStats (*(fPOrdRunStats[1]), fPOrdStatsNames, fPOrdStatsUnits);
-      cout << "LRLR pairs:\n";
-      PrintStats (*(fPOrdRunStats[2]), fPOrdStatsNames, fPOrdStatsUnits);
-      cout << "RLLR pairs:\n";
-      PrintStats (*(fPOrdRunStats[3]), fPOrdStatsNames, fPOrdStatsUnits);
+      for (UInt_t io= 0; io< 4; ++io)
+	{
+	  vector<string> fPOSN = fPOrdStatsNames;
+	  for (UInt_t is = 0; is < fPOrdStatsNames.size(); ++is)
+	    fPOSN[is] = fPOrdStatsNames[is] + " " + fgORDNAME[io];
+	  PrintStats (*(fPOrdRunStats[io]), fPOSN, fPOrdStatsUnits);
+	}
     }
 
   cout << endl;
@@ -614,14 +618,13 @@ TaRun::WriteRun ()
       (*fResFile) << endl;
       (*fResFile) << "# Pair statistics ===================" << endl;
       WriteStats (*fPRunStats, fPStatsNames, fPStatsUnits, 0, fEventNumber);
-      (*fResFile) << "RLRL pairs:\n";
-      WriteStats (*(fPOrdRunStats[0]), fPOrdStatsNames, fPOrdStatsUnits, 0, fEventNumber);
-      (*fResFile) << "LRRL pairs:\n";
-      WriteStats (*(fPOrdRunStats[1]), fPOrdStatsNames, fPOrdStatsUnits, 0, fEventNumber);
-      (*fResFile) << "LRLR pairs:\n";
-      WriteStats (*(fPOrdRunStats[2]), fPOrdStatsNames, fPOrdStatsUnits, 0, fEventNumber);
-      (*fResFile) << "RLLR pairs:\n";
-      WriteStats (*(fPOrdRunStats[3]), fPOrdStatsNames, fPOrdStatsUnits, 0, fEventNumber);
+      for (UInt_t io= 0; io< 4; ++io)
+	{
+	  vector<string> fPOSN = fPOrdStatsNames;
+	  for (UInt_t is = 0; is < fPOrdStatsNames.size(); ++is)
+	    fPOSN[is] = fPOrdStatsNames[is] + " " + fgORDNAME[io];
+	  WriteStats (*(fPOrdRunStats[io]), fPOSN, fPOrdStatsUnits, 0, fEventNumber);
+	}
     }
 }
 

@@ -6,6 +6,19 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on  14 Jul 2003
+------------------------------------
+
+Previous changes did some really boneheaded things in the .res file,
+now fixed -- no duplicated labels for the order-dependent statistics,
+no uncommented comment lines (no comment lines at all in fact, since
+the new labels make them unneeded).
+
+TaRun.{cc,hh}
+
+ o Unique tags for ordered statistics
+
+
 Changes by R. Holmes on  11 Jul 2003
 ------------------------------------
 

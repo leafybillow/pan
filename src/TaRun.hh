@@ -96,6 +96,7 @@ public:
   static const ErrCode_t fgTARUN_VERBOSE; // verbose(1) or not(0) warnings
 
   static EventNumber_t fNLastSlice;     // event number at last slice reset
+  static vector<string> fgORDNAME;      // names of orderings
 
 private:
 
