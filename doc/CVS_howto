@@ -23,10 +23,13 @@ For csh/tcsh:
 
 You are basically done. To check out the repository, do
 
-% cvs -d ":ext:user@login1.jlab.org:/group/halla/parity/cvs" checkout pan
+% cvs -d ":ext:user@cvs.jlab.org:/group/halla/parity/cvs" checkout pan
 
 Of course, replace "user" in the above command with your CUE username.
-You can now use CVS as usual.  
+You can now use CVS as usual.  The argument of the -d option gets
+stored in the CVS ROOT file; you can override it in your subsequent
+CVS commands with a -d argument to the command, but you shouldn't have
+to.
 
 You will notice that you now have to enter your password for every
 CVS command that requires access to the server.  This is inconvenient,
@@ -35,26 +38,28 @@ Instructions can be found at
 
    http://hallaweb.jlab.org/computing/ssh-keys.html
 
-Anyone with a CUE account may read the repository. However, only a limited 
-set of users have write access. If you want to contribute and need full access, 
-please contact Bob Michaels.
+Note that login1.jlab.org and login2.jlab.org do not accept ssh keys,
+but the CVS server, cvs.jlab.org, does.  
+
+Anyone with a CUE account may read the repository. However, only a
+limited set of users have write access. If you want to contribute and
+need full access, please contact Bob Michaels.
 
 For more on CVS usage, see the free CVS book at www.cvshome.org, and I have
 a copy too, at:
 
   http://www.jlab.org/~rom/cvsbook.ps.gz
 
-Examples of CVS commands for username = rsholmes
+Examples of CVS commands for username = rsholmes:
 
 * Checking out a working copy 
-    cvs -d ":ext:rsholmes@login1.jlab.org:/group/halla/parity/cvs" checkout pan
+    cvs -d ":ext:rsholmes@cvs.jlab.org:/group/halla/parity/cvs" checkout pan
 
 * Looking for differences in repository
-   cvs -d ":ext:rsholmes@login1.jlab.org:/group/halla/parity/cvs" diff
+   cvs diff
 
 * Obtaining updates from the respository
-   cvs -d ":ext:rsholmes@login1.jlab.org:/group/halla/parity/cvs" update
+   cvs update
 
 * Committing a change
-   cvs -d ":ext:rsholmes@login1.jlab.org:/group/halla/parity/cvs" commit -m "correct path to codaclass" Makefile
-
+   cvs commit -m "correct path to codaclass" Makefile
