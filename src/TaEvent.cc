@@ -278,6 +278,16 @@ void TaEvent::Decode(TaDevice& devices) {
     }
   }  
 
+// Batteries
+  for (i = 0; i < BATNUM; i++) {
+    key = BATOFF + i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key);
+  }
+
 // Stripline BPMs
   for (i = 0; i < STRNUM; i++) {
     key = STROFF + 9*i;
