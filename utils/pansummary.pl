@@ -91,6 +91,10 @@ foreach $fn (@fn)
 	      {
 		$neff{$key} = $val;
 	      }
+	    elsif ($stat eq "condTally")
+	    {
+		$tally{$key} = $val;
+	    }
 	  }
       }
     
@@ -164,10 +168,21 @@ foreach $fn (@fn)
     foreach $k (sort keys %mean)
       {
 	($stage, $qty, $min, $max) = split ("~", $k);
-	printf "%-10s %s\n", "${qty}:", &stringmean ($k);
+	$out .= sprintf "%-10s %s\n", "${qty}:", &stringmean ($k);
 	delete $mean{$k};
       }
     print "\n[Other quantities]\n$out" if $out;
+
+    # Print cut condition tallies =========================
+    $out = "";
+    foreach $k (sort keys %tally)
+      {
+	($stage, $qty, $min, $max) = split ("~", $k);
+	$out .= sprintf "%-10s %6d\n", "${qty}:", $tally{$k};
+	delete $tally{$k};
+      }
+    print "\n[Cut condition tallies]\n$out" if $out;
+
   }
 
 sub stringmean
