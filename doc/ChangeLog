@@ -6,6 +6,25 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 4 Dec 2002
+----------------------------------
+
+To enable study of what happens when data are 'lost' online (i.e. when
+the analyzer fails to keep up with DAQ) I added an ifdef-controlled
+option in TaRun to fake such dropouts.  If enabled, then an event from
+the data stream is discarded with probability 0.2% (98%) if the
+previous event was not (was) also discarded.  (Of course you can
+change these probabilities; just edit the line
+
+  while (r.Rndm() < (dropping == 0 ? 0.002 : 0.98))
+
+in the obvious way.)
+
+TaRun.cc
+
+ o 'Dead time' faking.
+
+
 Changes by R. Holmes on 21 Nov 2002
 -----------------------------------
 
@@ -41,7 +60,7 @@ TaEvent.cc VaPair.cc
 
  o Helicity nomenclature change
  
- o  GetHelicity returns RightHeli for 0, not LeftHeli
+ o GetHelicity returns RightHeli for 0, not LeftHeli
 
 TaEvent.hh TaPairFrom{Pair,Quad}.cc VaAnalysis.{cc,hh} TaRun.cc
 
