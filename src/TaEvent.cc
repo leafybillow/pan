@@ -10,8 +10,6 @@
 //    An event of data.
 //    Includes methods to get data using keys.  For ADCs and 
 //    scalers can also get the data by slot number and channel.
-//    The user (presumably a TaRun) must LoadDevice() 
-//    once at start of run.
 //
 //////////////////////////////////////////////////////////////////////////
 
