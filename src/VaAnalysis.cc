@@ -735,8 +735,8 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
   fPairTree->Branch ("m_ev_num", &fTreeMEvNum, "m_ev_num/D",  bufsize); 
   fPairTree->Branch ("ok_cond",  &fTreeOKCond, "ok_cond/I",   bufsize); 
   fPairTree->Branch ("ok_cut",   &fTreeOKCut,  "ok_cut/I",    bufsize); 
-  fPairTree->Branch ("prev_hel", &fTreePrevROHel, "prev_hel/I", bufsize); 
-  fPairTree->Branch ("prev_readout_hel", &fTreePrevHel, "prev_readout_hel/I", bufsize); 
+  fPairTree->Branch ("prev_hel", &fTreePrevHel, "prev_hel/I", bufsize); 
+  fPairTree->Branch ("prev_readout_hel", &fTreePrevROHel, "prev_readout_hel/I", bufsize); 
   
   // Add branches corresponding to channels in the channel lists
   
