@@ -27,7 +27,6 @@ VaPair::fgEventQueue;
 
 VaPair::VaPair()
 {
-  Init();
 }
 
 
@@ -58,8 +57,9 @@ VaPair::~VaPair()
 
 
 void 
-VaPair::Init()
+VaPair::RunInit()
 {
+  fgEventQueue.clear();
 }
 
 

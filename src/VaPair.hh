@@ -47,7 +47,7 @@ public:
   
   virtual ~VaPair();
   
-  static void Init();
+  virtual void RunInit();
   virtual Bool_t Fill (TaEvent&, TaRun&) = 0;  // check for pair and fill
   const TaEvent& GetRight() const;
   const TaEvent& GetLeft() const;
