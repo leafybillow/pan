@@ -58,6 +58,7 @@
 
 //#define SIGNFLIP            // comment out to fix sign at +1
 
+#define PRODUCTION
 #ifndef NODICT
 ClassImp(TaBlind)
 #endif
@@ -159,6 +160,7 @@ TaBlind::Create (const string s)
       fBlindSign = 1;
 #endif
 
+#ifndef PRODUCTION
       // Printout only for debugging... obviously we remove this for
       // production...
       clog << "TaBlind::Create: Blind sign and offset are " << fBlindSign 
@@ -167,6 +169,7 @@ TaBlind::Create (const string s)
 	   << fASign
 	   << " " << fAMean
 	   << " " << fAOffScale << endl;
+#endif
     }
 }
 
