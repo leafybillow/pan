@@ -46,8 +46,8 @@ public:
   // Major functions
   void Load ( const Int_t *buffer );
   void Decode( const TaDevice& devices );             // decode the event 
-  const vector<pair<ECutType,Int_t> >& CheckEvent(const TaRun& run);
-  void AddCut (const ECutType cut, const Int_t val);
+  const vector<pair<ECutType,Int_t> >& CheckEvent(TaRun& run);
+  void AddCut (const ECutType, const Int_t); // store cut conditions
   void AddResult( const TaLabelledQuantity& result);
 
  // Data access functions

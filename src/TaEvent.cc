@@ -181,7 +181,8 @@ void TaEvent::Decode(const TaDevice& devices) {
 
 };
 
-const vector<pair<ECutType,Int_t> >& TaEvent::CheckEvent(const TaRun& run)
+const vector<pair<ECutType,Int_t> >& 
+TaEvent::CheckEvent(TaRun& run)
 {
   // Analysis-independent checks of event quality; adds failed cuts
   // to event's list and returns that list.
@@ -204,6 +205,7 @@ const vector<pair<ECutType,Int_t> >& TaEvent::CheckEvent(const TaRun& run)
       val = 1;
     }
   AddCut (LowBeamCut, val);
+  run.UpdateCutList (LowBeamCut, val, fEvNum);
 
   if ( fgLastEv.GetEvNumber() != 0 )
     {
@@ -220,6 +222,7 @@ const vector<pair<ECutType,Int_t> >& TaEvent::CheckEvent(const TaRun& run)
 	  val = 1;
 	}
       AddCut (BeamBurpCut, val);
+      run.UpdateCutList (BeamBurpCut, val, fEvNum);
 
       // Check time slot sequence
       val = 0;
@@ -239,6 +242,7 @@ const vector<pair<ECutType,Int_t> >& TaEvent::CheckEvent(const TaRun& run)
 	    } 
 	}
       AddCut (OversampleCut, val);
+      run.UpdateCutList (OversampleCut, val, fEvNum);
     }
   
   fgLastEv = *this;

@@ -19,7 +19,9 @@
 #include "PanTypes.hh"
 #include "VaPair.hh"
 
+class TaCutList;
 class TaEvent;
+class TaRun;
 
 class TaPairFromPair : public VaPair {
   
@@ -33,12 +35,12 @@ public:
   ~TaPairFromPair();
   
   // Major functions
-  Bool_t Fill( TaEvent& ThisEv ); 
+  Bool_t Fill (TaEvent&, TaRun&); // check for pair and fill
   
 private:
   
   // Private member functions
-  void CheckSequence( TaEvent& ThisEv );
+  void CheckSequence (TaEvent&, TaRun&); // look for helicity/synch errors
   Bool_t ProcessPairing();
   UInt_t  RanBit(); 
   //#define HSDEB

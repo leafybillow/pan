@@ -31,7 +31,9 @@
 #include <string>
 #include <vector>
 
+
 class TaCutList;
+class TaRun;
 class TaEvent;
 class TaLabelledQuantity;
 
@@ -46,7 +48,7 @@ public:
   virtual ~VaPair();
   
   static void Init();
-  virtual Bool_t Fill( TaEvent& ) = 0;
+  virtual Bool_t Fill (TaEvent&, TaRun&) = 0;  // check for pair and fill
   const TaEvent& GetRight() const;
   const TaEvent& GetLeft() const;
   void QueuePrint() const;   
@@ -54,7 +56,7 @@ public:
   Double_t GetDiff (Int_t);
   Double_t GetAsy (Int_t);
   Bool_t PassedCuts(); // True if neither event has cut condition
-  Bool_t PassedCutsInt(TaCutList cl); // True if neither event is in cut interval
+  Bool_t PassedCutsInt(const TaCutList& cl); // True if neither event is in cut interval
   const vector<TaLabelledQuantity>& GetResults() const;
   
 protected:

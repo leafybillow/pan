@@ -241,6 +241,7 @@ VaAnalysis::ProcessRun()
   while ( fRun->NextEvent() )
     {
       PreProcessEvt();
+      //      cout << ">>2 " << (fRun->GetEvent().CutStatus() ? "Y" : "N") << endl;
       fRun->AddCuts(); // revise cut intervals
       if ( fEDeque.size() == fEDequeMax )
 	{
@@ -379,7 +380,7 @@ VaAnalysis::PreProcessEvt()
 	fPreEvt->SetDelHelicity(fRun->GetEvent().GetHelicity());
 
         fEDeque.push_back (*fPreEvt);
-        if ( fPrePair->Fill (*fPreEvt) )
+        if (fPrePair->Fill (*fPreEvt, *fRun))
   	{
   	  fPDeque.push_back(fPrePair);
   	  NewPrePair();
@@ -532,6 +533,7 @@ VaAnalysis::InitTree ()
   clog << "l_ev_num" << endl;
   clog << "m_ev_num" << endl;
   clog << "ok_cond"  << endl;
+  clog << "ok_cut"   << endl;
 #endif
 
   Double_t* tsptr = fTreeSpace;
@@ -769,14 +771,3 @@ void VaAnalysis::LeakCheck()
        << " diff " <<fLeakNewPair-fLeakDelPair << endl;
 }
 #endif
-
-
-
-
-
-
-
-
-
-
-

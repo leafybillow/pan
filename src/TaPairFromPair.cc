@@ -18,6 +18,7 @@
 
 #include "TaEvent.hh"
 #include "TaPairFromPair.hh"
+#include "TaRun.hh"
 #include "TaLabelledQuantity.hh"
 
 #ifdef DICT
@@ -54,8 +55,9 @@ TaPairFromPair::~TaPairFromPair()
 {
 }
 
-void TaPairFromPair::CheckSequence( TaEvent& ThisEv )
+void TaPairFromPair::CheckSequence( TaEvent& ThisEv, TaRun& run )
 {
+  // look for helicity/synch errors
   const Int_t PSCHANGE  = 0x1;
   const Int_t PSSAME    = 0x2;
   const Int_t HELCHANGE = 0x3;
@@ -152,14 +154,16 @@ void TaPairFromPair::CheckSequence( TaEvent& ThisEv )
 #endif
 
   ThisEv.AddCut (SequenceCut, val);
+  run.UpdateCutList (SequenceCut, val, ThisEv.GetEvNumber());
 }
 
 
 Bool_t 
-TaPairFromPair::Fill( TaEvent& ThisEv )
+TaPairFromPair::Fill( TaEvent& ThisEv, TaRun& run )
 {
+  // check for pair and fill
   Bool_t PairMade = false;
-  CheckSequence(ThisEv);
+  CheckSequence (ThisEv, run);
 
   // Skip events until the first event of a new window
   if ( ThisEv.GetPairSynch() == FirstPS &&

@@ -129,7 +129,7 @@ VaPair::PassedCuts()
 }
 
 Bool_t 
-VaPair::PassedCutsInt(TaCutList cl)
+VaPair::PassedCutsInt(const TaCutList& cl)
 {
 // True if neither event is in cut interval
 
@@ -141,5 +141,3 @@ VaPair::GetResults() const
 {
   return fResults;
 }
-
-
