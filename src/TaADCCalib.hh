@@ -93,7 +93,7 @@ private:
   virtual void TaADCCalib::Init();
   void TaADCCalib::InitPed();
   void TaADCCalib::InitDAC();
-  virtual void TaADCCalib::ProcessRun();
+  virtual ErrCode_t TaADCCalib::ProcessRun();
   virtual void TaADCCalib::Finish();
   void TaADCCalib::FinishPed();
   void TaADCCalib::FinishDAC();

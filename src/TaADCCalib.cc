@@ -478,7 +478,8 @@ void TaADCCalib::InitDAC()
 }
 
 
-void TaADCCalib::ProcessRun()
+ErrCode_t
+TaADCCalib::ProcessRun()
 {
   // Main analysis routine -- this is the event loop, override this
   // from VaAnalysis because it is such a pain to deal with helicity,
@@ -491,6 +492,7 @@ void TaADCCalib::ProcessRun()
       if (fRun->GetEvent().GetEvNumber() >= fMaxNumEv)
 	break;
     }  
+  return VaAnalysis::fgVAANA_OK;
 }
 
 
@@ -506,7 +508,6 @@ void TaADCCalib::EventAnalysis()
 
 
   //  cout << "TaADCCalib: Processing Event Analaysis for ADC Calib" << endl;
-  char charkey[10];
   string key; 
   Int_t id;
   Double_t dataX;
