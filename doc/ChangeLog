@@ -6,6 +6,61 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by A. Vacheret on 12 Feb 2003
+-------------------------------------
+
+Everything said here is in part in the README_PANAM file. Before 
+trying to do anything with PANAM you should read this file.  
+
+As we agreed I commit everything in the same directory as Pan. You have 
+to watch for not mixing respective main.cc
+and makefiles when compiling (lead to uncontrol mutations...). I change that 
+in a minute.. 
+
+New files :
+
+makefile_panam 
+
+main_panam.cc 
+
+ o  replace main.cc content by this 
+
+LinkDef.hh 
+ 
+ o  panam linkdef
+
+TaPanamDevice.hh,.cc 
+ 
+ o Class to handle devices for monitoring. Not call VaPanamDevice because
+ not strictly a base class. I think we should have merged in a way TaDevice 
+and this one for more compatibility...I am not sure what does really imply
+but I have more experience now how I will handle the devices inside pan. 
+But we don't have time really to do that I think and I dont have thought 
+about that really hard. Too late.  
+
+TaPanamADevice.hh,cc
+
+ o inherited from TaPanamDevice to handle more complex data (asym diff). Will
+implement another class to help using 
+
+TaPanamAna.hh,.cc 
+ o Analysis for monitoring, Handle taPanamDevice object and others.
+
+TaPanam.hh,.cc 
+
+ o Main class which display the GUI, launch threads, manage canvases. 
+
+TaThread.hh,.cc 
+
+ o Thread class so we can use them more easily. TaPanam inherit from it. 
+ Just to have a clean separation. Mostly because it seems easier to fix stuff
+when you separate problems...
+
+TaStripChart.hh,.cc  
+
+ o StripChart ala E158... I discovered they get the code from PHENIX...it's
+ in the ROOT discussion... not a scoop for everybody I guess...
+
 Changes by R. Holmes on 6 Feb 2003
 ----------------------------------
 
