@@ -151,7 +151,8 @@ TaBlind::Create (const string s)
 	res = (((res<<1) + (res>>30)) ^ *p++) & 0x7FFFFFFF;
       clog << "TaBlind::Create: '" << s << "' hashes to " << res << endl;
       TRandom r(res);
-      fBlindOffset = r.Uniform(-1., 1.);
+      //      fBlindOffset = r.Uniform(-1.,1.);
+      fBlindOffset = -1 + 2*r.Uniform(1.);
 #ifdef SIGNFLIP
       fBlindSign = 2*((Double_t)(r.Integer(2)))-1;
 #else
