@@ -479,12 +479,15 @@ VaEvent::Decode(TaDevice& devices)
 
 // Detectors
   for (i = 0; i < DETNUM; i++) {
-    key = DETOFF + 2*i;
+    key = DETOFF + 3*i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    fData[key+2]=0;
+    if (fData[key]>=60000) fData[key+2]=1;  // set saturation flag from raw value
     idx = devices.GetCalIndex(key);
     if (idx < 0) continue;
     fData[key+1] = fData[idx];
     if (devices.IsUsed(key)) devices.SetUsed(key+1);
+    if (devices.IsUsed(key)) devices.SetUsed(key+2);
   }
 
   // UMass Profile scanners
@@ -692,7 +695,7 @@ VaEvent::CalibDecode(TaDevice& devices)
 
 // Detectors (no pedestal subtraction here!)
   for (i = 0; i < DETNUM; i++) {
-    key = DETOFF + 2*i;
+    key = DETOFF + 3*i;
     corrkey = DETCORROFF + i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
     idx = devices.GetCorrIndex(key);

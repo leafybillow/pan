@@ -861,18 +861,22 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"det1r", IDET1R));
   fKeyToIdx.insert(make_pair((string)"det1c", IDET1C));
   fKeyToIdx.insert(make_pair((string)"det1",  IDET1));
+  fKeyToIdx.insert(make_pair((string)"det1s", IDET1S));
 
   fKeyToIdx.insert(make_pair((string)"det2r", IDET2R));
   fKeyToIdx.insert(make_pair((string)"det2c", IDET2C));
   fKeyToIdx.insert(make_pair((string)"det2",  IDET2));
+  fKeyToIdx.insert(make_pair((string)"det2s", IDET2S));
 
   fKeyToIdx.insert(make_pair((string)"det3r", IDET3R));
   fKeyToIdx.insert(make_pair((string)"det3c", IDET3C));
   fKeyToIdx.insert(make_pair((string)"det3",  IDET3));
+  fKeyToIdx.insert(make_pair((string)"det3s", IDET3S));
 
   fKeyToIdx.insert(make_pair((string)"det4r", IDET4R));
   fKeyToIdx.insert(make_pair((string)"det4c", IDET4C));
   fKeyToIdx.insert(make_pair((string)"det4",  IDET4));
+  fKeyToIdx.insert(make_pair((string)"det4s", IDET4S));
 
 // UMass Profile scanner (signal, X, Y, and
 //       control voltages v1, v2, v3) 

@@ -478,6 +478,7 @@ sub add_det
     $ret = "";
     $ret .= "\#define   ${det}R     $p\n"; $p++;
     $ret .= "\#define   ${det}      $p\n"; $p++;
+    $ret .= "\#define   ${det}S      $p\n"; $p++;
     $ret .= "\n";
     return $ret;
 }
