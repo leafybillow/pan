@@ -18,6 +18,8 @@ much (10% level), the distribution becomes inconsistent with the
 above pattern.  The conclusions for now is that we do not know from
 gprof what the main bottlenecks are.
 
+See /doc/prof_opt.dat  and  /doc/prof_noopt.dat
+
 
 Comments by R. Michaels, 5 Apr 2002
 -----------------------------------
