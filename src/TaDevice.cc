@@ -1260,6 +1260,15 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"v2f_clk2",IV2F_CLK2));
   fKeyToIdx.insert(make_pair((string)"v2f_clk3",IV2F_CLK3));
 
+// quad photodiodes  (pp, pm, mp, mm) and calibrated data (x, y, sum)
+  fKeyToIdx.insert(make_pair((string)"qpd1pp",IQPD1PP));
+  fKeyToIdx.insert(make_pair((string)"qpd1pm",IQPD1PM));
+  fKeyToIdx.insert(make_pair((string)"qpd1mp",IQPD1MP));
+  fKeyToIdx.insert(make_pair((string)"qpd1mm",IQPD1MM));
+  fKeyToIdx.insert(make_pair((string)"qpd1x", IQPD1X));
+  fKeyToIdx.insert(make_pair((string)"qpd1y", IQPD1Y));
+  fKeyToIdx.insert(make_pair((string)"qpd1sum", IQPD1SUM));
+
   fKeyToIdx.insert(make_pair((string)"bmw_clean",IBMW_CLN));
   fKeyToIdx.insert(make_pair((string)"bmw_obj",IBMW_OBJ));
   fKeyToIdx.insert(make_pair((string)"bmw_val",IBMW_VAL));
