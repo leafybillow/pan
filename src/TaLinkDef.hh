@@ -18,25 +18,24 @@
 #pragma link off all functions;
 
 #pragma link C++ class TaADC;
+#pragma link C++ class TaADCCalib;
 #pragma link C++ class TaAnalysisManager;
 #pragma link C++ class TaAsciiDB;
-#pragma link C++ class TaBCM;
-#pragma link C++ class TaBPM;
 #pragma link C++ class TaBeamAna;
 #pragma link C++ class TaCutInterval;
 #pragma link C++ class TaCutList;
+#pragma link C++ class TaDevice;
 #pragma link C++ class TaEvent;
+#pragma link C++ class TaFdbkAna;
 #pragma link C++ class TaLabelledQuantity;
 #pragma link C++ class TaPairFromPair;
 #pragma link C++ class TaRun;
-#pragma link C++ class TaScaler;
+#pragma link C++ class TaRunFeedback;
 #pragma link C++ class TaStatistics;
 #pragma link C++ class TaString;
-#pragma link C++ class TaTB;
-#pragma link C++ class TaTIR;
 #pragma link C++ class VaAnalysis;
 #pragma link C++ class VaDataBase;
-#pragma link C++ class VaDevice;
 #pragma link C++ class VaPair;
 
 #endif
+
