@@ -1257,7 +1257,7 @@ VaAnalysis::InitFeedback()
    if (fSwitch[0])
      {
       fTimeScale[0] = fRun->GetDataBase().GetFdbkTimeScale("IA"); 
-      clog<<" VaAnalysis::RunIni() IA timescale "<<fTimeScale[0]<<endl;
+      clog<<" VaAnalysis::InitFeedback() IA timescale "<<fTimeScale[0]<<endl;
       mykey.clear();
       mykey.push_back("slope");
       dtmp = fRun->GetDataBase().GetData("IAparam",mykey);
@@ -1271,7 +1271,7 @@ VaAnalysis::InitFeedback()
      {
       fTimeScale[1] = fRun->GetDataBase().GetFdbkTimeScale("PZT");
       fTimeScale[2] = fRun->GetDataBase().GetFdbkTimeScale("PZT");
-      clog<< "VaAnalysis::RunIni() PZT feedback timescale "<<fTimeScale[1]<<endl;
+      clog<< "VaAnalysis::InitFeedback() PZT feedback timescale "<<fTimeScale[1]<<endl;
       mykey.clear();
       mykey.push_back("M11");
       mykey.push_back("M12");
@@ -1283,7 +1283,7 @@ VaAnalysis::InitFeedback()
               fPZTMatrix[kk] = dtmp[kk];     
          }
       }
-      clog << "VaAnalysis::RunIni() PZT Matrix "<<fPZTMatrix[0]<<"  "<<fPZTMatrix[1]
+      clog << "VaAnalysis::InitFeedback() PZT Matrix "<<fPZTMatrix[0]<<"  "<<fPZTMatrix[1]
                                           <<"  "<<fPZTMatrix[2]<<"  "<<fPZTMatrix[3]
                                           <<endl;
      }
@@ -1298,19 +1298,19 @@ VaAnalysis::InitFeedback()
 	 for(int kk = 0; kk < 2; kk++) {
 	   fPZTQslopes[kk] = dtmp[kk];
 	 }
-	 clog << "VaAnalysis::RunIni() PZT Charge Coupling Slopes:" << endl;
+	 clog << "VaAnalysis::InitFeedback() PZT Charge Coupling Slopes:" << endl;
 	 clog << "    QX = " <<fPZTQslopes[0] << endl;
 	 clog << "    QY = " <<fPZTQslopes[1] << endl;
        } else {
 	 fPZTQcoupling = kFALSE;
-	 clog << "VaAnalysis::RunIni() No PZT Charge Couple Slopes indicated"
+	 clog << "VaAnalysis::InitFeedback() No PZT Charge Couple Slopes indicated"
 	      << endl;
        }
      }
    if (fSwitch[3])
      {
       fTimeScale[3] = fRun->GetDataBase().GetFdbkTimeScale("PITA"); 
-      clog<<" VaAnalysis::RunIni() PITA timescale "<<fTimeScale[3]<<endl;
+      clog<<" VaAnalysis::InitFeedback() PITA timescale "<<fTimeScale[3]<<endl;
       mykey.clear();
       mykey.push_back("slope");
       dtmp = fRun->GetDataBase().GetData("PITAparam",mykey);
@@ -1320,7 +1320,7 @@ VaAnalysis::InitFeedback()
    if (fSwitch[4])
      {
       fTimeScale[4] = fRun->GetDataBase().GetFdbkTimeScale("IAHallC"); 
-      clog <<" VaAnalysis::RunIni() IA for HallC timescale " 
+      clog <<" VaAnalysis::InitFeedback() IA for HallC timescale " 
 	   << fTimeScale[4] <<endl;
       mykey.clear();
       mykey.push_back("slope");
@@ -1351,11 +1351,11 @@ VaAnalysis::ComputeData(EFeedbackType fdbk, UInt_t timescale, Int_t devicekey)
    }
  else 
    {
-    fSum[fdbk].push_back(fPair->GetDiff(devicekey)*1E6);
-    fMean1[fdbk]+=fPair->GetDiff(devicekey)*1E6;
+    fSum[fdbk].push_back(fPair->GetDiff(devicekey)*1E3);
+    fMean1[fdbk]+=fPair->GetDiff(devicekey)*1E3;
 #ifdef FDBK
     clog<<"\n\nVaAnalysis::ComputeData() Diff of Monitor "
-        <<fMonitor[fdbk]<<" : "<<fPair->GetDiff(devicekey)*1E6
+        <<fMonitor[fdbk]<<" : "<<fPair->GetDiff(devicekey)*1E3
         <<" Npair "<<fNPair[fdbk]<<" sum "<<fMean1[fdbk]<<" current mean "
         <<fMean1[fdbk]/fNPair[fdbk]<<endl;
 #endif
