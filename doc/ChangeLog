@@ -5,6 +5,47 @@ This is a detailed list of ongoing changes.  Add changes to
 the top of this file.
 
 
+Changes by R. Holmes on 22 Aug 2002
+-----------------------------------
+
+These changes reflect the fact that not all analyses will want to
+produce ROOT files, slice statistics, or run statistics!
+
+Slice and run statistics are still printed by TaRun methods -- after
+all, a run owns its statistics -- but these now are separate from the
+AccumPair and Finish methods, and are called from methods of
+VaAnalysis.  AccumEvt and AccumPair now take boolean arguments
+governing whether slice or run statistics are calculated.  VaAnalysis
+supplies these arguments from its data members fDoSlice and fDoRun.
+
+Likewise, the creation of the ROOT output file and the event tree
+happen in a TaRun method (InitRoot, replacing InitTree) but this
+method is called from a VaAnalysis method.  Whether it is in fact
+called or not, and whether VaAnalysis sets up the pair tree, is
+governed by another VaAnalysis data member, fDoRoot.
+
+fDoSlice, fDoRun, and fDoRoot are all initialized to true in the
+VaAnalysis constructor, but could be changed to false in the
+constructor of any derived class that wanted to do so.  Thus, for
+instance, a MONITOR analysis type could shut off ROOT output just by
+initializing fDoRoot to false.
+
+These switches could also be initialized based on values given in the
+database, if we wanted to provide that functionality, though I am not
+sure it really makes sense to turn stats and root files on and off
+independently of which analysis type we are using.
+
+As a side effect, the last slice of a run may be longer than the
+canonical 1000 events.  If this really matters, it can be fixed.
+
+
+TaRun.{hh,cc} VaAnalysis.{hh,cc}
+
+ o Move stats printing control to VaAnalysis
+
+ o Allow analyses to turn on/off stats printing and ROOT output
+
+
 Changes by R. Holmes on 20 Aug 2002
 -----------------------------------
 
