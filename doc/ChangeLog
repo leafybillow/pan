@@ -21,9 +21,9 @@ Changes by R. Michaels on Oct 21, 2002
  * TaAnalysisManager passes database over-ride command to 
    the TaRun.
 
- * TaCutList, TaDevice, TaEvent, TaLinkDef.h, TaRun, VaAnalysis,
-   TaPair use TaDataBase instead of VaDataBase.  Actually some
-   of these didn't use database but had included the headers.
+ * TaCutList, TaDevice, TaEvent, TaLinkDef.hh, TaRun, VaAnalysis,
+   TaPairFromQuad use TaDataBase instead of VaDataBase.  Actually 
+   some of these didn't use database but had included the headers.
 
  * VaAnalysis writes the database to the ROOT file.  (This can
    be retrieved with '-D rootsource file' command line option.)
