@@ -23,6 +23,7 @@ public:
 		const string ind = "diff_bpm12x");
   Double_t GetMean () const {return fComputed ? fMean : 0;}
   Double_t GetMeanErr () const {return fComputed ? fMeanErr : -1;}
+  vector<string> Monitors () const;
   
 private:
   UInt_t fRun;
@@ -94,24 +95,22 @@ RedCoefs::Compute (const string dep, const string ind)
   
   string slopest;
   if (fCtype == "dither")
-    //    slopest = "";
-    return;
+    slopest = "D" + dep + "_vs_M" + ind;
   else if (fCtype == "regress")
     slopest = dep + "_vs_" + ind + "_slope";
-  
+ 
   Double_t meanwsum(0);
   Double_t wsum(0);
   
   for (UInt_t i = 0; i < fTagvec.size(); ++i)
     {
       string rtag = fTagvec[i];
-      //      cerr << i << " '" << slopest << "' =?= '" << rtag << "'" << endl;
       if (rtag.size() > slopest.size() &&
 	  rtag.substr (rtag.size()-slopest.size(), slopest.size()) == slopest)
 	{
 	  meanval = fMeanvec[i];
-	  errval = fErrvec[i];
-	  //      cerr << meanval << endl;
+	  // modulation analysis stores 0 for error, so use 1
+	  errval = (fCtype == "regress" ? fErrvec[i] : 1);
 	  if (errval > 0)
 	    {
 	      Double_t wt = 1 / errval / errval;
@@ -134,8 +133,39 @@ RedCoefs::Compute (const string dep, const string ind)
       fMean = 0;
       fMeanErr = -1;
     }
-  //  cerr << dep << " " << ind << fMean << endl;
 }
+
+
+vector<string>
+RedCoefs::Monitors () const
+{
+  // Return a list of all monitors for which coefficients exist
+
+  vector<string> ret;
+  ret.clear();
+  Int_t offs = (fCtype == "dither" ? 5 : 9);
+  Int_t trailing = (fCtype == "dither" ? 0 : 6);
+  for (UInt_t i = 0; i < fTagvec.size(); ++i)
+    {
+      string rtag = fTagvec[i];
+      UInt_t ivs = rtag.find ("_vs_");
+      if (ivs != string::npos)
+	{
+	  if (fCtype == "dither" && rtag[ivs+4] != 'M')
+	    continue;
+	  string mon = rtag.substr (ivs+offs, rtag.size()-ivs-offs-trailing);
+	  vector<string>::const_iterator ir;
+	  for (ir = ret.begin();
+	       ir != ret.end() && *ir != mon;
+	       ++ir)
+	    {}
+	  if (ir == ret.end())
+	    ret.push_back (mon);
+	}
+    }
+  return ret;
+}
+
 
 RedCoefs::RedCoefs (const RedCoefs& rc)
 {
