@@ -206,16 +206,18 @@ protected:
 					    const string& other, 
 					    const UInt_t flags = 0);
   virtual void AutoPairAna();
-
-  virtual void QasyRunFeedback();
-  virtual void QasyEndFeedback();
-  virtual void PZTRunFeedback();
-  virtual void PZTEndFeedback();
-  virtual void SendVoltagePC();
-  virtual void QasySendEPICS();
+  // virtual void SendVoltagePC();
   virtual void PZTSendEPICS();
   virtual void SendVoltagePZT();
   virtual void GetLastSetPt();
+  // new code 
+  virtual void InitFeedback();
+  virtual void ProceedFeedback();
+  virtual void ProceedLastFeedback();
+  virtual void ComputeData(EFeedbackType fdbk, UInt_t timescale, Int_t devicekey);
+  virtual void ComputeLastData(EFeedbackType fdbk, UInt_t timescale, Int_t devicekey);
+  virtual void SendEPICS(EFeedbackType fdbk); 
+
 
   // Data members
   TaRun* fRun;                  // Run being analyzed
@@ -255,37 +257,33 @@ protected:
   Bool_t fDoRoot;               // To control whether ROOT file is made
   Bool_t fFirstPass;            // Pass 1 or 2?
 
-  Bool_t fQSwitch;              // value of the switch for IA feedback
-  Bool_t fZSwitch;              // value of the switch for PZT feedbac
   Int_t fRunNum;                // current run number 
-  UInt_t fQTimeScale;           // timescale of IA feedback 
-  UInt_t fZTimeScale;           // timescale of PZT feedback
-  UInt_t fZNpair;               // PZT feedback number of pair  
-  UInt_t fQNpair;               // IA feedback number of pair 
-  Int_t fQStartPair;            // IA feedback pair start 
-  Int_t fQStopPair;             // IA feedback pair stop
-  Int_t fQfeedNum;              // IA feedback number
-  Int_t fZpair[2];              // PZT feedback number of pair Dx,Dy
-  Int_t fZStartPair;            // PZT feedback pair start
-  Int_t fZStopPair;             // PZT feedback pair stop
-  Int_t fZfeedNum;              // PZT feedback number
-  vector<Double_t> fQsum;       // IA charge asymmetry sum 
-  vector<Double_t> fZsum4B[2];  // PZT Dx,Dy sum
-  Double_t fQmean1;             // IA charge asymmetry mean value 1st pass  
-  Double_t fQmean2;             // IA charge asymmetry mean value 2nd pass
-  Double_t fQRMS;               // IA charge asymmetry RMS 
-  Double_t fQasy;               // IA charge asymmetry 
-  Double_t fQasyEr;             // IA charge asymmetry error
-  Double_t fZ4Bmean1[2];        // PZT Dx.Dy mean value 1st pass
-  Double_t fZ4Bmean2[2];        // PZT Dx,Dy mean value 2nd pass 
-  Double_t fZ4BRMS[2];          // PZT Dx,Dy RMS
-  Double_t fZ4Bdiff[2];         // PZT BPM4B Dx,Dy  
-  Double_t fZ4BdiffEr[2];       // PZT BPM4B Dx,Dy errors
-  Double_t fIAslope;            // IA feedback claibration slope
-  Double_t *fPZTMatrix;         // PZT matrix
-  Double_t fIAlast;             // last value of the IA voltage 
-  Double_t fPZTXlast;            // last value of the X PZT voltage
-  Double_t fPZTYlast;           // last valure of the Y PZT voltage
+  
+  // new feedback code 
+  // array of size 4 is used for feedback type: 1 is IA,2 is PZTX,3 is PZTY, 4 is PITA.
+  
+  string fFdbkName[4];           // Feedback name
+  string fMonitor[4];            // Current/postion Monitor name used for feedback                  
+  Bool_t fSwitch[4];             // Enable compute vlaue for feedback
+  Bool_t fSend[4];               // Enable send voltage value for feedback 
+  UInt_t fTimeScale[4];          // Timescale of feedback
+  UInt_t fMonitorKey[4];      // Current/position Monitor key   
+  UInt_t fNPair[4];              // Number of pair for type i feedback  
+  Int_t  fStartPair[4];          // Feedback pair start 
+  Int_t  fStopPair[4];           // IA feedback pair stop
+  Int_t  fFeedNum[4];            // feedback number
+  vector<Double_t> fSum[4];      // Sum of value for feedback i 
+  Double_t fMean1[4];            // Feedback Mean value 1st pass  
+  Double_t fMean2[4];            // Feedback Mean value 2st pass  
+  Double_t fRMS[4];              // Feedback RMS
+  Double_t fResult[4];           // (asy or diff) result for feedback i  
+  Double_t fResultError[4];      // (asy or diff) result error for feedback i 
+  Double_t fIAslope;             // IA feedback calibration slope
+  Double_t fPITAslope;           // PITA feedback calibration slope
+  Double_t *fPZTMatrix;          // PZT matrix
+  Double_t fLast[4];              // Last value of the voltage for feeback i  
+
+
 
   // Define LEAKCHECK to check that new = del
   //#define LEAKCHECK
