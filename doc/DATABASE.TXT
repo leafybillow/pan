@@ -267,7 +267,12 @@ Table = 'datamap'
    In either case, subsequent keys increment to index for where to
    find the data.
 
-9. keys  -- 
+9. [crate-number] -- optional field
+
+   The crate number (or ROC #).  People who setup CODA should not make
+   a crate #0 (it is technically possible in CODA, but do not do it).
+
+10. keys  -- 
 
    In the datamap, keys are unique labels of channels of raw data.
    They are indexed in the code by indices in DevTypes.hh.  See also
