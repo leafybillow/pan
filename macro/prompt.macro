@@ -80,9 +80,9 @@ void prompt (UInt_t run, UInt_t batch)
 	      TCanvas* c1 = new TCanvas("c1", "spokes", 800, 800);
 	      c1->Divide (2, 2);
 	      c1->cd(1);
-	      spokes (0, "bpm4ax", "bpm4bx", 30.);
+	      spokes (0, "bpm4ax", "bpm4bx", 3000.);
 	      c1->cd(2);
-	      spokes (0, "bpm4ay", "bpm4by", 30.);
+	      spokes (0, "bpm4ay", "bpm4by", 3000.);
 	    }
 	}
     }
