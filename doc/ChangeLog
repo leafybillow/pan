@@ -6,6 +6,19 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Michaels on  26 May 2004
+--------------------------------------
+
+Added 3 voltage levels "v1" "v2" "v3"
+To sum up, data in the tree:
+    KprofNM
+where K = l or r for left, right spectrometer
+N = "x", "y", or "" for x, y position or amplitude, resp.
+and (newly) "v1" "v2" "v3" for 3 control voltages.
+M = "", "c", "r" for fully corrected, "calibrated", and
+raw, resp.  See also my note on 20 May.
+
+
 Changes by R. Holmes on  26 May 2004
 --------------------------------------
 
