@@ -1,4 +1,4 @@
-// bg_aparmacro package:: bg_rawsignal.macro
+// bplot package:: bg_rawsignal.macro
 // Purpose:  Plots of Diagnostics from haAna ntuple
 
 {

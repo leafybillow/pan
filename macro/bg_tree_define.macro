@@ -1,7 +1,7 @@
-// Macro Class BTREE    R. Michaels     Jan 2001
+// Macro Class BTREE    R. Michaels     Mar 2002
 //
-// Purpose :  To plot things from tree "T" which is externally define.
-// Used by :  bg_apar package, which runs under root CINT.
+// Purpose :  To plot things from tree "T" which is externally defined.
+// Used by :  bplot package, which runs under root CINT.
 // There are N plots (N <= MAXPLOT) arranged in nx by ny
 // zones, where nx*ny = N.
 // For i = 1,N we plot
