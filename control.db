@@ -17,7 +17,7 @@
 # IA feedback parameters 
     IAparam   slope 1000  int 26
 # PZT matrix
-    PZTparam  M11 100.1  M12 124.2  M21 200.1  M22 312.2
+    PZTparam  M11 100.1  M12 124.2  M21 200.1  M22 312.2  Xoff 432  Yoff 543
 # dacnoise values, these need to be calibrated
     dacnoise adc 4 chan 0 slope 0.0 int 0
     dacnoise adc 4 chan 1 slope 0.0 int 0

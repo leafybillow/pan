@@ -644,6 +644,10 @@ void TaAsciiDB::InitDB() {
        columns.push_back(new dtype("d"));
        columns.push_back(new dtype("s"));
        columns.push_back(new dtype("d"));
+       columns.push_back(new dtype("s"));
+       columns.push_back(new dtype("d"));
+       columns.push_back(new dtype("s"));
+       columns.push_back(new dtype("d"));
     }
     sipair.second = columns.size(); 
     colsize.insert(sipair);

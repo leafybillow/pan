@@ -70,7 +70,7 @@ const UInt_t VaAnalysis::fgDIFF           = 0x8;
 const UInt_t VaAnalysis::fgASY            = 0x10;
 const ErrCode_t VaAnalysis::fgVAANA_ERROR = -1;  // returned on error
 const ErrCode_t VaAnalysis::fgVAANA_OK = 0;      // returned on success
-const UInt_t VaAnalysis::fgMatrixSize     = 4;
+const UInt_t VaAnalysis::fgNumBpmFdbk     = 2;   // number of BPMs to feedback on
 
 #ifdef LEAKCHECK
 UInt_t VaAnalysis::fLeakNewEvt(0);
@@ -108,8 +108,10 @@ VaAnalysis::VaAnalysis():
   fPDeque.clear();
   fTreeList.clear();
   fEvt = new TaEvent();
-  fPZTMatrix = new Double_t[fgMatrixSize];
-  memset(fPZTMatrix, 0, fgMatrixSize*sizeof(Double_t));
+  fPZTMatrix = new Double_t[2*fgNumBpmFdbk];
+  fBpmOff = new Double_t[fgNumBpmFdbk];
+  memset(fPZTMatrix, 0, 2*fgNumBpmFdbk*sizeof(Double_t));
+  memset(fBpmOff, 0, fgNumBpmFdbk*sizeof(Double_t));
 #ifdef LEAKCHECK
   ++fLeakNewEvt;
 #endif
@@ -135,6 +137,7 @@ VaAnalysis::~VaAnalysis()
   delete fPairTree;
   delete[] fTreeSpace;
   delete[] fPZTMatrix;
+  delete[] fBpmOff;
 #ifdef LEAKCHECK
   ++fLeakDelEvt;
   ++fLeakDelPair;
@@ -245,13 +248,20 @@ VaAnalysis::RunIni(TaRun& run)
       mykey.push_back("M12");
       mykey.push_back("M21");
       mykey.push_back("M22");
+      mykey.push_back("xoff");
+      mykey.push_back("yoff");
       dtmp = fRun->GetDataBase().GetData("PZTparam",mykey);
-      if (dtmp.size() == fgMatrixSize) {
-         for (int kk = 0; kk < (long)fgMatrixSize; kk++) {
+      if (dtmp.size() == 3*fgNumBpmFdbk) {  // matrix and offset
+         for (int kk = 0; kk < 2*(long)fgNumBpmFdbk; kk++) {
               fPZTMatrix[kk] = dtmp[kk];     
          }
+         fBpmOff[0] = dtmp[2*fgNumBpmFdbk];
+         fBpmOff[1] = dtmp[2*fgNumBpmFdbk+1];
       }
+      cout << "PZT Matrix "<<fPZTMatrix[0]<<"  "<<fPZTMatrix[1]<<"  "<<fPZTMatrix[2]<<"  "<<fPZTMatrix[3]<<endl;
+      cout << "fBpmOff  "<<fBpmOff[0]<<"     "<<fBpmOff[1]<<endl;
    }
+  
 
   // Set pair type
 
@@ -1265,8 +1275,8 @@ void VaAnalysis::PZTSendEPICS(){
         pztinv[2] = -1*fPZTMatrix[2]/determ;
         pztinv[3] = fPZTMatrix[0]/determ;
       }
-      fdbk[0] = pztinv[0]*fZ4Bdiff[0] + pztinv[1]*fZ4Bdiff[1];
-      fdbk[1] = pztinv[2]*fZ4Bdiff[0] + pztinv[3]*fZ4Bdiff[1];
+      fdbk[0] = pztinv[0]*(fZ4Bdiff[0]-fBpmOff[0]) + pztinv[1]*(fZ4Bdiff[1]-fBpmOff[1]);
+      fdbk[1] = pztinv[2]*(fZ4Bdiff[0]-fBpmOff[0]) + pztinv[3]*(fZ4Bdiff[1]-fBpmOff[1]);
       sprintf(cinfo," 2 %6.2f",fdbk[0]);
       strcat(command, cinfo);
       clog << "Command for PZT X feedback :  " << command<<endl;
