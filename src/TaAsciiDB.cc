@@ -195,12 +195,6 @@ string TaAsciiDB::GetFdbkSwitch( const string &fdbktype )const {
     return GetData(table,fdbktype, 0);
   }
   else{
-    // Commented out: Why should this be an error?  Why not just return
-    // "off" (or "", which is not "on")?
-    //      cerr<<"TaAsciiDB::GetFdbkSwitch ERROR\n"
-    //  	<<"TABLE not declared correctly, need feedback table. "
-    //  	<<"Example of line format in .db file:\n"
-    //          <<" feedback    AQ   on   3 "<<endl;
     return "";
   }     
 }; 
@@ -567,13 +561,15 @@ void TaAsciiDB::InitDB() {
   tables.push_back("header");        //   8
   tables.push_back("datamap");       //   9
   tables.push_back("ncuts");         //  10
-  tables.push_back("extlo");          //  11
-  tables.push_back("exthi");          //  12
+  tables.push_back("extlo");         //  11
+  tables.push_back("exthi");         //  12
   tables.push_back("evint");         //  13
   tables.push_back("windelay");      //  14
   tables.push_back("oversamp");      //  15
   tables.push_back("pairtype");      //  16
   tables.push_back("feedback");      //  17 
+  tables.push_back("IAparam");       //  18
+  tables.push_back("PZTparam");      //  19
 
   pair<string, int> sipair;
   int k;
@@ -632,6 +628,22 @@ void TaAsciiDB::InitDB() {
       columns.push_back(new dtype("s"));
       columns.push_back(new dtype("s"));
       columns.push_back(new dtype("i"));
+    }
+    if (i == 18) {   // IA slope and intercept
+       columns.push_back(new dtype("s"));
+       columns.push_back(new dtype("d"));
+       columns.push_back(new dtype("s"));
+       columns.push_back(new dtype("d"));
+    }
+    if (i == 19) {   // PZT matrix
+       columns.push_back(new dtype("s"));
+       columns.push_back(new dtype("d"));
+       columns.push_back(new dtype("s"));
+       columns.push_back(new dtype("d"));
+       columns.push_back(new dtype("s"));
+       columns.push_back(new dtype("d"));
+       columns.push_back(new dtype("s"));
+       columns.push_back(new dtype("d"));
     }
     sipair.second = columns.size(); 
     colsize.insert(sipair);
