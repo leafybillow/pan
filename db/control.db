@@ -15,14 +15,18 @@
     blindparams sign 1 mean 0.0 offscale 0.0
 # feedback     type   switch on/off/onc(compute)   timescale (mn)  monitor  
     feedback    IA       onc                          1              bcm1
+    feedback    IAHallC  onc                          1              bcm5
     feedback    PZT      onc                           1             bpm4b
 # add this line when pita feedback is operationnal
 #    feedback    PITA     off                           1                
 # IA feedback parameters 
-    IAparam   slope -500 
+    IAparam        slope -500 
+    IAHallCparam   slope -700 
 #    PITAparam slope  0      
-# PZT matrix and offset
+# PZT matrix
     PZTparam  M11 1400.1  M12 2524.2  M21 4200.1  M22 3012.2 
+# PZT Charge Coupling
+    PZTQcoupling QX 100.1 QY -602.2
 # dacnoise values, these need to be calibrated
     dacnoise adc 0 chan 0 slope 0.0 
     dacnoise adc 0 chan 1 slope 0.0 
