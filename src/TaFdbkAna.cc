@@ -171,7 +171,7 @@ void TaFdbkAna::QasymRunFeedback(){
        // 2. Filters values of charge asymmetry too far from the mean.
        // 3. Recompute mean value and RMS. 
        // then if the value is acceptable for our criteria, 
-       // call TaRun::SendEPICSInfo to request feedbacks at the source            
+       // call SendEPICSInfo to request feedbacks at the source            
 
 
 #ifdef FDBK
@@ -262,8 +262,8 @@ void TaFdbkAna::QasymRunFeedback(){
       pair<char*, Double_t> asyerr;
       asyval.first = "HA:Q_ASY"; asyval.second = fQasymMean2; 
       asyerr.second = "HA:DQ_ASY"; asyerr.second = fQasymErr; 
-      //fRun->SendEPICSInfo(asyval); 
-      //fRun->SendEPICSInfo(asyerr); 
+      //SendEPICSInfo(asyval); 
+      //SendEPICSInfo(asyerr); 
 #endif
     }
     fQStartPair = fQStopPair;
@@ -354,8 +354,8 @@ TaFdbkAna::QasymEndRunFeedback(){
       pair<char*, Double_t> asyerr;
       asyval.first = "HA:Q_ASY"; asyval.second = fQasymMean2; 
       asyerr.second = "HA:DQ_ASY"; asyerr.second = fQasymErr; 
-      //fRun->SendEPICSInfo(asyval);
-      //fRun->SendEPICSInfo(asyerr); 
+      //SendEPICSInfo(asyval);
+      //SendEPICSInfo(asyerr); 
 #endif
      }
     fFdbkTree->Fill();            
@@ -381,16 +381,27 @@ TaFdbkAna& TaFdbkAna::operator=( const TaFdbkAna& assign)
   return *this; 
 }
 
+  void SendEPICSInfo( pair< char*, Double_t> value); // used by feedbacks 
+                                                        // to send EPICS var in ONLINE mode.
 
+// Non member functions
 
-
-
-
-
-
-
-
-
-
-
-
+void 
+SendEPICSInfo( pair< char* , Double_t> value)
+{
+  // used by feedbacks 
+  // to send EPICS var in ONLINE mode.  
+#ifdef ONLINE 
+  char* thevar = value.first;
+  char* thevalue = new char[100];
+  char* command = new char[100];
+  sprintf(thevalue,"%6.0f",value.second);
+  sprintf(command,"/pathtothescript/feedback_script ");
+  strcat( command,thevar);
+  strcat(command," ");
+  strcat(command,thevalue);
+  clog << "SHELL command = "<<command<<endl<<flush; 
+  system(command);
+  delete [] thevar;delete []thevalue; delete [] command;
+#endif
+}
