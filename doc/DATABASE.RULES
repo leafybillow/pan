@@ -12,7 +12,9 @@ The following are required to be defined, else the analysis will not continue.
    3. a pairtype
    4. helicity delay of zero or 8.
    5. a reasonable oversamp value (could be 1)
-   
+   6. cuts named Low_beam, Beam_burp, and Oversample; for
+      pair-structured beam data, cut named Sequence
+
 
   DATAMAP
   =======
@@ -32,12 +34,12 @@ datamap   bpm   bpm8     adc   5    0       73  bpm8xp bpm8xm bpm8yp bpm8ym
 2. Device type   
 
    Formerly this would be thought of as a class, but this concept is
-   obsolete.  However, the dev-type is still used by the code decide the
-   generic type of data being considered on this line.  
+   obsolete.  However, the dev-type is still used by the code to
+   decide the generic type of data being considered on this line.
 
 3. Device name    
 
-   Formerly known as an object, this concept is obselete after the
+   Formerly known as an object, this concept is obsolete after the
    decoding was simplified.  A device name is simply what people call
    the whole device within the code.  It is used to index the device.
 
@@ -80,9 +82,10 @@ datamap   bpm   bpm8     adc   5    0       73  bpm8xp bpm8xm bpm8yp bpm8ym
 
 7. evbuff-offset
 
-   The event buffer offset is the absolute position of the index for the
-   data pertaining to the first key.  It is incremented like startchan and
-   the two values (startchan and evbuff-offset) have a one-to-one correspondence.
+   The event buffer offset is the absolute position of the index for
+   the data pertaining to the first key.  It is incremented like
+   startchan and the two values (startchan and evbuff-offset) have a
+   one-to-one correspondence.
 
 8. keys  -- 
 

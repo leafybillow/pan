@@ -4,6 +4,73 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+
+Changes by R. Holmes on 23 Jul 2002
+-----------------------------------
+
+This round of changes is to remove the hard-wired cut names and
+numbers from Pan; instead the cut names are defined in the database,
+and methods are available to get a cut number corresponding to a cut
+name.  The intent is to make it a little easier to add or remove
+cuts. 
+
+PanTypes.hh
+
+ o enum ECutType becomes typedef Cut_t
+
+TaAsciiDB.{hh,cc}
+
+ o new cutnames table and getter
+
+TaCutList.hh
+
+ o getter for number of cuts
+
+TaCutList.cc
+
+ o Remove ECutType operator++
+
+ o Get number of cuts and cut names from database
+
+TaEvent.{hh,cc}
+
+ o RunInit returns error code
+
+ o cut numbers from database
+
+TaPairFromPair.{hh,cc}
+
+ o RunInit returns error code
+
+ o Cut numbers from database
+
+TaRun.cc
+
+ o TaEvent::RunInit returns error code
+
+ o No calls to TaCutList::AddName
+
+VaAnalysis.cc
+
+ o VaPair::RunInit returns error code
+
+VaDataBase.{hh,cc}
+
+ o Getters for cut names and cut numbers
+
+VaPair.{hh,cc}
+
+ o RunInit returns error code
+
+TaCutInterval.{hh,cc} TaRun.hh
+
+ o ECutType -> Cut_t
+
+control.db db/control.db
+
+ o Cut names
+
+
 Changes by R. Michaels on 23 Jul 2002
 --------------------------------------
 
@@ -25,7 +92,7 @@ This immediately brings up a few tasks that need to be done; see README_ISSUES.
 		
 
 Changes by R. Holmes on 22 Jul 2002
-------------------------------------
+-----------------------------------
 
 Most of these changes have to do with putting the individual cut
 states into the event tree.  This info will also go in the pair tree,

@@ -1,3 +1,14 @@
+Comments by R. Holmes, 23 Jul 2002
+----------------------------------
+
+TaMysql is even more broken, because it needs a GetCutNames
+definition. 
+
+(Note, though, that GetCutNumber is defined in VaDataBase in terms of
+other database methods -- so that, at least, should work with the SQL
+database.) 
+
+
 Comments by R. Michaels, 23 July 2002
 -------------------------------------
 
