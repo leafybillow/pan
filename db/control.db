@@ -1,10 +1,9 @@
-# The datamap in this example is close to what we used
-# in summer 2001.
+# Default database file for Parity analysis
+# The datamap in this example reflects what was in use in late 2002
 #    run 1824
 # number of events to process (leave this out to get infinite)
 #    maxevents 2000
-# run type and analysis type (why do we need both ?)
-    runtype BEAM
+# analysis type
     anatype BEAM
     lobeam  10000
     burpcut 500
@@ -164,12 +163,6 @@
 #    datamap   bmw        bmw      bmw        0     0       112   bmw_clean bmw_obj bmw_val
 #
     ncuts 4
-    cutnames Low_beam Beam_burp Oversample Sequence
+    cutnames Low_beam Beam_burp Evt_seq Pair_seq
     extlo 10 10 25 25
     exthi 40 40 25 25
-
-
-
-
-
-

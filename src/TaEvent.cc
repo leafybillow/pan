@@ -49,7 +49,7 @@ Double_t TaEvent::fgLoBeam;
 Double_t TaEvent::fgBurpCut;
 Cut_t TaEvent::fgLoBeamNo;
 Cut_t TaEvent::fgBurpNo;  
-Cut_t TaEvent::fgOversampleNo;
+Cut_t TaEvent::fgEvtSeqNo;
 UInt_t TaEvent::fgOversample;
 UInt_t TaEvent::fgSizeConst;
 UInt_t TaEvent::fgNCuts;
@@ -151,12 +151,14 @@ TaEvent::RunInit(const TaRun& run)
 
   fgLoBeamNo = run.GetDataBase().GetCutNumber("Low_beam");
   fgBurpNo = run.GetDataBase().GetCutNumber("Beam_burp");
-  fgOversampleNo = run.GetDataBase().GetCutNumber("Oversample");
+  fgEvtSeqNo = run.GetDataBase().GetCutNumber("Evt_seq");
+  if (fgEvtSeqNo == fgNCuts)
+    fgEvtSeqNo = run.GetDataBase().GetCutNumber("Oversample"); // backward compat
   if (fgLoBeamNo == fgNCuts ||
       fgBurpNo == fgNCuts ||
-      fgOversampleNo == fgNCuts)
+      fgEvtSeqNo == fgNCuts)
     {
-      cerr << "TaEvent::RunInit ERROR: Low_beam, Beam_burp, and Oversample"
+      cerr << "TaEvent::RunInit ERROR: Low_beam, Beam_burp, and Evt_seq"
 	   << " cuts must be defined in database" << endl;
       return fgTAEVT_ERROR;
     }
@@ -412,6 +414,9 @@ TaEvent::CheckEvent(TaRun& run)
 {
   // Analysis-independent checks of event quality; updates event's cut array.
 
+  const Int_t WRONGEVNO  = 0x1;
+  const Int_t WRONGTMSL  = 0x2;
+
   Double_t current = GetData(IBCM1);
 
   Int_t val = 0;
@@ -445,6 +450,20 @@ TaEvent::CheckEvent(TaRun& run)
       AddCut (fgBurpNo, val);
       run.UpdateCutList (fgBurpNo, val, fEvNum);
 
+      // Check event number sequence
+      val = 0;
+      if (GetEvNumber() != fgLastEv.GetEvNumber() + 1) 
+	{
+	  cerr << "TaEvent::CheckEvent ERROR Event " 
+	       << GetEvNumber() 
+	       << " unexpected event number, last event was " 
+	       << fgLastEv.GetEvNumber()
+	       << endl;
+	  val = WRONGEVNO;
+	} 
+      AddCut (fgEvtSeqNo, val);
+      run.UpdateCutList (fgEvtSeqNo, val, fEvNum);
+
       // Check time slot sequence
       val = 0;
       if ( fgOversample > 0 )
@@ -454,16 +473,16 @@ TaEvent::CheckEvent(TaRun& run)
 	    {
 	      cerr << "TaEvent::CheckEvent ERROR Event " 
 		   << GetEvNumber() 
-		   << " unexpected oversample value, went from " 
+		   << " unexpected timeslot value, went from " 
 		   << fgLastEv.GetTimeSlot()
 		   << " to " 
 		   << GetTimeSlot() 
 		   << endl;
-	      val = 1;
+	      val = WRONGTMSL;
 	    } 
 	}
-      AddCut (fgOversampleNo, val);
-      run.UpdateCutList (fgOversampleNo, val, fEvNum);
+      AddCut (fgEvtSeqNo, val);
+      run.UpdateCutList (fgEvtSeqNo, val, fEvNum);
     }
   
   fgLastEv = *this;

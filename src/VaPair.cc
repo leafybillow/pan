@@ -119,10 +119,12 @@ VaPair::RunInit(const TaRun& run)
   fgShreg = 1;
   fgNShreg = 0;
   fgPairMade = false;
-  fgSequenceNo = run.GetDataBase().GetCutNumber("Sequence");
+  fgSequenceNo = run.GetDataBase().GetCutNumber("Pair_seq");
+  if (fgSequenceNo ==  (UInt_t) run.GetDataBase().GetNumCuts())
+    fgSequenceNo = run.GetDataBase().GetCutNumber("Sequence"); // backward compat
   if (fgSequenceNo == (UInt_t) run.GetDataBase().GetNumCuts())
     {
-      cerr << "VaPair::RunInit ERROR: Sequence"
+      cerr << "VaPair::RunInit ERROR: Pair_seq"
 	   << " cut must be defined in database" << endl;
       return fgVAP_ERROR;
     }

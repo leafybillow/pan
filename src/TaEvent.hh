@@ -127,9 +127,9 @@ private:
   static Bool_t fgFirstDecode; // true until first event decoded
   static Double_t fgLoBeam;    // cut threshold from database
   static Double_t fgBurpCut;   // cut threshold from database
-  static Cut_t fgLoBeamNo;  // cut number for low beam
-  static Cut_t fgBurpNo;    // cut number for beam burp
-  static Cut_t fgOversampleNo; // cut number for oversample
+  static Cut_t fgLoBeamNo;     // cut number for low beam
+  static Cut_t fgBurpNo;       // cut number for beam burp
+  static Cut_t fgEvtSeqNo;     // cut number for event sequence
   static UInt_t fgOversample;  // oversample factor
   static UInt_t fgSizeConst;   // size of first physics event should be size of all
   static UInt_t fgNCuts;       // Length of cut array
