@@ -36,7 +36,7 @@
 //     11. event intervals where data are cut.
 //      
 //  For usage instructions, syntax rules, and other details, see
-//          /doc/DATABASE.DOC
+//          /doc/DATABASE.TXT
 //
 /////////////////////////////////////////////////////////////////////
 
