@@ -46,7 +46,7 @@ TaAnalysisManager::~TaAnalysisManager ()
 
 // Major functions
 
-Int_t
+ErrCode_t
 TaAnalysisManager::Init ()
 {
   // Initialization routine for use with online data
@@ -61,7 +61,7 @@ TaAnalysisManager::Init ()
 }
 
 
-Int_t 
+ErrCode_t 
 TaAnalysisManager::Init (RunNumber_t run)
 {
   // Initialization routine for replay, data from file derived from
@@ -72,7 +72,7 @@ TaAnalysisManager::Init (RunNumber_t run)
 }
 
 
-Int_t 
+ErrCode_t 
 TaAnalysisManager::Init (string runfile)
 {
   // Initialization routine for replay, data from a given file
@@ -82,16 +82,15 @@ TaAnalysisManager::Init (string runfile)
 }
 
 
-Int_t
+ErrCode_t
 TaAnalysisManager::Process()
 {
   // Process all data
 
-  fAnalysis->ProcessRun();
-  return fgTAAM_OK; // for now always return OK
+  return fAnalysis->ProcessRun();
 }
 
-Int_t
+ErrCode_t
 TaAnalysisManager::End()
 {
   // Cleanup for overall analysis
@@ -104,7 +103,7 @@ TaAnalysisManager::End()
   // Move the generic root file to 'pan_%d.root' where %d is the run number.
   char syscommand[200];
   string anatype;
-  anatype = fRun->GetDataBase()->GetAnaType();
+  anatype = fRun->GetDataBase().GetAnaType();
   char *path;
   path = getenv("ROOT_OUTPUT");
   if (path == NULL) {
@@ -123,7 +122,7 @@ TaAnalysisManager::End()
 
 // Private member functions
 
-Int_t
+ErrCode_t
 TaAnalysisManager::InitCommon()
 {
   // Common setup for overall management of analysis
@@ -150,13 +149,13 @@ TaAnalysisManager::InitCommon()
   // Check the database.  If there is a problem, you cannot continue.
 
   clog << "checking database ..."<<endl;
-  if ( !fRun->GetDataBase()->SelfCheck() ) {
+  if ( !fRun->GetDataBase().SelfCheck() ) {
     cerr << "TaAnalysisManager::Init ERROR: Invalid database.  Quitting."<<endl;
     return fgTAAM_ERROR;
   }
 
   // Make the desired kind of analysis
-  TaString theAnaType = fRun->GetDataBase()->GetAnaType();
+  TaString theAnaType = fRun->GetDataBase().GetAnaType();
 
   clog << "TaAnalysisManager::Init Analysis type is " 
        << theAnaType << endl;
@@ -175,7 +174,6 @@ TaAnalysisManager::InitCommon()
     }
   
   fAnalysis->Init();
-  fAnalysis->RunIni (*fRun);
-  return fgTAAM_OK;
+  return fAnalysis->RunIni (*fRun);
 }
 
