@@ -6,6 +6,22 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Michaels on 20 Mar 2003
+-------------------------------------
+
+Modified VaEvent, TaDevice, TaDataBase, and genDevTypes.pl for
+the new decoding scheme.  See the "datamap" section of the document
+./doc/DATABASE.TXT.  Basically, this allows two new advantages:
+1) A device like BCM can be tied to an ADC.  Primitive devices
+(ADC, SCALER, TIR, and TIMEBOARD) must have their locations defined
+in the event buffer, but devices that "derive" from them (BCM, BPM,
+LUMI, DETECTOR) only need to know what device number and channel number
+to look for.  2) The 2nd advantage is that this decoding will work 
+for multicrate readout, even if the ordering of crates in the datastream 
+fluctuates, which is possible, and there is nothing about CODA that
+regulates the ordering of the crates.  The old datamap scheme still 
+works and is useful for old data or single-crate setups.  See 
+DATABASE.TXT for details.
 
 Changes by R. Holmes on  7 Mar 2003
 -----------------------------------
@@ -64,7 +80,6 @@ db/control.db
 src/TaFileName.cc
 
  o Lowercase ana type in file names
-
 
 Changes by R. Holmes on 27 Feb 2003
 -----------------------------------
