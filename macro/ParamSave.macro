@@ -14,7 +14,7 @@
 #include "src/TaFileName.hh"
 
 // Uncomment to load fake correction coefficients
-//#define FAKETYFAKE 1
+#define FAKETYFAKE 1
 
 class ParamSave
 {
@@ -86,6 +86,10 @@ ParamSave::LoadCorrs ()
   fCorrCoef[1].clear();
   
 #ifdef FAKETYFAKE  
+  cerr << "=====================================" << endl;
+  cerr << "WARNING!" << endl;
+  cerr << "FAKE CORRECTION COEFFICIENTS LOADED!" << endl;
+  cerr << "=====================================" << endl;
   vector<Double_t> v;
   
   v.clear();
