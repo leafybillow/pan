@@ -5,6 +5,15 @@ This is a detailed list of ongoing changes.  Add changes to
 the top of this file.
 
 
+Changes by R. Michaels on 7 Aug 2002
+-------------------------------------
+
+To avoid "tree bloat", I modifed TaEvent::AddToTree to
+only add devices that are defined in datamap (which is
+a part of database).  This also required modifying TaDevice so 
+that it knows and can report which devices were defined.
+	
+	
 Changes by R. Holmes on 7 Aug 2002
 -----------------------------------
 
