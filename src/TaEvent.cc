@@ -31,6 +31,7 @@
 #include "TaDevice.hh"
 #include "TaDataBase.hh"
 #include <iostream>
+#include <iomanip>
 #include <utility>
 #include <cmath>
 
@@ -166,6 +167,7 @@ TaEvent::RunInit(const TaRun& run)
   fgK[2] =    1.0;   fgK[3] =    1.0; 
   fgD[0] =  0.00100;   fgD[1] =  0.00135; 
   fgD[2] =  0.00165;   fgD[3] =  0.00200; 
+  clog << "TaEvent::RunInit WARNING: Detector faking is ON! **************" << endl;
 #endif
   return fgTAEVT_OK;
 }
@@ -237,9 +239,8 @@ void TaEvent::Decode(TaDevice& devices) {
       UInt_t k2 = idx - ADCOFF;
       UInt_t iadc = k2 / 4;
       fData[idx] = fgK[i] + fgR.Gaus(0,fgD[i]);
-      //    clog << ">>>>>> " << i << " " << fData[idx] << endl;
-      fData[idx] += devices.GetPedestal(key) - 
-	(fData[DACOFF + iadc]-ADC_MinDAC) * devices.GetDacSlope(k2)
+      fData[idx] += devices.GetPedestal(idx) +
+	(fData[DACOFF + iadc]-ADC_MinDAC) * devices.GetDacSlope(k2);
     }
 #endif
 
@@ -360,7 +361,6 @@ void TaEvent::Decode(TaDevice& devices) {
     fData[key+1] = fData[idx];
 #ifdef FAKEDET
      fData[key+1] *= fData[IBCM1];
-    //  clog << ">>>>>> " << i << " " << fData[idx] << endl;
 #endif
     if (devices.IsUsed(key)) devices.SetUsed(key+1);
   }
@@ -382,7 +382,8 @@ void TaEvent::Decode(TaDevice& devices) {
   fData[ITIMESLOT] = (Double_t)(((int)GetData(IOVERSAMPLE) & 0xff00) >> 8);
   // kluge to correct new timing boards, with os counting 1,2...(n-1),0
   // needs first line to assure that it will work with old timeboard data also.
-  fData[ITIMESLOT] = ((UInt_t) fData[ITIMESLOT] % (UInt_t) fgOversample);
+  // Actually this line is unneeded and causes confusion; commented out by RSH
+  //  fData[ITIMESLOT] = ((UInt_t) fData[ITIMESLOT] % (UInt_t) fgOversample);
   if (fData[ITIMESLOT]==0) fData[ITIMESLOT] = fgOversample;
 
 
@@ -727,6 +728,22 @@ void TaEvent::DeviceDump() const {
     }
     cout << endl;
   }
+}
+
+void 
+TaEvent::MiniDump() const 
+{
+// Diagnostic dump of selected data on one line for debugging purposes.
+// Note the helicity is delayed
+
+  cout << "Event " << dec << setw(7) << GetEvNumber()
+       << " h/dh/t/p/q =" << dec 
+       << " " << setw(2) << (Int_t) GetData (IHELICITY)
+       << "/" << setw(2) << (Int_t) GetDelHelicity()
+       << "/" << setw(2) << (Int_t) GetData (ITIMESLOT)
+       << "/" << setw(2) << (Int_t) GetData (IPAIRSYNCH)
+       << "/" << setw(2) << (Int_t) GetData (IQUADSYNCH)
+       << " BCM1 = " << GetData (IBCM1) << endl; 
 }
 
 Double_t TaEvent::GetData( Int_t key ) const { 

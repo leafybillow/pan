@@ -99,6 +99,7 @@ public:
   const vector < TaLabelledQuantity > & GetResults() const; // results for event
   void RawDump() const;      // dump raw data for debugging.
   void DeviceDump() const;   // dump device data for debugging.
+  void MiniDump() const;     // dump of selected data on one line
 
   void AddToTree (TaDevice& dev, 
 		  const TaCutList& cutlist, 
