@@ -47,16 +47,22 @@ Double_t VaEvent::fgLoBeam;
 Double_t VaEvent::fgLoBeamC;
 Double_t VaEvent::fgBurpCut;
 Double_t VaEvent::fgSatCut;
+Double_t VaEvent::fgPosBurp[fgMaxNumPosMon];
+Double_t VaEvent::fgCBurpCut;
 Cut_t VaEvent::fgLoBeamNo;
 Cut_t VaEvent::fgLoBeamCNo;
 Cut_t VaEvent::fgBurpNo;  
 Cut_t VaEvent::fgSatNo;  
 Cut_t VaEvent::fgEvtSeqNo;
 Cut_t VaEvent::fgStartupNo;
+Cut_t VaEvent::fgPosBurpNo;
+Cut_t VaEvent::fgCBurpNo;  
 UInt_t VaEvent::fgOversample;
 UInt_t VaEvent::fgCurMon;
 UInt_t VaEvent::fgCurMonC;
 UInt_t VaEvent::fgDet[4];
+UInt_t VaEvent::fgNPosMon;
+UInt_t VaEvent::fgPosMon[fgMaxNumPosMon];   
 UInt_t VaEvent::fgSizeConst;
 UInt_t VaEvent::fgNCuts;
 Bool_t VaEvent::fgCalib;
@@ -156,6 +162,29 @@ VaEvent::RunInit(const TaRun& run)
   fgLoBeamC = run.GetDataBase().GetCutValue("lobeamc");
   fgBurpCut = run.GetDataBase().GetCutValue("burpcut");
   fgSatCut = run.GetDataBase().GetCutValue("satcut");
+  fgCBurpCut = run.GetDataBase().GetCutValue("cburpcut");
+
+  vector<TaString> vposmon = run.GetDataBase().GetStringVect("posmon");
+  Int_t npm = vposmon.size();
+  vector<Double_t> vposbcut = run.GetDataBase().GetCutValueDVector("posburp");
+  Int_t npc = vposbcut.size();
+  if (npc < npm) vposmon.resize(npc);
+  Int_t ic=0;
+  vector<Double_t>::iterator ipbc = vposbcut.begin();  
+  for(vector<TaString>::iterator iconst = vposmon.begin();
+      iconst != vposmon.end(); iconst++) {
+    //    clog << " for beam burp, looking for monitor " << *iconst<< endl;
+    if ((iconst->size()>2) && (*ipbc)!=0 && run.GetKey(string (*iconst))) {
+      // the size requirement is a kludge to get around the fact
+      // that GetStringVect returns spaces as elements of the space deliminated
+      // array, even if they didn't exist in the database, while 
+      // GetCutDVect returns zeros... Beauty.
+      fgPosMon[ic] = run.GetKey(string ( *iconst));
+      fgPosBurp[ic] = *ipbc;
+      ipbc++; ic++;
+    }
+  } 
+  fgNPosMon = ic;
 
   fgNCuts = (UInt_t) run.GetDataBase().GetNumCuts();
 
@@ -165,10 +194,12 @@ VaEvent::RunInit(const TaRun& run)
   fgSatNo = run.GetDataBase().GetCutNumber ("Det_saturate");
   fgEvtSeqNo = run.GetDataBase().GetCutNumber ("Evt_seq");
   fgStartupNo = run.GetDataBase().GetCutNumber ("Startup");
+  fgCBurpNo = run.GetDataBase().GetCutNumber ("C_burp");
+  fgPosBurpNo = run.GetDataBase().GetCutNumber ("Pos_burp");
   if (fgEvtSeqNo == fgNCuts)
     fgEvtSeqNo = run.GetDataBase().GetCutNumber ("Oversample"); // backward compat
   if (fgLoBeamNo == fgNCuts ||
-      fgEvtSeqNo == fgNCuts)
+      fgEvtSeqNo == fgNCuts  )
     {
       cerr << "VaEvent::RunInit ERROR: Following cut(s) are not defined "
 	   << "in database and are required:";
@@ -180,7 +211,9 @@ VaEvent::RunInit(const TaRun& run)
   if (fgBurpNo == fgNCuts ||
       fgSatNo == fgNCuts ||
       fgLoBeamCNo == fgNCuts ||
-      fgStartupNo == fgNCuts)
+      fgStartupNo == fgNCuts ||
+      fgCBurpNo == fgNCuts ||
+      fgPosBurpNo == fgNCuts )
     {
       cerr << "VaEvent::RunInit WARNING: Following cut(s) are not defined "
 	   << "in database and will not be imposed:";
@@ -188,6 +221,8 @@ VaEvent::RunInit(const TaRun& run)
       if (fgBurpNo == fgNCuts) cerr << " Beam_burp";
       if (fgSatNo == fgNCuts) cerr << " Det_saturate";
       if (fgStartupNo == fgNCuts) cerr << " Startup";
+      if (fgPosBurpNo == fgNCuts) cerr << " Pos_burp";
+      if (fgCBurpNo == fgNCuts) cerr << " C_burp";
       cerr << endl;
     }
 
@@ -201,6 +236,7 @@ VaEvent::RunInit(const TaRun& run)
   fgDet[1] = run.GetKey (string ("det2r"));
   fgDet[2] = run.GetKey (string ("det3r"));
   fgDet[3] = run.GetKey (string ("det4r"));
+
 
   fgOversample = run.GetOversample();
   fgLastEv = VaEvent();
@@ -796,6 +832,9 @@ VaEvent::CheckEvent(TaRun& run)
       run.UpdateCutList (fgSatNo, val, fEvNum);
     }
 
+
+
+
   if ( fgLastEv.GetEvNumber() == 0 )
     {
       // First event, cut it (startup cut)
@@ -821,6 +860,50 @@ VaEvent::CheckEvent(TaRun& run)
 	  AddCut (fgBurpNo, val);
 	  run.UpdateCutList (fgBurpNo, val, fEvNum);
 	}
+
+      // C Beam burp -- current change greater than limit?
+      val = 0;
+      if (fgCBurpNo < fgNCuts)
+	{
+	  if (abs (currentc-fgLastEv.GetData(fgCurMonC)) > fgCBurpCut)
+	    {
+#ifdef NOISY
+	      clog << "Event " << fEvNum << " failed C-beam burp cut, "
+		   << abs (currentc-fgLastEv.GetData(fgCurMonC)) << " > " << fgCBurpCut << endl;
+#endif
+	      val = 1;
+	    }
+	  AddCut (fgCBurpNo, val);
+	  run.UpdateCutList (fgCBurpNo, val, fEvNum);
+	}
+
+
+      //Check Position Beam Burp
+      if ( fgPosBurpNo < fgNCuts)
+	{
+	  Bool_t posburp = false;
+	  UInt_t i;
+	  for (i = 0; !posburp && i < fgNPosMon; i++)
+	    if (run.GetDevices().IsUsed(fgPosMon[i]))
+	      posburp = abs( GetData(fgPosMon[i]) -
+			     fgLastEv.GetData(fgPosMon[i]) ) > fgPosBurp[i];
+	  
+	  if (posburp)
+	    {
+#ifdef NOISY
+	      clog << "Event " << fEvNum << " failed beam burp cut, monitor " << 
+	           << i << " = " 
+		   << abs( GetData(fgPosMon[i-1])-fgLastEv.GetData(fgPosMon[i-1]) ) 
+                   << " > " << fgPosBurp[i-1] << endl;
+#endif
+	      val = 1;
+	    }
+	  AddCut (fgPosBurpNo, val);
+	  run.UpdateCutList (fgPosBurpNo, val, fEvNum);
+	}
+
+
+
 
       // Check event number sequence
       val = 0;

@@ -6,6 +6,31 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by K. Paschke on  29 Sep 2004
+--------------------------------------
+
+Changes to TaDatabase, VaEvent, TaCutsList, and VaPair to implement a 
+cut on beam burps from the Hall C beam, and from position monitors.
+
+
+New Database words for the Beam monitor burp cut (which, technically,
+doesnt have to be position):
+    posmon  bpm12x bpm4ax  bpm4bx bpm4ay  bpm4by
+    posburp  0.3   0.3     0.3    0.3    0.3
+New Database word for the Hall C burp cut (this value is not realistic):
+    cburpcut 600
+
+And to apply these cuts, include the words in the cutnames entry (with
+the appropriate number in the ncuts entry:
+
+    ncuts 8
+    cutnames Low_beam Beam_burp Evt_seq Pair_seq Startup Det_saturate Pos_burp C_burp
+    extlo 10 10 25 25 0 1 20 30
+    exthi 30 30 25 25 1 1 60 600
+
+
+
+
 Changes by R. Holmes on  27 Sep 2004
 --------------------------------------
 

@@ -379,7 +379,7 @@ VaPair::GetAsyNSum (vector<Int_t> keys, Int_t curmonkey, vector<Double_t> wts) c
     (GetLeft().GetDataSum (keys, wts))/GetLeft().GetData(curmonkey);
   if ( denom <= 0 )
     {
-      cerr << "VaPair::GetAsyNSum ERROR: Denominator is <= zero" << endl;
+      //      cerr << "VaPair::GetAsyNSum ERROR: Denominator is <= zero" << endl;
       return -1;
     }
   Double_t numer = ((GetRight().GetDataSum (keys, wts))/GetRight().GetData(curmonkey)) - 

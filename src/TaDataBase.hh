@@ -372,6 +372,7 @@ public:
   Bool_t GetCalVar() const;
 // Get a cut value for 'cutname'.  e.g. cutname = 'lowbeam', 'burpcut' 
   Double_t GetCutValue(const string& cutname) const;
+  vector<Double_t> GetCutValueDVector(const string& cutname) const;
 // Get number of cuts 
   Int_t GetNumCuts() const;
 // Get names of cuts

@@ -328,6 +328,23 @@ void TaDataBase::Print() {
   clog << "   Low beam C cut :  " << GetCutValue("lobeamc") << endl;
   clog << "   Burp cut :  " << GetCutValue("burpcut") << endl;
   clog << "   Saturation cut :  " << GetCutValue("satcut") << endl;
+  clog << "   Hall C Burp cut :  " << GetCutValue("cburpcut") << endl;
+
+  vector<TaString> vposmon = GetStringVect("posmon");
+  UInt_t npm = vposmon.size();
+  vector<Double_t> vposbcut = GetCutValueDVector("posburp");
+  UInt_t npc = vposbcut.size();
+  if (npc < npm) vposmon.resize(npc);
+  clog << "   Position Burp Cut : " << endl;
+  vector<Double_t>::iterator ipbc = vposbcut.begin();
+  for(vector<TaString>::iterator iconst = vposmon.begin();
+      iconst != vposmon.end(); iconst++) {
+    if (iconst->size()>1 && (*ipbc)!=0 )
+      clog << "        " << *iconst << " burpcut = " << *ipbc << endl;
+    ipbc++;    
+  }
+
+  clog << "   Hall C Burp cut :  " << GetCutValue("cburpcut") << endl;
 
   vector<Double_t> wts = GetDetWts();
   if (wts.size() > 0)
@@ -458,6 +475,23 @@ TaDataBase::Checkout()
   cout << "lobeamc  cut = " << GetCutValue("LOBEAMC") << endl;
   cout << "burpcut  cut = " << GetCutValue("BURPCUT") << endl;
   cout << "satcut  cut = " << GetCutValue("SATCUT") << endl;
+  clog << "cburpcut cut :  " << GetCutValue("cburpcut") << endl;
+
+  vector<TaString> vposmon = GetStringVect("posmon");
+  UInt_t npm = vposmon.size();
+  vector<Double_t> vposbcut = GetCutValueDVector("posburp");
+  UInt_t npc = vposbcut.size();
+  if (npc < npm) vposmon.resize(npc);
+  clog << "posburp  cut: " << endl;
+  vector<Double_t>::iterator ipbc = vposbcut.begin();
+  for(vector<TaString>::iterator iconst = vposmon.begin();
+       iconst!=vposmon.end(); iconst++) {
+    if (iconst->size()>1 && (*ipbc)!=0) 
+      clog << "     " << *iconst << " : " << *ipbc << endl;
+    ipbc++;
+  }
+  
+
   cout << "window delay = " << GetDelay() << endl;
   cout << "oversampling factor = " << GetOverSamp() << endl;
   cout << "pair type (i.e. pair or quad) =  " << GetPairType() << endl;
@@ -1108,6 +1142,12 @@ Double_t TaDataBase::GetCutValue(const string& cutname) const {
    return GetValue(cutname);
 };
 
+vector<Double_t> TaDataBase::GetCutValueDVector(const string& cutname) const {
+// Get a vector of values for 'value'.  e.g. value = 'posburp' 
+   return GetValueDVector(cutname);
+};
+
+
 Int_t TaDataBase::GetNumCuts() const {
 // Get number of cuts "ncuts" in the database.
    return (Int_t)GetValue("ncuts");
@@ -1143,6 +1183,7 @@ vector<Int_t> TaDataBase::GetExtHi() const {
 // Get cut evhi event intervals 
    return GetValueVector("exthi");
 };
+
 
 vector<Double_t> TaDataBase::GetDetWts() const 
 {
@@ -1524,6 +1565,9 @@ void TaDataBase::InitDB() {
   tables.push_back("blumiwts");      //  35
   tables.push_back("flumiwts");      //  36
   tables.push_back("satcut");        //  37
+  tables.push_back("posmon");        //  38
+  tables.push_back("posburp");       //  39
+  tables.push_back("cburpcut");         //  40
 
   pair<string, int> sipair;
   int k;
@@ -1661,6 +1705,14 @@ void TaDataBase::InitDB() {
     if (i == 36)    // flumiwts
       for (k = 0; k < 2; k++) columns.push_back(new dtype("d"));
     if (i == 37) columns.push_back(new dtype("d"));  // satcut
+    if (i == 38) {   // position monitors for the posburp cut
+      for (k = 0; k < 40; k++) columns.push_back(new dtype("s"));
+    }
+    if (i == 39) {   // thresholds for the posburp cut
+      for (k = 0; k < 40; k++) columns.push_back(new dtype("d"));
+    }
+    if (i == 40) columns.push_back(new dtype("d")); // cburpcut
+
     sipair.second = columns.size(); 
     colsize.insert(sipair);
     LoadTable(tables[i],columns);
