@@ -1,0 +1,27 @@
+void vscoil (TString quant)
+{
+  TTree* tt = gROOT->FindObject("R");
+
+  int cyc = tt->GetMaximum("bmwcyc");
+  TString sel ("bmwcyc==");
+  sel += cyc;
+
+  tt->SetMarkerStyle(7);
+  tt->SetMarkerColor(1);
+  tt->Draw(quant, sel);
+  TH1* h = gROOT->FindObject("htemp");
+  h->SetTitle (quant);
+
+  TString selx = sel;
+  selx += "&&(bmwobj==0||bmwobj==1||bmwobj==3||bmwobj==5)";
+  TString sely = sel;
+  sely += "&&(bmwobj==2||bmwobj==4||bmwobj==6)";
+  TString sele = sel;
+  sele += "&&(bmwobj==7)";
+  tt->SetMarkerColor(2);
+  tt->Draw(quant, selx,"same");
+  tt->SetMarkerColor(4);
+  tt->Draw(quant, sely,"same");
+  tt->SetMarkerColor(6);
+  tt->Draw(quant, sele,"same");
+}
