@@ -6,6 +6,37 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by B. Moffit on     14 May 2004
+---------------------------------------
+
+Added the ability to do feedback on the Hall C charge asymmetry, as
+well as correcting for PZT Charge Asymmetry coupling.
+
+Feedback on the Hall C IA is enabled in the database file with:
+# feedback     type   switch on/off/onc(compute)   timescale (mn)  monitor  
+    feedback   IAHallC  on                          1              bcm5
+    IAHallCparam   slope -700 
+(similar to regular IA settings).
+
+PZT Charge coupling is enabled in the database file if IA AND PZT
+feedback is enabled... AND this line in the database is defined:
+# PZT Charge Coupling
+    PZTQcoupling QX 100.1 QY -602.2
+
+By default (with the #define FBCALCDELTA), pan will only calculate the
+changes to the source element DAC voltages.. and send them to the
+shell script: epics_feedback.
+
+The epics_feedback script is run like this:
+    $EPICS_SCRIPTS/epics_feedback {TYPE} {DELTAV}
+where the {TYPE} is:
+  1  IA 
+  2  PZT X
+  3  PZT Y
+  4  PITA
+  5  IA-HallC
+and {DELTAV} is the change in voltage calculated by pan.
+
 Changes by R. Michaels on   14 May 2004
 ---------------------------------------
 
