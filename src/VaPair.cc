@@ -101,14 +101,14 @@ VaPair::AddResult (const TaLabelledQuantity& lq)
 
 
 Double_t 
-VaPair::GetDiff (string key)
+VaPair::GetDiff (Int_t key)
 {
   return GetRight().GetData(key) - GetLeft().GetData(key);
 }
 
 
 Double_t 
-VaPair::GetAsy (string key)
+VaPair::GetAsy (Int_t key)
 {
   Double_t denom = GetRight().GetData(key) + GetLeft().GetData(key);
   if ( denom == 0 )
@@ -117,7 +117,6 @@ VaPair::GetAsy (string key)
 	   << key << endl;
       return 0;
     }
-  //  cout<<"GEtAsy() left, right"<<GetRight().GetData(key)<<" ,"<<GetLeft().GetData(key)<<endl; 
   return (GetRight().GetData(key) - GetLeft().GetData(key)) / denom;
 }
 
@@ -142,3 +141,5 @@ VaPair::GetResults() const
 {
   return fResults;
 }
+
+
