@@ -59,6 +59,8 @@
 #include <vector>
 #include <iostream>
 
+//#define SIGNFLIP            // comment out to fix sign at +1
+
 using namespace std;
 
 class TaBlind : public string 

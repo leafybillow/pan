@@ -1034,7 +1034,9 @@ VaAnalysis::AutoPairAna()
 	      if (alist.fFlagInt & (fgBLIND | fgBLINDSIGN))
 		{
 		  val = fBlind->BlindSignOnly (val);
+#ifdef SIGNFLIP
 		  unit += " (blinded sign)";
+#endif		
 		}
 	    }
 	  if (fPairTree != 0)
@@ -1074,7 +1076,9 @@ VaAnalysis::AutoPairAna()
 		  else if (alist.fFlagInt & fgBLINDSIGN)
 		    {
 		      val = fBlind->BlindSignOnly (val);
+#ifdef SIGNFLIP
 		      unit += " (blinded sign)";
+#endif
 		    }
 		}
 	    }
@@ -1119,7 +1123,9 @@ VaAnalysis::AutoPairAna()
 		  else if (alist.fFlagInt & fgBLINDSIGN)
 		    {
 		      val = fBlind->BlindSignOnly (val);
+#ifdef SIGNFLIP
 		      unit += " (blinded sign)";
+#endif		
 		    }
 		}
 	    }

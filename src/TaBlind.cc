@@ -56,8 +56,6 @@
 #include "TRandom.h"
 #include "TaString.hh"
 
-//#define SIGNFLIP            // comment out to fix sign at +1
-
 #define PRODUCTION
 #ifndef NODICT
 ClassImp(TaBlind)
