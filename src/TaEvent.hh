@@ -36,7 +36,7 @@
 #include <fstream>
 #endif
 
-#define FAKEDET
+//#define FAKEDET
 #ifdef FAKEDET
 class TRandom;
 #endif
