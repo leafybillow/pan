@@ -6,6 +6,16 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on  29 May 2004
+--------------------------------------
+
+Modified main.cc's handling of command line.  If none of the Pan
+options (-r, -f, -o, -t, -D, -h, -?) is found (instead of only if
+none of -r, -f, -o is found) we go to the interactive version, and we
+ignore any other options and pass them on to TRint.  This means you
+can do e.g. "pan -b -q macro.C" as with regular ROOT.
+
+
 Changes by R. Michaels on  26 May 2004
 --------------------------------------
 

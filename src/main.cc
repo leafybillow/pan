@@ -36,6 +36,7 @@ int main(int argc, char **argv)
 
   int runnum = 0;
   int choice = 0;
+  Bool_t interactive(true); // hand off to TRint or not?
   char *cfilename;
   Bool_t twopass(false);
   vector<string> dbcommand;
@@ -52,6 +53,7 @@ int main(int argc, char **argv)
 	    {
 	      runnum = atoi(argv[++i]);
 	      choice = 1;
+	      interactive = false;
 	    }
 	  else
 	    {
@@ -66,6 +68,7 @@ int main(int argc, char **argv)
 	      cfilename = new char[strlen(argv[++i])+1];
 	      strcpy(cfilename,argv[i]);
 	      choice = 2;
+	      interactive = false;
 	    }
 	  else
 	    {
@@ -74,12 +77,19 @@ int main(int argc, char **argv)
 	    }
 	}
       else if (strcasecmp(argv[i],"-o") == 0) 
-	choice = 3;
+	{
+	  choice = 3;
+	  interactive = false;
+	}
       else if (strcasecmp(argv[i],"-t") == 0) 
-	twopass = true;
+	{
+	  twopass = true;
+	  interactive = false;
+	}
   
       else if (strcasecmp(argv[i],"-D") == 0) {
 // Pre-parse the database command line.
+	interactive = false;
         if (i > argc-1) {
            usage();
            return 1;
@@ -99,7 +109,7 @@ int main(int argc, char **argv)
           ++i;
 	}
       }
-      else
+      else if (strcasecmp(argv[i],"-h") == 0 || strcasecmp(argv[i],"-?") == 0) 
 	{
 	  usage();
 	  return 1;
@@ -118,7 +128,7 @@ cont1:
 
   TROOT pan ( "pan", "Parity analyzer" );
 
-  if (choice == 0)
+  if (interactive)
     {
       // Interactive use with ROOT prompt
       TRint *theApp = new TRint( "The Hall A parity analyzer", &argc, argv, NULL, 0, kFALSE );
@@ -154,6 +164,11 @@ cont1:
 	  return 1;
 #endif
 	}
+      else
+	{
+	  usage();
+	  return 1;
+	}
       if (twopass)
 	{
 	  if (am->Process() != 0 || 
@@ -184,11 +199,17 @@ void usage() {
   cerr << "                [Recompile with ONLINE flag in Makefile to allow" << endl;
   cerr << "                analysis of online data]" << endl;
 #endif
-  cerr << "  Interactive prompt will be given if no data source is specified." << endl;
-  cerr << "" << endl;
   cerr << "  Other options:" << endl;
   cerr << "    -t             Do 2-pass analysis (with -r or -f only)." << endl;
   cerr << "    -D table data  Database command line override" << endl;
+  cerr << "" << endl;
+  cerr << "  Interactive prompt will be given if none of the above options is specified." << endl;
+  cerr << "  In that case you can use the usual ROOT options:" << endl;
+  cerr << "    -b : run in batch mode without graphics" << endl;
+  cerr << "    -n : do not execute logon and logoff macros as specified in .rootrc" << endl;
+  cerr << "    -q : exit after processing command line macro files" << endl;
+  cerr << "    -l : do not show splash screen" << endl;
+  cerr << "    dir : if dir is a valid directory cd to it before executing" << endl;
   cerr << "" << endl;
   cerr << "  Valid examples:" << endl;
   cerr << "     ./pan -r 1824 -t" << endl;
@@ -197,6 +218,7 @@ void usage() {
   cerr << "     ./pan -o " << endl;
 #endif
   cerr << "     ./pan" << endl;
+  cerr << "     ./pan -b -q macro.C" << endl;
   cerr << "     ./pan -r 1824 -D lobeam 500 pairtype pair" << endl;
   cerr << "     ./pan -r 1824 -D control.db evint 5610  5824 8 1" << endl;
   cerr << "     ./pan -r 1824 -D mysql -D maxevents 50000" << endl;
