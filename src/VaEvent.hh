@@ -151,6 +151,8 @@ private:
   EHelicity fPrevROHel;        // Readout helicity for previous event
   EHelicity fPrevHel;          // True helicity for previous event
 
+  vector<Double_t> fQPD1Pars;    // QPD gain parameters
+
 #ifndef NODICT
 ClassDef(VaEvent,0)  // An event
 #endif

@@ -180,7 +180,11 @@ VaEvent::RunInit(const TaRun& run)
 
   fgOversample = run.GetOversample();
   fgLastEv = VaEvent();
+
+  fQPD1Pars = run.GetDataBase().GetQpd1Const();
+
   return fgTAEVT_OK;
+
 }
   
 void 
@@ -328,6 +332,12 @@ void VaEvent::Decode(TaDevice& devices) {
     ixmyp = devices.GetCalIndex(key+2);
     ixmym = devices.GetCalIndex(key+3);
     if (ixpyp < 0 || ixpym < 0 || ixmyp < 0 || ixmym < 0) continue;
+    if (i==0) {  // kludgey way to use relative gains for qpd1
+      fData[ixpyp] *= fQPD1Pars[0];
+      fData[ixpym] *= fQPD1Pars[1];
+      fData[ixmyp] *= fQPD1Pars[2];
+      fData[ixmym] *= fQPD1Pars[3];
+    }
     ix  = key + 4;
     iy  = key + 5;
     sum = fData[ixpyp] + fData[ixpym] + fData[ixmyp] + fData[ixmym];
@@ -336,10 +346,17 @@ void VaEvent::Decode(TaDevice& devices) {
     xval = 0;
     yval = 0;
     if ( sum > 0 ) { 
-      xval = 
-	(fData[ixpyp] + fData[ixpym] - fData[ixmyp]- fData[ixmym])/ sum;
-      yval = 
-	(fData[ixpyp] - fData[ixpym] + fData[ixmyp]- fData[ixmym])/ sum;
+      if (i==0) {
+	xval = fQPD1Pars[4]*
+	  (fData[ixpyp] + fData[ixpym] - fData[ixmyp]- fData[ixmym])/ sum;
+	yval = fQPD1Pars[5]*
+	  (fData[ixpyp] - fData[ixpym] + fData[ixmyp]- fData[ixmym])/ sum;
+      } else {
+	xval = 
+	  (fData[ixpyp] + fData[ixpym] - fData[ixmyp]- fData[ixmym])/ sum;
+	yval = 
+	  (fData[ixpyp] - fData[ixpym] + fData[ixmyp]- fData[ixmym])/ sum;
+      }
     }
     if (devices.IsRotated(ix)) {
        fData[ix] = Rotate (xval, yval, 1);

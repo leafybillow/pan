@@ -579,7 +579,7 @@ TaDataBase::GetQpd1Const() const
 {
   // Return the blinding parameters -- sign, mean, and offscale.
   // Return defaults if absent from database.  Length of returned
-  // vector is always 3.
+  // vector is always 6.
 
   vector<string> keys;
   keys.clear();
@@ -591,6 +591,16 @@ TaDataBase::GetQpd1Const() const
   keys.push_back ("y-const");
   
   vector<Double_t> data = GetData ("qpd1const", keys);
+
+  // If parameters missing, push default values.
+  if (data.size() == 0) {
+    data.push_back (1.);  // relative gains
+    data.push_back (1.);  // 
+    data.push_back (1.);  // 
+    data.push_back (1.);  // 
+    data.push_back (1.);  // distance conversions
+    data.push_back (1.);  // 
+  }
   return data;
 }
 
