@@ -29,16 +29,12 @@ Bool_t TaPairFromPair::fgSkipping = true;
 TaEvent TaPairFromPair::fgThisWinEv;
 TaEvent TaPairFromPair::fgLastWinEv;
 UInt_t TaPairFromPair::fgShreg = 1;      // value for sequence algorithm      
-#ifdef HSDEB
-UInt_t TaPairFromPair::fgShreg2 = 1;      // value for sequence algorithm      
-#endif
 UInt_t TaPairFromPair::fgNShreg = 0;     // count since fgShreg was reset
 Bool_t TaPairFromPair::fgPairMade = false;   // set in Fill to true if pair made, else false
 Bool_t TaPairFromPair::fgNeedHelCheck = true; // need to check helicity on next first event
 
 TaPairFromPair::TaPairFromPair():VaPair()
 {
-  Init();
 }
 
 TaPairFromPair::TaPairFromPair(const TaPairFromPair& copy):VaPair(copy)
@@ -53,6 +49,19 @@ TaPairFromPair &TaPairFromPair::operator=(const TaPairFromPair &assign)
 
 TaPairFromPair::~TaPairFromPair()
 {
+}
+
+void 
+TaPairFromPair::RunInit()
+{
+  VaPair::RunInit();
+  fgSkipping = true;
+  fgThisWinEv = TaEvent();
+  fgLastWinEv = TaEvent();
+  fgShreg = 1;
+  fgNShreg = 0;
+  fgPairMade = false;
+  fgNeedHelCheck = true;
 }
 
 void TaPairFromPair::CheckSequence( TaEvent& ThisEv, TaRun& run )
@@ -89,12 +98,6 @@ void TaPairFromPair::CheckSequence( TaEvent& ThisEv, TaRun& run )
 	// See if helicity is right
 	{
 	  fgNeedHelCheck = false;
-#ifdef HSDEB
-	  UInt_t x = RanBit2();
-	  if (ThisEv.GetEvNumber() == 70)
-	    x = 1-x;
-	  ThisEv.SetDelHelicity(x==0?LeftHeli:RightHeli);
-#endif
 	  if (!HelSeqOK (ThisEv.GetDelHelicity()))
 	    {
 	      cout << "TaPairFromPair::CheckEvent ERROR: Event " 
@@ -253,33 +256,6 @@ TaPairFromPair::RanBit()
   return newbit; 
 }
 
-
-#ifdef HSDEB
-UInt_t 
-TaPairFromPair::RanBit2()
-{
-
-// Pseudorandom bit generator from HAPPEX-I. New bit is XOR of bits
-// 17, 22, 23, 24 of 24 bit shift register fgShreg. New fgShreg is old
-// one shifted one bit left, with new bit injected at bit 1. (bit
-// numbered 1 on right to 24 on left.)  The new bit is generated at at
-// the beginning of each window pair.  This algorithm mimics the one
-// implemented in hardware in the helicity box and is used for random
-// helicity mode.
- 
-  UInt_t bit24  = (fgShreg2 & 0x800000) != 0;
-  UInt_t bit23  = (fgShreg2 & 0x400000) != 0;
-  UInt_t bit22  = (fgShreg2 & 0x200000) != 0;
-  UInt_t bit17  = (fgShreg2 & 0x010000) != 0;
-  UInt_t newbit = ( bit24 ^ bit23 ^ bit22 ^ bit17 ) & 0x1;
-  clog << "}}}}}}1 " << ( (fgShreg2 << 1 )) << endl;
-  clog << "}}}}}}2 " << ( newbit ) << endl;
-  clog << "}}}}}}3 " << ( newbit | (fgShreg2 << 1 )) << endl;
-  clog << "}}}}}}4 " << (( newbit | (fgShreg2 << 1 )) & 0xFFFFFF) << endl;
-  fgShreg2 = ( newbit | (fgShreg << 1 )) & 0xFFFFFF;
-  return newbit; 
-}
-#endif
 
 Bool_t
 TaPairFromPair::HelSeqOK (EHelicity h)

@@ -35,6 +35,7 @@ public:
   ~TaPairFromPair();
   
   // Major functions
+  void RunInit();
   Bool_t Fill (TaEvent&, TaRun&); // check for pair and fill
   
 private:
@@ -43,10 +44,6 @@ private:
   void CheckSequence (TaEvent&, TaRun&); // look for helicity/synch errors
   Bool_t ProcessPairing();
   UInt_t  RanBit(); 
-  //#define HSDEB
-#ifdef HSDEB
-  UInt_t  RanBit2(); 
-#endif
   Bool_t TaPairFromPair::HelSeqOK (EHelicity h);
 
   // Data members
@@ -54,12 +51,10 @@ private:
   static TaEvent fgThisWinEv;  // first ev of this window
   static TaEvent fgLastWinEv;  // first ev of last window
   static UInt_t  fgShreg;      // value for sequence algorithm      
-#ifdef HSDEB
-  static UInt_t  fgShreg2;     // value for sequence algorithm      
-#endif
   static UInt_t  fgNShreg;     // count since fgShreg was reset
   static Bool_t  fgPairMade;   // set in Fill to true if pair made, else false
   static Bool_t  fgNeedHelCheck; // need to check helicity on next first event
+
 #ifdef DICT
   ClassDef(TaPairFromPair, 0)  // Helicity pair from HAPPEX pair structure
 #endif
