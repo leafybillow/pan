@@ -6,6 +6,26 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on  16 Jun 2004
+--------------------------------------
+
+RedCoefs.macro is a class that reads correction coefficients out of
+redana files and averages them.  It's intended for use with both
+dithering and regression files but in fact in this first version only
+regression files are read correctly.
+
+I get a compiler warning about the copy constructor in
+TaIResultsFile.hh when I use this, so I fixed what the compiler was
+complaining about -- this despite the fact that we do not actually use
+the copy constructor in TaIResultsFile and its implementation is
+empty.  But I hate getting warnings.
+
+ParamSave.macro now uses RedCoefs.macro to try to get regression
+coeffients -- for now, only for det1 and det3.
+
+See README_ISSUES.
+
+
 Changes by R. Holmes on  15 Jun 2004
 --------------------------------------
 

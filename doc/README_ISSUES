@@ -1,3 +1,22 @@
+Comments by R. Holmes, 16 Jun 2004
+----------------------------------
+
+On the application of corrections: lots of things to improve, but at
+the most basic level: (1) Needs to be made to work with dithering.
+But I'd like to see the dither and regression results files made more
+compatible first.  (2) It's hard to read all the needed coefficients
+in a single pass through the results file; it's easier to reopen it
+for each coefficient needed.  This produces multiple messages on
+screen which are not very helpful.  I tried using seekg to eliminate
+the need to close and reopen the file but could not get it to work the
+way I thought it would.  (3) Right now only det1 and det3 are
+corrected; need to do others too, once things are working well
+enough.  (4) Last but not least, a quick look at results for one run
+seems to indicate no narrowing of the detector widths after
+correction, so I suspect corrections are being either computed wrong
+or applied wrong.  Probably the latter.
+
+
 Comments by R. Michaels, 14 May 2004
 ------------------------------------
 
