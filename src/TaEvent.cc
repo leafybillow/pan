@@ -1,17 +1,21 @@
-////////////////////////////////////////////////////////////////////////
+//**********************************************************************
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
 //           TaEvent.cc  (implementation)
-//           ^^^^^^^^^^
 //
-//    Authors :  R. Holmes, A. Vacheret, R. Michaels
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
+//
+////////////////////////////////////////////////////////////////////////
 //
 //    An event of data.
 //    Includes methods to get data using keys.  For ADCs and 
 //    scalers can also get the data by slot number and channel.
+//    Events are loaded from a data source and may have analysis results
+//    added to them; they may be checked for cut conditions.
 //
-//////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 //#define NOISY
 //#define DEBUG
@@ -73,15 +77,21 @@ TaEvent &TaEvent::operator=(const TaEvent &ev)
 void 
 TaEvent::RunInit(const TaRun& run)
 {
-  // initialization at start of run
+  // Initialization at start of run.  Get quantities from database
+  // which will be needed in event loop, and set other static variables
+  // to initial values.
+
   fgFirstDecode = true;
   fgLoBeam = run.GetDataBase()->GetCutValue("lobeam");
   fgBurpCut = run.GetDataBase()->GetCutValue("burpcut");
   fgLastEv = TaEvent();
 }
   
-void TaEvent::Load (const Int_t* buff) {
-// Put a raw event into the buffer, and pull out event type and number.
+void 
+TaEvent::Load (const Int_t* buff) 
+{
+  // Put a raw event into the buffer, and pull out event type and number.
+
   fCutFail.clear();
   fCutPass.clear();
   fEvLen = buff[0] + 1;
@@ -99,9 +109,10 @@ void TaEvent::Load (const Int_t* buff) {
 };
 
 void TaEvent::Decode(const TaDevice& devices) {
-// Decodes all the raw data and applies all the calibrations.
-// Note: This assumes the event structure remains constant.  
-// We check this by verifying a constant event length.
+// Decodes all the raw data and applies all the calibrations and BPM
+// rotations..  Note: This assumes the event structure remains
+// constant.  We check this by verifying a constant event length.
+
   Int_t i,j,key,ok,ixp,ixm,iyp,iym,ix,iy;
   Double_t sum,xrot,yrot;
   memset(fData, 0, MAXKEYS*sizeof(Double_t));
@@ -259,6 +270,7 @@ TaEvent::CheckEvent(TaRun& run)
 void TaEvent::AddCut (const ECutType cut, const Int_t val)
 {
   // Store information about cut conditions passed or failed by this event.
+
   if (val == 0)
     fCutPass.push_back (make_pair (cut, val));
   else
@@ -269,6 +281,7 @@ void TaEvent::AddCut (const ECutType cut, const Int_t val)
 void TaEvent::AddResult( const TaLabelledQuantity& result)
 {
   // Store a result from analysis of this event.
+
   fResults.push_back (result);
 };
 
@@ -276,6 +289,8 @@ void TaEvent::AddResult( const TaLabelledQuantity& result)
 // Data access functions
 
 Int_t TaEvent::GetRawData(Int_t index) const {
+  // Return an item from the event buffer.
+
   if (index >= 0 && (UInt_t)index < fgMaxEvLen) 
     return fEvBuffer[index];
   else
@@ -287,6 +302,8 @@ Int_t TaEvent::GetRawData(Int_t index) const {
 };
 
 Bool_t TaEvent::CutStatus() const {
+  // Return true iff event failed one or more cut conditions 
+
   return (fCutFail.size() > 0);    
 };
 
@@ -311,16 +328,28 @@ UInt_t TaEvent::GetEvType() const {
 };
 
 SlotNumber_t TaEvent::GetTimeSlot() const {
+  // Return oversampling timeslot for this event.
+
   return (SlotNumber_t)GetData(ITIMESLOT);
 };
 
 void TaEvent::SetDelHelicity(EHelicity h)
 {
+  // Fill in the delayed helicity value for an event.  We use this to
+  // associated a delayed helicity with the earlier event it applies to.
+
   fDelHel = h;
 }
 
 EHelicity TaEvent::GetHelicity() const 
 {
+  // Return helicity as RightHeli or LeftHeli.  (WARNING: This is the
+  // helicity stored in the data stream for this event, which in
+  // general is *not* the helicity to use in analysis of this event!
+  // See GetDelHelicity().  Note also that this is the helicity bit
+  // from the source and does not reflect half wave plate state, g-2
+  // precession, etc.)
+
   Double_t val = GetData(IHELICITY);
   if (val == 1)
     return RightHeli;
@@ -329,10 +358,21 @@ EHelicity TaEvent::GetHelicity() const
 }
 
 EHelicity TaEvent::GetDelHelicity() const {
+  // Return helicity as RightHeli or LeftHeli.  (WARNING: This is the
+  // helicity to use in analysis of this event, which in general is
+  // *not* the helicity stored in the data stream for this event!  See
+  // GetHelicity().  Note also that this is the helicity bit from the
+  // source and does not reflect half wave plate state, g-2
+  // precession, etc.)
+
   return fDelHel;
 }
 
 EPairSynch TaEvent::GetPairSynch() const {
+  // Return pairsynch (aka realtime) for this event as FirstPS or
+  // SecondPS, tagging this as an event from the first or second
+  // window, repectively, of a helicity window pair.
+
   Double_t val = GetData(IPAIRSYNCH);
   if (val == 1) 
     return FirstPS;
@@ -342,22 +382,32 @@ EPairSynch TaEvent::GetPairSynch() const {
 
 const vector < TaLabelledQuantity > & TaEvent::GetResults() const 
 { 
+  // Return event analysis results stored in this event.
+
   return fResults; 
 };
 
-const vector <pair<ECutType,Int_t> > & TaEvent::GetCuts() const
+const vector <pair<ECutType,Int_t> > & 
+TaEvent::GetCuts() const
 { 
+  // Return a list of cuts (pairs of cut types and values) failed by
+  // this event.
+
   return fCutFail; 
 };
 
 const vector <pair<ECutType,Int_t> > & 
 TaEvent::GetCutsPassed() const
 { 
+  // Return a list of cuts (pairs of cut types and values) passed by
+  // this event.
+
   return fCutPass; 
 };
 
 void TaEvent::RawDump() const {
 // Diagnostic dump of raw data for debugging purposes
+
    cout << "\n\n==========  Raw Data Dump  ==========" << hex << endl;
    cout << "\n Event number  " << dec << GetEvNumber();
    cout << "  length " << GetEvLength() << "  type " << GetEvType() << endl;
@@ -385,6 +435,7 @@ void TaEvent::RawDump() const {
 
 void TaEvent::DeviceDump() const {
 // Diagnostic dump of device data for debugging purposes.
+
   static int bpmraw[] = {  IBPM8XP, IBPM8XM, IBPM8YP, IBPM8YM, 
                            IBPM10XP, IBPM10XM, IBPM10YP, IBPM10YM, 
                            IBPM12XP, IBPM12XM, IBPM12YP, IBPM12YM, 
@@ -494,6 +545,8 @@ Double_t TaEvent::Rotate(Double_t x, Double_t y, Int_t xy) {
 
 void TaEvent::Create(const TaEvent& rhs)
 {
+  // Utility routine used by copy constructor and assignment.
+
  fEvType = rhs.fEvType;
  fEvNum = rhs.fEvNum;
  fEvLen = rhs.fEvLen;
@@ -510,6 +563,8 @@ void TaEvent::Create(const TaEvent& rhs)
 
 void TaEvent::Uncreate()
 {
+  // Utility routine used by destructor and assignment.
+
   delete [] fEvBuffer;
   delete [] fData;
 };

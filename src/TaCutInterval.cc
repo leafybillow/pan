@@ -1,17 +1,19 @@
-//////////////////////////////////////////////////////////////////////////
+//**********************************************************************
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
 //           TaCutInterval.cc  (implementation)
-//           ^^^^^^^^^^^^^^^^
 //
-//    Authors :  R. Holmes, A. Vacheret, R. Michaels
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
+//
+////////////////////////////////////////////////////////////////////////
 //
 //    Cut intervals.
 //    A cut interval consists of a cut type, cut value, and two event
 //    numbers, corresponding to the start and end of the cut condition.
 //
-//////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
 #include "TaCutInterval.hh"
@@ -68,6 +70,9 @@ TaCutInterval::Inside (const TaEvent& ev,
 		       const UInt_t lex, 
 		       const UInt_t hex) const 
 {
+  // Return true if the given event lies inside this interval when
+  // extended by lex events before and hex events after.
+
   UInt_t f0 = (fBegin > lex) ? fBegin-lex : 0;
   return ( ( ev.GetEvNumber() >= f0 ) && 
 	   ( ev.GetEvNumber() < fEnd+hex ) );
@@ -78,23 +83,36 @@ TaCutInterval::Inside (const TaEvent& ev,
 
 void 
 TaCutInterval::SetEnd( const EventNumber_t e1 ) 
-{ fEnd = e1; }
+{ 
+  // Set the end event of this interval to the given event number.
+
+  fEnd = e1; 
+}
 
 
 const ECutType
 TaCutInterval::GetCut() const 
-{ return fCut; }   // Returns the cut
+{
+  // Return the cut type associated with this interval.
+
+  return fCut; 
+}
 
 
 const Int_t 
 TaCutInterval::GetVal() const 
-{ return fVal; }
+{ 
+  // Return the cut value associated with this interval.
+  return fVal; 
+}
 
 // Non member functions
 
 ostream& 
 operator<< (ostream& s, const TaCutInterval q)
 {
+  // Print the given interval on the given output stream.
+
   s << int (q.fCut) << " " << q.fVal << " " << q.fBegin << " - " << q.fEnd;
   return s;
 }

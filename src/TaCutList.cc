@@ -1,15 +1,22 @@
-//////////////////////////////////////////////////////////////////////////
+//**********************************************************************
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
 //           TaCutList.cc  (implementation)
-//           ^^^^^^^^^^^^
 //
-//    Authors :  R. Holmes, A. Vacheret, R. Michaels
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
 //
-//    List of cuts applied to data.
+////////////////////////////////////////////////////////////////////////
 //
-//////////////////////////////////////////////////////////////////////////
+//    List of cuts intervals.  The cut list for a given run identifies
+//    all the intervals during which a cut condition existed.  It also
+//    contains extensions for each cut type, telling how many events
+//    to extend each interval before and after the stored event numbers;
+//    a tally of events failing each cut type; and labels for the cut 
+//    types.
+//
+////////////////////////////////////////////////////////////////////////
 
 //#define NOISY
 
@@ -66,6 +73,9 @@ TaCutList::operator= (const TaCutList& assign)
 void
 TaCutList::Init(const VaDataBase& db)
 {
+  // Initialization of a cut list.  The database is queried for
+  // a predefined list of cut intervals.
+
   clog << "TaCutList::Init Cut list Initialization for run " 
        << fRunNumber << endl;
   
@@ -111,8 +121,10 @@ TaCutList::Init(const VaDataBase& db)
 
 
 Bool_t 
-TaCutList::OK (const TaEvent& ev) const   // True if event not in any cut interval
+TaCutList::OK (const TaEvent& ev) const   
 {
+  // Return true if event not in any cut interval of this list.
+
   Bool_t oksofar = true;
   for (vector<TaCutInterval>::const_iterator c = fIntervals.begin();
        oksofar && (c != fIntervals.end()); 
@@ -125,8 +137,11 @@ TaCutList::OK (const TaEvent& ev) const   // True if event not in any cut interv
 }
 
 vector<pair<ECutType,Int_t> >
-TaCutList::CutsFailed (const TaEvent& ev) const // Cuts failed by event
+TaCutList::CutsFailed (const TaEvent& ev) const 
 {
+  // Return a vector of cuts (pairs of cut type and value) for which
+  // the given event is inside an interval.
+
   vector<pair<ECutType,Int_t> > cf;
   for (vector<TaCutInterval>::const_iterator c = fIntervals.begin();
        c != fIntervals.end(); 
@@ -141,11 +156,13 @@ TaCutList::CutsFailed (const TaEvent& ev) const // Cuts failed by event
 
 void 
 TaCutList::UpdateCutInterval (const ECutType cut, const Int_t val, const EventNumber_t ev)
+{
+  // Update the cut list.
   // If val is nonzero and an open interval for this cut type exists, but
   // value is different, close that interval and open a new one.
   // If val is nonzero and no open interval for this cut type exists, make one.
   // If val is zero and an open interval for this cut type exists, close it.
-{
+
   // Look for an open interval for this cut
   list<size_t>::iterator oiit;
   for ( oiit = fOpenIntIndices.begin();
@@ -197,23 +214,27 @@ TaCutList::UpdateCutInterval (const ECutType cut, const Int_t val, const EventNu
 
 void 
 TaCutList::AddExtension (const ECutType cut, const UInt_t lex, const UInt_t hex)
-  // Add extensions to list
 {
+  // For the given cut type, add a pair of extensions to the extensions lists.
+
   fLowExtension[cut] = lex;
   fHighExtension[cut] = hex;
 }
 
 void 
 TaCutList::AddName (const ECutType cut, const string& s)
-  // Add name to list
 {
+  // For the given cut type, add a label to the list of cut type names.
+
   fCutNames[cut] = s;
 }
 
 void
 TaCutList::PrintInt (ostream& s) const
 {
-  // Print intervals
+  // Print the intervals in the list to the given output stream.
+  // Open intervals are tagged with an asterisk.
+
   for (size_t i = 0;
        i < fIntervals.size();
        ++i)
@@ -233,7 +254,8 @@ TaCutList::PrintInt (ostream& s) const
 void
 TaCutList::PrintExt (ostream& s) const
 {
-  // Print extensions
+  // Print the lists of extensions.
+
   s << "Low extensions:" << endl;
   for (vector<UInt_t>::const_iterator k = fLowExtension.begin();
        k != fLowExtension.end();
@@ -251,7 +273,10 @@ TaCutList::PrintExt (ostream& s) const
 void
 TaCutList::PrintTally (ostream& s) const
 {
-  // Print tally of events failing cuts
+  // Print tally of number of events failing each cut type.
+  // (Note that this is not the same as the number of events actually
+  // cut, since cut intervals may be extended.)
+
   s << "Events failing cut conditions:" << endl;
   for (size_t k = 0;
        k != fTally.size();
@@ -273,6 +298,9 @@ TaCutList::PrintTally (ostream& s) const
 ostream& 
 operator<< (ostream& s, const TaCutList q)
 {
+  // Print full information on this cut list -- intervals, extensions,
+  // and tallies.
+
   s << "Run " << q.fRunNumber << " cuts:" << endl;
   q.PrintInt(s);
   q.PrintExt(s);

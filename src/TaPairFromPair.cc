@@ -1,18 +1,19 @@
-//////////////////////////////////////////////////////////////////////////
+//**********************************************************************
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
 //           TaPairFromPair.cc  (implementation)
-//           ^^^^^^^^^^^^^^^^^
 //
-//    Authors :  R. Holmes, A. Vacheret, R. Michaels
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
 //
-//    Class which make pair of helicity state with events from          
-//    a pair of continuous window of helicity.  This is a derived 
-//    class for pairing from paired helicity structure
+////////////////////////////////////////////////////////////////////////
+//
+//    Class which makes and analyzes opposite helicity event pairs
+//    from a data stream structured as helicity window pairs.  Derived
+//    from VaPair.
 //
 //////////////////////////////////////////////////////////////////////////
-
 
 //#define NOISY
 
@@ -66,7 +67,15 @@ TaPairFromPair::RunInit()
 
 void TaPairFromPair::CheckSequence( TaEvent& ThisEv, TaRun& run )
 {
-  // look for helicity/synch errors
+  // Look for sequence errors in the beam's window pair structure.
+  // Errors include:
+  //
+  // Pairsynch unchanged from previous window
+  // In first window of pair, helicity does not match expected value
+  // In second window of pair, helicity unchanged from first window
+  // In second and later events of window, pairsynch changed from first event
+  // In second and later events of window, helicity changed from first event
+
   const Int_t PSCHANGE  = 0x1;
   const Int_t PSSAME    = 0x2;
   const Int_t HELCHANGE = 0x3;
@@ -164,7 +173,10 @@ void TaPairFromPair::CheckSequence( TaEvent& ThisEv, TaRun& run )
 Bool_t 
 TaPairFromPair::Fill( TaEvent& ThisEv, TaRun& run )
 {
-  // check for pair and fill
+  // If this event makes a pair with a stored one, put the two events
+  // into this pair and return true.  Otherwise store this event and
+  // return false.
+
   Bool_t PairMade = false;
   CheckSequence (ThisEv, run);
 
@@ -238,14 +250,13 @@ TaPairFromPair::Fill( TaEvent& ThisEv, TaRun& run )
 UInt_t 
 TaPairFromPair::RanBit()
 {
-
-// Pseudorandom bit generator from HAPPEX-I. New bit is XOR of bits
-// 17, 22, 23, 24 of 24 bit shift register fgShreg. New fgShreg is old
-// one shifted one bit left, with new bit injected at bit 1. (bit
-// numbered 1 on right to 24 on left.)  The new bit is generated at at
-// the beginning of each window pair.  This algorithm mimics the one
-// implemented in hardware in the helicity box and is used for random
-// helicity mode.
+  // Pseudorandom bit generator.  New bit is XOR of bits 17, 22, 23, 24
+  // of 24 bit shift register fgShreg.  New fgShreg is old one shifted
+  // one bit left, with new bit injected at bit 1. (bit numbered 1 on
+  // right to 24 on left.)  New bit is returned.  This algorithm mimics
+  // the one implemented in hardware in the helicity box and is used for
+  // random helicity mode to set the helicity bit for the first window
+  // of each window pair.
  
   UInt_t bit24  = (fgShreg & 0x800000) != 0;
   UInt_t bit23  = (fgShreg & 0x400000) != 0;
@@ -260,8 +271,7 @@ TaPairFromPair::RanBit()
 Bool_t
 TaPairFromPair::HelSeqOK (EHelicity h)
 {
-  // Compare helicity h to what we expect to find next.  Generate
-  // cut if failure.
+  // Return true iff helicity h matches what we expect to find next.  
   
   // Get this helicity bit (or 2 if unknown)
   UInt_t hb = ( h == UnkHeli ? 2 :

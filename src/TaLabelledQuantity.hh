@@ -1,15 +1,17 @@
-//////////////////////////////////////////////////////////////////////////
+//**********************************************************************
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
-//        TaLabelledQuantity.hh  (header file)
-//        ^^^^^^^^^^^^^^^^^^^^^
+//        TaLabelledQuantity.hh  (interface)
 //
-//    Authors :  R. Holmes, A. Vacheret, R. Michaels
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
+//
+////////////////////////////////////////////////////////////////////////
 //
 //    A class of quantities with associated labels and units.
 //
-//////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 #ifndef PAN_TaLabelledQuantity
 #define PAN_TaLabelledQuantity
@@ -43,9 +45,9 @@ public:
 private:
 
   // Data members
-  string fName;
-  Double_t fVal;
-  string fUnits;
+  string fName;   // Name of the quantity
+  Double_t fVal;  // Value of the quantity
+  string fUnits;  // Units for the quantity
 
 #ifdef DICT
   ClassDef(TaLabelledQuantity, 0)

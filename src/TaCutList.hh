@@ -1,16 +1,22 @@
-//////////////////////////////////////////////////////////////////////////
+//**********************************************************************
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
-//           TaCutList.hh  (header file)
-//           ^^^^^^^^^^^^
+//           TaCutList.hh  (interface)
 //
-//    Authors :  R. Holmes, A. Vacheret, R. Michaels
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
 //
-//    List of cuts applied to data.
+////////////////////////////////////////////////////////////////////////
 //
-//////////////////////////////////////////////////////////////////////////
-
+//    List of cuts intervals.  The cut list for a given run identifies
+//    all the intervals during which a cut condition existed.  It also
+//    contains extensions for each cut type, telling how many events
+//    to extend each interval before and after the stored event numbers;
+//    a tally of events failing each cut type; and labels for the cut 
+//    types.
+//
+////////////////////////////////////////////////////////////////////////
 
 #ifndef PAN_TaCutList
 #define PAN_TaCutList
@@ -50,14 +56,13 @@ public:
 private:
 
   // Data members
-  RunNumber_t fRunNumber;
-  vector<TaCutInterval> fIntervals;
-  // Indices of open interval (if any) for each cut type:
-  list<size_t> fOpenIntIndices;
-  vector<UInt_t> fLowExtension;
-  vector<UInt_t> fHighExtension;
-  vector<UInt_t> fTally;       // tally of cut condition failures
-  vector<string> fCutNames;    // names of cuts
+  RunNumber_t fRunNumber;            // Run number associated with this list
+  vector<TaCutInterval> fIntervals;  // List of cut intervals
+  list<size_t> fOpenIntIndices;      // Indices of open interval (if any) for each cut type
+  vector<UInt_t> fLowExtension;      // Low-end extension for each cut type
+  vector<UInt_t> fHighExtension;     // High-end extension for each cut type
+  vector<UInt_t> fTally;             // tally of cut condition failures
+  vector<string> fCutNames;          // names of cuts
   static const size_t fgMaxEvent = 1000000; // Probably should be available from TaEvent, really
 
 #ifdef DICT

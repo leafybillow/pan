@@ -1,20 +1,24 @@
 #ifndef PAN_TaEvent
 #define PAN_TaEvent
 
-//////////////////////////////////////////////////////////////////////////
+//**********************************************************************
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
-//           TaEvent.hh  (header file)
-//           ^^^^^^^^^^
+//           TaEvent.hh  (interface)
 //
-//    Authors :  R. Holmes, A. Vacheret, R. Michaels
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
+//
+////////////////////////////////////////////////////////////////////////
 //
 //    An event of data.
 //    Includes methods to get data using keys.  For ADCs and 
 //    scalers can also get the data by slot number and channel.
+//    Events are loaded from a data source and may have analysis results
+//    added to them; they may be checked for cut conditions.
 //
-//////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 #define TAEVENT_VERBOSE 1
 
@@ -93,24 +97,22 @@ private:
   static const Double_t fgKappa = 18.76;   // stripline BPM calibration
 
   // Static members
-  static TaEvent fgLastEv;  // last ev
-  static Bool_t fgFirstDecode;
-  static Double_t fgLoBeam;
-  static Double_t fgBurpCut;
-  static UInt_t fgSizeConst;
+  static TaEvent fgLastEv;     // copy of previous event
+  static Bool_t fgFirstDecode; // true until first event decoded
+  static Double_t fgLoBeam;    // cut threshold from database
+  static Double_t fgBurpCut;   // cut threshold from database
+  static UInt_t fgSizeConst;   // size of first physics event should be size of all
 
   // Data members
-  Int_t *fEvBuffer;
-  UInt_t fEvType;
-  EventNumber_t fEvNum;
-  UInt_t fEvLen;
-  vector<pair<ECutType,Int_t> > fCutFail;
-  vector<pair<ECutType,Int_t> > fCutPass;
-  vector<TaLabelledQuantity> fResults;
-  EHelicity fDelHel; // Delayed helicity
-  Bool_t fInited;
-  Int_t fNumRaw;
-  Double_t *fData;
+  Int_t *fEvBuffer;            // Raw event data
+  UInt_t fEvType;              // Event type: 17 = prestart, 1-11 = physics
+  EventNumber_t fEvNum;        // Event number from data stream
+  UInt_t fEvLen;               // Length of event data
+  vector<pair<ECutType,Int_t> > fCutFail;  // List of cuts failed
+  vector<pair<ECutType,Int_t> > fCutPass;  // List of cuts passed
+  vector<TaLabelledQuantity> fResults;     // Results of event analysis
+  EHelicity fDelHel;           // Delayed helicity filled from later event
+  Double_t *fData;             // Decoded/corrected data
 
 #ifdef DICT
 ClassDef(TaEvent,0)  // An event

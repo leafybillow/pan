@@ -1,17 +1,19 @@
 #ifndef PAN_TaPairFromPair
 #define PAN_TaPairFromPair
-//////////////////////////////////////////////////////////////////////////
+//**********************************************************************
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
-//           TaPairFromPair.hh  (header file)
-//           ^^^^^^^^^^^^^^^^^
+//           TaPairFromPair.hh  (interface)
 //
-//    Authors :  R. Holmes, A. Vacheret, R. Michaels
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
 //
-//    Class which make pair of helicity state with events from          
-//    a pair of continuous window of helicity.  This is a derived 
-//    class for pairing from paired helicity structure
+////////////////////////////////////////////////////////////////////////
+//
+//    Class which makes and analyzes opposite helicity event pairs
+//    from a data stream structured as helicity window pairs.  Derived
+//    from VaPair.
 //
 //////////////////////////////////////////////////////////////////////////
 

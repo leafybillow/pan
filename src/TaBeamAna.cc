@@ -1,15 +1,20 @@
-//////////////////////////////////////////////////////////////////////////
+//**********************************************************************
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
 //           TaBeamAna.cc  (implementation)
-//           ^^^^^^^^^^^^
 //
-//    Authors :  R. Holmes, A. Vacheret, R. Michaels
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
 //
-//    Beam quality analysis.
+////////////////////////////////////////////////////////////////////////
 //
-//////////////////////////////////////////////////////////////////////////
+//    Beam quality analysis.  This class derives from VaAnalysis.
+//    It simply puts differences and asymmetries of beam monitors
+//    into the output root file using the AutoPairAna lists, and prints
+//    statistics on these quantities periodically.
+//
+////////////////////////////////////////////////////////////////////////
 
 #include "TaBeamAna.hh"
 #include "TaEvent.hh"
@@ -47,9 +52,10 @@ TaBeamAna& TaBeamAna::operator=( const TaBeamAna& assign)
 
 void TaBeamAna::EventAnalysis()
 {
-  // put everything needed to analyze one event 
-  // Just for demo purposes for now we hard code four results, the
-  // values of bcm1 and bcm2 (raw and corrected).
+  // Event analysis.
+  // For now we hard code four results, the values of bcm1 and bcm2
+  // (raw and corrected).  A somewhat more intelligent analysis 
+  // should be concocted eventually.
 
   fEvt->AddResult ( TaLabelledQuantity ( "bcm1 raw",
 					 fEvt->GetData(IBCM1R), 
@@ -67,8 +73,8 @@ void TaBeamAna::EventAnalysis()
 
 void TaBeamAna::PairAnalysis()
 { 
-  // analyze a pair and compute everything needed for a beam analysis
-  // we compute bcms asymmetries and bpms differences 
+  // Pair analysis
+  // All we have here is a call to AutoPairAna.
 
   AutoPairAna();
 }
@@ -98,7 +104,3 @@ TaBeamAna::InitChanLists ()
   fAsymList = ChanList ("bcm", "~", "ppm");
 
 }
-
-
-
-

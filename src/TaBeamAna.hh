@@ -1,15 +1,20 @@
-//////////////////////////////////////////////////////////////////////////
+//**********************************************************************
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
-//           TaBeamAna.hh  (header file)
-//           ^^^^^^^^^^^^
+//           TaBeamAna.hh  (interface)
 //
-//    Authors :  R. Holmes, A. Vacheret, R. Michaels
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
 //
-//    Beam quality analysis.
+////////////////////////////////////////////////////////////////////////
 //
-//////////////////////////////////////////////////////////////////////////
+//    Beam quality analysis.  This class derives from VaAnalysis.
+//    It simply puts differences and asymmetries of beam monitors
+//    into the output root file using the AutoPairAna lists, and prints
+//    statistics on these quantities periodically.
+//
+////////////////////////////////////////////////////////////////////////
 
 #ifndef PAN_TaBeamAna
 #define PAN_TaBeamAna

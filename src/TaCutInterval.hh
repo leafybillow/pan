@@ -1,17 +1,19 @@
-//////////////////////////////////////////////////////////////////////////
+//**********************************************************************
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
-//           TaCutInterval.hh  (header file)
-//           ^^^^^^^^^^^^^^^^
+//           TaCutInterval.hh  (interface)
 //
-//    Authors :  R. Holmes, A. Vacheret, R. Michaels
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
+//
+////////////////////////////////////////////////////////////////////////
 //
 //    Cut intervals.
 //    A cut interval consists of a cut type, cut value, and two event
 //    numbers, corresponding to the start and end of the cut condition.
 //
-//////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
 #ifndef PAN_TaCutInterval
 #define PAN_TaCutInterval
@@ -49,10 +51,10 @@ public:
 
 private:
 
-  ECutType fCut;
-  Int_t fVal;
-  EventNumber_t fBegin;
-  EventNumber_t fEnd;
+  ECutType fCut;           // Cut type, e.g. low beam, sequence error, malfunction...
+  Int_t fVal;              // Cut value, nonzero, e.g. type of sequence error
+  EventNumber_t fBegin;    // Number of first event of cut interval
+  EventNumber_t fEnd;      // Number of first event after end of cut interval
 
 #ifdef DICT
   ClassDef(TaCutInterval, 0)  // Cut Intervals

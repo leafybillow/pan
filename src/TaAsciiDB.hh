@@ -1,14 +1,17 @@
 #ifndef PAN_TaAsciiDB
 #define PAN_TaAsciiDB
 
-//////////////////////////////////////////////////////////////////////////
+//**********************************************************************
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
-//           TaAsciiDB.hh   (header file)
-//           ^^^^^^^^^^^^
+//           TaAsciiDB.hh   (interface)
 //
-//    Authors :  R. Holmes, A. Vacheret, R. Michaels
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
+//
+////////////////////////////////////////////////////////////////////////
+//
 //
 //    Ascii based database, also used to read the 'control' file, 
 //    and appended database with output.
