@@ -55,37 +55,6 @@ TaDevice &TaDevice::operator=(const TaDevice &rhs)
   return *this;
 };
 
-// For the following "Get" methods, typically used by TaEvent, it is the
-// users responsibility to check the index (not checked here, for performance).
-
-Int_t TaDevice::GetRawKey(const Int_t& index) const  {
-  return fRawKeys[index];
-};
-
-Int_t TaDevice::GetEvPointer(const Int_t& index) const  {
-  return fEvPointer[index];
-};
-
-Double_t TaDevice::GetPedestal(const Int_t& index) const  {
-  return fPedestal[index];
-};
-
-Double_t TaDevice::GetDacInt(const Int_t& index) const  {
-  return fDacInt[index];
-};
-
-Double_t TaDevice::GetDacSlope(const Int_t& index) const  {
-  return fDacSlope[index];
-};
-
-Int_t TaDevice::GetAdcNum(const Int_t& index) const  {
-  return fAdcNum[index];
-};
-
-Int_t TaDevice::GetChanNum(const Int_t& index) const  {
-  return fChanNum[index];
-};
-
 map<string, Int_t> TaDevice::GetKeyList() const {
   return fKeyToIdx;
 };

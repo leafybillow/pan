@@ -44,7 +44,7 @@ class TaDevice {
 
     void Init(const VaDataBase& db);    // Initalize from database
       
-    Int_t GetNumRaw() const { return fNumRaw; };
+    Int_t GetNumRaw() const;
     Int_t GetRawKey(const Int_t& index) const;
     Int_t GetEvPointer(const Int_t& index) const; 
     Double_t GetPedestal(const Int_t& index) const;
@@ -73,9 +73,51 @@ class TaDevice {
 ClassDef (TaDevice, 0)   // Collection of devices that contain data
 #endif
 
+}; 
+
+// For the following "Get" methods, typically used by TaEvent, it is the
+// users responsibility to check the index (not checked here, for performance).
+
+inline Int_t TaDevice::GetNumRaw() const { return fNumRaw; };
+
+inline Int_t TaDevice::GetRawKey(const Int_t& index) const  {
+  return fRawKeys[index];
 };
 
+inline Int_t TaDevice::GetEvPointer(const Int_t& index) const  {
+  return fEvPointer[index];
+};
+
+inline Double_t TaDevice::GetPedestal(const Int_t& index) const  {
+  return fPedestal[index];
+};
+
+inline Double_t TaDevice::GetDacInt(const Int_t& index) const  {
+  return fDacInt[index];
+};
+
+inline Double_t TaDevice::GetDacSlope(const Int_t& index) const  {
+  return fDacSlope[index];
+};
+
+inline Int_t TaDevice::GetAdcNum(const Int_t& index) const  {
+  return fAdcNum[index];
+};
+
+inline Int_t TaDevice::GetChanNum(const Int_t& index) const  {
+  return fChanNum[index];
+};
+
+
 #endif
+
+
+
+
+
+
+
+
 
 
 
