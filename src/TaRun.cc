@@ -39,6 +39,12 @@ ClassImp(TaRun)
 
 // Constructors/destructors/operators
 TaRun::TaRun():
+  fDataBase(0),
+  fCutList(0),
+  fCoda(0),
+  fEvent(0),
+  fDevices(0),
+  fEvtree(0),
   fESliceStats(0),
   fPSliceStats(0),
   fERunStats(0),
@@ -59,6 +65,12 @@ TaRun::TaRun():
 
 TaRun::TaRun(const Int_t& run) : 
   fRunNumber(run),
+  fDataBase(0),
+  fCutList(0),
+  fCoda(0),
+  fEvent(0),
+  fDevices(0),
+  fEvtree(0),
   fESliceStats(0),
   fPSliceStats(0),
   fERunStats(0),
@@ -82,11 +94,19 @@ TaRun::TaRun(const Int_t& run) :
   strcat(fname,crun);
   strcat(fname,suffix);
   fCodaFileName = fname;
+  delete[] fname;
+  delete[] crun;
 } 
 
 TaRun::TaRun(const string& filename):
   fRunNumber(0),
+  fDataBase(0),
+  fCutList(0),
+  fCoda(0),
   fCodaFileName(filename),
+  fEvent(0),
+  fDevices(0),
+  fEvtree(0),
   fESliceStats(0),
   fPSliceStats(0),
   fERunStats(0),
@@ -101,8 +121,8 @@ TaRun::Init()
   clog << "TaRun::Init Initialization for run, analyzing " 
        << fCodaFileName << endl;
 
-  evtree = new TTree("R","Event data DST");
-  evtree->Branch ("ev_num", &fEventNumber, "ev_num/I", 5000); // event number
+  fEvtree = new TTree("R","Event data DST");
+  fEvtree->Branch ("ev_num", &fEventNumber, "ev_num/I", 5000); // event number
 
   if (fCodaFileName == "online") { 
 #ifdef ONLINE
@@ -219,7 +239,7 @@ TaRun::Decode()
 {
    fEvent->Decode(*fDevices);
    fEventNumber = fEvent->GetEvNumber();
-   evtree->Fill();
+   fEvtree->Fill();
 // Use this to make detailed checks of decoding:
 #ifdef CHECKOUT
    fEvent->RawDump();
@@ -368,23 +388,6 @@ TaRun::AddCuts()
 //      fCutList->UpdateCutInterval ( i->first, i->second, fEvent->GetEvNumber() );
 }
 
-void TaRun::SendEPICSInfo( pair< char* , Double_t> value)
-{
-  //#ifdef ONLINE 
-  char* thevar = value.first;
-  char* thevalue = new char[100];
-  char* command = new char[100];
-  sprintf(thevalue,"%6.0f",value.second);
-  sprintf(command,"/pathtothescript/feedback_script ");
-  strcat( command,thevar);
-  strcat(command," ");
-  strcat(command,thevalue);
-  clog << "SHELL command = "<<command<<endl<<flush; 
-  system(command);
-  delete [] thevar;delete []thevalue; delete [] command;
-  //#endif
-}
-
 
 void 
 TaRun::Finish() 
@@ -434,9 +437,17 @@ TaRun::Uncreate()
   // Utility function for destructor.
 
   fCoda->codaClose();
-  delete fCutList;
+  // If fEvtree is deleted, some later delete will hang.  I don't know why.
+  //  delete fEvtree;
   delete fCoda;
   delete fEvent;
+  delete fDataBase;
+  delete fDevices;
+  delete fCutList;
+  delete fESliceStats;
+  delete fERunStats;
+  delete fPSliceStats;
+  delete fPRunStats;
   fCutList = 0;
   fCoda = 0;
   fEvent = 0;
@@ -462,12 +473,12 @@ void TaRun::InitDevices() {
     cout << " fDevices before adding to tree"<<endl;
     return;
   }
-  if ( !evtree ) {
+  if ( !fEvtree ) {
     cout << "TaRun::InitDevices:: ERROR:  You must create the root tree";
     cout << " before attempting to add to it."<<endl;
     return;
   }
-  fEvent->AddToTree(*fDevices, *evtree);
+  fEvent->AddToTree(*fDevices, *fEvtree);
 };
 
 Int_t TaRun::GetKey(string keystr) const {

@@ -65,8 +65,6 @@ public:
   VaDataBase* GetDataBase() const { return fDataBase; };
   Int_t GetKey(string keystr) const;
   string GetKey(Int_t key) const;
-  void SendEPICSInfo( pair< char*, Double_t> value); // used by feedbacks 
-                                                        // to send EPICS var in ONLINE mode.
 private:
 
   // Copy constructor and operator= -- defined null and private
@@ -100,7 +98,7 @@ private:
   string fCodaFileName,fComputer,fSession;
   TaEvent* fEvent;
   TaDevice* fDevices;
-  TTree *evtree;
+  TTree *fEvtree;
   TaStatistics* fESliceStats;
   TaStatistics* fPSliceStats;
   TaStatistics* fERunStats;
