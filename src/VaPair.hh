@@ -48,11 +48,11 @@ public:
   virtual Bool_t Fill( TaEvent& ) = 0;
   const TaEvent& GetRight() const;
   const TaEvent& GetLeft() const;
-  Int_t PassedCuts();
   void QueuePrint() const;   
   void AddResult (const TaLabelledQuantity&); 
   Double_t GetDiff (string);
   Double_t GetAsy (string);
+  Bool_t PassedCuts(); // True if neither event has cut condition
   const vector<TaLabelledQuantity>& GetResults() const;
   
 protected:
