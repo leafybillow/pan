@@ -55,7 +55,7 @@ private:
   string fFileName;            // full path and file name
 
 #ifndef NODICT
-  ClassDef(TaFileName, 0)   // Improved string class
+  ClassDef(TaFileName, 0)   // Pan standard file names
 #endif
 
 };
