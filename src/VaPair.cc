@@ -12,9 +12,10 @@
 //////////////////////////////////////////////////////////////////////////
 
 
+#include "TaCutList.hh"
 #include "TaEvent.hh"
-#include "VaPair.hh" 
 #include "TaLabelledQuantity.hh"
+#include "VaPair.hh" 
 
 #ifdef DICT
 ClassImp(VaPair)
@@ -126,6 +127,14 @@ VaPair::PassedCuts()
 // True if neither event has cut condition
 
   return ! ( GetLeft().CutStatus() || GetRight().CutStatus() );
+}
+
+Bool_t 
+VaPair::PassedCutsInt(TaCutList cl)
+{
+// True if neither event is in cut interval
+
+  return ( cl.OK(GetLeft()) && cl.OK(GetRight()) );
 }
 
 const vector<TaLabelledQuantity>& 

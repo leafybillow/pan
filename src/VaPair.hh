@@ -31,6 +31,7 @@
 #include <string>
 #include <vector>
 
+class TaCutList;
 class TaEvent;
 class TaLabelledQuantity;
 
@@ -53,6 +54,7 @@ public:
   Double_t GetDiff (string);
   Double_t GetAsy (string);
   Bool_t PassedCuts(); // True if neither event has cut condition
+  Bool_t PassedCutsInt(TaCutList cl); // True if neither event is in cut interval
   const vector<TaLabelledQuantity>& GetResults() const;
   
 protected:
