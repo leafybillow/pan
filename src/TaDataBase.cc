@@ -1211,6 +1211,45 @@ string TaDataBase::GetString(const string& table) const {
    return 0;
 };
 
+vector<TaString> 
+TaDataBase::GetStringVect(const string& table) const {
+   vector<TaString> result;
+   result.clear();
+   static multimap<string, vector<dtype*> >::const_iterator dmap;
+   dmap = database.lower_bound(TaString(table).ToLower());
+   if (dmap == database.end() || 
+       database.count(TaString(table).ToLower()) == 0) {
+     cerr << "ERROR: DataBase: Unknown database table "<<table<<endl;
+     return result;
+   }
+   multimap<string, vector<dtype*> >::const_iterator lb =
+          database.lower_bound(TaString(table).ToLower());
+   multimap<string, vector<dtype*> >::const_iterator ub = 
+          database.upper_bound(TaString(table).ToLower());
+   for (multimap<string, vector<dtype*> >::const_iterator dmap = lb;
+         dmap != ub; dmap++) {
+     vector<dtype*> datav = dmap->second;
+     for (vector<dtype*>::const_iterator idat = datav.begin();
+          idat != datav.end(); idat++) {
+       if ((*idat)->GetType() == "s") 
+           result.push_back(TaString((*idat)->GetS()));
+     }
+   }
+   return result;
+};
+
+vector<TaString> 
+TaDataBase::GetEpicsKeys() const {
+  vector<TaString> keys, result;
+  result.clear();
+  keys = GetStringVect("epics");
+  for (vector<TaString>::const_iterator is = keys.begin();
+       is != keys.end(); is++) {
+    if ((*is).size() > 1) result.push_back(*is);
+  }
+  return result;
+};
+
 vector<Int_t> 
 TaDataBase::GetValueVector(const string& table) const {
    vector<Int_t> result;
@@ -1365,6 +1404,7 @@ void TaDataBase::InitDB() {
   tables.push_back("curmon");        //  25
   tables.push_back("qpd1const");     //  26
   tables.push_back("calvar");        //  27
+  tables.push_back("epics");         //  28
 
   pair<string, int> sipair;
   int k;
@@ -1477,7 +1517,10 @@ void TaDataBase::InitDB() {
     }
     if (i == 27)    // calvar
       columns.push_back(new dtype("s"));
-
+    if (i == 28) {  // EPICS
+      for (int k=0; k < 20; k++) 
+        columns.push_back(new dtype("s"));
+    }
     sipair.second = columns.size(); 
     colsize.insert(sipair);
     LoadTable(tables[i],columns);

@@ -46,6 +46,7 @@ class TFile;
 class THaCodaData;
 class VaEvent;
 class TaDevice;
+class TaEpics;
 class VaPair;
 class TaDataBase;
 class TaCutList;
@@ -130,8 +131,10 @@ private:
   VaEvent* fEvent;               // The most recently read event
   VaEvent* fAccumEvent;          // Event being accumulated
   TaDevice* fDevices;            // Device map for this run
+  TaEpics* fEpics;               // EPICS data
   TFile* fRootFile;              // Root file for analysis results
   TTree *fEvtree;                // Event tree for Root file
+  TTree *fEpicsTree;             // EPICS tree.
   TaStatistics* fESliceStats;    // Incremental event statistics
   TaStatistics* fPSliceStats;    // Incremental pair statistics
   TaStatistics** fPOrdSliceStats;  // Incremental pair statistics, order cuts

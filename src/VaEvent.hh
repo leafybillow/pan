@@ -78,7 +78,9 @@ public:
   Int_t CutCond (const Cut_t c) const; // Return value of cut condition c
   Bool_t IsPrestartEvent() const;    // run number available in 'prestart' events.
   Bool_t IsPhysicsEvent() const;
+  Bool_t IsEpicsEvent() const;
   EventNumber_t GetEvNumber() const; // event number
+  Int_t GetLastPhyEv() const;        // last physics event num.
   UInt_t GetEvLength() const;        // event length
   UInt_t GetEvType() const;          // event type
   SlotNumber_t GetTimeSlot() const;  // time slot
@@ -123,7 +125,9 @@ private:
   static const UInt_t fgMaxEvLen = 2000;    // Maximum length for event buffer
   static const EventNumber_t fgMaxEvNum = 10000000;  // Maximum event number
   static const Double_t fgKappa = 18.76;   // stripline BPM calibration
-  static const Cut_t fgMaxCuts = 10;    // Length of cut values array
+  static const Cut_t fgMaxCuts = 10;    // Length of cut values array   
+  static const UInt_t fgEpicsType = 131;  // EPICS event type
+
   static const ErrCode_t fgTAEVT_ERROR;  // returned on error
   static const ErrCode_t fgTAEVT_OK;      // returned on success
 
@@ -146,6 +150,7 @@ private:
   Int_t *fEvBuffer;            // Raw event data
   UInt_t fEvType;              // Event type: 17 = prestart, 1-11 = physics
   EventNumber_t fEvNum;        // Event number from data stream
+  Int_t fLastPhyEv;            // Last physics event number.
   UInt_t fEvLen;               // Length of event data
   Int_t *fN1roc, *fLenroc, *fIrn; // Crate pointers
   Int_t* fCutArray;            // Array of cut values

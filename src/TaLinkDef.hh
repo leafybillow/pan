@@ -29,6 +29,7 @@
 #pragma link C++ class TaDebugAna;
 #pragma link C++ class TaDevice;
 #pragma link C++ class VaEvent;
+#pragma link C++ class TaEpics;
 #pragma link C++ class TaEvent;
 #pragma link C++ class TaIResultsFile;
 #pragma link C++ class TaSimEvent;

@@ -45,6 +45,7 @@
 #include "TaSimEvent.hh"
 #include "TaFileName.hh"
 #include "TaDevice.hh"
+#include "TaEpics.hh"
 #include "TaLabelledQuantity.hh"
 #include "TaOResultsFile.hh"
 #include "TaStatistics.hh"
@@ -83,8 +84,10 @@ TaRun::TaRun():
   fEvent(0),
   fAccumEvent(0),
   fDevices(0),
+  fEpics(0),
   fRootFile(0),
   fEvtree(0),
+  fEpicsTree(0),
   fESliceStats(0),
   fPSliceStats(0),
   fPOrdSliceStats(0),
@@ -112,8 +115,10 @@ TaRun::TaRun(const Int_t& run) :
   fEvent(0),
   fAccumEvent(0),
   fDevices(0),
+  fEpics(0),
   fRootFile(0),
   fEvtree(0),
+  fEpicsTree(0),
   fESliceStats(0),
   fPSliceStats(0),
   fPOrdSliceStats(0),
@@ -135,8 +140,10 @@ TaRun::TaRun(const string& filename):
   fEvent(0),
   fAccumEvent(0),
   fDevices(0),
+  fEpics(0),
   fRootFile(0),
   fEvtree(0),
+  fEpicsTree(0),
   fESliceStats(0),
   fPSliceStats(0),
   fPOrdSliceStats(0),
@@ -250,6 +257,13 @@ TaRun::Init(const vector<string>& dbcommand)
 
   TaFileName::Setup (fRunNumber, TaString (fDataBase->GetAnaType()).ToLower());
 
+  // EPICS data. TaEpics::Init returns kTRUE if there
+  // was a valid list defined in the database.
+  fEpics = new TaEpics;
+  if (fEpics->Init(*fDataBase)) {
+     fEpicsTree = new TTree("E","EPICS Data (only)");
+  }
+
   // Results file
 
   fResFile = new TaOResultsFile ("pan", 
@@ -339,6 +353,10 @@ TaRun::NextEvent()
 	  cerr << "TaRun::NextEvent Abnormal CODA status" << endl;
 	  return false;
 	}
+      if (fEvent->IsEpicsEvent()) {
+         fEpics->Process(*fEvent);
+         if (fEpicsTree != 0) fEpicsTree->Fill();
+      }
       gotPhys = fEvent->IsPhysicsEvent();
     }
 #ifdef PANAMTEST
@@ -646,6 +664,9 @@ TaRun::Finish()
   cout << "\nTaRun::Finish End of run " << fRunNumber <<flush<<endl;
   if (fRootFile != 0)
     {
+      // Why did we not do this ?
+      //      if (fEvtree) fEvtree->Write();
+      if (fEpicsTree) fEpicsTree->Write();
       fRootFile->Write();
       fRootFile->Close();
       delete fRootFile;
@@ -697,6 +718,10 @@ TaRun::InitRoot()
     return;
   }
   fAccumEvent->AddToTree(*fDevices, *fCutList, *fEvtree);
+  if (fEpics) {
+     fEpics->AddToTree(*fEvtree);
+     fEpics->AddToTree(*fEpicsTree);
+  }
 };
 
 
@@ -716,6 +741,7 @@ TaRun::Uncreate()
   delete fAccumEvent;
   delete fDataBase;
   delete fDevices;
+  delete fEpics;
   delete fCutList;
   delete fESliceStats;
   delete fERunStats;

@@ -34,6 +34,7 @@
 //      9. datamap and header info
 //     10. named cuts ('lobeam', 'burpcut', etc, each a table)
 //     11. event intervals where data are cut.
+//     12. list of EPICS data to save to output.
 //      
 //  For usage instructions, syntax rules, and other details, see
 //          /doc/DATABASE.TXT
@@ -396,6 +397,10 @@ public:
   UInt_t GetCksum () const { return fCksum; }
 // Get the Qpd1 constants (pp, pm, mp, mm, x-const, y-const)
   vector<Double_t> GetQpd1Const() const;
+// Get list of strings from 'table'
+  vector<TaString> GetStringVect(const string& table) const;
+// List of EPICS variables to put into output
+  vector<TaString> GetEpicsKeys() const;
 
 // -------------------------------------------------
 // Put() methods to modify the database.

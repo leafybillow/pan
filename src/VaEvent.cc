@@ -58,6 +58,7 @@ Bool_t VaEvent::fgCalib;
 VaEvent::VaEvent(): 
   fEvType(0),  
   fEvNum(0),  
+  fLastPhyEv(0),  
   fEvLen(0), 
   fFailedACut(false), 
   fHel(UnkHeli),
@@ -115,6 +116,7 @@ VaEvent::CopyInPlace (const VaEvent& rhs)
     {
       fEvType = rhs.fEvType;
       fEvNum = rhs.fEvNum;
+      fLastPhyEv = rhs.fLastPhyEv;
       fEvLen = rhs.fEvLen;
       fFailedACut = rhs.fFailedACut;
       fResults = rhs.fResults;
@@ -210,7 +212,10 @@ VaEvent::Load (const Int_t* buff)
   memcpy(fEvBuffer,buff,fEvLen*sizeof(Int_t));
   fEvType = fEvBuffer[1]>>16;
   fEvNum = 0;
-  if ( IsPhysicsEvent() ) fEvNum = fEvBuffer[4];
+  if ( IsPhysicsEvent() ) {
+     fEvNum = fEvBuffer[4];
+     fLastPhyEv = fEvNum;
+  }
 };
 
 void VaEvent::DecodeCook(TaDevice& devices) {
@@ -889,8 +894,16 @@ Bool_t VaEvent::IsPhysicsEvent() const {
   return (fEvType >= 1 && fEvType < 12);
 };
 
+Bool_t VaEvent::IsEpicsEvent() const {
+  return (fEvType == fgEpicsType);
+};
+
 EventNumber_t VaEvent::GetEvNumber() const {
   return fEvNum;
+};
+
+Int_t VaEvent::GetLastPhyEv() const {
+  return fLastPhyEv;
 };
 
 UInt_t VaEvent::GetEvLength() const {
