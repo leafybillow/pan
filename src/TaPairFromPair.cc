@@ -33,6 +33,7 @@ UInt_t TaPairFromPair::fgShreg2 = 1;      // value for sequence algorithm
 #endif
 UInt_t TaPairFromPair::fgNShreg = 0;     // count since fgShreg was reset
 Bool_t TaPairFromPair::fgPairMade = false;   // set in Fill to true if pair made, else false
+Bool_t TaPairFromPair::fgNeedHelCheck = true; // need to check helicity on next first event
 
 TaPairFromPair::TaPairFromPair():VaPair()
 {
@@ -65,69 +66,71 @@ void TaPairFromPair::CheckSequence( TaEvent& ThisEv )
   if ( ThisEv.GetTimeSlot() == 1 )
     { 
       // start of new window.
-      // check failure in the helicity or pairsynch sequence  
+      // Store event for comparison to later ones
       fgLastWinEv = fgThisWinEv;
       fgThisWinEv = ThisEv;
-      if ( fgLastWinEv.GetEvNumber() > 0 )
-	{
-	  // See if pairsynch changed
-	  if ( ThisEv.GetPairSynch() == fgLastWinEv.GetPairSynch() )
-	    {
-	      cout << "TaPairFromPair::CheckSequence ERROR: Event " 
-		   << ThisEv.GetEvNumber() 
-		   << " pair synch unchanged" << endl;
-	      val = PSSAME;
-	    }
-	     
-	  if ( ThisEv.GetPairSynch() == FirstPS )
-	    // See if helicity is right
-	    {
-#ifdef HSDEB
-	      UInt_t x = RanBit2();
-	      if (ThisEv.GetEvNumber() == 70)
-		x = 1-x;
-	      ThisEv.SetDelHelicity(x==0?LeftHeli:RightHeli);
-#endif
-	      if (!HelSeqOK (ThisEv.GetDelHelicity()))
-		{
-		  cout << "TaPairFromPair::CheckEvent ERROR: Event " 
-		       << ThisEv.GetEvNumber() 
-		       << " helicity sequence error" << endl;
-		  val = HELWRONG;
-		}	      
-	    } 
-	  else
-	    // See if helicity changed
-	    if ( ThisEv.GetDelHelicity() == fgLastWinEv.GetDelHelicity() )
-	      {
-		cout << "TaPairFromPair::CheckSequence ERROR: Event " 
-		     << ThisEv.GetEvNumber() 
-		     << " helicity unchanged" << endl;
-		val = HELSAME;
-	      }
-	}
     }
-  else
+
+  if ( fgLastWinEv.GetEvNumber() > 0 )
     {
-      // second or later sample in a window
-      if ( fgThisWinEv.GetEvNumber() != 0 )
+      // Comparisons to last window
+      // See if pairsynch changed since last window
+      if ( ThisEv.GetPairSynch() == fgLastWinEv.GetPairSynch() )
 	{
-	  // See if pairsynch stayed the same
-	  if ( ThisEv.GetPairSynch() != fgThisWinEv.GetPairSynch() )
+	  cout << "TaPairFromPair::CheckSequence ERROR: Event " 
+	       << ThisEv.GetEvNumber() 
+	       << " pair synch unchanged" << endl;
+	  val = PSSAME;
+	}
+      
+      if ( fgNeedHelCheck && (ThisEv.GetPairSynch() == FirstPS) )
+	// See if helicity is right
+	{
+	  fgNeedHelCheck = false;
+#ifdef HSDEB
+	  UInt_t x = RanBit2();
+	  if (ThisEv.GetEvNumber() == 70)
+	    x = 1-x;
+	  ThisEv.SetDelHelicity(x==0?LeftHeli:RightHeli);
+#endif
+	  if (!HelSeqOK (ThisEv.GetDelHelicity()))
 	    {
-	      cout << "TaPairFromPair::CheckSequence ERROR: Event " 
-		   << ThisEv.GetEvNumber()
-		   << " pairsynch change in mid window\n";
-	      val = PSCHANGE;
-	    }
-	  // See if helicity stayed the same
-	  if ( ThisEv.GetDelHelicity() != fgThisWinEv.GetDelHelicity() )
-	    {
-	      cout << "TaPairFromPair::CheckSequence ERROR: Event " 
-		   << ThisEv.GetEvNumber()
-		   << " helicity change in mid window\n";
-	      val = HELCHANGE;
-	    }
+	      cout << "TaPairFromPair::CheckEvent ERROR: Event " 
+		   << ThisEv.GetEvNumber() 
+		   << " helicity sequence error" << endl;
+	      val = HELWRONG;
+	    }	      
+	} 
+      else if (ThisEv.GetPairSynch() == SecondPS)
+	// See if helicity changed
+	if ( ThisEv.GetDelHelicity() == fgLastWinEv.GetDelHelicity() )
+	  {
+	    fgNeedHelCheck =  true;
+	    cout << "TaPairFromPair::CheckSequence ERROR: Event " 
+		 << ThisEv.GetEvNumber() 
+		 << " helicity unchanged" << endl;
+	    val = HELSAME;
+	  }
+    }
+
+  if ( ThisEv.GetTimeSlot() != 1 && fgThisWinEv.GetEvNumber() != 0 )
+    {
+      // Comparisons to last event
+      // See if pairsynch stayed the same
+      if ( ThisEv.GetPairSynch() != fgThisWinEv.GetPairSynch() )
+	{
+	  cout << "TaPairFromPair::CheckSequence ERROR: Event " 
+	       << ThisEv.GetEvNumber()
+	       << " pairsynch change in mid window\n";
+	  val = PSCHANGE;
+	}
+      // See if helicity stayed the same
+      if ( ThisEv.GetDelHelicity() != fgThisWinEv.GetDelHelicity() )
+	{
+	  cout << "TaPairFromPair::CheckSequence ERROR: Event " 
+	       << ThisEv.GetEvNumber()
+	       << " helicity change in mid window\n";
+	  val = HELCHANGE;
 	}
     }
   

@@ -57,6 +57,7 @@ private:
 #endif
   static UInt_t  fgNShreg;     // count since fgShreg was reset
   static Bool_t  fgPairMade;   // set in Fill to true if pair made, else false
+  static Bool_t  fgNeedHelCheck; // need to check helicity on next first event
 #ifdef DICT
   ClassDef(TaPairFromPair, 0);
 #endif
