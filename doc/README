@@ -91,14 +91,15 @@ Other documents in /doc
 
 
 Here is some info regarding online feedback on charge asymmetry, etc.
----------------------------------------------------------------------
+---------------- June 2002 -------------------------------------------
 
 At the start of a CODA run, an executible ~apar/feedback/panFFB
 (which is simply the compiled "pan") is called with "-o" argument.                          
 control.db is taken from ~apar/feedback/control.db
 
-The code invokes the epics script I told you about before, i.e.
-~apar/epics/epics_feedback, which can also be run by hand.
+The code invokes the epics script ~apar/epics/epics_feedback, 
+which can also be run by hand.  Eventually this may involve a
+real-time feedback.
 
 A historical log of all feedback values is kept in
      ~apar/feedback/feedback.log
