@@ -511,31 +511,12 @@ void TaADCCalib::EventAnalysis()
   for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
     //  loop over chans 1-4
     if (typeFlag == 2) {
-      sprintf(charkey, "dac%i", isl);
-      key = charkey;
-      dataX = fEvt->GetData(key);
+      dataX = fEvt->GetData(IDAC1 + isl);
     }
     for (Int_t ich=0; ich < ADC_MaxChan;  ich++) {
       if (chanExists[isl][ich]) {
 	id = isl*ADC_MaxChan + ich + 1;
-	//  fEVt->GetData("slotnum","channum"); or fEVt->GetData("key");
-	// THREE methods of get data:
-	//
-	//  1) make (globally unique) key ADC<slot>_<chan>
-	//	sprintf(charkey, "adc%i_%i", isl,ich+1);
-	//	key = charkey;
-	//	dataY = fEvt->GetData(key);
-	//	cout << "Data for " << key << " : " <<dataY << endl;
-	//
-	//   2) **  GetADCData(slot, channel) doesn't work... **
-	//  	cout << "Data for Slot " << isl << "  Channel  " << ich << " : ";
-	//  	dataY = fEvt->GetADCData(isl,ich);
-	//  	cout <<dataY << endl;
-	//
-	//   3) make device name, check individual channel by number:
-  	sprintf(charkey, "adc%i", isl);
-  	key = charkey;
-  	dataY = fEvt->GetData(key,ich+1);
+  	dataY = fEvt->GetRawADCData(isl,ich);
 	//	cout << "Data for " << key << "  Channel  " << ich << " : " 
 	//	     <<dataY << endl;
 	if (typeFlag == 1) {
