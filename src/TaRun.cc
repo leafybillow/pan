@@ -312,7 +312,11 @@ TaRun::AccumPair(const VaPair& pr)
     {
       fSliceLimit += fgSLICELENGTH;
       clog << "TaRun::AccumEvent(): At event " << fEvent->GetEvNumber() 
-	   << " of run " << fRunNumber << endl;
+	   << " of run " << fRunNumber
+	   << " -- Stats for last " << fgSLICELENGTH
+	   << " events:"
+	   << endl;
+
       if (fESliceStats != 0)
 	{
 	  PrintStats (*fESliceStats, fEStatsNames, fEStatsUnits);
@@ -369,11 +373,13 @@ void TaRun::SendEPICSInfo( pair< char* , Double_t> value)
 void 
 TaRun::Finish() 
 { 
-  clog << "TaRun::Finish End of run " << fRunNumber << endl; 
   if (fESliceStats != 0)
     *fERunStats += *fESliceStats;
   if (fPSliceStats != 0)
     *fPRunStats += *fPSliceStats;
+  clog << "TaRun::Finish End of run " << fRunNumber
+       << " -- Cumulative stats: "
+       << endl;
   if (fERunStats != 0)
     PrintStats (*fERunStats, fEStatsNames, fEStatsUnits);
   if (fPRunStats != 0)
@@ -481,7 +487,7 @@ TaRun::PrintStats (TaStatistics s, vector<string> n, vector<string> u) const
 
       size_t i = n[j].find(' ');
       string firstword = string (n[j], 0, i);
-      if (firstword == "Diff" || firstword == "Asym")
+      if (firstword != "Right" && firstword != "Left")
 	{
 	  clog << n[j];
 	  if (s.Neff(j) > 5)
