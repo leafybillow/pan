@@ -693,7 +693,7 @@ VaEvent::CalibDecode(TaDevice& devices)
 // Detectors (no pedestal subtraction here!)
   for (i = 0; i < DETNUM; i++) {
     key = DETOFF + 2*i;
-    corrkey = key + i;
+    corrkey = DETCORROFF + i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
     idx = devices.GetCorrIndex(key);
     if (idx < 0) continue;
