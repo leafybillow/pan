@@ -1,6 +1,6 @@
 void connect(void)
 {
-  gSystem->Load("/usr/lib/libz");
+  gSystem->Load("/apps/lib/libz");
   gSystem->Load("libMySQL");
 
   // Store constants for connecting to database (fill in blanks as
