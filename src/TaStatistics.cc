@@ -686,7 +686,8 @@ TaStatistics::PDataMS (const size_t i) const
 	      fSumWtXs[i] / fSumWt[i] * fSumWtXs[i]) / fSumWt[i];
 	  else
 	    {
-	      cerr << "TaStatistics::PDataMS ERROR: First and second passes unequal length" << endl;
+	      cerr << "TaStatistics::PDataMS ERROR: First and second passes unequal length (" 
+		   << fN << " and " << fN2 << ")" << endl;
 	      return 0;
 	    }	    
 	}
