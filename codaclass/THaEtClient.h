@@ -65,6 +65,7 @@ public:
     ~THaEtClient();
     int *getEvBuffer();        // Gets next event buffer after codaRead()
     int codaRead();            // codaRead() must be called once per event
+    int getheartbeat();
 
 private:
 

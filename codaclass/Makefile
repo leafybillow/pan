@@ -130,10 +130,13 @@ ifdef STANDALONE
   CXXFLAGS += -DSTANDALONE
 endif
 
-all: etclient tstio tstcoda libevio.a libcoda.a
+all: etclient etHeartbeat tstio tstcoda libevio.a libcoda.a
 
 etclient: etclient_main.o THaEtClient.o THaCodaData.o THaEtClient.h THaCodaData.h libevio.a
 	$(CXX) $(CXXFLAGS) -o $@ etclient_main.o THaEtClient.o THaCodaData.o $(ALL_LIBS) 
+
+etHeartbeat: etHeartbeat_main.o THaEtClient.o THaCodaData.o THaEtClient.h THaCodaData.h libevio.a
+	$(CXX) $(CXXFLAGS) -o $@ etHeartbeat_main.o THaEtClient.o THaCodaData.o $(ALL_LIBS) 
 
 tstio: tstio_main.o THaCodaFile.o THaCodaData.o THaCodaFile.h THaCodaData.h libevio.a
 	$(CXX) $(CXXFLAGS) -o $@ tstio_main.o THaCodaFile.o THaCodaData.o $(ALL_LIBS) 

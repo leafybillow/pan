@@ -16,6 +16,7 @@
 #include "THaEtClient.h"
 #include <stdio.h>
 #include <time.h>
+#define CODA_VERB 0
 
 #ifndef STANDALONE
 ClassImp(THaEtClient)
@@ -392,10 +393,34 @@ int THaEtClient::codaOpen(TString computer, int smode) {
      return fStatus;
 };
 
+int THaEtClient::getheartbeat() {
+// Just gets the heartbeat of the ET server
 
+  int status;
+  if(firstread) {
+    status = init("hbstation");
+    if(status == CODA_ERROR) {
+      return 0;
+      cout << "THaEtClient: ERROR: cannot connect to CODA"<<endl<<flush;
+    }
+  }
 
+  int heartbeat;
+  status = et_system_getheartbeat(id,&heartbeat);
+  codaClose();
 
+  if(status == ET_OK) {
+    return heartbeat;
+  } else if (status == ET_ERROR) {    
+    cout << "THaEtClient: ERROR: heartbeat is NULL" << endl;
+    return 0;
+  } else if (status == ET_ERROR_READ) {
+    cout << "THaEtClient: ERROR: Remote user's network read error" << endl;
+    return 0;
+  } else if (status == ET_ERROR_WRITE) {
+    cout << "THaEtClient: ERROR: Remote user's network write error" << endl;
+    return 0;
+  }
 
-
-
-
+  return 0;
+};
