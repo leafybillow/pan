@@ -783,6 +783,7 @@ VaEvent::CheckEvent(TaRun& run)
 
 
   fFailedACut = false;
+  Int_t valLowBeam =0;
 
   if ( fgLoBeamNo < fgNCuts)
     {
@@ -795,6 +796,7 @@ VaEvent::CheckEvent(TaRun& run)
 #endif
 	  thisval = 1;
 	}
+      valLowBeam=thisval; // flag for later cuts, if needed.
       AddCut (fgLoBeamNo, thisval);
       run.UpdateCutList (fgLoBeamNo, thisval, fEvNum);
     }
@@ -863,11 +865,14 @@ VaEvent::CheckEvent(TaRun& run)
 	  run.UpdateCutList (fgBurpNo, thisval, fEvNum);
 	}
 
+
       // C Beam burp -- current change greater than limit?
+      // **** Modified so only takes effect if !Low_Beam ****
       if (fgCBurpNo < fgNCuts)
 	{
 	  Int_t thisval = 0;
-	  if (abs (currentc-fgLastEv.GetData(fgCurMonC)) > fgCBurpCut)
+	  if (valLowBeam==0 && 
+	      abs (currentc-fgLastEv.GetData(fgCurMonC)) > fgCBurpCut)
 	    {
 #ifdef NOISY
 	      clog << "Event " << fEvNum << " failed C-beam burp cut, "
