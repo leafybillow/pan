@@ -2,23 +2,29 @@
 // If one runs ./pan, the in the root shell .x run.cc
 {
 
-  UInt_t runnumber;
+  UInt_t run;
   cout << "Enter run number: "<< endl;
-  cin >> runnumber;
-  cout << "Will process run = " << runnumber << endl;
+  cin >> run;
+  cout << "Will process run = " << run << endl;
   
   TaAnalysisManager am;
   
-  am.Init(runnumber);
-  am.Process();
-  am.End();
+  if (am.Init (run) != 0)
+    return 1;
+  if (am.InitLastPass() != 0 ||
+      am.Process() != 0 ||
+      am.End() != 0)
+    return 1;
   
-  // Print the output tree
-  R->Print();
+  gROOT->LoadMacro("macro/open.macro");
   
-  // Draw something (you can also do it interactively)
-  //R->Draw("bpm8x");
-  //R->Draw("bpm8xp+bpm8xm:bcm1");
+  open(run,"standard");
+  TTree *raw = (TTree*)gROOT.FindObject("R");
+  //   raw->Print();
+  TTree *asy = (TTree*)gROOT.FindObject("P");
+  //  asy->Print();
   
-  //R->Draw("bcm1:event_number");
+  raw->Draw("bcm1:ev_num");
+  
+
 }
