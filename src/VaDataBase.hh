@@ -54,7 +54,9 @@
 #include <map>
 #include <iterator>
 #include <stdlib.h>
+#include "PanTypes.hh"
 
+class TaString;
 
 class dtype {
 // Utility class of typed data
@@ -235,6 +237,8 @@ public:
   virtual Double_t GetCutValue(const string& cutname) const =0;
 // Get number of cuts 
   virtual Int_t GetNumCuts() const =0;
+// Get names of cuts
+  virtual vector<string> GetCutNames () const = 0;
 // Get cut extensions, low and high 
   virtual vector<Int_t> GetExtLo() const=0;
   virtual vector<Int_t> GetExtHi() const=0;
@@ -282,6 +286,10 @@ public:
 // First element of map goes from 0 to PutNumBadEv(), second is a vector of
 // results in prescribed order: (evlo, evhi, cut num, cut value)
   virtual void PutCutValues(const map <Int_t, vector<Int_t> > & cuts)=0;
+
+// Not virtual:
+
+  Cut_t GetCutNumber (TaString s) const;  // Return cut number for name
   
 protected:
 

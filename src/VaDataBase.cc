@@ -105,3 +105,17 @@ VaDataBase::Checkout()
      cout << "  mask " << cutint[2] << "   veto " << cutint[3] << endl;
   }
 }
+
+Cut_t
+VaDataBase::GetCutNumber (TaString s) const
+{
+  // Return cut number corresponding to a given name (case insensitive match). 
+  // If no match, return fNumCuts.
+
+  UInt_t numcuts = (UInt_t) GetNumCuts();
+  vector<string> cutnames = GetCutNames();
+  Cut_t i;
+  for (i = 0; i < numcuts && s.CmpNoCase(cutnames[i]) != 0; ++i)
+    {} // null loop body
+  return i;
+}
