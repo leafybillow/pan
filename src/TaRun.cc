@@ -1,16 +1,30 @@
-//////////////////////////////////////////////////////////////////////////
+//**********************************************************************
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
-//           TaRun.cc   (implementation)
-//           ^^^^^^^^^
+//           TaRun.cc  (implementation)
 //
-//    Authors :  R. Holmes, A. Vacheret, R. Michaels
+// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// @(#)pan/src:$Name$:$Id$
 //
-//    A run of data (where 'run' is defined by CODA).  A run is 
-//    typically a 1 hour period where the setup parameters are fixed.
+////////////////////////////////////////////////////////////////////////
 //
-//////////////////////////////////////////////////////////////////////////
+// This class treats the data of one run. The Init method initializes
+// the event TTree, attaches the Coda file or online data, and gets
+// the (ASCII or MySQL) database.  It initializes the storage of
+// devices and cuts.
+//
+// In the event loop, the NextEvent method is called to get and decode
+// an event from the data stream.  AddCuts is called after
+// preprocessing each event, to update the list of cut intervals.
+// AccumEvent and AccumPair accumulate statistics for results of event
+// and pair analysis, respectively, and periodically write statistics
+// summaries to STDOUT.
+//
+// When analysis is complete, Finish is called to print final
+// statistics summaries.
+//
+////////////////////////////////////////////////////////////////////////
 
 //#define NOISY
 //#define CHECKOUT 
@@ -42,6 +56,7 @@ ClassImp(TaRun)
 #endif
 
 // Constructors/destructors/operators
+
 TaRun::TaRun():
   fDataBase(0),
   fCutList(0),
@@ -122,6 +137,9 @@ TaRun::TaRun(const string& filename):
 Int_t
 TaRun::Init()
 {
+  // Run initialization: Create event tree, attach data source and
+  // database, initialize static variables from these.
+
   if (fCodaFileName == "")
     {
       cerr << "TaRun::Init ERROR Empty filename" << endl;
@@ -207,7 +225,11 @@ TaRun::Init()
 }
  
 
-Int_t TaRun::FindRunNumber() {
+Int_t 
+TaRun::FindRunNumber() {
+  // Get run number, from run number file if online or from data
+  // stream if not.
+
    if (fCodaFileName == "online") {
       ifstream runfile(getenv("RUNNUMBER_FILE"));
       if ( !runfile ) return 0;
@@ -237,6 +259,7 @@ TaRun::NextEvent()
 {
   // Get the next physics event out of the coda file.
   // If end of file or error return false.
+
   Bool_t gotPhys = false;
   while (!gotPhys)
     {
@@ -261,6 +284,8 @@ TaRun::NextEvent()
 void 
 TaRun::Decode()
 {
+  // Decode raw data, store event number, and fill event tree
+
    fEvent->Decode(*fDevices);
    fEventNumber = fEvent->GetEvNumber();
    fEvtree->Fill();
@@ -275,6 +300,9 @@ TaRun::Decode()
 void 
 TaRun::AccumEvent(const TaEvent& ev) 
 { 
+  // Update event statistics with the results in this event, if it
+  // passes cuts.
+
   vector<TaLabelledQuantity> lqres = ev.GetResults();
   if (fESliceStats == 0 && lqres.size() > 0)
     {
@@ -316,6 +344,10 @@ TaRun::AccumEvent(const TaEvent& ev)
 void 
 TaRun::AccumPair(const VaPair& pr) 
 { 
+  // Update pair statistics with the results in this pair, if its
+  // events pass cuts.  Periodically print incremental statistics and
+  // cumulative cut tally.
+
   vector<TaLabelledQuantity> lqres = pr.GetResults();
   if (fPSliceStats == 0 && lqres.size() > 0)
     {
@@ -385,39 +417,20 @@ TaRun::AccumPair(const VaPair& pr)
 }
 
 void 
-TaRun::AddCutToEvent(const ECutType cut, const Int_t val)
-{
-  fEvent->AddCut (cut, val);
-}
-
-void 
 TaRun::UpdateCutList (const ECutType cut, const Int_t val, EventNumber_t evno) 
 { 
+  // Update this run's cut list with the given cut type, value, and
+  // event number.
+
   fCutList->UpdateCutInterval ( cut, val, evno );
 }
 
 void 
-TaRun::AddCuts() 
-{ 
-  // Temporarily a no op
-//    for ( vector< pair<ECutType,Int_t> >::const_iterator i = fEvent->GetCuts().begin();
-//  	i != fEvent->GetCuts().end();
-//  	++i )
-//  {
-//    if (i->first > 1)
-//      clog << "AddCuts " << fEvent->GetEvNumber() << " " << i->first << " " << i->second << endl;
-//      fCutList->UpdateCutInterval ( i->first, i->second, fEvent->GetEvNumber() );
-//  }
-//    for ( vector< pair<ECutType,Int_t> >::const_iterator i = fEvent->GetCutsPassed().begin();
-//  	i != fEvent->GetCutsPassed().end();
-//  	++i )
-//      fCutList->UpdateCutInterval ( i->first, i->second, fEvent->GetEvNumber() );
-}
-
-
-void 
 TaRun::Finish() 
 { 
+  // End of run.  Print last incremental statistics, cumulative
+  // statistics, cumulative cut tally.
+
   clog << "\nTaRun::Finish End of run " << fRunNumber << endl;
   size_t nSlice = fEventNumber - (fSliceLimit - fgSLICELENGTH);
   if ((fESliceStats != 0 || fPSliceStats != 0) && nSlice > 5)
@@ -453,6 +466,8 @@ TaRun::Finish()
 Double_t 
 TaRun::GetDBValue(string key) const 
 { 
+  // Query database for a value.
+
   return fDataBase->GetData(key); 
 }
 
@@ -494,7 +509,8 @@ TaRun::GetBuffer()
   return 0;
 }
 
-void TaRun::InitDevices() {
+void 
+TaRun::InitDevices() {
 // Initialize the devices and add their data to the output tree.
   if ( !fDevices ) {
     cout << "TaRun::InitDevices:: ERROR:  You must create and initialize";
@@ -509,13 +525,15 @@ void TaRun::InitDevices() {
   fEvent->AddToTree(*fDevices, *fEvtree);
 };
 
-Int_t TaRun::GetKey(string keystr) const {
-// return the integer key that corresponds to a string.  
+Int_t 
+TaRun::GetKey(string keystr) const {
+  // return the integer key that corresponds to a string.  
   return fDevices->GetKey(keystr);
 };
 
-string TaRun::GetKey(Int_t key) const {
-// return the string key that corresponds to the integer key.
+string 
+TaRun::GetKey(Int_t key) const {
+  // return the string key that corresponds to the integer key.
   return fDevices->GetKey(key);
 };
 
@@ -523,6 +541,8 @@ string TaRun::GetKey(Int_t key) const {
 void 
 TaRun::PrintStats (TaStatistics s, vector<string> n, vector<string> u) const
 {
+  // Print statistics, with given labels and units.
+
   for (size_t j = 0; j < s.Size(); ++j)
     {
       // Some quantities it doesn't make sense to do statistics on.
