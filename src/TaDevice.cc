@@ -1,4 +1,3 @@
-
 //////////////////////////////////////////////////////////////////////////
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
@@ -12,6 +11,7 @@
 //#define DEBUG 1
 
 #include "TaDevice.hh" 
+#include "VaEvent.hh"
 #include "TaString.hh"
 #include "TaDataBase.hh"
 #include "TTree.h"
@@ -24,6 +24,7 @@ TaDevice::TaDevice() {
    fNumRaw = 0;
    fRawKeys = new Int_t[MAXKEYS];
    fEvPointer = new Int_t[MAXKEYS];
+   fCrate = new Int_t[MAXKEYS];
    fReadOut = new Int_t[MAXKEYS];
    fIsUsed = new Int_t[MAXKEYS];
    fIsRotated = new Int_t[MAXKEYS];
@@ -32,8 +33,13 @@ TaDevice::TaDevice() {
    fDevNum = new Int_t[MAXKEYS];
    fChanNum = new Int_t[MAXKEYS];
    fScalPed = new Double_t[32*SCANUM];
+   fAdcptr = new Int_t[MAXROC];
+   fScalptr = new Int_t[MAXROC];
+   fTbdptr = new Int_t[MAXROC];
+   fTirptr = new Int_t[MAXROC];
    memset(fRawKeys, 0, MAXKEYS*sizeof(Int_t));
    memset(fEvPointer, 0, MAXKEYS*sizeof(Int_t));
+   memset(fCrate, 0, MAXKEYS*sizeof(Int_t));
    memset(fReadOut, 0, MAXKEYS*sizeof(Int_t));
    memset(fIsUsed, 0, MAXKEYS*sizeof(Int_t));
    memset(fIsRotated, 0, MAXKEYS*sizeof(Int_t));
@@ -42,6 +48,10 @@ TaDevice::TaDevice() {
    memset(fDevNum, 0, MAXKEYS*sizeof(Int_t));
    memset(fChanNum, 0, MAXKEYS*sizeof(Int_t));
    memset(fScalPed, 0, 32*SCANUM*sizeof(Int_t));
+   memset(fAdcptr, 0, MAXROC*sizeof(Int_t));
+   memset(fScalptr, 0, MAXROC*sizeof(Int_t));
+   memset(fTbdptr, 0, MAXROC*sizeof(Int_t));
+   memset(fTirptr, 0, MAXROC*sizeof(Int_t));
 }
 
 TaDevice::~TaDevice() {
@@ -74,13 +84,25 @@ void TaDevice::Init(TaDataBase& db) {
 // The database defines the channel mapping, but the
 // keys in the database must match the fKeyToIdx map.
 // Set up rotated BPMs.
+// Some devices like 'bpm', 'bcm', 'lumi' can be tied
+// to others like 'adc', 'scaler' according to rules.
 
-   Int_t key,iadc,isca,ichan;
+   Int_t key,tiedkey,iadc,isca,ichan,i,k;
    string keystr;
    InitKeyList();
    TaKeyMap keymap;
    BpmDefRotate();  
    db.DataMapReStart();
+   fgAdcHeader = db.GetHeader("adc");
+   fgAdcMask = db.GetMask("adc");
+   fgScalHeader = db.GetHeader("scaler");
+   fgScalMask = db.GetMask("scaler");
+   fgTbdHeader = db.GetHeader("timeboard");
+   fgTbdMask = db.GetMask("timeboard");
+   fgTirHeader = db.GetHeader("tir");
+   fgTirMask = db.GetMask("tir");
+   fTiedKeys.clear();
+   fNtied = 0;
    while ( db.NextDataMap() ) {
      string devicename = db.GetDataMapName();  
      int isrotate = 0;
@@ -93,6 +115,7 @@ void TaDevice::Init(TaDataBase& db) {
 	 }
      }
      keymap = db.GetKeyMap(devicename);
+     if (keymap.IsTiedDevice()) AddTiedDevices(keymap);
      vector<string> vkeys = keymap.GetKeys();
      for (vector<string>::iterator is = vkeys.begin(); 
         is != vkeys.end(); is++) {
@@ -100,11 +123,15 @@ void TaDevice::Init(TaDataBase& db) {
            key = AddRawKey(keystr);
            if (key < 0) continue;
            fEvPointer[key] = keymap.GetEvOffset(keystr);
+           fCrate[key] = keymap.GetCrate();
            fReadOut[key] = -1;
            fIsUsed[key] = 1;
            if (keymap.IsAdc(keystr)) fReadOut[key] = ADCREADOUT;
            if (keymap.IsScaler(keystr)) fReadOut[key] = SCALREADOUT;
-           fDevNum[key]  = keymap.GetAdc(keystr);
+           if (keymap.IsScaler(keystr)) fReadOut[key] = SCALREADOUT;
+           if (keymap.IsTimeboard(keystr)) fReadOut[key] = TBDREADOUT;
+           if (keymap.IsTir(keystr)) fReadOut[key] = TIRREADOUT;
+           fDevNum[key]  = keymap.GetDevNum(keystr);
            fChanNum[key] = keymap.GetChan(keystr);
 // Rotate state first set from default but can over-ridden by database
            if (keymap.GetRotate() != -1) {
@@ -117,7 +144,57 @@ void TaDevice::Init(TaDataBase& db) {
                fIsRotated[GetKey(devicename+"y")] = 1;
 	   }
       }
-      if (isrotate) cout << "  BPM "<<devicename<<" is ROTATED"<<endl;
+      if (isrotate) cout << "  BPM "<<devicename<<" is rotated"<<endl;
+   }
+// Tie derived devices, if any, to fundamental types.
+// (e.g. derived device 'bpm' can be tied to an 'adc').
+   if (DECODE_DEBUG) cout << "Number tied "<<fNtied<<endl; 
+   if (fNtied > 0) {
+     for (i = 0; i < fNtied; i++) {
+       vector<string> vtiedkey = fTiedKeys[i].GetKeys();
+       k = 0;
+       db.DataMapReStart();
+       while ( db.NextDataMap() ) {
+         string devicename = db.GetDataMapName();  
+         keymap = db.GetKeyMap(devicename);
+         vector<string> vkeys = keymap.GetKeys();
+         for (vector<string>::iterator is = vkeys.begin(); 
+           is != vkeys.end(); is++) {
+           if ((unsigned int)k >= vtiedkey.size()) break;
+           string keystr = *is;
+           key = GetKey(keystr); 
+           tiedkey = GetKey(vtiedkey[k]);
+           if ((key != tiedkey) && (key > 0 && tiedkey > 0) &&
+               (keymap.GetDevNum(keystr) == 
+                fTiedKeys[i].GetDevNum(vtiedkey[k])) &&
+               (keymap.GetChan(keystr) == 
+                fTiedKeys[i].GetChan(vtiedkey[k])) &&
+               (keymap.GetReadOut(keystr) == 
+                fTiedKeys[i].GetReadOut(vtiedkey[k]))) {       
+             k++;
+             db.DataMapReStart();
+             fCrate[tiedkey] = fCrate[key];
+             fEvPointer[tiedkey] = fEvPointer[key];
+             if (DECODE_DEBUG) {
+	      cout << "Tying key `"<< GetKey(tiedkey);
+              cout << "' to key `" << keystr<<"'"<<endl;
+              cout << "crate = " << fCrate[tiedkey];
+              cout << "    evptr = " << fEvPointer[tiedkey]<<endl;
+	     }
+           }
+	 }
+       }
+// If this happens you presumably have an error in the datamap 
+// e.g. not all the fundamental (raw) channels are defined to which you 
+// wanted to tie a derived type.  See ./doc/DATABASE.TXT
+       if (k != (long)vtiedkey.size()) {
+         cout << "TaDevice:: ERROR: Unable to tie all derived devices ?"<<endl;
+         cout << "This means you have an error in datamap of database."<<endl;
+         cout << "(A typo in the line of the thing it is tied to ?)"<<endl;
+         cout << "Here is printout of the KeyMap that did not get tied:"<<endl;
+         fTiedKeys[i].Print();
+       }
+     }
    }
    for (iadc = 0; iadc < ADCNUM; iadc++) {
      for (ichan = 0; ichan < 4; ichan++) {
@@ -130,7 +207,83 @@ void TaDevice::Init(TaDataBase& db) {
        fScalPed[isca*32 + ichan] = db.GetScalPed(isca, ichan);
      }
    }
+}
+
+void TaDevice::AddTiedDevices(TaKeyMap& keymap) {
+// To potentially add this device to the list of derived types. 
+// Note, e.g. "bpm" can be tied to an "adc", but not vice versa.
+  if (keymap.GetType() == "adc" || keymap.GetType() == "scaler") {
+    cout << "TaDevice::ERROR:  Attempting to tie a raw device ";
+    cout << "to something else."<<endl;
+    cout << "This is an error in datamap of db file.   ";
+    cout << "See ./doc/DATABASE.TXT"<<endl;
+    cout << "To help find error, here is a printout" << endl;
+    keymap.Print();
+    return;
+  }
+  fTiedKeys.push_back(keymap);
+  fNtied++;
+  return;
 };
+
+
+void TaDevice::FindHeaders(const Int_t& roc, 
+      const Int_t& ipt, const Int_t& data) {
+// Find the pointer to the header for the various devices.
+// The "fundamental" devices are ADC, SCALER, TIMEBOARD, TIR.
+// roc==0 is an error and probably means CODA is not set up 
+// correctly. Although roc==0 is logically possible in CODA
+// it is forbidden because of database conventions.
+  if (roc <= 0 || roc > MAXROC) {
+    cout << "TaDevice::FindHeaders::ERROR:  ";
+    cout << "illegal value of roc "<<roc<<endl;
+    return;
+  }
+  if ((data & fgAdcMask) == fgAdcHeader) {
+    fAdcptr[roc] = ipt;
+    return;
+  }     
+  if ((data & fgScalMask) == fgScalHeader) {
+    fScalptr[roc] = ipt;
+    return;
+  }     
+  if ((data & fgTbdMask) == fgTbdHeader) {
+    fTbdptr[roc] = ipt;
+    return;
+  }     
+  if ((data & fgTirMask) == fgTirHeader) {
+    fTirptr[roc] = ipt;
+    return;
+  }     
+  return;
+}
+
+
+void TaDevice::PrintHeaders() {
+//  Printout for debugging multiroc decoding.
+  cout << "Headers for adc, scaler, timebd, tir "<<hex;
+  cout << fgAdcHeader<<"   "<<fgScalHeader<<"   ";
+  cout << fgTbdHeader<<"   "<<fgTirHeader<<endl;
+  cout << "Masks for adc, scaler, timebd, tir "<<hex;
+  cout << fgAdcMask<<"   "<<fgScalMask<<"   ";
+  cout << fgTbdMask<<"   "<<fgTirMask<<endl;
+  cout << "Pointers to data : "<<dec<<endl;
+  for (Int_t iroc = 1; iroc < MAXROC; iroc++) {
+   if (fAdcptr[iroc] > 0) {
+       cout << "roc "<<iroc << "  ADCptr= "<<fAdcptr[iroc]<<endl;
+   }
+   if (fScalptr[iroc] > 0) {
+       cout << "roc "<<iroc << "  Scaler ptr= "<<fScalptr[iroc]<<endl;
+   }
+   if (fTbdptr[iroc] > 0) {
+       cout << "roc "<<iroc << "  Tbdptr= "<<fTbdptr[iroc]<<endl;
+   }
+   if (fTirptr[iroc] > 0) {
+       cout << "roc "<<iroc << "  Tirptr= "<<fTirptr[iroc]<<endl;
+   }
+  }
+}
+
 
 void TaDevice::BpmDefRotate() {
 // Build default list of rotated BPMs.  
@@ -171,6 +324,7 @@ Int_t TaDevice::AddRawKey(string keyname) {
    }
    fRawKeys[fNumRaw] = key;
    fEvPointer[key] = 0;
+   fCrate[key] = 0;
    fNumRaw++;
    return key;
 }     
@@ -1039,6 +1193,8 @@ void TaDevice::Create(const TaDevice& rhs)
    memcpy(fRawKeys, rhs.fRawKeys, MAXKEYS*sizeof(Int_t));
    fEvPointer = new Int_t[MAXKEYS];
    memcpy(fEvPointer, rhs.fEvPointer, MAXKEYS*sizeof(Int_t));
+   fCrate = new Int_t[MAXKEYS];
+   memcpy(fCrate, rhs.fCrate, MAXKEYS*sizeof(Int_t));
    fReadOut = new Int_t[MAXKEYS];
    memcpy(fReadOut, rhs.fReadOut, MAXKEYS*sizeof(Int_t));
    fIsUsed = new Int_t[MAXKEYS];
@@ -1053,12 +1209,21 @@ void TaDevice::Create(const TaDevice& rhs)
    memcpy(fDevNum, rhs.fDevNum, MAXKEYS*sizeof(Int_t));
    fChanNum = new Int_t[MAXKEYS];
    memcpy(fChanNum, rhs.fChanNum, MAXKEYS*sizeof(Int_t));
+   fAdcptr = new Int_t[MAXROC];
+   memcpy(fAdcptr, rhs.fAdcptr, MAXROC*sizeof(Int_t));
+   fScalptr = new Int_t[MAXROC];
+   memcpy(fScalptr, rhs.fScalptr, MAXROC*sizeof(Int_t));
+   fTbdptr = new Int_t[MAXROC];
+   memcpy(fTbdptr, rhs.fTbdptr, MAXROC*sizeof(Int_t));
+   fTirptr = new Int_t[MAXROC];
+   memcpy(fTirptr, rhs.fTirptr, MAXROC*sizeof(Int_t));
 };
 
 void TaDevice::Uncreate()
 {
    delete [] fRawKeys;
    delete [] fEvPointer;
+   delete [] fCrate;
    delete [] fReadOut;
    delete [] fIsUsed;
    delete [] fIsRotated;
@@ -1066,6 +1231,10 @@ void TaDevice::Uncreate()
    delete [] fDacSlope;
    delete [] fDevNum;
    delete [] fChanNum;
+   delete [] fAdcptr;
+   delete [] fScalptr;
+   delete [] fTbdptr;
+   delete [] fTirptr;
 };
 
 

@@ -20,7 +20,9 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+#define MAXROC 40
 #define VAEVENT_VERBOSE 1
+#define DECODE_DEBUG 0  // Make this 1 to turn on debugging output
 
 #include "Rtypes.h"
 #include "PanTypes.hh"
@@ -112,6 +114,7 @@ private:
   Int_t Idx(const Int_t& key) const;
   Double_t Rotate(Double_t x, Double_t y, Int_t xy); 
   void DecodeCook( TaDevice& devices );   // Called by AddToTree
+  Int_t DecodeCrates( TaDevice& devices );   
 
   // Constants
   static const UInt_t fgMaxEvLen = 2000;    // Maximum length for event buffer
@@ -139,6 +142,7 @@ private:
   UInt_t fEvType;              // Event type: 17 = prestart, 1-11 = physics
   EventNumber_t fEvNum;        // Event number from data stream
   UInt_t fEvLen;               // Length of event data
+  Int_t *fN1roc, *fLenroc, *fIrn; // Crate pointers
   Int_t* fCutArray;            // Array of cut values
   Bool_t fFailedACut;          // True iff a cut failed
   vector<TaLabelledQuantity> fResults;     // Results of event analysis

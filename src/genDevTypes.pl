@@ -88,6 +88,9 @@ print << "END";
 \#define   MAXKEYS        $p
 \#define   ADCREADOUT     1
 \#define   SCALREADOUT    2
+\#define   SCALREADOUT    2
+\#define   TBDREADOUT     3
+\#define   TIRREADOUT     4
 
 // Keys for getting data from devices.
 // They keys are mapped to devices automatically.

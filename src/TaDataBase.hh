@@ -40,12 +40,13 @@
 //
 /////////////////////////////////////////////////////////////////////
 
-#define MAXADC  20
+#define MAXADC  30
 #define MAXSCAL 6
 #define MAXCHAN 10
 #define MAXSCALCHAN 32
 #define DMAPSIZE 6
 #define MAXLINES 500
+#define EARLIESTKEY 5
 
 #include "Rtypes.h"
 #include <iostream>
@@ -127,7 +128,7 @@ public:
      jfirst = fNumchar;
      if (fNumchar >= fgMaxChar) {
 // This error means you need to recompile with bigger fgMaxChar.
-// Do this: 'wc -l file' on database 'file'.
+// Do this: 'wc -c file' on database 'file'.
         cout << "ERROR: TaRootRep:: Truncated output"<<endl;
         return;
      }
@@ -154,7 +155,7 @@ public:
    cout << endl << flush;
   }
 private:
-  static const int fgMaxChar = 20000;  //!  This is about 2x normal size
+  static const int fgMaxChar = 50000;  //!  This is about 2x normal size
   int i,j,jfirst,fptr;   //!
   int fNumchar;    
   TArrayC *carray; 
@@ -174,8 +175,10 @@ public:
     readout = copy.readout;
     devnum  = copy.devnum;
     chan    = copy.chan;
+    crate   = copy.crate;
     evboff  = copy.evboff;
     rotate_flag  = copy.rotate_flag;
+    istied  = copy.istied;
   };
   TaKeyMap &TaKeyMap::operator=(const TaKeyMap& rhs) {
     if (this != &rhs) {
@@ -183,8 +186,10 @@ public:
       readout = rhs.readout;
       devnum  = rhs.devnum;
       chan    = rhs.chan;
+      crate   = rhs.crate;
       evboff  = rhs.evboff;
       rotate_flag  = rhs.rotate_flag;
+      istied  = rhs.istied;
     }
     return *this;
   }
@@ -195,15 +200,20 @@ public:
       type = t; 
     } 
   };
-  void LoadData(string key, string read, int devnumn, int chann, int evboffn) {
+  void LoadData(string key, string read, int devnumn, int chann, 
+        int evboffn, int craten, int istiedn) {
     pair<string, int> psi;  
     psi.first = key;
     psi.second = devnumn;  devnum.insert(psi);
     psi.second = chann;  chan.insert(psi);
     psi.second = evboffn;  evboff.insert(psi);    
+    crate = craten;
+    istied = 0;
+    if (istiedn == 0) istied = 1;
     pair<string,string> pstst;
     pstst.first = key;
     pstst.second = read;  readout.insert(pstst);
+
   };
   string GetType() { return type; };
   string GetReadOut(const string& key) { return readout[key]; };
@@ -213,6 +223,14 @@ public:
   };     
   Bool_t IsScaler(const string& key) {
     if (GetReadOut(key) == "scaler") return kTRUE;
+    return kFALSE;
+  };     
+  Bool_t IsTimeboard(const string& key) {
+    if (GetReadOut(key) == "timeboard") return kTRUE;
+    return kFALSE;
+  };     
+  Bool_t IsTir(const string& key) {
+    if (GetReadOut(key) == "tir") return kTRUE;
     return kFALSE;
   };     
   Int_t GetAdc(const string& key) {
@@ -231,6 +249,7 @@ public:
     if (evboff.find(key) != evboff.end() ) return evboff[key];
     return -1;
   };
+  Int_t GetCrate() { return crate; };
   vector<string> GetKeys() {
     vector<string> result;
     for(map<string, int>::iterator i = devnum.begin(); i != devnum.end(); i++) {
@@ -240,20 +259,24 @@ public:
   };
   void SetRotate(Int_t flag) { rotate_flag = flag; };
   Int_t GetRotate() { return rotate_flag; };  // 1=rotated, 0=not, -1=unknown
+  Bool_t IsTiedDevice() { return (istied == 1); };
   void Print() {
+    cout << "TaKeyMap.PRINT starts here ---"<<endl;
     cout << "TaKeyMap for type = "<<type<<endl;
     vector<string> keys = GetKeys();
     for (vector<string>::iterator ikey = keys.begin(); 
 	 ikey != keys.end();  ikey++) {
       string key = *ikey;
-      cout << "key "<<key<<"  device number "<<GetDevNum(key)<<" channel "<<GetChan(key);
-      cout <<"  event buffer offset "<<GetEvOffset(key)<<endl;
-      cout << " Readout type "<<GetReadOut(key)<<endl;
+      cout << "datamap key "<<key<<"  device number "<<GetDevNum(key)<<" channel "<<GetChan(key);
+      cout << "  crate number "<<GetCrate()<<endl;
+      cout << "  event buffer offset "<<GetEvOffset(key)<<endl;
+      cout << "  Readout type "<<GetReadOut(key)<<endl;
     }
+    cout << "--- TaKeyMap.PRINT ends here."<<endl;
   };
 private:
   string type;
-  Int_t rotate_flag;
+  Int_t rotate_flag, crate, istied;
   map<string, Int_t> devnum, chan, evboff;
   map<string, string> readout;
 };
@@ -385,6 +408,7 @@ private:
   void InitDataMap();
   string StripRotate (const string long_devname);
   Int_t RotateState(const string long_devname);
+  Int_t FindFirstKey (const string& sb, const string& sc);
 
 // To read from MYSQL, use command line interface, i.e '-D mysql'
   void Mysql(string action);  // MYSQL interface (action = "read", "write")

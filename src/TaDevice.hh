@@ -21,6 +21,8 @@
 
 #include "Rtypes.h"
 #include "DevTypes.hh"
+#include "TaDataBase.hh"
+#include "VaEvent.hh"
 #include <vector>
 #include <map>
 #include <iterator>
@@ -50,6 +52,10 @@ class TaDevice {
     Int_t GetNumRaw() const;
     Int_t GetRawKey(const Int_t& index) const;
     Int_t GetEvPointer(const Int_t& index) const; 
+    Int_t GetCrate(const Int_t& index) const;
+    Int_t GetOffset(const Int_t& key) const;
+    void FindHeaders(const Int_t& roc, const Int_t& ipt, const Int_t& data);
+    void PrintHeaders();
     Double_t GetPedestal(const Int_t& index) const;
     Double_t GetDacSlope(const Int_t& index) const;
     Int_t GetDevNum(const Int_t& index) const;
@@ -57,21 +63,31 @@ class TaDevice {
     Int_t GetRawIndex(const Int_t& key) const;
     Int_t GetCalIndex(const Int_t& key) const;
     Bool_t IsUsed(const Int_t& key) const;
-    Bool_t TaDevice::IsRotated(const Int_t& key) const;
+    Bool_t IsRotated(const Int_t& key) const;
+    Bool_t IsAdc(const Int_t& key) const;
+    Bool_t IsScaler(const Int_t& key) const;
+    Bool_t IsTimeboard(const Int_t& key) const;
+    Bool_t IsTir(const Int_t& key) const;
     void SetUsed(const Int_t& key) const;
     map<string, Int_t> GetKeyList() const;
 
  protected:
 
-    Int_t fNumRaw;
-    Int_t *fRawKeys, *fEvPointer, *fReadOut, *fIsUsed;
-    Int_t *fIsRotated;
+    Int_t fNumRaw, fNtied;
+    UInt_t fgAdcHeader, fgScalHeader, fgTbdHeader, fgTirHeader;      
+    UInt_t fgAdcMask, fgScalMask, fgTbdMask, fgTirMask;       
+    Int_t *fRawKeys, *fEvPointer, *fCrate;
+    Int_t *fReadOut, *fIsUsed, *fIsRotated;
     Double_t *fAdcPed, *fScalPed, *fDacSlope;
     Int_t *fDevNum, *fChanNum;
+    Int_t *fAdcptr, *fScalptr;   
+    Int_t *fTbdptr, *fTirptr;    
     map<string, Int_t> fKeyToIdx;
+    vector<TaKeyMap> fTiedKeys;
     vector<string> fRotateList;
     void InitKeyList();
     Int_t AddRawKey(string keyname);
+    void AddTiedDevices(TaKeyMap& keymap);
     void BpmDefRotate();
 
  private:
@@ -96,6 +112,20 @@ inline Int_t TaDevice::GetRawKey(const Int_t& index) const  {
 
 inline Int_t TaDevice::GetEvPointer(const Int_t& index) const  {
   return fEvPointer[index];
+};
+
+inline Int_t TaDevice::GetCrate(const Int_t& index) const  {
+  return fCrate[index];
+};
+
+inline Int_t TaDevice::GetOffset(const Int_t& key) const {
+  Int_t crate = GetCrate(key);
+  if (crate <= 0 || crate > MAXROC) return 0;
+  if (IsAdc(key)) return fAdcptr[crate];
+  if (IsScaler(key)) return fScalptr[crate];
+  if (IsTimeboard(key)) return fTbdptr[crate];
+  if (IsTir(key)) return fTirptr[crate];
+  return 0;
 };
 
 inline Double_t TaDevice::GetDacSlope(const Int_t& index) const  {
@@ -124,21 +154,40 @@ inline Bool_t TaDevice::IsRotated(const Int_t& key) const {
   return kFALSE;
 };
 
+inline Bool_t TaDevice::IsAdc(const Int_t& key) const {
+  if (key >= 0 && key < MAXKEYS) {
+    if (fReadOut[key] == ADCREADOUT) return kTRUE;
+  }
+  return kFALSE;
+};
+
+inline Bool_t TaDevice::IsScaler(const Int_t& key) const {
+  if (key >= 0 && key < MAXKEYS) {
+    if (fReadOut[key] == SCALREADOUT) return kTRUE;
+  }
+  return kFALSE;
+};
+
+inline Bool_t TaDevice::IsTimeboard(const Int_t& key) const {
+  if (key >= 0 && key < MAXKEYS) {
+    if (fReadOut[key] == TBDREADOUT) return kTRUE;
+  }
+  return kFALSE;
+};
+
+inline Bool_t TaDevice::IsTir(const Int_t& key) const {
+  if (key >= 0 && key < MAXKEYS) {
+    if (fReadOut[key] == TIRREADOUT) return kTRUE;
+  }
+  return kFALSE;
+};
+
 inline void TaDevice::SetUsed(const Int_t& key) const {
   if (key >= 0 && key < MAXKEYS) fIsUsed[key] = 1;
   return;
 };
 
 #endif
-
-
-
-
-
-
-
-
-
 
 
 

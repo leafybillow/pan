@@ -18,6 +18,7 @@
 
 //#define NOISY
 //#define DEBUG
+#define SANE_DECODE 1
 
 #include "VaEvent.hh"
 #include "TaCutList.hh"
@@ -65,6 +66,12 @@ VaEvent::VaEvent():
   memset(fEvBuffer, 0, fgMaxEvLen*sizeof(Int_t));
   fData = new Double_t[MAXKEYS];
   memset(fData, 0, MAXKEYS*sizeof(Double_t));
+  fN1roc = new Int_t[MAXROC];
+  memset(fN1roc, 0, MAXROC*sizeof(Int_t));
+  fLenroc = new Int_t[MAXROC];
+  memset(fLenroc, 0, MAXROC*sizeof(Int_t));
+  fIrn = new Int_t[MAXROC];
+  memset(fIrn, 0, MAXROC*sizeof(Int_t));
   if (fgNCuts > 0)
     {
       fCutArray = new Int_t[fgNCuts];
@@ -112,7 +119,6 @@ VaEvent::CopyInPlace (const VaEvent& rhs)
       fHel = rhs.fHel;
       fPrevROHel = rhs.fPrevROHel;
       fPrevHel = rhs.fPrevHel;
-      memset (fEvBuffer, 0, fgMaxEvLen*sizeof(Int_t));
       memcpy(fEvBuffer, rhs.fEvBuffer, fEvLen*sizeof(Int_t));
       memcpy(fData, rhs.fData, MAXKEYS*sizeof(Double_t));
       if (rhs.fCutArray != 0 && fgNCuts > 0)
@@ -135,6 +141,7 @@ VaEvent::RunInit(const TaRun& run)
   cout << "VaEvent:: RunInit() " << endl;
 
   fgFirstDecode = true;
+
   fgLoBeam = run.GetDataBase().GetCutValue("lobeam");
   fgBurpCut = run.GetDataBase().GetCutValue("burpcut");
 
@@ -207,7 +214,7 @@ void VaEvent::Decode(TaDevice& devices) {
 // everywhere we have fData[cook_key] = function of fData[raw_key], 
 // we MUST have a line devices.SetUsed(cook_key) if we want it.
 
-  Int_t i,j,key,idx,ixp,ixm,iyp,iym,ix,iy;
+  Int_t i,j,key,idx,ixp,ixm,iyp,iym,ix,iy,icra;
   Double_t sum,xval,yval;
   memset(fData, 0, MAXKEYS*sizeof(Double_t));
   if ( IsPhysicsEvent() )  {
@@ -222,11 +229,44 @@ void VaEvent::Decode(TaDevice& devices) {
         exit(0);  // This should never happen, but if it does Bob needs to fix some stuff !
     }
   }
-  for (i = 0; i < devices.GetNumRaw(); i++) {
-     key = devices.GetRawKey(i);
-     fData[key] =  GetRawData(devices.GetEvPointer(key));
-  }
 
+  if (DecodeCrates(devices) == 1) {
+    for (i = 0; i < devices.GetNumRaw(); i++) {
+      key = devices.GetRawKey(i);
+      icra = devices.GetCrate(key);     
+// EvPointer Convention:  If the crate number is <= 0, then the 
+// event pointer is an absolute offset.  If crate > 0, then the 
+// pointer is relative to the header for that device and crate.
+      if (icra <= 0) {
+#ifdef SANE_DECODE
+// This is almost certainly an error, but ... if you know
+// better you can turn off the ifdef at top of this code.
+        if (devices.GetEvPointer(key) < 2) {
+	  cout << "VaEvent::WARNING: Probably wrong datamap entry ";
+          cout << "for key = "<<devices.GetKey(key)<<endl;
+	}
+#endif
+        fData[key] =  GetRawData(devices.GetEvPointer(key));
+      } else {
+        fData[key] =  GetRawData(
+          devices.GetOffset(key)+devices.GetEvPointer(key) );
+      }
+      if (DECODE_DEBUG == 1) {
+        cout << endl << "------------------" <<endl;
+        cout << "Raw Data for key "<< devices.GetKey(key)<<dec<<endl;
+        if (icra <= 0) {
+          cout << " abs. offset " << devices.GetEvPointer(key);
+        } else {
+	  cout << " tied to crate " << icra;
+          cout << "   at offset " << devices.GetOffset(key);
+          cout << "   rel. to offset " << devices.GetEvPointer(key);
+        }
+        cout << endl;
+        cout << " Data word = (dec) "<<dec<<(Int_t)fData[key];
+        cout << "   = (hex) "<<hex<<(Int_t)fData[key]<<endl; 
+      }
+    }
+  }
 
 // Calibrate the ADCs first
   for (i = 0;  i < ADCNUM; i++) {
@@ -482,6 +522,71 @@ VaEvent::CheckEvent(TaRun& run)
   fgLastEv = *this;
 };
 
+
+Int_t VaEvent::DecodeCrates(TaDevice& devices) {
+// Decoding of crate structure.  
+// A crate is also called a "ROC" in CODA parlance.
+// return code:
+//    0 = no decoding done (error, or wrong event type)
+//    1 = fine.
+  int iroc, lentot, n1, numroc, ipt, istart, istop;
+// Cannot decode non-physics triggers  
+  if(fEvType < 0 || fEvType > 12) return 0; 
+  if(DECODE_DEBUG) RawDump();
+  memset (fN1roc, 0, MAXROC*sizeof(Int_t));
+  memset (fLenroc, 0, MAXROC*sizeof(Int_t));
+  memset (fIrn, 0, MAXROC*sizeof(Int_t));
+  numroc = 0;
+  lentot = 0;
+// Split up the ROCs 
+  for (iroc=0; iroc < MAXROC; iroc++) {
+// n1 = pointer to first word of ROC
+    if(iroc==0) {
+       n1 = fEvBuffer[2]+3;
+    } else {
+       n1 = fN1roc[fIrn[iroc-1]]+fLenroc[fIrn[iroc-1]]+1;
+    }
+    if( (unsigned int)(n1+1) >= fEvLen ) break;
+// fIrn = ROC number 
+    fIrn[iroc]=(fEvBuffer[n1+1]&0xff0000)>>16;
+// This error might mean you need a bigger MAXROC parameter,
+// or it might mean corruption of the raw data.
+    if(fIrn[iroc]<0 || fIrn[iroc]>=MAXROC) {
+       cout << "ERROR in VaEvent::DecodeCrates():";
+       cout << "  illegal ROC number " <<dec<<fIrn[iroc]<<endl;
+       return 0;
+    }
+    if (iroc == 0) {
+       fN1roc[fIrn[iroc]] = n1;
+       fLenroc[fIrn[iroc]] = fEvBuffer[n1];
+       lentot = n1 + fEvBuffer[n1];
+    } else {
+       fN1roc[fIrn[iroc]]=
+          fN1roc[fIrn[iroc-1]]+fLenroc[fIrn[iroc-1]]+1;
+       fLenroc[fIrn[iroc]] = fEvBuffer[fN1roc[fIrn[iroc]]];
+       lentot  = lentot + fLenroc[fIrn[iroc]] + 1;
+    } 
+    numroc++;
+    if(DECODE_DEBUG) {
+        cout << "Roc ptr " <<dec<<numroc<<"  "<<iroc+1;
+        cout << "  "<<fIrn[iroc]<<"  "<<fN1roc[fIrn[iroc]];
+        cout << "  "<<fLenroc[fIrn[iroc]];
+        cout << "  "<<lentot<<"  "<<fEvLen<<endl;
+    }
+    if ((unsigned int)lentot >= fEvLen) break;
+  }
+// Find device headers in each ROC
+  for (iroc=0; iroc < numroc; iroc++) {
+   istart = fN1roc[fIrn[iroc]]+1;
+   istop = fN1roc[fIrn[iroc]]+fLenroc[fIrn[iroc]];
+   ipt = istart; 
+   while (ipt++ < istop) {
+       devices.FindHeaders(fIrn[iroc], ipt, fEvBuffer[ipt]);
+   }
+  }
+  if (DECODE_DEBUG) devices.PrintHeaders();
+  return 1;
+}
 
 void VaEvent::AddCut (const Cut_t cut, const Int_t val)
 {
@@ -884,6 +989,11 @@ void VaEvent::Create(const VaEvent& rhs)
  memcpy(fEvBuffer, rhs.fEvBuffer, fEvLen*sizeof(Int_t));
  fData = new Double_t[MAXKEYS];
  memcpy(fData, rhs.fData, MAXKEYS*sizeof(Double_t));
+ // We don't need to copy these pointers because they get
+ // filled and used only in decoding.
+ fN1roc = new Int_t[MAXROC];
+ fIrn = new Int_t[MAXROC];
+ fLenroc = new Int_t[MAXROC];
  if (rhs.fCutArray != 0 && fgNCuts > 0)
    {
      fCutArray = new Int_t[fgNCuts];
@@ -899,6 +1009,9 @@ void VaEvent::Uncreate()
 
   delete [] fEvBuffer;
   delete [] fData;
+  delete [] fN1roc;
+  delete [] fLenroc;
+  delete [] fIrn;
   if (fCutArray != 0)
     delete [] fCutArray;
 };

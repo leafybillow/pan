@@ -876,6 +876,7 @@ Double_t TaDataBase::GetDacNoise(const Int_t& adc, const Int_t& chan, const stri
       {
      cerr << "WARNING: DataBase::GetDacNoise:";
      cerr << "  illegal combination of adc and channel #"<<endl;
+     cerr << "  idx = " << idx << " adc "<<adc<<"  chan "<<chan<<endl;
      return 0;
       }
   return 0;
@@ -1304,8 +1305,8 @@ void TaDataBase::InitDB() {
     }
     if (i == 8) { // datamap
        for (k = 0; k < 3; k++) columns.push_back(new dtype("s"));
-       for (k = 0; k < 3; k++) columns.push_back(new dtype("i"));
-       for (k = 0; k < 10; k++) columns.push_back(new dtype("s"));
+       for (k = 0; k < 2; k++) columns.push_back(new dtype("i"));
+       for (k = 0; k < 12; k++) columns.push_back(new dtype("s"));
     }
     if (i == 9) columns.push_back(new dtype("i"));  // ncuts
     if (i == 10) {   // extlo
@@ -1498,8 +1499,8 @@ TaKeyMap TaDataBase::GetKeyMap(string devicename) const {
 
 void TaDataBase::InitDataMap() {
   static pair<string, vector<dtype*> > sdt;
-  int devnum, chan, evb;
-  string key,readout;
+  int devnum, chan, evb, crate, istart;
+  string key, readout, sevb, scrate;
   if ( !didinit ) {
     cerr << "DataBase:: ERROR: Cannot init datamap without first init DB"<<endl;
     return;
@@ -1514,6 +1515,10 @@ void TaDataBase::InitDataMap() {
   for (multimap<string, vector<dtype*> >::iterator dmap = lb;
          dmap != ub; dmap++) {
      vector<dtype*> datav = dmap->second;
+     if ((long)datav.size() < 6) {
+       cout << "ERROR: datamap string too short, skipping."<<endl; 
+       continue;
+     }     
      string long_devname = datav[1]->GetS();       
      string devname = StripRotate(long_devname);
      map<string, TaKeyMap >::iterator dm = datamap.find(devname);
@@ -1523,13 +1528,20 @@ void TaDataBase::InitDataMap() {
      keymap.SetRotate(RotateState(long_devname));
      readout = datav[2]->GetS();
      devnum  = datav[3]->GetI();
-     chan = datav[4]->GetI();
-     evb  = datav[5]->GetI();
-     int istart = 6;
+// evb, crate are potentially "keymap" strings.  If not, then we interpret
+// them as integers.  See datamap rules in ./doc/DATABASE.TXT
+     chan  = datav[4]->GetI(); 
+     sevb   = datav[5]->GetS();  evb   = atoi(sevb.c_str());
+     scrate = "";  crate = 0;
+     if ((long)datav.size() > 6) {
+       scrate = datav[6]->GetS();  crate = atoi(scrate.c_str());
+     }
+     istart = FindFirstKey(sevb, scrate);
      for (int k = istart; k < (long)datav.size(); k++) {
        if ( !datav[k]->IsLoaded() ) continue;
        key = datav[k]->GetS();
-       keymap.LoadData( key, readout, devnum, chan + k - istart, evb + k - istart);
+       keymap.LoadData( key, readout, devnum, chan + k - istart, 
+           evb + k - istart, crate, istart-EARLIESTKEY);
      }
      pair<string, TaKeyMap > skm;
      skm.first = devname;  skm.second = keymap;
@@ -1545,6 +1557,24 @@ void TaDataBase::InitDataMap() {
 // PrintDataBase();
 // PrintDataMap();   
 };
+
+int
+TaDataBase::FindFirstKey(const string& sevb, const string& scrate) {
+// Find the location in datamap of the first key, according to the rules
+// in ./doc/DATABASE.TXT
+  int jlen, jtoi;
+  jlen = strlen(sevb.c_str());
+  jtoi = atoi(sevb.c_str());
+  if ( (jlen > 1) && (jtoi == 0) ) {  
+    return EARLIESTKEY;
+  }
+  jlen = strlen(scrate.c_str());
+  jtoi = atoi(scrate.c_str());
+  if ( (jlen > 1) && (jtoi == 0) ) {  
+    return EARLIESTKEY+1;
+  }
+  return EARLIESTKEY+2;
+}
 
 
 void
