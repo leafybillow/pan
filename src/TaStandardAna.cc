@@ -130,7 +130,7 @@ TaStandardAna::InitChanLists ()
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("lumi", "~", "chan", fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanList ("det", "~", "chan", fgNO_STATS + fgCOPY);
+  f = ChanListFromName ("bmw", "", fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   // Channels for which to store differences
