@@ -166,7 +166,7 @@ void TaPairFromPair::CheckSequence( VaEvent& ThisEv, TaRun& run )
 
 
 UInt_t 
-TaPairFromPair::RanBit (UInt_t hRead = 2)
+TaPairFromPair::RanBit (UInt_t hRead)
 {
   // Pseudorandom bit generator.  New bit is XOR of bits 17, 22, 23, 24
   // of 24 bit shift register fgShreg.  New fgShreg is old one shifted

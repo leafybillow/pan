@@ -40,7 +40,7 @@ ClassImp(TaStatistics)
 
 // Constructors/destructors/operators
 
-TaStatistics::TaStatistics (const size_t nquant, const Bool_t goodErrors = true):
+TaStatistics::TaStatistics (const size_t nquant, const Bool_t goodErrors ):
   fGoodErrors(goodErrors),
   fFirstPass(true),
   fN(0),
@@ -236,8 +236,8 @@ TaStatistics::Update (const vector<Double_t>& x,
 
 void 
 TaStatistics::Update (const Double_t x, 
-		      const Double_t xerr = 0, 
-		      const Double_t w = 0) // Add a single quantity
+		      const Double_t xerr , 
+		      const Double_t w ) // Add a single quantity
 {
   // Update the sums associated with a single statistic.  Third
   // argument (weight) can be omitted (or passed as zero), in which
