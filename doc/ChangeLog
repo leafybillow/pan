@@ -6,6 +6,18 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 10 Dec 2002
+-----------------------------------
+
+In Makefile I added provisions for compiling Pan's utility classes
+(TaFileName, TaLabelledQuantity, TaStatistics, TaString) with
+dictionary turned off and putting them into a library, libpan.a, which
+can be linked by other programs.  The object files are *_NODICT.o, and
+these are what are made when compiling Pan with no dictionary too.  I
+removed the .SUFFIXES lines too, because I'm pretty sure they're
+unneeded. 
+
+
 Changes by R. Holmes on 4 Dec 2002
 ----------------------------------
 
