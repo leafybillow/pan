@@ -16,7 +16,7 @@
 # export OPTIMIZE = 1
 #
 # Uncomment this if you want to use MySQL database
-#export MYSQLDB = 1
+export MYSQLDB = 1
 #
 # Would uncommment this if you want rootcint Dictionary.
 # Only works with the CVS version of root as of Dec 21, 2001.
@@ -93,10 +93,21 @@ else
    CXXFLAGS += -g
 endif
 
+#
+# Mysql can be dowloaded from http://www.mysql.com 
+# It is also found at CUE in /apps/mysql/
+# Use Mysql version: mysql-3.23.xx 
+# 
+# libMySQL.so is root library found under $(ROOTSYS)/lib
+#
+# libz.so is a compression library used by libMySQL.so
+# and can be found at CUE in /apps/lib/
+#
+
 ifdef MYSQLDB
-MYSQL_INCLUDE = /usr/local/mysql/include
+MYSQL_INCLUDE = /apps/mysql/PRO/include/mysql
 INCLUDES      +=-I$(MYSQL_INCLUDE) 
-MYSQL_LIBS    = /cern/root/lib/libMySQL.so /usr/lib/libz.so
+MYSQL_LIBS    = $(ROOTSYS)/lib/libMySQL.so /apps/lib/libz.so
 ALL_LIBS += $(MYSQL_LIBS)
 endif
 
