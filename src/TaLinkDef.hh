@@ -21,6 +21,7 @@
 #pragma link C++ class TaAnalysisManager;
 #pragma link C++ class TaDataBase;
 #pragma link C++ class TaBeamAna;
+#pragma link C++ class TaBlind;
 #pragma link C++ class TaCutInterval;
 #pragma link C++ class TaCutList;
 #pragma link C++ class TaDebugAna;
