@@ -118,6 +118,8 @@ TaBeamAna::InitChanLists ()
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   // Channels for which to store asymmetries
+  f = ChanList ("batt", "~", "ppm", fgASY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("bcm", "~", "ppm", fgNO_BEAM_NO_ASY + fgASY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
