@@ -14,6 +14,7 @@
 //#define NOISY
 //#define CHECKOUT
 //#define ASYMCHECK
+#define FDBK1
 
 #include "TaCutList.hh"
 #include "TaEvent.hh"
@@ -208,6 +209,21 @@ VaAnalysis::RunIni(TaRun& run)
   fPairTree = new TTree("P","Pair data DST");
   InitChanLists();
   InitTree();
+  fQSwitch = kFALSE;
+  fZSwitch = kFALSE;
+  fQNpair=0; fQfeedNum=0;
+  fZNpair=0; fZfeedNum=0;
+  fQsum.clear();
+  for (Int_t i=0;i<2;i++){
+    fZpair[i]=0;
+    fZsum4B[i].clear();
+  }  
+  if ( fRun->GetDataBase()->GetFdbkSwitch("AQ") == "on") fQSwitch = kTRUE;
+  if ( fQSwitch) fQTimeScale = fRun->GetDataBase()->GetFdbkTimeScale("AQ");
+  cout<< " feedback timescale "<<fQTimeScale<<endl;
+  if ( fRun->GetDataBase()->GetFdbkSwitch("PZT") == "on") fZSwitch = kTRUE;
+  if ( fZSwitch) fZTimeScale = fRun->GetDataBase()->GetFdbkTimeScale("PZT");
+  cout<< " feedback timescale "<<fZTimeScale<<endl;
 
   // Set pair type
 
@@ -294,11 +310,15 @@ VaAnalysis::RunFini()
   // redundant with Finish.)  Clear out the queues, get rid of all
   // pairs, and get rid of the pair tree.  But write it out first...
 
+
   clog << "VaAnalysis::RunFini: Run " << fRun->GetRunNumber()
        << " analysis terminated at event " 
        << fPreEvt->GetEvNumber() << endl;
   clog << "VaAnalysis::RunFini: Processed " << fEvtProc 
        << " (" << fPairProc << ") events (pairs)" << endl;
+
+  if (fQSwitch) QasyEndFeedback();
+  if (fZSwitch) PZTEndFeedback();
 
   fPairTree->Write();
   delete fPreEvt;
@@ -756,7 +776,446 @@ VaAnalysis::AutoPairAna()
    clog <<val<<endl;
 #endif
     }
+  if (fQSwitch) QasyRunFeedback();
+  if (fZSwitch) PZTRunFeedback();
+}
 
+void VaAnalysis::QasyRunFeedback(){
+
+
+  if ( fQSwitch ){ 
+    if ( fPair->PassedCuts() && fPair->PassedCutsInt(fRun->GetCutList()) ){
+      fQNpair++;
+      fQsum.push_back(fPair->GetAsy(IBCM1)*1E6);
+      fQmean1+=fPair->GetAsy(IBCM1)*1E6;
+
+#ifdef FDBK
+      clog<<"\n\nVaAnalysis::QasyRunFeedback() compute IBCM1ASY : "<<fPair->GetAsy(IBCM1)*1E6
+          <<" Npair "<<fQNpair<<" sum "<<fQmean1<<" current mean "<<fQmean1/fQNpair<<endl;
+#endif
+    }// end fPair->PassedCuts()
+    if (fQNpair >= fQTimeScale*900){
+      fQfeedNum++; 
+      fQStopPair = fPair->GetLeft().GetEvNumber();
+      
+#ifdef FDBK1
+      clog<<"\n";      
+      clog<<"      |------ VaAnalysis::QasyRunFeedback()---------------\n";
+      clog<<"      |\n";      
+      clog<<"      | IBCM1ASY FEEDBACK #"<<fQfeedNum<<" at event "<<fQStopPair<<" Npair "<<fQNpair<<" \n";
+      clog<<"      |---------------------------------------------------\n";
+#endif
+
+      fQmean1= fQmean1/fQNpair;
+      vector< Double_t>::iterator qi;
+      for ( qi = fQsum.begin(); qi != fQsum.end(); qi++){
+	fQRMS+=(*qi - fQmean1)*(*qi -fQmean1);
+      }
+    fQRMS = sqrt(fQRMS/fQNpair);
+    fQasy = fQmean1;
+    fQasyEr = fQRMS/sqrt(fQNpair);
+
+#ifdef FDBK1
+    clog<<"      |\n";      
+    clog<<"      | 1st pass <Aq> :  "<<fQasy<<" +- "<<fQasyEr<<" RMS "<<fQRMS<<"\n";
+    clog<<"      |\n";
+#endif
+    fQNpair=0;
+      for ( qi = fQsum.begin(); qi != fQsum.end() ; qi++){
+        // if asymmetry value is not too far from the mean value 
+        // (filter very large values )    
+	// let's say < 6 sigma away from the calculated mean
+        if ( abs(Int_t(*qi) - Int_t(fQasy)) < 6*fQRMS ) { 
+             fQNpair++;
+	     fQmean2 += *qi;             
+            }
+          else
+	    {
+	     fQsum.erase(qi); 
+	}
+      } 
+
+#ifdef FDBK1
+    clog<<"      | Filtering processed, new Npair :"<<fQNpair<<"\n"; 
+#endif
+    fQmean2 = fQmean2/fQNpair;
+    fQRMS=0;
+    for (qi = fQsum.begin() ; qi != fQsum.end() ; qi++){
+      fQRMS += (*qi - fQmean2)*(*qi - fQmean2);      
+    }     
+    fQRMS = sqrt(fQRMS/fQNpair); //  Qasym RMS
+    fQasy = fQmean2;
+    fQasyEr = fQRMS/sqrt(fQNpair); //  error on Qasym Mean
+#ifdef FDBK1
+
+    clog<<"      |\n";      
+    clog<<"      | 2nd pass <Aq> : "<<fQasy<<" +- "<<fQasyEr<<" RMS "<<fQRMS<<" \n"; 
+    clog<<"      |\n";
+    clog<<"      |---------------------------------------------------\n";
+    clog<<"\n\n";      
+
+#endif
+    fQNpair = 0;
+    fQsum.clear();
+    QasySendEPICS();
+  
+    }// end fQNpair >= fQTimeScale*900
+ 
+  }// end fQSwitch        
+}
+
+
+void VaAnalysis::QasyEndFeedback(){
+
+  // Last feedback at the end of the run. To have a chance to send 
+  // a feedback, this function need enough pair to do it . 
+  // it checks the QAsym vector size, compute an error and 
+  // test the value and send it.
+ if ( fQSwitch ){ 
+  if (fQsum.size() > fQTimeScale ) {     
+    fQNpair = fQsum.size();
+    fQfeedNum = -1; // arbitrary end feedback number is -1
+    fQStopPair = 0; // give 0 for end feedback 
+    vector<Double_t>::iterator qi;
+    for (qi = fQsum.begin() ; qi != fQsum.end() ; qi++){
+      fQmean1+=*qi;
+    }
+#ifdef FDBK1
+      clog<<"\n";      
+      clog<<"      |------ VaAnalysis::QasyEndFeedback()---------------\n";
+      clog<<"      |\n";      
+      clog<<"      | IBCM1ASY END FEEDBACK queue size "<<fQsum.size()<<" \n";
+      clog<<"      |---------------------------------------------------\n";
+#endif
+    
+    for (qi = fQsum.begin() ; qi != fQsum.end() ; qi++){
+      fQRMS += (*qi - fQmean1)*(*qi - fQmean1);      
+    }     
+    fQRMS = sqrt(fQRMS/fQNpair); //  Qasym RMS
+    fQasy = fQmean1;
+    fQasyEr = fQRMS/sqrt(fQNpair); //  error on Qasym Mean
+    
+#ifdef FDBK1
+    clog<<"      |\n";      
+    clog<<"      | 1st pass <Aq> :  "<<fQasy<<" +- "<<fQasyEr<<" RMS "<<fQRMS<<"\n";
+    clog<<"      |\n";
+#endif
+
+    fQNpair = 0;    
+    for ( qi = fQsum.begin(); qi != fQsum.end() ; qi++){
+        // if asymmetry value is not too far from the mean value 
+        // (filter very large values )    
+	//  < 6 sigma away from the calculated mean
+        if ( abs(Int_t(*qi) - Int_t(fQmean1)) < 6*fQRMS ) { 
+             fQNpair++;
+	     fQmean2 += *qi;             
+            }
+          else
+	    {
+	     fQsum.erase(qi); 
+	}
+     } 
+#ifdef FDBK1
+    clog<<"      | Filtering processed, new Npair :"<<fQNpair<<"\n"; 
+#endif
+    fQmean2 = fQmean2/fQNpair;
+    for (qi = fQsum.begin() ; qi != fQsum.end() ; qi++){
+      fQRMS += (*qi - fQmean2)*(*qi - fQmean2);      
+    }     
+    fQRMS = sqrt(fQRMS/fQNpair); //  Qasym RMS
+    fQasy = fQmean2;
+    fQasyEr = fQRMS/sqrt(fQNpair); //  error on Qasym Mean
+#ifdef FDBK1
+    clog<<"      |\n";      
+    clog<<"      | 2nd pass <Aq> : "<<fQasy<<" +- "<<fQasyEr<<" RMS "<<fQRMS<<" \n"; 
+    clog<<"      |\n";
+    clog<<"      |---------------------------------------------------\n";
+    clog<<"\n\n";      
+#endif
+    fQNpair = 0;
+    fQsum.clear();
+    QasySendEPICS();
+    }
+  else{
+    clog<<"*** NO END FEEDBACK proceeded, NOT ENOUGH PAIRS "<<endl;
+  }  
+ }
+}
+
+void VaAnalysis::SendVoltagePC(){
+    if ( abs(Int_t(fQasy)) < 25 || abs(Int_t(fQasy)) > 25 && 
+         abs(Int_t(fQasy)/(Int_t(fQasyEr))) > 2 ) {
+        // CRITERIA are OK, compute PC low voltage value.  
+#ifdef ONLINE      
+   cout<<" will write the function when hardware defined ...."<<endl;
+#endif
+    }
+}
+
+void VaAnalysis::QasySendEPICS(){
+    if ( abs(Int_t(fQasy)) < 25 || abs(Int_t(fQasy)) > 25 && 
+         abs(Int_t(fQasy)/(Int_t(fQasyEr))) > 2 ) {
+        // CRITERIA are OK.  
+      //      clog<<" fQasy and fQasy/fQasyEr :"<<fQasy<<" "<< abs(Int_t(fQasy)/(Int_t(fQasyEr)))<<endl;
+      clog<<" \n             *** Pan is sending EPICS values for PC *** "<<endl;
+      char* thevar[2];   
+      thevar[0]= "HA:Q_ASY"; 
+      thevar[1]= "HA:DQ_ASY";   
+      char* thevalue[2];   
+      char* command[2];
+      for (Int_t i=0; i<2; i++){ 
+      thevalue[i] = new char[100];
+      command[i] = new char[100];
+      }        
+      sprintf(thevalue[0],"%6.0f",fQasy);
+      sprintf(thevalue[1],"%6.0f",fQasyEr);
+       for (Int_t i=0; i<2; i++){ 
+        sprintf(command[i],"/pathtothescript/PITAfeedback_script ");
+         strcat( command[i],thevar[i]);
+         strcat(command[i]," ");
+         strcat(command[i],thevalue[i]);
+         
+         clog << "   SHELL command = "<<command[i]<<endl;
+#ifdef ONLINE
+         //system(command[i]);
+#endif            
+	 // delete thevar[i]; 
+       delete thevalue[i];  
+      delete command[i];           
+      }	
+   }
+}
+
+void VaAnalysis::PZTRunFeedback(){
+  // do it on IBPM4BX,Y but perhaps it is preferable for the future to 
+  // do feedback at bpms at the injector in the 5 MeV region....if it is the case 
+  // just replace the name of the bpm.  
+
+  if (fZSwitch){ 
+    if ( fPair->PassedCuts() && fPair->PassedCutsInt(fRun->GetCutList())){     
+       fZNpair++;
+       //       clog<<"good pair for PZT"<<endl;
+       fZsum4B[0].push_back(fPair->GetDiff(IBPM4BX)*1E6);
+       fZsum4B[1].push_back(fPair->GetDiff(IBPM4BY)*1E6);
+       fZ4Bmean1[0]+=fPair->GetDiff(IBPM4BX)*1E6;
+       fZ4Bmean1[1]+=fPair->GetDiff(IBPM4BY)*1E6;
+       //       clog<<" data :"<<" "<<fZ4Bmean1[0]<<" "<<fZ4Bmean1[1]<<endl;
+    }
+   // start feedback after timescale*900
+  if (fZNpair > fZTimeScale*900){
+    fZfeedNum++;
+    fZStopPair = fPair->GetLeft().GetEvNumber();
+ 
+#ifdef FDBK1
+    clog<<"\n      -------------VaAnalysis::QPZTRunFeedback()--------\n";
+    clog<<"      |\n";
+    clog<<"      | PZT mirror feedback #"<<fZfeedNum<<" at event "<<fZStopPair<<endl; 
+    clog<<"      |\n";      
+    clog<<"      |---------------------------------------------------\n";
+    clog<<"      |\n";  
+    clog<<"      | Matrix elements      (     |     )    \n";  
+    clog<<"      |                      (-----|-----)    \n";      
+    clog<<"      |                      (     |     )    \n";      
+    clog<<"      |\n";      
+    clog<<"      |---------------------------------------------------\n";  
+#endif 
+
+    for (Int_t i=0;i<2;i++){ 
+       fZ4Bmean1[i]= fZ4Bmean1[i]/fZNpair;
+       vector< Double_t>::iterator qi;
+       for ( qi = fZsum4B[i].begin(); qi != fZsum4B[i].end(); qi++){
+           fZ4BRMS[i]+=(*qi - fZ4Bmean1[i])*(*qi -fZ4Bmean1[i]);
+        }
+       fZ4BRMS[i] = sqrt(fZ4BRMS[i]/fZNpair);
+       fZ4Bdiff[i] = fZ4Bmean1[i];
+       fZ4BdiffEr[i] = fZ4BRMS[i]/sqrt(fZNpair); 
+    }
+#ifdef FDBK1
+    clog<<"      |\n";      
+    clog<<"      | 1st pass "<<fZNpair<<" pairs \n";
+    clog<<"      |\n";      
+    clog<<"      |  <4BXdiff> = "<<fZ4Bdiff[0]<<"+-"<<fZ4BdiffEr[0]<<"\n";      
+    clog<<"      |\n";      
+    clog<<"      |  <4BYdiff> = "<<fZ4Bdiff[1]<<"+-"<<fZ4BdiffEr[1]<<"\n";      
+#endif 
+    for (Int_t i=0;i<2;i++){ 
+        fZpair[i]=0;
+       vector< Double_t>::iterator qi;
+        for ( qi = fZsum4B[i].begin(); 
+             qi != fZsum4B[i].end() ; qi++){
+           // if diff value is not too far from the mean value
+           // (filter very large values )
+           // let's say < 6 sigma away from the calculated mean
+        if ( abs(Int_t(*qi) - Int_t(fZ4Bdiff[i])) < 6*fZ4BRMS[i] ) {
+             fZpair[i]++; 
+             fZ4Bmean2[i] += *qi;
+            }
+          else
+            {
+             fZsum4B[i].erase(qi);
+        } 
+      }
+    fZ4Bmean2[i]= fZ4Bmean2[i]/fZpair[i];
+    for ( qi = fZsum4B[i].begin(); qi != fZsum4B[i].end(); qi++){
+        fZ4BRMS[i]+=(*qi - fZ4Bmean2[i])*(*qi -fZ4Bmean2[i]);
+      }
+    fZ4BRMS[i] = sqrt(fZ4BRMS[i]/fZpair[i]);
+    fZ4Bdiff[i] = fZ4Bmean2[i];
+    fZ4BdiffEr[i] = fZ4BRMS[i]/sqrt(fZpair[i]);
+    } 
+#ifdef FDBK1
+    clog<<"      |\n";      
+    clog<<"      | 2nd pass X "<<fZpair[0]<<" pairs, Y "<<fZpair[1]<<" pairs      \n";
+    clog<<"      |\n";      
+    clog<<"      |  <4BXdiff> = "<<fZ4Bdiff[0]<<"+-"<<fZ4BdiffEr[0]<<"\n";      
+    clog<<"      |\n";      
+    clog<<"      |  <4BYdiff> = "<<fZ4Bdiff[1]<<"+-"<<fZ4BdiffEr[1]<<"           \n";
+    clog<<"      |\n";      
+    clog<<"      ----------------------------------------------------\n";
+    clog<<"\n\n";      
+#endif 
+    fZNpair=0;  
+    for (Int_t i=0;i<2;i++){ 
+      fZpair[i]=0;
+      fZsum4B[i].clear();  
+    }
+   PZTSendEPICS();  
+  }
+
+ }
+}
+
+
+void VaAnalysis::PZTEndFeedback(){
+
+  if (fZSwitch){
+     if ((fZsum4B[0].size() > fQTimeScale*900) && 
+         (fZsum4B[1].size() > fQTimeScale*900)){     
+         fZfeedNum = -1; // arbitrary end feedback number is -1
+         fZStopPair = 0; // give 0 for end feedback 
+         vector<Double_t>::iterator qi;
+       for ( Int_t i = 0;i<2;i++){
+         fZpair[i] = fZsum4B[i].size();
+         for ( qi = fZsum4B[i].begin(); qi != fZsum4B[i].end(); qi++){
+           fZ4Bmean1[i]+= *qi;
+	 }
+       } 
+#ifdef FDBK1
+
+       clog<<"\n-------------VaAnalysis::QPZTEndFeedback()---------\n";
+       clog<<"|                                                   |\n";
+       clog<<"| PZT mirror feedback at END of RUN "<<fRunNum<<"       | \n"; 
+       clog<<"|                                                   |\n";      
+       clog<<"|---------------------------------------------------|\n";
+       clog<<"| Matrix elements      (      |     )               |\n";  
+       clog<<"|                      (------------)               |\n";      
+       clog<<"|                      (      |     )               |\n";      
+       clog<<"|---------------------------------------------------|\n";
+
+#endif 
+    for (Int_t i=0;i<2;i++){ 
+       fZ4Bmean1[i]= fZ4Bmean1[i]/fZpair[i];
+       for ( qi = fZsum4B[i].begin(); qi != fZsum4B[i].end(); qi++){
+           fZ4BRMS[i]+=(*qi - fZ4Bmean1[i])*(*qi -fZ4Bmean1[i]);
+        }
+       fZ4BRMS[i] = sqrt(fZ4BRMS[i]/fZpair[i]);
+       fZ4Bdiff[i] = fZ4Bmean1[i];
+       fZ4BdiffEr[i] = fZ4BRMS[i]/sqrt(fZpair[i]); 
+    }
+#ifdef FDBK1
+    clog<<"|                                                   |\n";      
+    clog<<"| 1st pass X "<<fZpair[0]<<" pairs,  Y "<<fZpair[1]<<" pairs    |\n";
+    clog<<"|                                                   |\n";      
+    clog<<"|  <4BXdiff> = "<<fZ4Bdiff[0]<<"+-"<<fZ4BdiffEr[0]<<"           |\n";      
+    clog<<"|                                                   |\n";      
+    clog<<"|  <4BYdiff> = "<<fZ4Bdiff[1]<<"+-"<<fZ4BdiffEr[1]<<"           |\n";      
+#endif 
+    for (Int_t i=0;i<2;i++){ 
+        fZpair[i]=0;
+        for ( qi = fZsum4B[i].begin(); qi != fZsum4B[i].end() ; qi++){
+           // if diff value is not too far from the mean value
+           // (filter very large values )
+           // let's say < 6 sigma away from the calculated mean
+           if ( abs(Int_t(*qi) - Int_t(fZ4Bdiff[i])) < 6*fZ4BRMS[i] ) {
+               fZpair[i]++; 
+               fZ4Bmean2[i] += *qi;
+             }
+           else
+             {
+             fZsum4B[i].erase(qi);
+          }
+        }  
+        fZ4Bmean2[i]= fZ4Bmean2[i]/fZpair[i];
+        for ( qi = fZsum4B[i].begin(); qi != fZsum4B[i].end(); qi++){
+          fZ4BRMS[i]+=(*qi - fZ4Bmean2[i])*(*qi -fZ4Bmean2[i]);
+        }
+        fZ4BRMS[i] = sqrt(fZ4BRMS[i]/fZpair[i]);
+        fZ4Bdiff[i] = fZ4Bmean2[i];
+        fZ4BdiffEr[i] = fZ4BRMS[i]/sqrt(fZpair[i]);
+    } 
+#ifdef FDBK1
+    clog<<"|                                                   |\n";      
+    clog<<"| 2st pass X "<<fZpair[0]<<" pairs, Y "<<fZpair[1]<<" pairs     |\n";
+    clog<<"|                                                   |\n";      
+    clog<<"|  <4BXdiff> = "<<fZ4Bdiff[0]<<"+-"<<fZ4BdiffEr[0]<<"           |\n";      
+    clog<<"|                                                   |\n";      
+    clog<<"|  <4BYdiff> = "<<fZ4Bdiff[1]<<"+-"<<fZ4BdiffEr[1]<<"           |\n";
+    clog<<"|                                                   |\n";      
+    clog<<"-----------------------------------------------------\n";
+    clog<<"\n\n";      
+#endif 
+    for (Int_t i=0;i<2;i++){ 
+      fZpair[i]=0;
+      fZsum4B[i].clear();
+    }
+    PZTSendEPICS();  
+     }
+  }
+}
+
+void VaAnalysis::PZTSendEPICS(){
+  // arbitrary values for now
+    if ( (abs(Int_t(fZ4Bdiff[0])) < 1000 || abs(Int_t(fZ4Bdiff[0])) > 1000 && 
+         abs(Int_t(fZ4Bdiff[0])/(Int_t(fZ4BdiffEr[0]))) > 2) &&
+         (abs(Int_t(fZ4Bdiff[1])) < 1000 || abs(Int_t(fZ4Bdiff[1])) > 1000 && 
+         abs(Int_t(fZ4Bdiff[1])/(Int_t(fZ4BdiffEr[1]))) > 2)) {
+
+      clog<<" \n             *** Pan is sending EPICS values for PZT *** "<<endl;
+      char* thevar[4];   
+      thevar[0]= "HA:PZT_4BX"; 
+      thevar[1]= "HA:PZT_D4BX";   
+      thevar[2]= "HA:PZT_4BY"; 
+      thevar[3]= "HA:PZT_D4BY";   
+      char* thevalue[4];   
+      char* command[4];
+      for (Int_t i=0; i<4; i++){ 
+      thevalue[i] = new char[100];
+      command[i] = new char[100];
+      }        
+      sprintf(thevalue[0],"%6.0f",fZ4Bdiff[0]);
+      sprintf(thevalue[1],"%6.0f",fZ4BdiffEr[0]);      
+      sprintf(thevalue[2],"%6.0f",fZ4Bdiff[1]);
+      sprintf(thevalue[3],"%6.0f",fZ4BdiffEr[1]);
+       for (Int_t i=0; i<4; i++){ 
+        sprintf(command[i],"/pathtothescript/PZTfeedback_script ");
+         strcat( command[i],thevar[i]);
+         strcat(command[i]," ");
+         strcat(command[i],thevalue[i]);
+         
+         clog << "   SHELL command = "<<command[i]<<endl;
+#ifdef ONLINE
+         //system(command[i]);
+#endif            
+	 // delete thevar[i]; 
+       delete thevalue[i];  
+      delete command[i];            
+       }
+    }
+}
+
+
+void VaAnalysis::SendVoltagePZT(){
+ cout<<" will write the function when hardware defined ...."<<endl;
 }
 
 #ifdef LEAKCHECK
@@ -771,3 +1230,10 @@ void VaAnalysis::LeakCheck()
        << " diff " <<fLeakNewPair-fLeakDelPair << endl;
 }
 #endif
+
+
+
+
+
+
+

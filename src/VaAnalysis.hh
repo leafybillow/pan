@@ -26,7 +26,6 @@
 class TaRun;
 class TaEvent;
 class VaPair;
-
 class AnaList {
 // Utility class of variable info
 // (Rich, feel free to rewrite this; it replaces the pair<string, string>
@@ -103,6 +102,16 @@ protected:
 						 const string& other);
   virtual void AutoPairAna();
 
+  virtual void QasyRunFeedback();
+  virtual void QasyEndFeedback();
+  virtual void PZTRunFeedback();
+  virtual void PZTEndFeedback();
+  virtual void SendVoltagePC();
+  virtual void QasySendEPICS();
+  virtual void PZTSendEPICS();
+  virtual void SendVoltagePZT();
+
+
   // Data members
   TaRun* fRun;
   UInt_t fMaxNumEv;
@@ -135,6 +144,18 @@ protected:
   UInt_t fPairProc;
   EPairType fPairType;
 
+  // feedback data
+  Bool_t fQSwitch, fZSwitch; 
+  Int_t fRunNum;
+  UInt_t fQTimeScale, fZTimeScale ,fZNpair, fQNpair;
+  Int_t  fQStartPair, fQStopPair,fQfeedNum;
+  Int_t  fZpair[2], fZStartPair, fZStopPair,fZfeedNum;     
+  vector<Double_t> fQsum;
+  vector<Double_t> fZsum4B[2];
+  Double_t fQmean1, fQmean2, fQRMS, fQasy, fQasyEr;
+  Double_t fQslope, fQSlopeEr;    
+  Double_t fZ4Bmean1[2], fZ4Bmean2[2], fZ4BRMS[2];
+  Double_t fZ4Bdiff[2],fZ4BdiffEr[2];   
   // Define LEAKCHECK to check that new = del
 #define LEAKCHECK
 #ifdef LEAKCHECK
@@ -152,3 +173,11 @@ protected:
 };
 
 #endif
+
+
+
+
+
+
+
+
