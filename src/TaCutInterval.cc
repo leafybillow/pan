@@ -45,7 +45,8 @@ TaCutInterval::Inside (const TaEvent& ev,
 		       const UInt_t lex, 
 		       const UInt_t hex) const 
 {
-  return ( ( ev.GetEvNumber() >= fBegin-lex ) && 
+  UInt_t f0 = (fBegin > lex) ? fBegin-lex : 0;
+  return ( ( ev.GetEvNumber() >= f0 ) && 
 	   ( ev.GetEvNumber() < fEnd+hex ) );
 }
 
@@ -71,7 +72,7 @@ TaCutInterval::GetVal() const
 ostream& 
 operator<< (ostream& s, const TaCutInterval q)
 {
-  s << int (q.fCut) << " " << q.fVal << " " << q.fBegin << " " << q.fEnd;
+  s << int (q.fCut) << " " << q.fVal << " " << q.fBegin << " - " << q.fEnd;
   return s;
 }
 
