@@ -48,6 +48,10 @@ VaAnalysis::VaAnalysis():
   fEDequeMax(0),
   fPDequeMax(0),
   fPairTree(0),
+  fTreeREvNum(0),
+  fTreeLEvNum(0),
+  fTreeMEvNum(0),
+  fTreePairOK(0),
   fTreeSpace(0),
   fPairType(FromPair)
 { 
@@ -182,15 +186,10 @@ VaAnalysis::RunIni(TaRun& run)
   }
 
   // maximum events in fEHelDeque set equal to helicity delay times
-  // oversample. 
-  if (fRun->GetDataBase()->GetDelay() != 0){   
-     fEHelDequeMax = fRun->GetDataBase()->GetDelay() * 
-     fRun->GetDataBase()->GetOverSamp();
-  }
-  else 
-    {
-      fEHelDequeMax = 1;
-    }
+  // oversample plus one. 
+
+  fEHelDequeMax = fRun->GetDataBase()->GetDelay() * 
+    fRun->GetDataBase()->GetOverSamp() + 1;
 
   // maximum events in fEDeque set equal to twice number of
   // events per second.  Half as many pairs in fPDeque.
@@ -371,13 +370,6 @@ VaAnalysis::PreProcessEvt()
 
   fEHelDeque.push_back(fRun->GetEvent());
 
-// Memory leak here when helicity delay is 0.  Temporary dirty fix.  -Bob
-  if (fEHelDequeMax == 0 || fEHelDeque.size() > 1000) {
-  //  if (fEHelDeque.size() > 1000) {
-    fEHelDeque.clear();
-    fEHelDeque.push_back(fRun->GetEvent());
-  }
-
   if (fEHelDeque.size() == fEHelDequeMax)
       {
 	*fPreEvt = fEHelDeque.front();
@@ -541,11 +533,10 @@ VaAnalysis::InitTree ()
 #endif
 
   Double_t* tsptr = fTreeSpace;
-  fPairTree->Branch ("r_ev_num", tsptr++, "r_ev_num/D", bufsize); 
-  fPairTree->Branch ("l_ev_num", tsptr++, "l_ev_num/D", bufsize); 
-  fPairTree->Branch ("m_ev_num", tsptr++, "m_ev_num/D", bufsize); 
-  fPairTree->Branch ("pair_ok", tsptr++, "pair_ok/I", bufsize); 
-  
+  fPairTree->Branch ("r_ev_num", &fTreeREvNum, "r_ev_num/I", bufsize); 
+  fPairTree->Branch ("l_ev_num", &fTreeLEvNum, "l_ev_num/I", bufsize); 
+  fPairTree->Branch ("m_ev_num", &fTreeMEvNum, "m_ev_num/D", bufsize); 
+  fPairTree->Branch ("pair_ok",  &fTreePairOK, "pair_ok/I",  bufsize); 
 
   // Add branches corresponding to channels in the channel lists
   string suff ("/D");
@@ -676,11 +667,11 @@ VaAnalysis::AutoPairAna()
   Double_t* tsptr = fTreeSpace;
 
   // First store values not associated with a channel
-  *(tsptr++) = fPair->GetRight().GetEvNumber();
-  *(tsptr++) = fPair->GetLeft().GetEvNumber();
-  *(tsptr++) = (fPair->GetRight().GetEvNumber()+
+  fTreeREvNum = fPair->GetRight().GetEvNumber();
+  fTreeLEvNum = fPair->GetLeft().GetEvNumber();
+  fTreeMEvNum = (fPair->GetRight().GetEvNumber()+
 		fPair->GetLeft().GetEvNumber())*0.5;
-  *(tsptr++)= fPair->PassedCuts();
+  fTreePairOK = (fPair->PassedCuts() ? 1 : 0);
 #ifdef ASYMCHECK
   //  cout<<" mean ev pair "<<(fPair->GetRight().GetEvNumber()+fPair->GetLeft().GetEvNumber())*0.5<<" passed Cuts :"<<fPair->PassedCuts()<<endl;
 #endif

@@ -113,7 +113,11 @@ protected:
   vector<pair<string,string> > fDiffList;
   vector<pair<string,string> > fAsymList;
   TTree* fPairTree;
-  Double_t* fTreeSpace;
+  Int_t fTreeREvNum; // right ev number for tree
+  Int_t fTreeLEvNum; // left ev number for tree
+  Double_t fTreeMEvNum; // mean ev number for tree
+  Int_t fTreePairOK; // pair OK for tree
+  Double_t* fTreeSpace; // other data for tree
   UInt_t fEvtProc;
   UInt_t fPairProc;
   EPairType fPairType;
