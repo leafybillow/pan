@@ -18,8 +18,9 @@
 # To use "insure" from parasoft.com.  Must first type "use insure" on ifarml1.
 # export INSURE = 1
 #
-# Would uncommment this if you want rootcint Dictionary.
-# Requires Root version 3.02/07 or later.
+# MAKEDICTIONARY=1 is very important.  The ability to turn this off
+# is obsolescent and related to old versions of root.
+# Works fine if root version 3.02/07 or later.  
 MAKEDICTIONARY = 1
 
 # Choose the compiler.
