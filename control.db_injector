@@ -1,6 +1,6 @@
 # The datamap in this example is close to what we used
 # in summer 2001.
-    run 313
+#    run 313
 # number of events to process (leave this out to get infinite)
 #    maxevents 1000
 # run type and analysis type (why do we need both ?)
