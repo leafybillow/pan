@@ -87,6 +87,7 @@ TaBeamAna::InitChanLists ()
   // List of channels for which to store left and right values
   fCopyList = ChanList ("tir", "helicity", "");
   f = ChanList ("tir", "pairsynch", "");
+  f = ChanList ("timeboard", "oversample_bin", "");
   fCopyList.insert (fCopyList.end(), f.begin(), f.end());
 
   // List of channels for which to store differences
