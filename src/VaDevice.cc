@@ -80,7 +80,9 @@ VaDevice &VaDevice::operator=(const VaDevice &rhs) {
 Double_t VaDevice::GetData( const string &key ) const { 
 // To find a value corresponding to a data key 
 // Key points to a subunit of the device
-    if (fData.find(key) != fData.end()) return fData[key];
+        map< string , Double_t>::const_iterator sd;
+    sd = fData.find(key);
+    if (sd != fData.end()) return sd->second;
     if (VADEVICE_VERBOSE) 
        cout << "VaDevice:: WARNING: no data in "<<fName<<" for key "<<key<<endl;
     return 0; 
@@ -93,7 +95,9 @@ Double_t VaDevice::GetData( const Int_t& chan ) const {
    sprintf (c2, "_%d", chan);
    strcat (c1, c2);
    string key = c1;
-   if (fData.find(key) != fData.end()) return fData[key];
+   map< string , Double_t>::const_iterator sd;
+   sd = fData.find(key);
+   if (sd != fData.end()) return sd->second;
    if (VADEVICE_VERBOSE) 
    cout << "VaDevice:: WARNING: no data  for key "<<key<<endl;
    return 0; 
@@ -124,7 +128,9 @@ void VaDevice::Decode(const TaEvent& event) {
 
 Bool_t VaDevice::IsRaw(const string& key) const {
 // To answer if this channel of data is raw or cooked
-   return (evbuffer_pointer[key] > 0);
+  map< string, Int_t >::const_iterator si;
+  si = evbuffer_pointer.find(key);
+  return (si->second > 0);
 };
 
 Bool_t VaDevice::IsADC() const {
@@ -132,7 +138,7 @@ Bool_t VaDevice::IsADC() const {
 };
 
 Bool_t VaDevice::Defined(const string& akey) const {
-  for (vector<string>::iterator ikey = keys.begin(); 
+  for (vector<string>::const_iterator ikey = keys.begin(); 
      ikey != keys.end(); ikey++) {
        string key = *ikey;
        if (key == akey) return kTRUE;

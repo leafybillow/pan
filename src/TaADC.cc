@@ -94,7 +94,9 @@ string TaADC::GetADCLabel() const {
 };
 
 Int_t TaADC::GetChannel(string key) const {
-  return channels[key]; 
+  map< string, Int_t >::const_iterator chci = channels.find(key);
+  if ( chci==channels.end() ) return 0;
+  return chci->second; 
 };
 
 void TaADC::Decode(const TaEvent& event) {
