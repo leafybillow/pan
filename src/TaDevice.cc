@@ -812,6 +812,22 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"bcm6c", IBCM6C));
   fKeyToIdx.insert(make_pair((string)"bcm6" , IBCM6));
 
+  fKeyToIdx.insert(make_pair((string)"bcm7r", IBCM7R));
+  fKeyToIdx.insert(make_pair((string)"bcm7c", IBCM7C));
+  fKeyToIdx.insert(make_pair((string)"bcm7" , IBCM7));
+
+  fKeyToIdx.insert(make_pair((string)"bcm8r", IBCM8R));
+  fKeyToIdx.insert(make_pair((string)"bcm8c", IBCM8C));
+  fKeyToIdx.insert(make_pair((string)"bcm8" , IBCM8));
+
+  fKeyToIdx.insert(make_pair((string)"bcm9r", IBCM9R));
+  fKeyToIdx.insert(make_pair((string)"bcm9c", IBCM9C));
+  fKeyToIdx.insert(make_pair((string)"bcm9" , IBCM9));
+
+  fKeyToIdx.insert(make_pair((string)"bcm10r", IBCM10R));
+  fKeyToIdx.insert(make_pair((string)"bcm10c", IBCM10C));
+  fKeyToIdx.insert(make_pair((string)"bcm10" , IBCM10));
+
 // G0 cavity BCM1  raw data ("r") and calibrated data
 // "c" = data before pedestal subtracted
   fKeyToIdx.insert(make_pair((string)"bcmcav1r",IBCMCAV1R));
