@@ -84,10 +84,11 @@ ifdef PROFILE
    CXXFLAGS += -pg
 endif
 
+
 # Grow the list of sources here.
 
-SRC = TaADC.cc TaAnalysisManager.cc TaAsciiDB.cc TaBCM.cc TaBPM.cc \
-      TaBeamAna.cc \
+SRC = TaADC.cc TaAnalysisManager.cc TaAsciiDB.cc TaBCM.cc \
+      TaBPM.cc TaBeamAna.cc TaFdbkAna.cc\
       TaCutInterval.cc TaCutList.cc TaEvent.cc TaLabelledQuantity.cc \
       TaPairFromPair.cc TaRun.cc TaScaler.cc TaStatistics.cc \
       TaTB.cc TaTIR.cc \
