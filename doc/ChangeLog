@@ -6,6 +6,14 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by A. Vacheret on 14 jan 2003
+-------------------------------------
+
+I added a TaFeedbackAna class. I added also some feature for the feedback 
+in VaAnalysis like now we have the choice to send DAC voltage or asymmetry
+values. I removed the cuts in the SendEPICS() methods.   
+
+
 Changes by R. Michaels on 27 Dec 2002
 -------------------------------------
 
