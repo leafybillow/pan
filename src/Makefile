@@ -127,8 +127,8 @@ endif
 # LSRC is the classes that should go into the Pan library
 # SRC is all the classes needed for Pan
 
-LSRC = TaBlind.cc TaFileName.cc TaLabelledQuantity.cc \
-      TaStatistics.cc TaString.cc 
+LSRC = TaBlind.cc TaFileName.cc TaIResultsFile.cc TaLabelledQuantity.cc \
+      TaOResultsFile.cc TaStatistics.cc TaString.cc 
 
 SRC = $(LSRC) TaAnalysisManager.cc  \
       TaDebugAna.cc TaDevice.cc TaDataBase.cc \
