@@ -1,0 +1,15 @@
+
+if:
+
+
+root [0]  gSystem->Load("libMySQL");
+dlopen error: /cern/root/lib/libMySQL.so: undefined symbol: uncompress
+Load Error: Failed to load Dynamic link library /cern/root/lib/libMySQL.so
+*** Interpreter error recovered ***
+
+
+then:
+
+root [0] gSystem->Load("/usr/lib/libz");
+root [1] gSystem->Load("libMySQL");
+root [2] .x connect.c

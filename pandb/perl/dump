@@ -1,0 +1,2504 @@
+# MySQL dump 8.16
+#
+# Host: localhost    Database: pandb
+#--------------------------------------------------------
+# Server version	3.23.44-log
+
+#
+# Table structure for table 'Item'
+#
+
+CREATE TABLE Item (
+  itemId int(11) NOT NULL auto_increment,
+  itemName varchar(64) NOT NULL default '',
+  subsystemId int(11) NOT NULL default '0',
+  length int(11) unsigned default NULL,
+  type varchar(8) default NULL,
+  description text,
+  PRIMARY KEY  (itemId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'Item'
+#
+
+INSERT INTO Item VALUES (1,'chan0',1,2,'float','NULL');
+INSERT INTO Item VALUES (2,'chan1',1,2,'float','NULL');
+INSERT INTO Item VALUES (3,'chan2',1,2,'float','NULL');
+INSERT INTO Item VALUES (4,'chan3',1,2,'float','NULL');
+INSERT INTO Item VALUES (5,'chan0',2,2,'float','NULL');
+INSERT INTO Item VALUES (6,'chan1',2,2,'float','NULL');
+INSERT INTO Item VALUES (7,'chan2',2,2,'float','NULL');
+INSERT INTO Item VALUES (8,'chan3',2,2,'float','NULL');
+INSERT INTO Item VALUES (9,'chan0',3,2,'float','NULL');
+INSERT INTO Item VALUES (10,'chan1',3,2,'float','NULL');
+INSERT INTO Item VALUES (11,'chan2',3,2,'float','NULL');
+INSERT INTO Item VALUES (12,'chan3',3,2,'float','NULL');
+INSERT INTO Item VALUES (13,'chan0',4,2,'float','NULL');
+INSERT INTO Item VALUES (14,'chan1',4,2,'float','NULL');
+INSERT INTO Item VALUES (15,'chan2',4,2,'float','NULL');
+INSERT INTO Item VALUES (16,'chan3',4,2,'float','NULL');
+INSERT INTO Item VALUES (17,'chan0',5,2,'float','NULL');
+INSERT INTO Item VALUES (18,'chan1',5,2,'float','NULL');
+INSERT INTO Item VALUES (19,'chan2',5,2,'float','NULL');
+INSERT INTO Item VALUES (20,'chan3',5,2,'float','NULL');
+INSERT INTO Item VALUES (21,'chan0',6,2,'float','NULL');
+INSERT INTO Item VALUES (22,'chan1',6,2,'float','NULL');
+INSERT INTO Item VALUES (23,'chan2',6,2,'float','NULL');
+INSERT INTO Item VALUES (24,'chan3',6,2,'float','NULL');
+INSERT INTO Item VALUES (25,'chan0',7,2,'float','NULL');
+INSERT INTO Item VALUES (26,'chan1',7,2,'float','NULL');
+INSERT INTO Item VALUES (27,'chan2',7,2,'float','NULL');
+INSERT INTO Item VALUES (28,'chan3',7,2,'float','NULL');
+INSERT INTO Item VALUES (29,'chan0',8,2,'float','NULL');
+INSERT INTO Item VALUES (30,'chan1',8,2,'float','NULL');
+INSERT INTO Item VALUES (31,'chan2',8,2,'float','NULL');
+INSERT INTO Item VALUES (32,'chan3',8,2,'float','NULL');
+INSERT INTO Item VALUES (33,'chan0',9,2,'float','NULL');
+INSERT INTO Item VALUES (34,'chan1',9,2,'float','NULL');
+INSERT INTO Item VALUES (35,'chan2',9,2,'float','NULL');
+INSERT INTO Item VALUES (36,'chan3',9,2,'float','NULL');
+INSERT INTO Item VALUES (37,'chan0',10,2,'float','NULL');
+INSERT INTO Item VALUES (38,'chan1',10,2,'float','NULL');
+INSERT INTO Item VALUES (39,'chan2',10,2,'float','NULL');
+INSERT INTO Item VALUES (40,'chan3',10,2,'float','NULL');
+INSERT INTO Item VALUES (41,'chan0',11,1,'int','NULL');
+INSERT INTO Item VALUES (42,'chan1',11,1,'int','NULL');
+INSERT INTO Item VALUES (43,'chan2',11,1,'int','NULL');
+INSERT INTO Item VALUES (44,'chan3',11,1,'int','NULL');
+INSERT INTO Item VALUES (45,'chan0',12,1,'int','NULL');
+INSERT INTO Item VALUES (46,'chan1',12,1,'int','NULL');
+INSERT INTO Item VALUES (47,'chan2',12,1,'int','NULL');
+INSERT INTO Item VALUES (48,'chan3',12,1,'int','NULL');
+INSERT INTO Item VALUES (49,'chan0',13,1,'int','NULL');
+INSERT INTO Item VALUES (50,'chan1',13,1,'int','NULL');
+INSERT INTO Item VALUES (51,'chan2',13,1,'int','NULL');
+INSERT INTO Item VALUES (52,'chan3',13,1,'int','NULL');
+INSERT INTO Item VALUES (53,'chan0',14,1,'int','NULL');
+INSERT INTO Item VALUES (54,'chan1',14,1,'int','NULL');
+INSERT INTO Item VALUES (55,'chan2',14,1,'int','NULL');
+INSERT INTO Item VALUES (56,'chan3',14,1,'int','NULL');
+INSERT INTO Item VALUES (57,'chan0',15,1,'int','NULL');
+INSERT INTO Item VALUES (58,'chan1',15,1,'int','NULL');
+INSERT INTO Item VALUES (59,'chan2',15,1,'int','NULL');
+INSERT INTO Item VALUES (60,'chan3',15,1,'int','NULL');
+INSERT INTO Item VALUES (61,'chan0',16,1,'int','NULL');
+INSERT INTO Item VALUES (62,'chan1',16,1,'int','NULL');
+INSERT INTO Item VALUES (63,'chan2',16,1,'int','NULL');
+INSERT INTO Item VALUES (64,'chan3',16,1,'int','NULL');
+INSERT INTO Item VALUES (65,'chan0',17,1,'int','NULL');
+INSERT INTO Item VALUES (66,'chan1',17,1,'int','NULL');
+INSERT INTO Item VALUES (67,'chan2',17,1,'int','NULL');
+INSERT INTO Item VALUES (68,'chan3',17,1,'int','NULL');
+INSERT INTO Item VALUES (69,'chan0',18,1,'int','NULL');
+INSERT INTO Item VALUES (70,'chan1',18,1,'int','NULL');
+INSERT INTO Item VALUES (71,'chan2',18,1,'int','NULL');
+INSERT INTO Item VALUES (72,'chan3',18,1,'int','NULL');
+INSERT INTO Item VALUES (73,'chan0',19,1,'int','NULL');
+INSERT INTO Item VALUES (74,'chan1',19,1,'int','NULL');
+INSERT INTO Item VALUES (75,'chan2',19,1,'int','NULL');
+INSERT INTO Item VALUES (76,'chan3',19,1,'int','NULL');
+INSERT INTO Item VALUES (77,'chan0',20,1,'int','NULL');
+INSERT INTO Item VALUES (78,'chan1',20,1,'int','NULL');
+INSERT INTO Item VALUES (79,'chan2',20,1,'int','NULL');
+INSERT INTO Item VALUES (80,'chan3',20,1,'int','NULL');
+INSERT INTO Item VALUES (81,'hdr',21,256,'char','NULL');
+INSERT INTO Item VALUES (82,'mask',21,256,'char','NULL');
+INSERT INTO Item VALUES (83,'hdr',22,256,'char','NULL');
+INSERT INTO Item VALUES (84,'mask',22,256,'char','NULL');
+INSERT INTO Item VALUES (85,'hdr',23,256,'char','NULL');
+INSERT INTO Item VALUES (86,'mask',23,256,'char','NULL');
+INSERT INTO Item VALUES (87,'hdr',24,256,'char','NULL');
+INSERT INTO Item VALUES (88,'mask',24,256,'char','NULL');
+INSERT INTO Item VALUES (89,'hdr',25,256,'char','NULL');
+INSERT INTO Item VALUES (90,'mask',25,256,'char','NULL');
+INSERT INTO Item VALUES (91,'hdr',26,256,'char','NULL');
+INSERT INTO Item VALUES (92,'mask',26,256,'char','NULL');
+INSERT INTO Item VALUES (93,'datamap',27,1,'blob','NULL');
+INSERT INTO Item VALUES (94,'ncuts',28,1,'int','NULL');
+INSERT INTO Item VALUES (95,'evlo',28,13,'int','NULL');
+INSERT INTO Item VALUES (96,'evhi',28,13,'int','NULL');
+INSERT INTO Item VALUES (97,'evlo',29,5,'int','NULL');
+INSERT INTO Item VALUES (98,'evhi',29,5,'int','NULL');
+INSERT INTO Item VALUES (99,'ncut',29,5,'int','NULL');
+INSERT INTO Item VALUES (100,'state',29,5,'int','NULL');
+INSERT INTO Item VALUES (101,'run',27,1,'int','NULL');
+INSERT INTO Item VALUES (102,'maxevents',27,1,'int','NULL');
+INSERT INTO Item VALUES (103,'runtype',27,256,'char','NULL');
+INSERT INTO Item VALUES (104,'anatype',27,256,'char','NULL');
+INSERT INTO Item VALUES (105,'lobeam',27,1,'int','NULL');
+INSERT INTO Item VALUES (106,'burpcut',27,1,'int','NULL');
+INSERT INTO Item VALUES (107,'oversamp',27,1,'int','NULL');
+INSERT INTO Item VALUES (108,'windelay',27,1,'int','NULL');
+INSERT INTO Item VALUES (109,'pairtype',27,256,'char','NULL');
+
+#
+# Table structure for table 'RunIndex'
+#
+
+CREATE TABLE RunIndex (
+  RunIndexId int(11) NOT NULL auto_increment,
+  RunNumber int(11) default NULL,
+  itemId int(11) NOT NULL default '0',
+  itemValueId int(11) NOT NULL default '0',
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (RunIndexId),
+  KEY ItemMinMax (itemId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'RunIndex'
+#
+
+INSERT INTO RunIndex VALUES (1,100,101,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (2,100,102,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (3,100,103,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (4,100,104,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (5,100,105,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (6,100,106,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (7,100,107,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (8,100,108,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (9,100,109,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (10,100,17,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (11,100,18,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (12,100,19,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (13,100,20,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (14,100,21,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (15,100,22,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (16,100,23,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (17,100,24,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (18,100,25,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (19,100,26,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (20,100,27,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (21,100,28,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (22,100,29,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (23,100,30,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (24,100,31,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (25,100,32,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (26,100,33,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (27,100,34,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (28,100,35,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (29,100,36,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (30,100,37,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (31,100,38,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (32,100,39,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (33,100,40,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (34,100,57,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (35,100,58,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (36,100,59,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (37,100,60,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (38,100,61,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (39,100,62,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (40,100,63,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (41,100,64,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (42,100,65,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (43,100,66,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (44,100,67,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (45,100,68,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (46,100,69,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (47,100,70,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (48,100,71,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (49,100,72,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (50,100,73,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (51,100,74,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (52,100,75,1,'suleiman',20020416105515,'NULL');
+INSERT INTO RunIndex VALUES (53,100,76,1,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (54,100,77,1,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (55,100,78,1,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (56,100,79,1,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (57,100,80,1,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (58,100,81,1,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (59,100,82,1,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (60,100,83,1,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (61,100,84,1,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (62,100,85,1,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (63,100,86,1,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (64,100,87,1,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (65,100,88,1,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (66,100,89,1,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (67,100,90,1,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (68,100,91,1,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (69,100,92,1,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (70,100,93,1,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (71,100,93,2,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (72,100,93,3,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (73,100,93,4,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (74,100,93,5,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (75,100,93,6,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (76,100,93,7,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (77,100,93,8,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (78,100,93,9,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (79,100,93,10,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (80,100,93,11,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (81,100,93,12,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (82,100,93,13,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (83,100,93,14,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (84,100,93,15,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (85,100,93,16,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (86,100,93,17,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (87,100,93,18,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (88,100,93,19,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (89,100,93,20,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (90,100,93,21,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (91,100,93,22,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (92,100,93,23,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (93,100,93,24,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (94,100,93,25,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (95,100,93,26,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (96,100,93,27,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (97,100,93,28,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (98,100,93,29,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (99,100,93,30,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (100,100,93,31,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (101,100,93,32,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (102,100,93,33,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (103,100,93,34,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (104,100,94,1,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (105,100,95,1,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (106,100,96,1,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (107,100,97,1,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (108,100,98,1,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (109,100,99,1,'suleiman',20020416105516,'NULL');
+INSERT INTO RunIndex VALUES (110,100,100,1,'suleiman',20020416105516,'NULL');
+
+#
+# Table structure for table 'RunInfo'
+#
+
+CREATE TABLE RunInfo (
+  RunNumber int(11) NOT NULL default '0',
+  Experiment varchar(64) default NULL,
+  time datetime default NULL,
+  comment text,
+  PRIMARY KEY  (RunNumber)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'RunInfo'
+#
+
+INSERT INTO RunInfo VALUES (100,'comm','2001-12-09 11:30:45','Commissioning in 2001');
+INSERT INTO RunInfo VALUES (101,'comm','2001-12-09 12:30:45','Commissioning in 2001');
+INSERT INTO RunInfo VALUES (1000,'HAPPEXII','2003-12-09 11:30:45','HAPPEX II first run');
+
+#
+# Table structure for table 'SubSystem'
+#
+
+CREATE TABLE SubSystem (
+  subsystemId int(11) NOT NULL auto_increment,
+  subsystemName varchar(64) NOT NULL default '',
+  systemId int(11) NOT NULL default '0',
+  description text,
+  PRIMARY KEY  (subsystemId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'SubSystem'
+#
+
+INSERT INTO SubSystem VALUES (1,'adc0',1,'NULL');
+INSERT INTO SubSystem VALUES (2,'adc1',1,'NULL');
+INSERT INTO SubSystem VALUES (3,'adc2',1,'NULL');
+INSERT INTO SubSystem VALUES (4,'adc3',1,'NULL');
+INSERT INTO SubSystem VALUES (5,'adc4',1,'NULL');
+INSERT INTO SubSystem VALUES (6,'adc5',1,'NULL');
+INSERT INTO SubSystem VALUES (7,'adc6',1,'NULL');
+INSERT INTO SubSystem VALUES (8,'adc7',1,'NULL');
+INSERT INTO SubSystem VALUES (9,'adc8',1,'NULL');
+INSERT INTO SubSystem VALUES (10,'adc9',1,'NULL');
+INSERT INTO SubSystem VALUES (11,'adc0',2,'NULL');
+INSERT INTO SubSystem VALUES (12,'adc1',2,'NULL');
+INSERT INTO SubSystem VALUES (13,'adc2',2,'NULL');
+INSERT INTO SubSystem VALUES (14,'adc3',2,'NULL');
+INSERT INTO SubSystem VALUES (15,'adc4',2,'NULL');
+INSERT INTO SubSystem VALUES (16,'adc5',2,'NULL');
+INSERT INTO SubSystem VALUES (17,'adc6',2,'NULL');
+INSERT INTO SubSystem VALUES (18,'adc7',2,'NULL');
+INSERT INTO SubSystem VALUES (19,'adc8',2,'NULL');
+INSERT INTO SubSystem VALUES (20,'adc9',2,'NULL');
+INSERT INTO SubSystem VALUES (21,'adc',3,'NULL');
+INSERT INTO SubSystem VALUES (22,'bcm',3,'NULL');
+INSERT INTO SubSystem VALUES (23,'bpm',3,'NULL');
+INSERT INTO SubSystem VALUES (24,'timeboard',3,'NULL');
+INSERT INTO SubSystem VALUES (25,'tir',3,'NULL');
+INSERT INTO SubSystem VALUES (26,'scaler',3,'NULL');
+INSERT INTO SubSystem VALUES (27,'pan',4,'NULL');
+INSERT INTO SubSystem VALUES (28,'cut',4,'NULL');
+INSERT INTO SubSystem VALUES (29,'badevt',4,'NULL');
+INSERT INTO SubSystem VALUES (30,'pan',4,'NULL');
+
+#
+# Table structure for table 'System'
+#
+
+CREATE TABLE System (
+  systemId int(11) NOT NULL auto_increment,
+  systemName varchar(64) NOT NULL default '',
+  description text,
+  PRIMARY KEY  (systemId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'System'
+#
+
+INSERT INTO System VALUES (1,'dacnoise','NULL');
+INSERT INTO System VALUES (2,'ped','NULL');
+INSERT INTO System VALUES (3,'header','NULL');
+INSERT INTO System VALUES (4,'ana','NULL');
+
+#
+# Table structure for table 'ana_badevt_evhi_VALUE'
+#
+
+CREATE TABLE ana_badevt_evhi_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  value_2 int(11) default NULL,
+  value_3 int(11) default NULL,
+  value_4 int(11) default NULL,
+  value_5 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ana_badevt_evhi_VALUE'
+#
+
+INSERT INTO ana_badevt_evhi_VALUE VALUES (1,23442,34554,37440,43443,58142,'suleiman',20020416105516,'NULL');
+
+#
+# Table structure for table 'ana_badevt_evlo_VALUE'
+#
+
+CREATE TABLE ana_badevt_evlo_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  value_2 int(11) default NULL,
+  value_3 int(11) default NULL,
+  value_4 int(11) default NULL,
+  value_5 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ana_badevt_evlo_VALUE'
+#
+
+INSERT INTO ana_badevt_evlo_VALUE VALUES (1,21232,32232,35665,42112,56712,'suleiman',20020416105516,'NULL');
+
+#
+# Table structure for table 'ana_badevt_ncut_VALUE'
+#
+
+CREATE TABLE ana_badevt_ncut_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  value_2 int(11) default NULL,
+  value_3 int(11) default NULL,
+  value_4 int(11) default NULL,
+  value_5 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ana_badevt_ncut_VALUE'
+#
+
+INSERT INTO ana_badevt_ncut_VALUE VALUES (1,4,6,4,7,8,'suleiman',20020416105516,'NULL');
+
+#
+# Table structure for table 'ana_badevt_state_VALUE'
+#
+
+CREATE TABLE ana_badevt_state_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  value_2 int(11) default NULL,
+  value_3 int(11) default NULL,
+  value_4 int(11) default NULL,
+  value_5 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ana_badevt_state_VALUE'
+#
+
+INSERT INTO ana_badevt_state_VALUE VALUES (1,1,1,1,1,1,'suleiman',20020416105516,'NULL');
+
+#
+# Table structure for table 'ana_cut_evhi_VALUE'
+#
+
+CREATE TABLE ana_cut_evhi_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  value_2 int(11) default NULL,
+  value_3 int(11) default NULL,
+  value_4 int(11) default NULL,
+  value_5 int(11) default NULL,
+  value_6 int(11) default NULL,
+  value_7 int(11) default NULL,
+  value_8 int(11) default NULL,
+  value_9 int(11) default NULL,
+  value_10 int(11) default NULL,
+  value_11 int(11) default NULL,
+  value_12 int(11) default NULL,
+  value_13 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ana_cut_evhi_VALUE'
+#
+
+INSERT INTO ana_cut_evhi_VALUE VALUES (1,40,40,40,40,40,20,0,0,0,0,60,60,60,'suleiman',20020416105516,'NULL');
+
+#
+# Table structure for table 'ana_cut_evlo_VALUE'
+#
+
+CREATE TABLE ana_cut_evlo_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  value_2 int(11) default NULL,
+  value_3 int(11) default NULL,
+  value_4 int(11) default NULL,
+  value_5 int(11) default NULL,
+  value_6 int(11) default NULL,
+  value_7 int(11) default NULL,
+  value_8 int(11) default NULL,
+  value_9 int(11) default NULL,
+  value_10 int(11) default NULL,
+  value_11 int(11) default NULL,
+  value_12 int(11) default NULL,
+  value_13 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ana_cut_evlo_VALUE'
+#
+
+INSERT INTO ana_cut_evlo_VALUE VALUES (1,10,10,10,10,10,10,0,0,0,0,20,20,20,'suleiman',20020416105516,'NULL');
+
+#
+# Table structure for table 'ana_cut_ncuts_VALUE'
+#
+
+CREATE TABLE ana_cut_ncuts_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ana_cut_ncuts_VALUE'
+#
+
+INSERT INTO ana_cut_ncuts_VALUE VALUES (1,12,'suleiman',20020416105516,'NULL');
+
+#
+# Table structure for table 'ana_pan_anatype_VALUE'
+#
+
+CREATE TABLE ana_pan_anatype_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 text,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ana_pan_anatype_VALUE'
+#
+
+INSERT INTO ana_pan_anatype_VALUE VALUES (1,'BEAM','suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ana_pan_burpcut_VALUE'
+#
+
+CREATE TABLE ana_pan_burpcut_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ana_pan_burpcut_VALUE'
+#
+
+INSERT INTO ana_pan_burpcut_VALUE VALUES (1,500,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ana_pan_datamap_VALUE'
+#
+
+CREATE TABLE ana_pan_datamap_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 text,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ana_pan_datamap_VALUE'
+#
+
+INSERT INTO ana_pan_datamap_VALUE VALUES (1,'tir,tir,0,0,104,tirdata','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (2,'adc,adc4,4,0,67,batt1,batt2','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (3,'bcm,bcm1,4,2,69,bcm1r','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (4,'bcm,bcm2,4,3,70,bcm2r','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (5,'adc,adc4,4,-9,71,csr,dac','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (6,'bpm,bpm8,5,0,73,bpm8xp,bpm8xm,bpm8yp,bpm8ym','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (7,'adc,adc5,5,-9,77,csr,dac','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (8,'bpm,bpm10,6,0,79,bpm10xp,bpm10xm,bpm10yp,bpm10ym','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (9,'adc,adc6,6,-9,83,csr,dac','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (10,'bpm,bpm12,7,0,85,bpm12xp,bpm12xm,bpm12yp,bpm12ym','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (11,'adc,adc7,7,-9,89,csr,dac','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (12,'bpm,bpm4a,8,0,91,bpm4axp,bpm4axm,bpm4ayp,bpm4aym','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (13,'adc,adc8,8,-9,89,csr,dac','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (14,'bpm,bpm4b,9,0,97,bpm4bxp,bpm4bxm,bpm4byp,bpm4bym','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (15,'adc,adc9,9,-9,101,csr,dac','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (16,'adc,adc0,0,0,43,adc0_1,adc0_2,adc0_3,adc0_4','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (17,'adc,adc1,1,0,49,adc1_1','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (18,'adc,adc2,2,0,55,adc2_1,adc2_2,adc2_3,adc2_4','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (19,'adc,adc3,3,0,61,adc3_1,adc3_2,adc3_3,adc3_4','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (20,'adc,adc4,4,0,67,adc4_1,adc4_2,adc4_3,adc4_4','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (21,'adc,adc5,5,0,73,adc5_1,adc5_2,adc5_3,adc5_4','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (22,'adc,adc6,6,0,79,adc6_1,adc6_2,adc6_3,adc6_4','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (23,'adc,adc7,7,0,85,adc7_1,adc7_2,adc7_3,adc7_4','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (24,'adc,adc8,8,0,91,adc8_1,adc8_2,adc8_3,adc8_4','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (25,'adc,adc9,9,0,97,adc9_1,adc9_2,adc9_3,adc9_4','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (26,'timeboard,timeboard,0,0,106,rampdelay,integtime,oversample,precdac','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (27,'scaler,scaler1,0,0,10,scaler1_1,scaler1_2,scaler1_3,scaler1_4','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (28,'scaler,scaler1,0,4,14,scaler1_5,scaler1_6,scaler1_7,scaler1_8','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (29,'scaler,scaler1,0,8,18,scaler1_9,scaler1_10,scaler1_11,scaler1_12','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (30,'scaler,scaler1,0,12,22,scaler1_13,scaler1_14,scaler1_15,scaler1_16','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (31,'scaler,scaler1,0,16,26,scaler1_17,scaler1_18,scaler1_19,scaler1_20','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (32,'scaler,scaler1,0,20,30,scaler1_21,scaler1_22,scaler1_23,scaler1_24','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (33,'scaler,scaler1,0,24,34,scaler1_25,scaler1_26,scaler1_27,scaler1_28','suleiman',20020416105516,'NULL');
+INSERT INTO ana_pan_datamap_VALUE VALUES (34,'scaler,scaler1,0,28,38,scaler1_29,scaler1_30,scaler1_31,scaler1_32','suleiman',20020416105516,'NULL');
+
+#
+# Table structure for table 'ana_pan_lobeam_VALUE'
+#
+
+CREATE TABLE ana_pan_lobeam_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ana_pan_lobeam_VALUE'
+#
+
+INSERT INTO ana_pan_lobeam_VALUE VALUES (1,6000,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ana_pan_maxevents_VALUE'
+#
+
+CREATE TABLE ana_pan_maxevents_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ana_pan_maxevents_VALUE'
+#
+
+INSERT INTO ana_pan_maxevents_VALUE VALUES (1,500000,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ana_pan_oversamp_VALUE'
+#
+
+CREATE TABLE ana_pan_oversamp_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ana_pan_oversamp_VALUE'
+#
+
+INSERT INTO ana_pan_oversamp_VALUE VALUES (1,1,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ana_pan_pairtype_VALUE'
+#
+
+CREATE TABLE ana_pan_pairtype_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 text,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ana_pan_pairtype_VALUE'
+#
+
+INSERT INTO ana_pan_pairtype_VALUE VALUES (1,'pair','suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ana_pan_run_VALUE'
+#
+
+CREATE TABLE ana_pan_run_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ana_pan_run_VALUE'
+#
+
+INSERT INTO ana_pan_run_VALUE VALUES (1,1824,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ana_pan_runtype_VALUE'
+#
+
+CREATE TABLE ana_pan_runtype_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 text,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ana_pan_runtype_VALUE'
+#
+
+INSERT INTO ana_pan_runtype_VALUE VALUES (1,'BEAM','suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ana_pan_windelay_VALUE'
+#
+
+CREATE TABLE ana_pan_windelay_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ana_pan_windelay_VALUE'
+#
+
+INSERT INTO ana_pan_windelay_VALUE VALUES (1,0,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'dacnoise_adc0_chan0_VALUE'
+#
+
+CREATE TABLE dacnoise_adc0_chan0_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc0_chan0_VALUE'
+#
+
+
+#
+# Table structure for table 'dacnoise_adc0_chan1_VALUE'
+#
+
+CREATE TABLE dacnoise_adc0_chan1_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc0_chan1_VALUE'
+#
+
+
+#
+# Table structure for table 'dacnoise_adc0_chan2_VALUE'
+#
+
+CREATE TABLE dacnoise_adc0_chan2_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc0_chan2_VALUE'
+#
+
+
+#
+# Table structure for table 'dacnoise_adc0_chan3_VALUE'
+#
+
+CREATE TABLE dacnoise_adc0_chan3_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc0_chan3_VALUE'
+#
+
+
+#
+# Table structure for table 'dacnoise_adc1_chan0_VALUE'
+#
+
+CREATE TABLE dacnoise_adc1_chan0_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc1_chan0_VALUE'
+#
+
+
+#
+# Table structure for table 'dacnoise_adc1_chan1_VALUE'
+#
+
+CREATE TABLE dacnoise_adc1_chan1_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc1_chan1_VALUE'
+#
+
+
+#
+# Table structure for table 'dacnoise_adc1_chan2_VALUE'
+#
+
+CREATE TABLE dacnoise_adc1_chan2_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc1_chan2_VALUE'
+#
+
+
+#
+# Table structure for table 'dacnoise_adc1_chan3_VALUE'
+#
+
+CREATE TABLE dacnoise_adc1_chan3_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc1_chan3_VALUE'
+#
+
+
+#
+# Table structure for table 'dacnoise_adc2_chan0_VALUE'
+#
+
+CREATE TABLE dacnoise_adc2_chan0_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc2_chan0_VALUE'
+#
+
+
+#
+# Table structure for table 'dacnoise_adc2_chan1_VALUE'
+#
+
+CREATE TABLE dacnoise_adc2_chan1_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc2_chan1_VALUE'
+#
+
+
+#
+# Table structure for table 'dacnoise_adc2_chan2_VALUE'
+#
+
+CREATE TABLE dacnoise_adc2_chan2_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc2_chan2_VALUE'
+#
+
+
+#
+# Table structure for table 'dacnoise_adc2_chan3_VALUE'
+#
+
+CREATE TABLE dacnoise_adc2_chan3_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc2_chan3_VALUE'
+#
+
+
+#
+# Table structure for table 'dacnoise_adc3_chan0_VALUE'
+#
+
+CREATE TABLE dacnoise_adc3_chan0_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc3_chan0_VALUE'
+#
+
+
+#
+# Table structure for table 'dacnoise_adc3_chan1_VALUE'
+#
+
+CREATE TABLE dacnoise_adc3_chan1_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc3_chan1_VALUE'
+#
+
+
+#
+# Table structure for table 'dacnoise_adc3_chan2_VALUE'
+#
+
+CREATE TABLE dacnoise_adc3_chan2_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc3_chan2_VALUE'
+#
+
+
+#
+# Table structure for table 'dacnoise_adc3_chan3_VALUE'
+#
+
+CREATE TABLE dacnoise_adc3_chan3_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc3_chan3_VALUE'
+#
+
+
+#
+# Table structure for table 'dacnoise_adc4_chan0_VALUE'
+#
+
+CREATE TABLE dacnoise_adc4_chan0_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc4_chan0_VALUE'
+#
+
+INSERT INTO dacnoise_adc4_chan0_VALUE VALUES (1,0.02,4400,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'dacnoise_adc4_chan1_VALUE'
+#
+
+CREATE TABLE dacnoise_adc4_chan1_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc4_chan1_VALUE'
+#
+
+INSERT INTO dacnoise_adc4_chan1_VALUE VALUES (1,0.0201,4401,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'dacnoise_adc4_chan2_VALUE'
+#
+
+CREATE TABLE dacnoise_adc4_chan2_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc4_chan2_VALUE'
+#
+
+INSERT INTO dacnoise_adc4_chan2_VALUE VALUES (1,0.0202,4402,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'dacnoise_adc4_chan3_VALUE'
+#
+
+CREATE TABLE dacnoise_adc4_chan3_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc4_chan3_VALUE'
+#
+
+INSERT INTO dacnoise_adc4_chan3_VALUE VALUES (1,0.0203,4403,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'dacnoise_adc5_chan0_VALUE'
+#
+
+CREATE TABLE dacnoise_adc5_chan0_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc5_chan0_VALUE'
+#
+
+INSERT INTO dacnoise_adc5_chan0_VALUE VALUES (1,0.021,4410,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'dacnoise_adc5_chan1_VALUE'
+#
+
+CREATE TABLE dacnoise_adc5_chan1_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc5_chan1_VALUE'
+#
+
+INSERT INTO dacnoise_adc5_chan1_VALUE VALUES (1,0.0211,4411,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'dacnoise_adc5_chan2_VALUE'
+#
+
+CREATE TABLE dacnoise_adc5_chan2_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc5_chan2_VALUE'
+#
+
+INSERT INTO dacnoise_adc5_chan2_VALUE VALUES (1,0.0212,4412,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'dacnoise_adc5_chan3_VALUE'
+#
+
+CREATE TABLE dacnoise_adc5_chan3_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc5_chan3_VALUE'
+#
+
+INSERT INTO dacnoise_adc5_chan3_VALUE VALUES (1,0.0213,4413,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'dacnoise_adc6_chan0_VALUE'
+#
+
+CREATE TABLE dacnoise_adc6_chan0_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc6_chan0_VALUE'
+#
+
+INSERT INTO dacnoise_adc6_chan0_VALUE VALUES (1,0.022,4420,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'dacnoise_adc6_chan1_VALUE'
+#
+
+CREATE TABLE dacnoise_adc6_chan1_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc6_chan1_VALUE'
+#
+
+INSERT INTO dacnoise_adc6_chan1_VALUE VALUES (1,0.0221,4421,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'dacnoise_adc6_chan2_VALUE'
+#
+
+CREATE TABLE dacnoise_adc6_chan2_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc6_chan2_VALUE'
+#
+
+INSERT INTO dacnoise_adc6_chan2_VALUE VALUES (1,0.0222,4422,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'dacnoise_adc6_chan3_VALUE'
+#
+
+CREATE TABLE dacnoise_adc6_chan3_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc6_chan3_VALUE'
+#
+
+INSERT INTO dacnoise_adc6_chan3_VALUE VALUES (1,0.0223,4423,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'dacnoise_adc7_chan0_VALUE'
+#
+
+CREATE TABLE dacnoise_adc7_chan0_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc7_chan0_VALUE'
+#
+
+INSERT INTO dacnoise_adc7_chan0_VALUE VALUES (1,0.023,4430,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'dacnoise_adc7_chan1_VALUE'
+#
+
+CREATE TABLE dacnoise_adc7_chan1_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc7_chan1_VALUE'
+#
+
+INSERT INTO dacnoise_adc7_chan1_VALUE VALUES (1,0.0231,4431,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'dacnoise_adc7_chan2_VALUE'
+#
+
+CREATE TABLE dacnoise_adc7_chan2_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc7_chan2_VALUE'
+#
+
+INSERT INTO dacnoise_adc7_chan2_VALUE VALUES (1,0.0232,4432,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'dacnoise_adc7_chan3_VALUE'
+#
+
+CREATE TABLE dacnoise_adc7_chan3_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc7_chan3_VALUE'
+#
+
+INSERT INTO dacnoise_adc7_chan3_VALUE VALUES (1,0.0233,4433,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'dacnoise_adc8_chan0_VALUE'
+#
+
+CREATE TABLE dacnoise_adc8_chan0_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc8_chan0_VALUE'
+#
+
+INSERT INTO dacnoise_adc8_chan0_VALUE VALUES (1,0.024,4440,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'dacnoise_adc8_chan1_VALUE'
+#
+
+CREATE TABLE dacnoise_adc8_chan1_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc8_chan1_VALUE'
+#
+
+INSERT INTO dacnoise_adc8_chan1_VALUE VALUES (1,0.0241,4441,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'dacnoise_adc8_chan2_VALUE'
+#
+
+CREATE TABLE dacnoise_adc8_chan2_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc8_chan2_VALUE'
+#
+
+INSERT INTO dacnoise_adc8_chan2_VALUE VALUES (1,0.0242,4442,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'dacnoise_adc8_chan3_VALUE'
+#
+
+CREATE TABLE dacnoise_adc8_chan3_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc8_chan3_VALUE'
+#
+
+INSERT INTO dacnoise_adc8_chan3_VALUE VALUES (1,0.0243,4443,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'dacnoise_adc9_chan0_VALUE'
+#
+
+CREATE TABLE dacnoise_adc9_chan0_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc9_chan0_VALUE'
+#
+
+INSERT INTO dacnoise_adc9_chan0_VALUE VALUES (1,0.025,4450,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'dacnoise_adc9_chan1_VALUE'
+#
+
+CREATE TABLE dacnoise_adc9_chan1_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc9_chan1_VALUE'
+#
+
+INSERT INTO dacnoise_adc9_chan1_VALUE VALUES (1,0.0251,4451,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'dacnoise_adc9_chan2_VALUE'
+#
+
+CREATE TABLE dacnoise_adc9_chan2_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc9_chan2_VALUE'
+#
+
+INSERT INTO dacnoise_adc9_chan2_VALUE VALUES (1,0.0252,4452,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'dacnoise_adc9_chan3_VALUE'
+#
+
+CREATE TABLE dacnoise_adc9_chan3_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 float default NULL,
+  value_2 float default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'dacnoise_adc9_chan3_VALUE'
+#
+
+INSERT INTO dacnoise_adc9_chan3_VALUE VALUES (1,0.0253,4453,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'header_adc_hdr_VALUE'
+#
+
+CREATE TABLE header_adc_hdr_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 text,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'header_adc_hdr_VALUE'
+#
+
+INSERT INTO header_adc_hdr_VALUE VALUES (1,'ffadc000','suleiman',20020416105516,'NULL');
+
+#
+# Table structure for table 'header_adc_mask_VALUE'
+#
+
+CREATE TABLE header_adc_mask_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 text,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'header_adc_mask_VALUE'
+#
+
+INSERT INTO header_adc_mask_VALUE VALUES (1,'fffff000','suleiman',20020416105516,'NULL');
+
+#
+# Table structure for table 'header_bcm_hdr_VALUE'
+#
+
+CREATE TABLE header_bcm_hdr_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 text,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'header_bcm_hdr_VALUE'
+#
+
+INSERT INTO header_bcm_hdr_VALUE VALUES (1,'0','suleiman',20020416105516,'NULL');
+
+#
+# Table structure for table 'header_bcm_mask_VALUE'
+#
+
+CREATE TABLE header_bcm_mask_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 text,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'header_bcm_mask_VALUE'
+#
+
+INSERT INTO header_bcm_mask_VALUE VALUES (1,'0','suleiman',20020416105516,'NULL');
+
+#
+# Table structure for table 'header_bpm_hdr_VALUE'
+#
+
+CREATE TABLE header_bpm_hdr_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 text,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'header_bpm_hdr_VALUE'
+#
+
+INSERT INTO header_bpm_hdr_VALUE VALUES (1,'0','suleiman',20020416105516,'NULL');
+
+#
+# Table structure for table 'header_bpm_mask_VALUE'
+#
+
+CREATE TABLE header_bpm_mask_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 text,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'header_bpm_mask_VALUE'
+#
+
+INSERT INTO header_bpm_mask_VALUE VALUES (1,'0','suleiman',20020416105516,'NULL');
+
+#
+# Table structure for table 'header_scaler_hdr_VALUE'
+#
+
+CREATE TABLE header_scaler_hdr_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 text,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'header_scaler_hdr_VALUE'
+#
+
+INSERT INTO header_scaler_hdr_VALUE VALUES (1,'fffca000','suleiman',20020416105516,'NULL');
+
+#
+# Table structure for table 'header_scaler_mask_VALUE'
+#
+
+CREATE TABLE header_scaler_mask_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 text,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'header_scaler_mask_VALUE'
+#
+
+INSERT INTO header_scaler_mask_VALUE VALUES (1,'fffff000','suleiman',20020416105516,'NULL');
+
+#
+# Table structure for table 'header_timeboard_hdr_VALUE'
+#
+
+CREATE TABLE header_timeboard_hdr_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 text,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'header_timeboard_hdr_VALUE'
+#
+
+INSERT INTO header_timeboard_hdr_VALUE VALUES (1,'fffbd000','suleiman',20020416105516,'NULL');
+
+#
+# Table structure for table 'header_timeboard_mask_VALUE'
+#
+
+CREATE TABLE header_timeboard_mask_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 text,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'header_timeboard_mask_VALUE'
+#
+
+INSERT INTO header_timeboard_mask_VALUE VALUES (1,'fffff000','suleiman',20020416105516,'NULL');
+
+#
+# Table structure for table 'header_tir_hdr_VALUE'
+#
+
+CREATE TABLE header_tir_hdr_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 text,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'header_tir_hdr_VALUE'
+#
+
+INSERT INTO header_tir_hdr_VALUE VALUES (1,'ffdaf000','suleiman',20020416105516,'NULL');
+
+#
+# Table structure for table 'header_tir_mask_VALUE'
+#
+
+CREATE TABLE header_tir_mask_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 text,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'header_tir_mask_VALUE'
+#
+
+INSERT INTO header_tir_mask_VALUE VALUES (1,'fffff000','suleiman',20020416105516,'NULL');
+
+#
+# Table structure for table 'ped_adc0_chan0_VALUE'
+#
+
+CREATE TABLE ped_adc0_chan0_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc0_chan0_VALUE'
+#
+
+
+#
+# Table structure for table 'ped_adc0_chan1_VALUE'
+#
+
+CREATE TABLE ped_adc0_chan1_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc0_chan1_VALUE'
+#
+
+
+#
+# Table structure for table 'ped_adc0_chan2_VALUE'
+#
+
+CREATE TABLE ped_adc0_chan2_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc0_chan2_VALUE'
+#
+
+
+#
+# Table structure for table 'ped_adc0_chan3_VALUE'
+#
+
+CREATE TABLE ped_adc0_chan3_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc0_chan3_VALUE'
+#
+
+
+#
+# Table structure for table 'ped_adc1_chan0_VALUE'
+#
+
+CREATE TABLE ped_adc1_chan0_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc1_chan0_VALUE'
+#
+
+
+#
+# Table structure for table 'ped_adc1_chan1_VALUE'
+#
+
+CREATE TABLE ped_adc1_chan1_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc1_chan1_VALUE'
+#
+
+
+#
+# Table structure for table 'ped_adc1_chan2_VALUE'
+#
+
+CREATE TABLE ped_adc1_chan2_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc1_chan2_VALUE'
+#
+
+
+#
+# Table structure for table 'ped_adc1_chan3_VALUE'
+#
+
+CREATE TABLE ped_adc1_chan3_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc1_chan3_VALUE'
+#
+
+
+#
+# Table structure for table 'ped_adc2_chan0_VALUE'
+#
+
+CREATE TABLE ped_adc2_chan0_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc2_chan0_VALUE'
+#
+
+
+#
+# Table structure for table 'ped_adc2_chan1_VALUE'
+#
+
+CREATE TABLE ped_adc2_chan1_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc2_chan1_VALUE'
+#
+
+
+#
+# Table structure for table 'ped_adc2_chan2_VALUE'
+#
+
+CREATE TABLE ped_adc2_chan2_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc2_chan2_VALUE'
+#
+
+
+#
+# Table structure for table 'ped_adc2_chan3_VALUE'
+#
+
+CREATE TABLE ped_adc2_chan3_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc2_chan3_VALUE'
+#
+
+
+#
+# Table structure for table 'ped_adc3_chan0_VALUE'
+#
+
+CREATE TABLE ped_adc3_chan0_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc3_chan0_VALUE'
+#
+
+
+#
+# Table structure for table 'ped_adc3_chan1_VALUE'
+#
+
+CREATE TABLE ped_adc3_chan1_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc3_chan1_VALUE'
+#
+
+
+#
+# Table structure for table 'ped_adc3_chan2_VALUE'
+#
+
+CREATE TABLE ped_adc3_chan2_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc3_chan2_VALUE'
+#
+
+
+#
+# Table structure for table 'ped_adc3_chan3_VALUE'
+#
+
+CREATE TABLE ped_adc3_chan3_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc3_chan3_VALUE'
+#
+
+
+#
+# Table structure for table 'ped_adc4_chan0_VALUE'
+#
+
+CREATE TABLE ped_adc4_chan0_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc4_chan0_VALUE'
+#
+
+INSERT INTO ped_adc4_chan0_VALUE VALUES (1,4350,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ped_adc4_chan1_VALUE'
+#
+
+CREATE TABLE ped_adc4_chan1_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc4_chan1_VALUE'
+#
+
+INSERT INTO ped_adc4_chan1_VALUE VALUES (1,4575,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ped_adc4_chan2_VALUE'
+#
+
+CREATE TABLE ped_adc4_chan2_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc4_chan2_VALUE'
+#
+
+INSERT INTO ped_adc4_chan2_VALUE VALUES (1,4430,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ped_adc4_chan3_VALUE'
+#
+
+CREATE TABLE ped_adc4_chan3_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc4_chan3_VALUE'
+#
+
+INSERT INTO ped_adc4_chan3_VALUE VALUES (1,4370,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ped_adc5_chan0_VALUE'
+#
+
+CREATE TABLE ped_adc5_chan0_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc5_chan0_VALUE'
+#
+
+INSERT INTO ped_adc5_chan0_VALUE VALUES (1,4350,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ped_adc5_chan1_VALUE'
+#
+
+CREATE TABLE ped_adc5_chan1_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc5_chan1_VALUE'
+#
+
+INSERT INTO ped_adc5_chan1_VALUE VALUES (1,4575,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ped_adc5_chan2_VALUE'
+#
+
+CREATE TABLE ped_adc5_chan2_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc5_chan2_VALUE'
+#
+
+INSERT INTO ped_adc5_chan2_VALUE VALUES (1,4430,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ped_adc5_chan3_VALUE'
+#
+
+CREATE TABLE ped_adc5_chan3_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc5_chan3_VALUE'
+#
+
+INSERT INTO ped_adc5_chan3_VALUE VALUES (1,4370,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ped_adc6_chan0_VALUE'
+#
+
+CREATE TABLE ped_adc6_chan0_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc6_chan0_VALUE'
+#
+
+INSERT INTO ped_adc6_chan0_VALUE VALUES (1,4350,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ped_adc6_chan1_VALUE'
+#
+
+CREATE TABLE ped_adc6_chan1_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc6_chan1_VALUE'
+#
+
+INSERT INTO ped_adc6_chan1_VALUE VALUES (1,4575,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ped_adc6_chan2_VALUE'
+#
+
+CREATE TABLE ped_adc6_chan2_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc6_chan2_VALUE'
+#
+
+INSERT INTO ped_adc6_chan2_VALUE VALUES (1,4430,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ped_adc6_chan3_VALUE'
+#
+
+CREATE TABLE ped_adc6_chan3_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc6_chan3_VALUE'
+#
+
+INSERT INTO ped_adc6_chan3_VALUE VALUES (1,4370,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ped_adc7_chan0_VALUE'
+#
+
+CREATE TABLE ped_adc7_chan0_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc7_chan0_VALUE'
+#
+
+INSERT INTO ped_adc7_chan0_VALUE VALUES (1,4350,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ped_adc7_chan1_VALUE'
+#
+
+CREATE TABLE ped_adc7_chan1_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc7_chan1_VALUE'
+#
+
+INSERT INTO ped_adc7_chan1_VALUE VALUES (1,4575,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ped_adc7_chan2_VALUE'
+#
+
+CREATE TABLE ped_adc7_chan2_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc7_chan2_VALUE'
+#
+
+INSERT INTO ped_adc7_chan2_VALUE VALUES (1,4430,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ped_adc7_chan3_VALUE'
+#
+
+CREATE TABLE ped_adc7_chan3_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc7_chan3_VALUE'
+#
+
+INSERT INTO ped_adc7_chan3_VALUE VALUES (1,4370,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ped_adc8_chan0_VALUE'
+#
+
+CREATE TABLE ped_adc8_chan0_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc8_chan0_VALUE'
+#
+
+INSERT INTO ped_adc8_chan0_VALUE VALUES (1,4350,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ped_adc8_chan1_VALUE'
+#
+
+CREATE TABLE ped_adc8_chan1_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc8_chan1_VALUE'
+#
+
+INSERT INTO ped_adc8_chan1_VALUE VALUES (1,4575,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ped_adc8_chan2_VALUE'
+#
+
+CREATE TABLE ped_adc8_chan2_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc8_chan2_VALUE'
+#
+
+INSERT INTO ped_adc8_chan2_VALUE VALUES (1,4430,'suleiman',20020416105515,'NULL');
+
+#
+# Table structure for table 'ped_adc8_chan3_VALUE'
+#
+
+CREATE TABLE ped_adc8_chan3_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc8_chan3_VALUE'
+#
+
+INSERT INTO ped_adc8_chan3_VALUE VALUES (1,4370,'suleiman',20020416105516,'NULL');
+
+#
+# Table structure for table 'ped_adc9_chan0_VALUE'
+#
+
+CREATE TABLE ped_adc9_chan0_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc9_chan0_VALUE'
+#
+
+INSERT INTO ped_adc9_chan0_VALUE VALUES (1,4350,'suleiman',20020416105516,'NULL');
+
+#
+# Table structure for table 'ped_adc9_chan1_VALUE'
+#
+
+CREATE TABLE ped_adc9_chan1_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc9_chan1_VALUE'
+#
+
+INSERT INTO ped_adc9_chan1_VALUE VALUES (1,4575,'suleiman',20020416105516,'NULL');
+
+#
+# Table structure for table 'ped_adc9_chan2_VALUE'
+#
+
+CREATE TABLE ped_adc9_chan2_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc9_chan2_VALUE'
+#
+
+INSERT INTO ped_adc9_chan2_VALUE VALUES (1,4430,'suleiman',20020416105516,'NULL');
+
+#
+# Table structure for table 'ped_adc9_chan3_VALUE'
+#
+
+CREATE TABLE ped_adc9_chan3_VALUE (
+  itemValueId int(11) NOT NULL auto_increment,
+  value_1 int(11) default NULL,
+  author varchar(64) default NULL,
+  time timestamp(14) NOT NULL,
+  comment text,
+  PRIMARY KEY  (itemValueId)
+) TYPE=MyISAM;
+
+#
+# Dumping data for table 'ped_adc9_chan3_VALUE'
+#
+
+INSERT INTO ped_adc9_chan3_VALUE VALUES (1,4370,'suleiman',20020416105516,'NULL');
+
