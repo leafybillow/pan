@@ -161,6 +161,8 @@ public:
  
   VaDataBase();
   virtual ~VaDataBase();
+  virtual void Checkout();        // Debug checkout of database
+
   virtual void Load(int run)=0;   // Load the database for this run.
   virtual void Write()=0;         // Write (update) database for this run.
 

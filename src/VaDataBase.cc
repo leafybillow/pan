@@ -56,6 +56,44 @@ Double_t VaDataBase::GetData(const string& key) const{
   return 0;
 };
 
+void 
+VaDataBase::Checkout()
+{
+  // Debug checkout of database
 
-
-
+  cout << "\n\nCHECKOUT of DATABASE for Run " << GetRunNum() << endl;
+  cout << "Run type  = " << GetRunType() << endl;
+  cout << "Max events = " << GetMaxEvents() << endl;
+  cout << "lobeam  cut = " << GetCutValue("LOBEAM") << endl;
+  cout << "burpcut  cut = " << GetCutValue("BURPCUT") << endl;
+  cout << "window delay = " << GetDelay() << endl;
+  cout << "oversampling factor = " << GetOverSamp() << endl;
+  cout << "pair type (i.e. pair or quad) =  " << GetPairType() << endl;
+  cout << "\n\nPedestal and Dac noise parameters by ADC# and channel# : " << endl;
+  for (int adc = 0; adc < 10 ; adc++) {
+    cout << "\n\n-----  For ADC " << adc << endl;
+    for (int chan = 0; chan < 4; chan++) {
+      cout << "\n  channel " << chan;
+      cout << "   ped = " << GetPedestal(adc,chan);
+      cout << "   dac slope = " << GetDacNoise(adc,chan,"slope");
+      cout << "   dac int = " << GetDacNoise(adc,chan,"int");
+    }
+  }  
+  cout << "\n\nNumber of cuts " << GetNumCuts() << endl;
+  vector<Int_t> extlo = GetExtLo();
+  vector<Int_t> exthi = GetExtHi();
+  for (int i = 0; i < GetNumCuts(); i++) { 
+    if (i >= (long)exthi.size()) cout << "extlo and exthi mismatched size" << endl;
+    cout << "Cut " << i << "   Extlo  = " << extlo[i] << "  Exthi = " << exthi[i] << endl;
+  }  
+  cout << "\n\nNum cut event intervals " << GetNumBadEv() << endl;
+  map<Int_t, vector<Int_t> > evint = GetCutValues();
+  Int_t k = 0;
+  for (map<Int_t, vector<Int_t> >::iterator icut = evint.begin();
+     icut != evint.end(); icut++) {
+     vector<Int_t> cutint = icut->second;
+     cout << "Cut interval " << dec << k++;
+     cout << "  from event " << cutint[0] << " to " << cutint[1];
+     cout << "  mask " << cutint[2] << "   veto " << cutint[3] << endl;
+  }
+}
