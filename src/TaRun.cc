@@ -462,17 +462,27 @@ TaRun::PrintStats (TaStatistics s, vector<string> n, vector<string> u) const
 {
   for (size_t j = 0; j < s.Size(); ++j)
     {
-      clog << n[j];
-      if (s.Neff(j) > 5)
+      // Some quantities it doesn't make sense to do statistics on.
+      // For now we accumulate but don't do averages etc. on anything
+      // but diffs and asyms.  There's probably a better way but this
+      // will do at least for now.
+
+      size_t i = n[j].find(' ');
+      string firstword = string (n[j], 0, i);
+      if (firstword == "Diff" || firstword == "Asym")
 	{
-	  clog << " mean " << s.Mean(j)
-	       << " +- " << s.MeanErr(j)
-	       << " RMS " << s.DataRMS(j) 
-	       << " " << u[j] << endl;
-	}
-      else
-	{
-	  clog << " insufficient data" << endl;
+	  clog << n[j];
+	  if (s.Neff(j) > 5)
+	    {
+	      clog << " mean " << s.Mean(j)
+		   << " +- " << s.MeanErr(j)
+		   << " RMS " << s.DataRMS(j) 
+		   << " " << u[j] << endl;
+	    }
+	  else
+	    {
+	      clog << " insufficient data" << endl;
+	    }
 	}
     }
 }
