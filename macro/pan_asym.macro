@@ -49,7 +49,7 @@ TH1F *beamnoise = new TH1F("beamnoise","",100,-5000,5000);
 
 TBranch* b_bcm1 = p->GetBranch("asym_bcm1");b_bcm1->SetAddress(&asymbcm1cp);
 TBranch* b_bcm2 = p->GetBranch("asym_bcm2");b_bcm2->SetAddress(&asymbcm2cp);
-TBranch* p_ok = p->GetBranch("pair_ok");p_ok->SetAddress(&pairokcp);
+TBranch* p_ok = p->GetBranch("ok_cut");p_ok->SetAddress(&pairokcp);
 
 maxev = b_bcm1->GetEntries();
 
@@ -221,19 +221,26 @@ htemp->GetXaxis()->SetTitle("BCM2 (adc bins) vs number of events");
 
 // no cuts !! 
 a1_3->cd(); //p->Draw("asym_bcm1:m_ev_num","","");
-p->Draw("asym_bcm1:m_ev_num","pair_ok == 1","");
+p->Draw("asym_bcm1:m_ev_num","ok_cut == 1","");
+TObject *hchk = 0;
+hchk = gROOT->FindObject("htemp");
+if (hchk == 0) {
+  cout << "ERROR: no htemp histogram made.  Probably cuts failed." << endl;
+  cout << "Exiting ... "<<endl;
+  delete a1;  delete a2;  delete a3;  exit(0);
+}
 htemp->GetXaxis()->CenterTitle();
 htemp->GetXaxis()->SetTitleOffset(1.2);
 htemp->GetXaxis()->SetTitle("BCM1 Charge asymmetry (ppm) vs number of events");
 
 a1_4->cd(); //p->Draw("asym_bcm2:m_ev_num","","");
-p->Draw("asym_bcm2:m_ev_num","pair_ok == 1","");
+p->Draw("asym_bcm2:m_ev_num","ok_cut == 1","");
 htemp->GetXaxis()->CenterTitle();
 htemp->GetXaxis()->SetTitleOffset(1.2);
 htemp->GetXaxis()->SetTitle("BCM2 Charge asymmetry (ppm) vs number of events");
 
 a1_5->cd(); //p->Draw("asym_bcm1:m_ev_num>>+pf1","","prof");
-p->Draw("asym_bcm1:m_ev_num>>+pf1","pair_ok == 1","prof");
+p->Draw("asym_bcm1:m_ev_num>>+pf1","ok_cut == 1","prof");
 TF1 zline1("fline","0*x",0.,200000.); 
 zline1.SetLineColor(2);zline1.SetLineWidth(1);
 zline1.Draw("same"); a1_5->Modified();
@@ -243,7 +250,7 @@ pf1->GetXaxis()->SetTitle("BCM1 Charge asymmetry profile ");
 pf1->SetMarkerStyle(4); pf1->SetMarkerSize(0.3);
 
 a1_6->cd(); //p->Draw("asym_bcm2:m_ev_num>>+pf2","","prof");
-p->Draw("asym_bcm2:m_ev_num>>+pf2","pair_ok == 1","prof");
+p->Draw("asym_bcm2:m_ev_num>>+pf2","ok_cut == 1","prof");
 TF1 zline2("fline","0*x",0.,200000.); 
 zline2.SetLineColor(2);zline2.SetLineWidth(1);
 zline2.Draw("same"); a1_5->Modified();
@@ -259,7 +266,7 @@ a2_4->Draw(); a2_5->Draw(); a2_6->Draw();
 
 a2_1->cd(); 
 //p->Draw("asym_bcm1");    
-p->Draw("asym_bcm1","pair_ok == 1");    
+p->Draw("asym_bcm1","ok_cut == 1");    
 htemp->GetXaxis()->CenterTitle();
 htemp->GetXaxis()->SetTitleOffset(1.2);
 htemp->GetXaxis()->SetTitle("BCM1 Charge asymmetry (ppm)");
@@ -286,7 +293,7 @@ pt->Draw();
 
 a2_2->cd(); 
 p->Draw("asym_bcm2");
-p->Draw("asym_bcm2","pair_ok == 1");
+p->Draw("asym_bcm2","ok_cut == 1");
 htemp->GetXaxis()->CenterTitle();
 htemp->GetXaxis()->SetTitleOffset(1.2);
 htemp->GetXaxis()->SetTitle("BCM2 Charge asymmetry (ppm)");
@@ -309,12 +316,12 @@ text = pt->AddText(Meanp);
 text = pt->AddText(Rmsp);
 pt->Draw();
 
-a2_3->cd(); p->Draw("asym_bcm1","pair_ok == 1",""); a2_3->SetLogy(1); 
+a2_3->cd(); p->Draw("asym_bcm1","ok_cut == 1",""); a2_3->SetLogy(1); 
 htemp->GetXaxis()->CenterTitle();
 htemp->GetXaxis()->SetTitleOffset(1.2);
 htemp->GetXaxis()->SetTitle("BCM1 Charge asymmetry log (ppm)");
 
-a2_4->cd(); p->Draw("asym_bcm2","pair_ok == 1",""); a2_4->SetLogy(1); 
+a2_4->cd(); p->Draw("asym_bcm2","ok_cut == 1",""); a2_4->SetLogy(1); 
 htemp->GetXaxis()->CenterTitle();
 htemp->GetXaxis()->SetTitleOffset(1.2);
 htemp->GetXaxis()->SetTitle("BCM1 Charge asymmetry log (ppm)");
@@ -335,7 +342,7 @@ a2->Modified();
 a3->cd(); a3_1->Draw(); a3_2->Draw();
 a3_2->cd(); a3_2_1->Draw(); a3_2_2->Draw();
  
-a3_1->cd(); p->Draw("asym_bcm1:asym_bcm2","pair_ok == 1","");
+a3_1->cd(); p->Draw("asym_bcm1:asym_bcm2","ok_cut == 1","");
 htemp->GetXaxis()->CenterTitle();
 htemp->GetXaxis()->SetTitleOffset(1.2);
 htemp->GetXaxis()->SetTitle("BCM1 vs BCM2 Charge asymmetry (ppm)");

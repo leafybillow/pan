@@ -89,7 +89,14 @@ TCanvas *b5 = new TCanvas("b5", "  BPM8 DIFFERENCES ",0,0,720,676);
 b5->cd();b5_1->Draw(); b5_2->Draw(); b5_3->Draw(); b5_4->Draw();
 
 
-b1_1->cd(); p->Draw("diff_bpm4bx"," pair_ok ==1");    
+b1_1->cd(); p->Draw("diff_bpm4bx"," ok_cut ==1");    
+TObject *hchk = 0;
+hchk = gROOT->FindObject("htemp");
+if (hchk == 0) {
+  cout << "ERROR: no htemp histogram made.  Probably cuts failed." << endl;
+  cout << "Exiting ... "<<endl;
+  delete b1;  delete b2;  delete b3;  delete b4;  delete b5;  exit(0);
+}
 htemp->GetXaxis()->CenterTitle();
 htemp->GetXaxis()->SetTitleOffset(1.2);
 htemp->GetXaxis()->SetTitle("BPM4B Xpos difference (um)");
@@ -112,7 +119,7 @@ text = pt->AddText(Meanp);
 text = pt->AddText(Rmsp);
 pt->Draw();
 
-b1_2->cd(); p->Draw("diff_bpm4by"," pair_ok ==1");
+b1_2->cd(); p->Draw("diff_bpm4by"," ok_cut ==1");
 htemp->GetXaxis()->CenterTitle();
 htemp->GetXaxis()->SetTitleOffset(1.2);
 htemp->GetXaxis()->SetTitle("BPM4B Ypos difference (um)");
@@ -135,7 +142,7 @@ text = pt->AddText(Meanp);
 text = pt->AddText(Rmsp);
 pt->Draw();
 
-b1_3->cd(); p->Draw("diff_bpm4bx:m_ev_num>>+pf1","pair_ok ==1","prof");
+b1_3->cd(); p->Draw("diff_bpm4bx:m_ev_num>>+pf1","ok_cut ==1","prof");
 TF1 zline1("fline","0*x",0.,200000.); 
 zline1.SetLineColor(2);zline1.SetLineWidth(1);
 zline1.Draw("same"); b1_3->Modified();
@@ -144,7 +151,7 @@ pf1->GetXaxis()->SetTitleOffset(1.2);
 pf1->GetXaxis()->SetTitle(" BPM4B Xpos difference profile ");
 pf1->SetMarkerStyle(4); pf1->SetMarkerSize(0.3);
  b1_3->Modified();
-b1_4->cd(); p->Draw("diff_bpm4by:m_ev_num>>+pf2","pair_ok ==1","prof");
+b1_4->cd(); p->Draw("diff_bpm4by:m_ev_num>>+pf2","ok_cut ==1","prof");
 TF1 zline2("fline","0*x",0.,200000.); 
 zline2.SetLineColor(2);zline2.SetLineWidth(1);
 zline2.Draw("same"); b1_4->Modified();
@@ -156,7 +163,7 @@ b1_4->Modified();b1->Modified();
 
 //  *********************** BPM4A  **************************************
 
-b2_1->cd(); p->Draw("diff_bpm4ax","pair_ok ==1");    
+b2_1->cd(); p->Draw("diff_bpm4ax","ok_cut ==1");    
 htemp->GetXaxis()->CenterTitle();
 htemp->GetXaxis()->SetTitleOffset(1.2);
 htemp->GetXaxis()->SetTitle("BPM4A Xpos difference (um)");
@@ -179,7 +186,7 @@ text = pt->AddText(Meanp);
 text = pt->AddText(Rmsp);
 pt->Draw();
 
-b2_2->cd(); p->Draw("diff_bpm4ay","pair_ok ==1");
+b2_2->cd(); p->Draw("diff_bpm4ay","ok_cut ==1");
 htemp->GetXaxis()->CenterTitle();
 htemp->GetXaxis()->SetTitleOffset(1.2);
 htemp->GetXaxis()->SetTitle("BPM4A Ypos difference (um)");
@@ -202,7 +209,7 @@ text = pt->AddText(Meanp);
 text = pt->AddText(Rmsp);
 pt->Draw();
 
-b2_3->cd(); p->Draw("diff_bpm4ax:m_ev_num>>+pf1","pair_ok ==1","prof");
+b2_3->cd(); p->Draw("diff_bpm4ax:m_ev_num>>+pf1","ok_cut ==1","prof");
 TF1 zline1("fline","0*x",0.,200000.); 
 zline1.SetLineColor(2);zline1.SetLineWidth(1);
 zline1.Draw("same"); b2_3->Modified();
@@ -212,7 +219,7 @@ pf1->GetXaxis()->SetTitle(" BPM4A Xpos difference profile ");
 pf1->SetMarkerStyle(4); pf1->SetMarkerSize(0.3);
 b2_3->Modified();
 
-b2_4->cd(); p->Draw("diff_bpm4ay:m_ev_num>>+pf2","pair_ok ==1","prof");
+b2_4->cd(); p->Draw("diff_bpm4ay:m_ev_num>>+pf2","ok_cut ==1","prof");
 TF1 zline2("fline","0*x",0.,200000.); 
 zline2.SetLineColor(2);zline2.SetLineWidth(1);
 zline2.Draw("same"); b2_4->Modified();
@@ -225,7 +232,7 @@ b2_4->Modified();b2->Modified();
 
 //  *********************** BPM10  **************************************
 
-b3_1->cd(); p->Draw("diff_bpm10x","pair_ok ==1");    
+b3_1->cd(); p->Draw("diff_bpm10x","ok_cut ==1");    
 htemp->GetXaxis()->CenterTitle();
 htemp->GetXaxis()->SetTitleOffset(1.2);
 htemp->GetXaxis()->SetTitle("BPM10 Xpos difference (um)");
@@ -248,7 +255,7 @@ text = pt->AddText(Meanp);
 text = pt->AddText(Rmsp);
 pt->Draw();
 
-b3_2->cd(); p->Draw("diff_bpm10y","pair_ok ==1");
+b3_2->cd(); p->Draw("diff_bpm10y","ok_cut ==1");
 htemp->GetXaxis()->CenterTitle();
 htemp->GetXaxis()->SetTitleOffset(1.2);
 htemp->GetXaxis()->SetTitle("BPM10 Ypos difference (um)");
@@ -271,7 +278,7 @@ text = pt->AddText(Meanp);
 text = pt->AddText(Rmsp);
 pt->Draw();
 
-b3_3->cd(); p->Draw("diff_bpm10x:m_ev_num>>+pf1","pair_ok ==1","prof");
+b3_3->cd(); p->Draw("diff_bpm10x:m_ev_num>>+pf1","ok_cut ==1","prof");
 TF1 zline1("fline","0*x",0.,200000.); 
 zline1.SetLineColor(2);zline1.SetLineWidth(1);
 zline1.Draw("same"); b3_3->Modified();
@@ -280,7 +287,7 @@ pf1->GetXaxis()->SetTitleOffset(1.2);
 pf1->GetXaxis()->SetTitle(" BPM10 Xpos difference profile ");
 pf1->SetMarkerStyle(4); pf1->SetMarkerSize(0.3);
 b3_3->Modified();
-b3_4->cd(); p->Draw("diff_bpm10y:m_ev_num>>+pf2","pair_ok ==1","prof");
+b3_4->cd(); p->Draw("diff_bpm10y:m_ev_num>>+pf2","ok_cut ==1","prof");
 TF1 zline2("fline","0*x",0.,200000.); 
 zline2.SetLineColor(2);zline2.SetLineWidth(1);
 zline2.Draw("same"); b3_4->Modified();
@@ -292,7 +299,7 @@ b3_4->Modified();b3->Modified();
 
 //  *********************** BPM12  **************************************
 
-b4_1->cd(); p->Draw("diff_bpm12x","pair_ok ==1");    
+b4_1->cd(); p->Draw("diff_bpm12x","ok_cut ==1");    
 htemp->GetXaxis()->CenterTitle();
 htemp->GetXaxis()->SetTitleOffset(1.2);
 htemp->GetXaxis()->SetTitle("BPM12 Xpos difference (um)");
@@ -315,7 +322,7 @@ text = pt->AddText(Meanp);
 text = pt->AddText(Rmsp);
 pt->Draw();
 
-b4_2->cd(); p->Draw("diff_bpm12y","pair_ok ==1");
+b4_2->cd(); p->Draw("diff_bpm12y","ok_cut ==1");
 htemp->GetXaxis()->CenterTitle();
 htemp->GetXaxis()->SetTitleOffset(1.2);
 htemp->GetXaxis()->SetTitle("BPM12 Ypos difference (um)");
@@ -338,7 +345,7 @@ text = pt->AddText(Meanp);
 text = pt->AddText(Rmsp);
 pt->Draw();
 
-b4_3->cd(); p->Draw("diff_bpm12x:m_ev_num>>+pf1","pair_ok ==1","prof");
+b4_3->cd(); p->Draw("diff_bpm12x:m_ev_num>>+pf1","ok_cut ==1","prof");
 TF1 zline1("fline","0*x",0.,200000.); 
 zline1.SetLineColor(2);zline1.SetLineWidth(1);
 zline1.Draw("same"); b4_3->Modified();
@@ -347,7 +354,7 @@ pf1->GetXaxis()->SetTitleOffset(1.2);
 pf1->GetXaxis()->SetTitle(" BPM12 Xpos difference profile ");
 pf1->SetMarkerStyle(4); pf1->SetMarkerSize(0.3);
 b4_3->Modified();
-b4_4->cd(); p->Draw("diff_bpm12y:m_ev_num>>+pf2","pair_ok ==1","prof");
+b4_4->cd(); p->Draw("diff_bpm12y:m_ev_num>>+pf2","ok_cut ==1","prof");
 TF1 zline2("fline","0*x",0.,200000.); 
 zline2.SetLineColor(2);zline2.SetLineWidth(1);
 zline2.Draw("same"); b4_4->Modified();
@@ -359,7 +366,7 @@ b4_4->Modified();b4->Modified();
 
 //  *********************** BPM8  **************************************
 
-b5_1->cd(); p->Draw("diff_bpm8x","pair_ok ==1");    
+b5_1->cd(); p->Draw("diff_bpm8x","ok_cut ==1");    
 htemp->GetXaxis()->CenterTitle();
 htemp->GetXaxis()->SetTitleOffset(1.2);
 htemp->GetXaxis()->SetTitle("BPM8 Xpos difference (um)");
@@ -382,7 +389,7 @@ text = pt->AddText(Meanp);
 text = pt->AddText(Rmsp);
 pt->Draw();
 
-b5_2->cd(); p->Draw("diff_bpm8y","pair_ok ==1");
+b5_2->cd(); p->Draw("diff_bpm8y","ok_cut ==1");
 htemp->GetXaxis()->CenterTitle();
 htemp->GetXaxis()->SetTitleOffset(1.2);
 htemp->GetXaxis()->SetTitle("BPM8 Ypos difference (um)");
@@ -405,7 +412,7 @@ text = pt->AddText(Meanp);
 text = pt->AddText(Rmsp);
 pt->Draw();
 
-b5_3->cd(); p->Draw("diff_bpm8x:m_ev_num>>+pf1","pair_ok ==1","prof");
+b5_3->cd(); p->Draw("diff_bpm8x:m_ev_num>>+pf1","ok_cut ==1","prof");
 TF1 zline1("fline","0*x",0.,200000.); 
 zline1.SetLineColor(2);zline1.SetLineWidth(1);
 zline1.Draw("same"); b5_3->Modified();
@@ -414,7 +421,7 @@ pf1->GetXaxis()->SetTitleOffset(1.2);
 pf1->GetXaxis()->SetTitle(" BPM8 Xpos difference profile ");
 pf1->SetMarkerStyle(4); pf1->SetMarkerSize(0.3);
 b5_3->Modified();
-b5_4->cd(); p->Draw("diff_bpm8y:m_ev_num>>+pf2","pair_ok ==1","prof");
+b5_4->cd(); p->Draw("diff_bpm8y:m_ev_num>>+pf2","ok_cut ==1","prof");
 TF1 zline2("fline","0*x",0.,200000.); 
 zline2.SetLineColor(2);zline2.SetLineWidth(1);
 zline2.Draw("same"); b5_4->Modified();
