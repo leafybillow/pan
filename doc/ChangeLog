@@ -4,6 +4,14 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Michaels on 10 Apr 2002
+-------------------------------------
+
+Some minor mod's after Rich's mod's below
+cvs commit -m "OPTIMIZE off by default so compile is fast" Makefile
+cvs commit -m "GetKey check if string found, added timeboard & pairsynch" TaDevice.cc
+
+	
 Changes by R. Holmes on 10 Apr 2002
 -----------------------------------
 
@@ -42,7 +50,8 @@ TaCutList.{cc,hh}
 
  o Added a vector string to hold cut names, with an access function to
    add a name.  Used by printTally().
-
+	
+	
  o Added printInt(), printExt(), and printTally() methods, and
    redefined operator<< as a call to all three.
 
