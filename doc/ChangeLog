@@ -23,7 +23,7 @@ trees are chained and friended to the chain of pair trees.
 Thus you can plot anything you want vs. a global event number or
 vs. run number, e.g.
 
-   TChain* ch = panchain(panchain);
+   TChain* ch = panchain("panchain");
    ch->Draw("asym_bcm1:m_ev_num_off"); // BCM1 asym vs. global evt number
    ch->Draw("asym_bcm1:run_num"); // BCM1 asym vs. run number
 
