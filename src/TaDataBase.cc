@@ -43,7 +43,7 @@
 #include "TaDataBase.hh"
 #include "TaString.hh"
 
-#ifdef DICT
+#ifndef NODICT
 ClassImp(TaDataBase)
 ClassImp(TaRootRep)
 #endif

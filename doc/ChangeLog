@@ -4,6 +4,16 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 27 Oct 2002
+-----------------------------------
+
+In response to comments from Bob and a suggestion from Kent, all the
+*.cc and *.hh have been modified by replacing "#ifdef DICT" with
+"#ifndef NODICT".  Makefile has been modified and recommented
+accordingly; unless MAKENODICTIONARY is defined (and comments warn
+against doing so), Pan will be compiled with the dictionary.
+
+
 Changes by R. Holmes on 15 Oct 2002
 -----------------------------------
 

@@ -21,7 +21,7 @@
 #include "TaRun.hh"
 #include "TaLabelledQuantity.hh"
 
-#ifdef DICT
+#ifndef NODICT
 ClassImp(TaPromptAna)
 #endif
 

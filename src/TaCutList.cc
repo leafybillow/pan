@@ -28,7 +28,7 @@
 #include <iomanip>
 #include "TaCutInterval.hh"
 
-#ifdef DICT
+#ifndef NODICT
 ClassImp(TaCutList)
 #endif
 

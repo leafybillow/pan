@@ -129,7 +129,7 @@ private:
   vector<string> fPStatsUnits;   // Units of pair statistics
   Bool_t fFirstPass;             // Pass 1 or 2?
 
-#ifdef DICT
+#ifndef NODICT
 ClassDef (TaRun, 0)      //  One run of CODA data
 #endif
 

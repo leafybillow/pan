@@ -56,7 +56,7 @@ private:
   EventNumber_t fBegin;    // Number of first event of cut interval
   EventNumber_t fEnd;      // Number of first event after end of cut interval
 
-#ifdef DICT
+#ifndef NODICT
   ClassDef(TaCutInterval, 0)  // Cut Intervals
 #endif
 

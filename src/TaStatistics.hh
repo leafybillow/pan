@@ -118,7 +118,7 @@ private:
   vector<Double_t>   fSumWtXs;      // sum of weights * (x-<x>)
   vector<Double_t>   fSumWtXs2;     // sum of weights * (x-<x>)^2
 
-#ifdef DICT
+#ifndef NODICT
   ClassDef(TaStatistics, 0)  //   Statistics -- means, widths, etc
 #endif
 

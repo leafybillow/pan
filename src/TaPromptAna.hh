@@ -55,7 +55,7 @@ private:
   
   // Data members
   
-#ifdef DICT
+#ifndef NODICT
   ClassDef(TaPromptAna, 0)  // Prompt Data Analysis
 #endif
 };

@@ -73,7 +73,7 @@ private:
   vector<string> fCutNames;          // names of cuts
   static const size_t fgMaxEvent = 1000000; // Probably should be available from TaEvent, really
 
-#ifdef DICT
+#ifndef NODICT
   ClassDef(TaCutList, 0)   // List of cuts
 #endif
 

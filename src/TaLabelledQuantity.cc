@@ -15,7 +15,7 @@
 
 #include "TaLabelledQuantity.hh"
 
-#ifdef DICT
+#ifndef NODICT
 ClassImp(TaLabelledQuantity)
 #endif
 

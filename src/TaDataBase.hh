@@ -158,7 +158,7 @@ private:
   int fNumchar;    
   TArrayC *carray; 
 
-#ifdef DICT
+#ifndef NODICT
   ClassDef(TaRootRep,2) // Character data ROOT output for database
 #endif
 };
@@ -387,7 +387,7 @@ private:
   TaDataBase(const TaDataBase &fn);
   TaDataBase& operator=(const TaDataBase &fn);
 
-#ifdef DICT
+#ifndef NODICT
 ClassDef(TaDataBase,0)  // Database class
 #endif
 

@@ -297,7 +297,7 @@ protected:
   static UInt_t fLeakDelPair;   // count of pair deallocations
 #endif
 
-#ifdef DICT
+#ifndef NODICT
   ClassDef(VaAnalysis, 0)  // Interface class for data analysis
 #endif
 

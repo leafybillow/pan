@@ -60,7 +60,7 @@
 #include <iostream>
 #include <stdio.h>
 
-#ifdef DICT
+#ifndef NODICT
 ClassImp(VaAnalysis)
 #endif
 

@@ -52,7 +52,7 @@ private:
   string fUnits;  // Units for the quantity
   UInt_t fFlags;  // Flags for the quantity
 
-#ifdef DICT
+#ifndef NODICT
   ClassDef(TaLabelledQuantity, 0)  // Quantity with label and units
 #endif
 

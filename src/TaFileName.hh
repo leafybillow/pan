@@ -54,7 +54,7 @@ private:
 
   string fFileName;            // full path and file name
 
-#ifdef DICT
+#ifndef NODICT
   ClassDef(TaFileName, 0)   // Improved string class
 #endif
 

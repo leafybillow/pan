@@ -48,7 +48,7 @@
 #include "THaEtClient.h"
 #endif
 
-#ifdef DICT
+#ifndef NODICT
 ClassImp(TaRun)
 #endif
 

@@ -157,7 +157,7 @@ private:
   EHelicity fPrevDelHel;       // Delayed helicity for previous event
   Double_t *fData;             // Decoded/corrected data
 
-#ifdef DICT
+#ifndef NODICT
 ClassDef(TaEvent,0)  // An event
 #endif
 

@@ -15,7 +15,7 @@
 #include "TaDataBase.hh"
 #include "TTree.h"
 
-#ifdef DICT
+#ifndef NODICT
 ClassImp(TaDevice)
 #endif
 

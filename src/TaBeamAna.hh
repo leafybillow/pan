@@ -54,7 +54,7 @@ private:
   
   // Data members
   
-#ifdef DICT
+#ifndef NODICT
   ClassDef(TaBeamAna, 0)  // Analysis of Beam Data
 #endif
 };

@@ -85,7 +85,7 @@ protected:
   TaEvent* fEvFirst;                     // (pointer to) first event
   TaEvent* fEvSecond;                    // (pointer to) second event
   
-#ifdef DICT
+#ifndef NODICT
   ClassDef( VaPair, 0 )  // Base class for helicity pairs
 #endif
 };

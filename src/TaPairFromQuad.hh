@@ -48,7 +48,7 @@ private:
   // Data members
   static Int_t   fgQuadCount; // Quad window counter
 
-#ifdef DICT
+#ifndef NODICT
   ClassDef(TaPairFromQuad, 0)  // Event pair from window pair helicity structure
 #endif
 };

@@ -42,7 +42,7 @@ private:
   void CheckSequence (TaEvent&, TaRun&); // look for helicity/synch errors
   UInt_t RanBit (UInt_t hRead = 2);
 
-#ifdef DICT
+#ifndef NODICT
   ClassDef(TaPairFromPair, 0)  // Event pair from window pair helicity structure
 #endif
 };

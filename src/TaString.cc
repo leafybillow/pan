@@ -23,7 +23,7 @@
 #include "TaString.hh"
 #include <strstream>
 
-#ifdef DICT
+#ifndef NODICT
 ClassImp(TaString)
 #endif
 

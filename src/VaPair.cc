@@ -26,7 +26,7 @@
 #include "TaString.hh"
 #include "TaDataBase.hh"
 
-#ifdef DICT
+#ifndef NODICT
 ClassImp(VaPair)
 #endif
 

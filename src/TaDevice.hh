@@ -74,7 +74,7 @@ class TaDevice {
     void Create(const TaDevice&);
     void Uncreate();
 
-#ifdef DICT
+#ifndef NODICT
 ClassDef (TaDevice, 0)   // Collection of devices that contain data
 #endif
 

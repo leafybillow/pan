@@ -52,7 +52,7 @@ public:
 
 private:
   
-#ifdef DICT
+#ifndef NODICT
   ClassDef(TaString, 0)   // Improved string class
 #endif
 

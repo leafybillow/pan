@@ -21,7 +21,7 @@
 #include "TaPairFromQuad.hh"
 #include "TaRun.hh"
 
-#ifdef DICT
+#ifndef NODICT
 ClassImp(TaPairFromQuad)
 #endif
 

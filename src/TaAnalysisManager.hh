@@ -68,7 +68,7 @@ class TaAnalysisManager
   Bool_t fOnlFlag;          // Flag indicating data is online
   vector<string> dbcommand; // Database command to pass to fRun
 
-#ifdef DICT
+#ifndef NODICT
   ClassDef (TaAnalysisManager, 0) // Drives the entire analysis.  
 #endif
 };

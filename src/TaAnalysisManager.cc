@@ -27,7 +27,7 @@
 #include "TaPromptAna.hh"
 #include "TaADCCalib.hh"
 
-#ifdef DICT
+#ifndef NODICT
 ClassImp(TaAnalysisManager)
 #endif
 

@@ -34,7 +34,7 @@
 
 #include "TaStatistics.hh"
 
-#ifdef DICT
+#ifndef NODICT
 ClassImp(TaStatistics)
 #endif
 

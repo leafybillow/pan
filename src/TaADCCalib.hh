@@ -102,7 +102,7 @@ private:
   void TaADCCalib::InitChanLists ();
   
 
-#ifdef DICT
+#ifndef NODICT
   ClassDef(TaADCCalib, 0)  // ADC calibration analysis
 #endif
 };

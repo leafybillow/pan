@@ -21,7 +21,7 @@
 #include "TaPairFromPair.hh"
 #include "TaRun.hh"
 
-#ifdef DICT
+#ifndef NODICT
 ClassImp(TaPairFromPair)
 #endif
 

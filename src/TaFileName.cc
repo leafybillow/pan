@@ -17,7 +17,7 @@
 #include <strstream>
 #include <ctime>
 
-#ifdef DICT
+#ifndef NODICT
 ClassImp(TaFileName)
 #endif
 

@@ -34,7 +34,7 @@
 #include <utility>
 #include <cmath>
 
-#ifdef DICT
+#ifndef NODICT
 ClassImp(TaEvent)
 #endif
 
