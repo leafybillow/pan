@@ -4,6 +4,29 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Michaels on 14 Nov 2002
+--------------------------------------
+
+In ./codaclass I modified THaEtClient so that stations with unique
+names are created, this permits each client to get the maximum rate.
+Previously the clients shared one station, so they shared the rate.
+If one relies on automatic station creation (default), the station name 
+is created from the system time and is unique if the clients are 
+born >1 second apart, which is not a bad restriction.  I also fixed a 
+bug that stations must be removed in codaClose() (this didn't matter before).
+Finally I refurbished the test example tstcoda_main.C and used it to test 
+the performance: for a "typical" application with CODA on adaqcp, 2 clients 
+on adaql1, and 1 client on adaql2, the rate saturates as in the following 
+table.  Note, this means the clients receive < 100% of data, it DOES NOT 
+cause deadtime in the DAQ.
+
+	CODA rate    3-clients each see
+
+	  30 Hz        100% of data
+	 120 Hz        100%
+	 180 Hz         83%
+	 360 Hz         62%
+
 Changes by R. Holmes on 8 Nov 2002
 ----------------------------------
 
