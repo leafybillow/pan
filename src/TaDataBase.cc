@@ -1337,9 +1337,8 @@ void TaDataBase::InitDB() {
       columns.push_back (new dtype ("s"));  // timestamp (time)
     }
     if (i == 21) { // simtype
-	columns.push_back (new dtype ("s"));  // first spec
-	columns.push_back (new dtype ("s"));  // 
-      }
+        columns.push_back (new dtype ("s"));  // first spec
+    }
     if (i == 22)   // blindstring
       columns.push_back(new dtype("s"));
     if (i == 23) 
