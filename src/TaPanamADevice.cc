@@ -4,7 +4,10 @@
 //
 //        TaPanamADevice.cc   (implementation file)
 //        ^^^^^^^^^^^^^^^
-//    Authors :  A. Vacheret
+// Author:  R. Holmes <http://mep1.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>, K.Paschke
+// @(#)pan/src:$Name$:$Id$
+//
+//////////////////////////////////////////////////////////////////////////
 //
 //    List of histos and stripchart for the corresponding Pan device in 
 //    the datamap with extra analyzed data (asym or diff). 

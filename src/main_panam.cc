@@ -1,3 +1,17 @@
+//**********************************************************************
+//
+//     HALL A C++/ROOT Parity Analyzer  Pan           
+//
+//           main_panam.cc
+//
+// Author:  R. Holmes <http://mep1.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>, K.Paschke
+// @(#)pan/src:$Name$:$Id$
+//
+////////////////////////////////////////////////////////////////////////
+//
+//  Main program for panam
+//
+////////////////////////////////////////////////////////////////////////
 
 #include "TaPanam.hh"
 #include <signal.h>

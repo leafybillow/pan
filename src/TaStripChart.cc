@@ -4,7 +4,10 @@
 //
 //        TaStripChart.cc   (implementation file)
 //        ^^^^^^^^^^^^^^^
-//    Authors :  A. Vacheret
+// Author:  R. Holmes <http://mep1.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>, K.Paschke
+// @(#)pan/src:$Name$:$Id$
+//
+//////////////////////////////////////////////////////////////////////////
 //
 //   PHENIX and E158-like StripCharts for HAPPEX2/He4 adcs display. 
 //

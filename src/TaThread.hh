@@ -1,7 +1,18 @@
 #ifndef __TaThread__
 #define __TaThread__ 
 
+//////////////////////////////////////////////////////////////////////////
+//
+//     HALL A C++/ROOT Parity Analyzer  Pan (Online Monitor version)           
+//
+//        TaThread.hh   (interface file)
+//        ^^^^^^^^^^^
+// Author:  R. Holmes <http://mep1.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>, K.Paschke
+// @(#)pan/src:$Name$:$Id$
+//
 /////////////////////////////////////////////////////////////////////////////
+//
+//
 //
 //////////////////////////////////////////////////////////////////////////////
 
