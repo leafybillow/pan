@@ -287,6 +287,8 @@ public:
   string GetSimulationType() const;
 // Get timestamp
   string GetTimestamp() const;
+// Get random or toggle mode
+  string GetRandomHeli() const;
 // Get blinding parameters
   string GetBlindingString() const;
   vector<Double_t> GetBlindingParams() const;

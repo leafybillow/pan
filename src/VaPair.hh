@@ -61,7 +61,7 @@ protected:
 
   // Constants
   static const ErrCode_t fgVAP_ERROR;  // returned on error
-  static const ErrCode_t fgVAP_OK;      // returned on success
+  static const ErrCode_t fgVAP_OK;     // returned on success
 
   // Private member functions
   virtual void CheckSequence (VaEvent&, TaRun&) = 0; // look for helicity/synch errors
@@ -77,6 +77,8 @@ protected:
   static UInt_t  fgNShreg;     // count since fgShreg was reset
   static Bool_t  fgPairMade;   // set in Fill to true if pair made, else false
   static Cut_t   fgSequenceNo; // cut number for sequence
+  static UInt_t  fgOldb;       // old bit for non-random seq check
+  static Bool_t  fgRandom;     // random helicity sequence?
 
   // Data members
   VaEvent fEvLeft;                       // "Left" helicity event

@@ -522,6 +522,14 @@ TaDataBase::GetTimestamp() const
 
 
 string 
+TaDataBase::GetRandomHeli () const
+{
+  // Return control for random vs toggled helicity
+  
+  return GetString ("randomheli");
+}
+
+string 
 TaDataBase::GetBlindingString () const
 {
   // Return the (first word of the) blinding string 
@@ -1249,6 +1257,7 @@ void TaDataBase::InitDB() {
   tables.push_back("simtype");       //  21
   tables.push_back("blindstring");   //  22
   tables.push_back("blindparams");   //  23
+  tables.push_back("randomheli");    // 24
 
   pair<string, int> sipair;
   int k;
@@ -1342,6 +1351,8 @@ void TaDataBase::InitDB() {
 	columns.push_back(new dtype("s"));
 	columns.push_back(new dtype("d"));
       }
+    if (i == 24)   // randomheli
+      columns.push_back(new dtype("s"));
 
     sipair.second = columns.size(); 
     colsize.insert(sipair);

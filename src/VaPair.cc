@@ -26,6 +26,8 @@
 #include "TaString.hh"
 #include "TaDataBase.hh"
 
+//#define NOISY
+
 #ifndef NODICT
 ClassImp(VaPair)
 #endif
@@ -42,6 +44,8 @@ UInt_t VaPair::fgShreg = 1;
 UInt_t VaPair::fgNShreg = 0;
 Bool_t VaPair::fgPairMade = false;
 Cut_t VaPair::fgSequenceNo;
+UInt_t VaPair::fgOldb = 2;
+Bool_t VaPair::fgRandom = 1;
 
 
 VaPair::VaPair() :
@@ -128,6 +132,11 @@ VaPair::RunInit(const TaRun& run)
 	   << " cut must be defined in database" << endl;
       return fgVAP_ERROR;
     }
+
+  // If randomheli is "no" in database set fgRandom to 0, else 1.
+  TaString sran = run.GetDataBase().GetRandomHeli();
+  fgRandom = sran.CmpNoCase ("no") == 0 ? 0 : 1;
+
   return fgVAP_OK;
 }
 
@@ -399,7 +408,14 @@ VaPair::HelSeqOK (EHelicity h)
 
   // Get expected helicity bit (or 2 if unknown)
   UInt_t eb;
-  eb = RanBit (hb);
+  if (fgRandom)
+    eb = RanBit (hb);
+  else
+    {
+      eb = fgOldb;
+      fgOldb = hb;
+    }
+
   Bool_t expectOK = (fgNShreg++ > 24);
 
   if ( expectOK && hb != 2 && hb != eb )
@@ -409,10 +425,13 @@ VaPair::HelSeqOK (EHelicity h)
     }
 
 #ifdef NOISY
-      if ( eb == 2 || eb != hb )
-	clog << "Helicity expected/got = " << eb << " " << hb 
-	     << " | " << fgShreg 
-	     << " fgNShreg = " << fgNShreg << endl;
+  clog << "Helicity expected/got = " << eb << " " << hb;
+  if (fgRandom)
+    clog << " | " << fgShreg;
+  clog << " fgNShreg = " << fgNShreg;
+  if ( eb == 2 || eb != hb )
+    clog << " (MISMATCH)";
+  clog  << endl;
 #endif
 
   // Generate error if expected is known and does not match found
