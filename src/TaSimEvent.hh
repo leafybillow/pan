@@ -109,7 +109,7 @@ private:
   // Data members
   
 #ifndef NODICT
-ClassDef(TaSimEvent,0)  // An event
+ClassDef(TaSimEvent,0)  // An event containing simulated data
 #endif
 
 };

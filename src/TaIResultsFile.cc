@@ -63,7 +63,10 @@ TaIResultsFile::~TaIResultsFile ()
 Bool_t
 TaIResultsFile::ReadNextLine ()
 {
-  // Read a line from the file
+  // Read a line from the file.  Line can then be retrieved with
+  // GetLine() (or GetLineTS() to return a TString for CINT use) or
+  // elements can be retrieved with GetRtag() (or GetRtagTS()),
+  // GetPtag (or GetPtagTS()), GetRes(), etc.
   
   fPtag = "";
   fRtag = "";

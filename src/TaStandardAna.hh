@@ -58,7 +58,7 @@ protected:
   // Data members
   
 #ifndef NODICT
-  ClassDef(TaStandardAna, 0)  // Prompt Data Analysis
+  ClassDef(TaStandardAna, 0)  // Standard data analysis
 #endif
 };
 

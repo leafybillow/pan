@@ -42,7 +42,7 @@ private:
   // Data members
   
 #ifndef NODICT
-  ClassDef(TaDebugAna, 0)  // Prompt Data Analysis
+  ClassDef(TaDebugAna, 0)  // Debugging data analysis
 #endif
 };
 

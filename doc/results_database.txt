@@ -109,7 +109,7 @@ script that reads the file).
 Example:
 
 # This is a pair of comment lines, followed by a blank line, then the
-# run number, analysis type, blinding state, and checksum.
+# run number, analysis type, and checksum.
 
 3141 standard 3915528286
 

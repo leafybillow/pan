@@ -86,7 +86,7 @@ class TaOResultsFile: public ofstream
   string    fPtag;   // program tag
 
 #ifndef NODICT
-  ClassDef (TaOResultsFile, 0) // Drives the entire analysis.  
+  ClassDef (TaOResultsFile, 0) // Results file for output
 #endif
 };
 

@@ -60,7 +60,7 @@ private:
   // Data members
 
 #ifndef NODICT
-ClassDef(TaEvent,0)  // An event
+ClassDef(TaEvent,0)  // A genuine event, with no simulation
 #endif
 
 };

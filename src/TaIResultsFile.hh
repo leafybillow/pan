@@ -98,7 +98,7 @@ class TaIResultsFile: public ifstream
   string fLine;       // line from last read
 
 #ifndef NODICT
-  ClassDef (TaIResultsFile, 0) // results file for input
+  ClassDef (TaIResultsFile, 0) // Results file for input
 #endif
 };
 
