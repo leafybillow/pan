@@ -5,7 +5,8 @@
    cout << "Run "<<run<<endl;
    char runfile[50];
    char *file;
-   file = getenv("ROOT_OUTPUT");
+//   file = getenv("ROOT_OUTPUT");
+   file = "/raid/suleiman/parity/pan"; 
    if ( file != NULL) {
      cout << "root file is in "<<file<<endl;
      sprintf(runfile,"/pan_%d.root",run);
