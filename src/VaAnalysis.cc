@@ -49,6 +49,7 @@
 #define FDBK1
 
 #include "TaCutList.hh"
+#include "TaDevice.hh"
 #include "TaEvent.hh"
 #include "TaLabelledQuantity.hh"
 #include "TaPairFromPair.hh"
@@ -709,7 +710,7 @@ VaAnalysis::InitTree ()
 vector<AnaList* >
 VaAnalysis::ChanList (const string& devtype, const string& channel, const string& other, const UInt_t flags)
 {
-  // Create a channel list.
+  // Create a channel list with one entry per device of given type.
   //
   // Go through all devices in data map.  For each device of type
   // <devtype>, push onto the returned vector an AnaList consisting of
@@ -721,8 +722,8 @@ VaAnalysis::ChanList (const string& devtype, const string& channel, const string
   // handled).
   //
   // Example: if the data map contains two BPMs, bpm8 and bpm12, then
-  // ChanList ("bpm", "~x", "um") will return: < <"bpm8x", key8x,
-  // "um">, <"bpm12x", key12x, "um"> >.
+  // ChanList ("bpm", "~x", "um", flag) will return: < <"bpm8x", key8x,
+  // "um", flag>, <"bpm12x", key12x, "um", flag> >.
 
   vector<AnaList* > chanlist;
   chanlist.clear();
@@ -752,6 +753,40 @@ VaAnalysis::ChanList (const string& devtype, const string& channel, const string
   return chanlist;
 }
 
+vector<AnaList* >
+VaAnalysis::ChanListFromName (const string& chanbase, const string& other, const UInt_t flags)
+{
+  // Create a channel list with one entry per channel with given base name.
+  //
+  // Go through all keys in data map.  For each key whose channel name
+  // begins with the string chanbase, push onto the returned vector an
+  // AnaList consisting of (<channel>, <key>, <other>, <flags>) where
+  // <channel> is the channel name and <key> is the corresponding key.
+  // This constitutes a list of data channels to be processed (with
+  // the third element typically the units for the analyzed quantity,
+  // and the fourth flags controlling how it's handled).
+  //
+  // Example: ChanListFromName ("batt", "chan", flag) might return: 
+  // < <"batt1", key1, "chan", flag>, <"batt2", key2, "chan", flag> >
+  // (if those are the only two channels starting with "batt").
+
+  vector<AnaList* > chanlist;
+  chanlist.clear();
+
+  map<string, Int_t> keyToIdx = fRun->GetDevices().GetKeyList();
+  for (map<string, Int_t>::iterator ikey = keyToIdx.begin(); 
+       ikey != keyToIdx.end(); ikey++) 
+    {
+      string channelp = ikey->first;
+      if (channelp.substr(0, chanbase.size()) == chanbase)
+	chanlist.push_back (new AnaList(channelp, 
+					fRun->GetKey(channelp), 
+					other, 
+					flags));
+    }
+
+  return chanlist;
+}
 
 void
 VaAnalysis::AutoPairAna()
@@ -1335,10 +1370,3 @@ void VaAnalysis::LeakCheck()
        << " diff " <<fLeakNewPair-fLeakDelPair << endl;
 }
 #endif
-
-
-
-
-
-
-

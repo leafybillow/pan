@@ -144,6 +144,9 @@ protected:
 				      const string& channel, 
 				      const string& other,
 				      const UInt_t flags = 0);
+  virtual vector<AnaList* > ChanListFromName (const string& chanbase, 
+					      const string& other, 
+					      const UInt_t flags = 0);
   virtual void AutoPairAna();
 
   virtual void QasyRunFeedback();
