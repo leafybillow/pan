@@ -4,6 +4,36 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 13 May 2002
+-----------------------------------
+
+TaCutList.{cc,hh}
+
+ o Standardize method names -- printTally etc. become PrintTally.
+
+ o PrintTally works a little differently.  Now prints cut name and
+   number, and number of events failing that cut condition.
+
+TaLinkDef.hh 
+
+ o Remove TaADC.
+
+TaRun.cc
+
+ o Print cut tallies every 1000 events, and at end of run.
+
+TaString.hh
+
+ o Include RTypes, needed to compile dictionary code.
+
+macro/run.macro; README 
+
+ o run.macro is a sample macro to run the analysis after querying the
+   user for a run number.  After analysis ends it opens the
+   corresponding root file and does a sample plot, leaving the file
+   open for the user to enter other Root commands.
+
+
 Changes by R. Holmes on 16 Apr 2002
 -----------------------------------
 
