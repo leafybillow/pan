@@ -123,6 +123,8 @@ public:
   TaRootRep()  { carray = new TArrayC(fgMaxChar); Clear(); }
   ~TaRootRep() { delete carray; }
   void Clear() { fNumchar = 0; fptr = 0; carray->Reset(); };
+  void SetRunNum(int run) { run_num = run; };
+  Int_t GetRunNum() { return run_num; };
   void Put(const char *tline) {
 // Input character lines.  They must end in '\n'
      jfirst = fNumchar;
@@ -156,6 +158,7 @@ public:
   }
 private:
   static const int fgMaxChar = 50000;  //!  This is about 2x normal size
+  int run_num;
   int i,j,jfirst,fptr;   //!
   int fNumchar;    
   TArrayC *carray; 

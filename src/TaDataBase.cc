@@ -1501,6 +1501,7 @@ void
 TaDataBase::ToRoot() {
 // Copy database to ROOT representation.  
   rootdb->Clear();
+  rootdb->SetRunNum(GetRunNum());
   char cval[40];
   string sline,sval;
   for (multimap<string, vector<dtype*> >::iterator im = database.begin();
