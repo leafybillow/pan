@@ -270,10 +270,7 @@ TaRun::ReInit()
   delete fCutList;
   fCutList = new TaCutList(fRunNumber);
   fCutList->Init(*fDataBase);
-//    fCutList->AddName(LowBeamCut, "Low_beam");
-//    fCutList->AddName(BeamBurpCut, "Beam_burp");
-//    fCutList->AddName(OversampleCut, "Oversample");
-//    fCutList->AddName(SequenceCut, "Sequence");
+
   if (fEvent->RunInit(*this) != 0)
     return fgTARUN_ERROR;
 
@@ -530,12 +527,6 @@ TaRun::PrintRun ()
   cout << endl;
   fCutList->PrintTally(cout);
   cout << endl;
-
-// Database Print() must be done BEFORE we Put() data into database
-// as result of this analysis. 
-
-  if (fDataBase) fDataBase->Print();
-
 }
 
 

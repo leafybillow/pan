@@ -148,6 +148,7 @@ public:
 
   // Major functions
   virtual void Init(const Bool_t&);
+  virtual ErrCode_t InitLastPass ();      // Initialization for last pass
   virtual ErrCode_t RunIni(TaRun&);
   virtual ErrCode_t RunReIni(TaRun&);
   virtual ErrCode_t ProcessRun();

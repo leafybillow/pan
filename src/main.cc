@@ -155,7 +155,8 @@ cont1:
 	      am->InitPass2() != 0)
 	    return 1;
 	}
-      if (am->Process() != 0 ||
+      if (am->InitLastPass() != 0 ||
+	  am->Process() != 0 ||
 	  am->End() != 0)
 	return 1;
       return 0;

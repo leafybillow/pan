@@ -47,6 +47,7 @@ class TaAnalysisManager
   ErrCode_t Init (string);        // Initialization with file path
   void SetDbCommand(vector<string> dbcommand);  // Over-ride database 
   ErrCode_t InitPass2 ();         // Initialization for second pass
+  ErrCode_t InitLastPass ();      // Initialization for last pass
   ErrCode_t Process();            // Process all data
   ErrCode_t EndPass1();           // End first pass analysis
   ErrCode_t End();                // End all analysis

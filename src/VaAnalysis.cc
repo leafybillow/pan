@@ -245,6 +245,17 @@ VaAnalysis::RunIni(TaRun& run)
   fCutArray = new Int_t[2*fNCuts];
 
   InitChanLists();
+  InitFeedback();
+  
+  return fgVAANA_OK;
+}
+
+
+ErrCode_t
+VaAnalysis::InitLastPass ()
+{ 
+  // Setup last pass (second if two passes, else first)
+
   if (fDoRoot)
     {
       fRun->InitRoot();
@@ -254,10 +265,7 @@ VaAnalysis::RunIni(TaRun& run)
     }
   else
     clog << "VaAnalysis::RunIni No ROOT file created for this analysis" << endl;
-   
-  InitFeedback();
-  
-  return fgVAANA_OK;
+  return fgVAANA_OK;  
 }
 
 
@@ -384,6 +392,13 @@ VaAnalysis::RunFini()
   //  if (fQSwitch) QasyEndFeedback();
   //  if (fZSwitch) PZTEndFeedback();
 
+  if (!fFirstPass)
+    {
+      // Database Print() must be done BEFORE we Put() data into
+      // database as result of this analysis.
+
+      fRun->GetDataBase().Print();
+
 #ifdef DB_PUT_TEST
 // THIS IS A TEST.  In the future we may delete this ifdef section.
 // This illustrates how to use the "Put()" methods of the database, 
@@ -394,37 +409,37 @@ VaAnalysis::RunFini()
 // done below.
 
 // Putting DAC noise parameters and ADC pedestals
-  for (int adc = 0; adc < 10; adc++) {
-    for (int chan = 0; chan < 4; chan++) {
-      Double_t slope = 1. + 0.1*adc + 0.01*chan;  // fake data
-      Double_t intcpt = 2*adc;
-      fRun->GetDataBase().PutDacNoise(adc, chan, slope, intcpt);
-      Double_t pedestal = 1000 + 10*adc + chan;
-      fRun->GetDataBase().PutAdcPed(adc, chan, pedestal);
-    }
-  }
+      for (int adc = 0; adc < 10; adc++) {
+	for (int chan = 0; chan < 4; chan++) {
+	  Double_t slope = 1. + 0.1*adc + 0.01*chan;  // fake data
+	  Double_t intcpt = 2*adc;
+	  fRun->GetDataBase().PutDacNoise(adc, chan, slope, intcpt);
+	  Double_t pedestal = 1000 + 10*adc + chan;
+	  fRun->GetDataBase().PutAdcPed(adc, chan, pedestal);
+	}
+      }
 // Put Scaler pedestals
-  for (int scal = 0; scal < 2; scal++) {
-    for (int chan = 0; chan < 32; chan++) {
-      Double_t pedestal = 5000 + 100*scal + chan;  // fake data
-      fRun->GetDataBase().PutScalPed(scal, chan, pedestal);
-    }
-  }
+      for (int scal = 0; scal < 2; scal++) {
+	for (int chan = 0; chan < 32; chan++) {
+	  Double_t pedestal = 5000 + 100*scal + chan;  // fake data
+	  fRun->GetDataBase().PutScalPed(scal, chan, pedestal);
+	}
+      }
 // Put cut intervals
-  vector<Int_t > evint;
-  for (int icut = 0; icut < 14; icut++) {
-    evint.clear();
-    Int_t evlo = 10000 + 100*icut;  // fake data
-    Int_t evhi = 20000 + 50*icut;
-    Int_t cutno = icut;
-    Int_t cutval = 1;
-    if (icut % 4 == 0) cutval = 0;
-    evint.push_back(evlo);
-    evint.push_back(evhi);
-    evint.push_back(cutno);
-    evint.push_back(cutval);
-    fRun->GetDataBase().PutCutInt(evint); 
-  }
+      vector<Int_t > evint;
+      for (int icut = 0; icut < 14; icut++) {
+	evint.clear();
+	Int_t evlo = 10000 + 100*icut;  // fake data
+	Int_t evhi = 20000 + 50*icut;
+	Int_t cutno = icut;
+	Int_t cutval = 1;
+	if (icut % 4 == 0) cutval = 0;
+	evint.push_back(evlo);
+	evint.push_back(evhi);
+	evint.push_back(cutno);
+	evint.push_back(cutval);
+	fRun->GetDataBase().PutCutInt(evint); 
+      }
 #endif
 
 // Write to the database.  It will over-write the content
@@ -433,14 +448,16 @@ VaAnalysis::RunFini()
 // was read in at start of run and used for this run.  Data that
 // is Put() do not affect the current run unless you re-analyze.
 
-  fRun->GetDataBase().Write();
-
-  if (fPairTree != 0)
-    {
-      fPairTree->Write();
-      delete fPairTree;
-      fPairTree = 0;
+      fRun->GetDataBase().Write();
+      
+      if (fPairTree != 0)
+	{
+	  fPairTree->Write();
+	  delete fPairTree;
+	  fPairTree = 0;
+	}
     }
+
   delete fPreEvt;
   fPreEvt = 0;
   delete fPrePair;  
