@@ -1,15 +1,16 @@
 // Interactive root script example
 // If one runs ./pan, the in the root shell .x run.cc
-{
 
-  UInt_t run;
-  cout << "Enter run number: "<< endl;
-  cin >> run;
-  cout << "Will process run = " << run << endl;
+void run(UInt runnumber=0){
+
+  if(runnumber==0) {
+    cout << "Enter run number: "<< endl;
+    cin >> runnumber;
+  }
   
   TaAnalysisManager am;
   
-  if (am.Init (run) != 0)
+  if (am.Init (runnumber) != 0)
     return 1;
   if (am.InitLastPass() != 0 ||
       am.Process() != 0 ||
@@ -18,13 +19,13 @@
   
   gROOT->LoadMacro("macro/open.macro");
   
-  open(run,"standard");
-  TTree *raw = (TTree*)gROOT.FindObject("R");
+  open(runnumber,"standard");
+  //  TTree *raw = (TTree*)gROOT.FindObject("R");
   //   raw->Print();
-  TTree *asy = (TTree*)gROOT.FindObject("P");
+  //  TTree *asy = (TTree*)gROOT.FindObject("P");
   //  asy->Print();
   
-  raw->Draw("bcm1:ev_num");
+  //  raw->Draw("bcm1:ev_num");
   
 
 }

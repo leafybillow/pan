@@ -1,4 +1,4 @@
-Int_t open (Int_t run = 0, TString atype = "")
+Int_t open (Int_t run = 0, TString atype = "standard")
 {
   if (run <= 0)
     {
@@ -18,8 +18,8 @@ Int_t open (Int_t run = 0, TString atype = "")
   cout << "ROOT file is " << file << endl;
   f = new TFile(file);
   
-  TTree *raw = (TTree*)gROOT.FindObject("R");
-  TTree *asy = (TTree*)gROOT.FindObject("P");
+   TTree *raw = (TTree*)gROOT->FindObject("R");
+   TTree *asy = (TTree*)gROOT->FindObject("P");
 
   return run;  
 }
