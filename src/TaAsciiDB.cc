@@ -13,6 +13,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "TaAsciiDB.hh"
+#include "TaFileName.hh"
 #include "TaString.hh"
 
 #ifdef DICT
@@ -55,20 +56,26 @@ TaAsciiDB::~TaAsciiDB() {
 void TaAsciiDB::Load(int run) {
 // Load the database for this run.
   InitDB();
-  runnum = run;
-  static char cnum[10];  sprintf(cnum,"%d",run);
-  string rundbfile = "run_";  rundbfile += cnum;  rundbfile += ".db";
-  dbfile = new ifstream(rundbfile.c_str());
+
+  TaFileName dbFileName ("db");
+  dbfile = new ifstream(dbFileName.String().c_str());
   if ( ! (*dbfile) ) {
-    cerr << "TaAsciiDB:: WARNING: run file "<<rundbfile<<" does not exist"<<endl;
-    dbfile = new ifstream("control.db");
+    cerr << "TaAsciiDB::Load WARNING: run file " << dbFileName.String()
+	 << " does not exist" << endl;
+    dbFileName = TaFileName ("dbdef");
+    dbfile = new ifstream(dbFileName.String().c_str());
     if ( ! (*dbfile) ) {
-      cerr << "TaAsciiDB:: WARNING: no 'control.db' file either !"<<endl;
+      cerr << "TaAsciiDB::Load WARNING: no file "
+	   << dbFileName.String() << " either !"<<endl;
       cerr << "You need a database to run.  Ask an expert."<<endl;
       return;
     }
-    cerr << "TaAsciiDB:: Using control.db as default. (May be ok.)"<<endl;
+    cerr << "TaAsciiDB::Load: Using " << dbFileName.String() << " as default. (May be ok.)"<<endl;
   }
+
+  clog << "TaAsciiDB::Load: Database loading from " 
+       << dbFileName.String() << endl;
+    
   string comment = "#";
   vector<string> strvect;
   TaString sinput,sline;
@@ -868,7 +875,7 @@ void TaAsciiDB::InitDataMap() {
   dmapiter = datamap.begin();
   initdm = kTRUE;
 // Comment: Can CHECK datamap here, in case of typo errors.
-  PrintDataMap();   // DEBUG
+  //  PrintDataMap();   // DEBUG
 };
 
 void TaAsciiDB::PrintDataMap() {

@@ -42,6 +42,7 @@
 #endif
 #include "TaCutList.hh"
 #include "TaEvent.hh"
+#include "TaFileName.hh"
 #include "TaDevice.hh"
 #include "TaLabelledQuantity.hh"
 #include "TaStatistics.hh"
@@ -68,6 +69,7 @@ TaRun::TaRun():
   fDataBase(0),
   fCutList(0),
   fCoda(0),
+  fCodaFileName ("online"),
   fEvent(0),
   fDevices(0),
   fEvtree(0),
@@ -78,7 +80,6 @@ TaRun::TaRun():
   fSliceLimit(fgSLICELENGTH),
   fFirstPass(true)
 {
-   fCodaFileName = "online";
 #ifdef ONLINE
    mymode        = 1;
    fComputer     = "adaqcp";  // DAQ computer
@@ -105,25 +106,9 @@ TaRun::TaRun(const Int_t& run) :
   fSliceLimit(fgSLICELENGTH),
   fFirstPass(true)
 {
-  char *prefix, *suffix, *crun;
-  prefix = getenv("CODA_FILE_PREFIX");
-  suffix = getenv("CODA_FILE_SUFFIX");
-  if (prefix == NULL || suffix == NULL) {
-    cerr << "TaRun:: ERROR: You must define env. variables to obtain filename"<<endl;
-    cerr << "Example:  CODA_FILE_PREFIX = /adaql2/data2/parity01"<<endl;
-    cerr << "Example:  CODA_FILE_SUFFIX = dat"<<endl;
-    fCodaFileName = "";
-    return;
-  }
-  char *fname = new char[strlen(prefix)+strlen(suffix)+20];
-  strcpy(fname,prefix);
-  crun   = new char[10];
-  sprintf(crun,"_%d.",fRunNumber);
-  strcat(fname,crun);
-  strcat(fname,suffix);
-  fCodaFileName = fname;
-  delete[] fname;
-  delete[] crun;
+  // Now we know run number, so we can improve our filename setup
+  TaFileName::Setup (fRunNumber, "");
+  fCodaFileName = TaFileName ("coda").String();
 } 
 
 TaRun::TaRun(const string& filename):
@@ -156,34 +141,35 @@ TaRun::Init()
       return fgTARUN_ERROR;
     }
       
-  clog << "TaRun::Init Initialization for run, analyzing " 
-       << fCodaFileName << endl;
-
-  fEvtree = new TTree("R","Event data DST");
-  fEvtree->Branch ("ev_num", &fEventNumber, "ev_num/I", 5000); // event number
-
   if (fCodaFileName == "online") { 
 #ifdef ONLINE
-     fCoda = new THaEtClient();
-     if ( fCoda->codaOpen(TString(fComputer.c_str()), TString(fSession.c_str()), mymode) != 0) {
-        cerr << "TaRun:: Init ERROR: Cannot open ET connection"<<endl;
-        cerr << " to  computer "<<fComputer;
-        cerr << " and session "<<fSession<<endl;
-        return fgTARUN_ERROR;
-     }
+    fCoda = new THaEtClient();
+    if ( fCoda->codaOpen(TString(fComputer.c_str()), TString(fSession.c_str()), mymode) != 0) {
+      cerr << "TaRun:: Init ERROR: Cannot open ET connection"<<endl;
+      cerr << " to  computer "<<fComputer;
+      cerr << " and session "<<fSession<<endl;
+      return fgTARUN_ERROR;
+    }
 #else
-     cerr << "TaRun:: Init ERROR: Undefined online input."<<endl;
-     return fgTARUN_ERROR;
+    cerr << "TaRun:: Init ERROR: Undefined online input."<<endl;
+    return fgTARUN_ERROR;
 #endif
   } else { 
-     TString tfile(fCodaFileName.c_str()); // hopefully temp. prefer <string>
-     fCoda = new THaCodaFile(tfile);
-     if (fCoda->status() != 0)
-       {
-	 cerr << "TaRun::Init ERROR: Cannot open file" << endl;
-	 return fgTARUN_ERROR;
-       }
+    TString tfile(fCodaFileName.c_str()); // hopefully temp. prefer <string>
+    fCoda = new THaCodaFile(tfile);
+    if (fCoda->status() != 0)
+      {
+	cerr << "TaRun::Init ERROR: Cannot open data file " 
+	     << fCodaFileName << endl;
+	return fgTARUN_ERROR;
+      }
   }
+   
+  clog << "TaRun::Init Initialization for run, analyzing " 
+       << fCodaFileName << endl;
+  
+  fEvtree = new TTree("R","Event data DST");
+  fEvtree->Branch ("ev_num", &fEventNumber, "ev_num/I", 5000); // event number
 
   // Get first event
   // For a data file this will normally be a PRESTART event.
@@ -203,6 +189,9 @@ TaRun::Init()
     {
       cerr << "TaRun::Init Run number is " << fRunNumber << endl;
     }
+
+  // Now we know run number, so we can improve our filename setup
+  TaFileName::Setup (fRunNumber, "");
   
 #ifdef MYSQLDB
   fDataBase = new TaMysql();
@@ -215,10 +204,6 @@ TaRun::Init()
   fDevices->Init(*fDataBase);
   fCutList = new TaCutList(fRunNumber);
   fCutList->Init(*fDataBase);
-//    fCutList->AddName(LowBeamCut, "Low_beam");
-//    fCutList->AddName(BeamBurpCut, "Beam_burp");
-//    fCutList->AddName(OversampleCut, "Oversample");
-//    fCutList->AddName(SequenceCut, "Sequence");
   InitTree();
   fOversamp = fDataBase->GetOverSamp();
   if (fOversamp == 0)

@@ -18,6 +18,7 @@
 #include <fstream>
 #include "TaADCCalib.hh"
 #include "TaEvent.hh"
+#include "TaFileName.hh"
 #include "TaRun.hh"
 #include "TaString.hh"
 #include "TaLabelledQuantity.hh"
@@ -254,7 +255,8 @@ void TaADCCalib::FinishDAC()
   }
   
 
-  ofstream ofile("ADCCalib_DACNoise.txt",ios::out);
+  TaFileName fn = TaFileName("output", "DAC", "txt");
+  ofstream ofile(fn.String().c_str(),ios::out);
   // loop over slots, 0-9
   for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
     //  loop over chans 1-4
@@ -394,7 +396,8 @@ void TaADCCalib::FinishPed()
     }
   }
 
-  ofstream ofile("ADCCalib_Peds.txt",ios::out);
+  TaFileName fn = TaFileName("output", "Peds", "txt");
+  ofstream ofile(fn.String().c_str(),ios::out);
   // loop over slots, 0-9
   for (Int_t isl=0; isl < ADC_MaxSlot; isl++) {
     //  loop over chans 1-4
@@ -420,7 +423,8 @@ void TaADCCalib::InitPed()
   clog << "TaADCCalib::InitPed Initializing ADC Pedestal analysis" << endl;
 
   // Set up ROOT.  Define output file.
-  hfile = new TFile("ADCCalib_Peds.root","RECREATE","Pedestal calibration file");
+  TaFileName fn = TaFileName("root", "Peds");
+  hfile = new TFile(fn.String().c_str(),"RECREATE","Pedestal calibration file");
 
   char *hid = new char[100];
   char *title = new char[100];
@@ -451,7 +455,8 @@ void TaADCCalib::InitDAC()
   clog << "TaADCCalib::InitDAC Initializing ADC noise DAC calibration analysis" << endl;
 
   // Set up ROOT.  Define output file.
-  hfile = new TFile("ADCCalib_DAC.root","RECREATE","Noise DAC calibration file");
+  TaFileName fn = TaFileName("root", "DAC");
+  hfile = new TFile(fn.String().c_str(),"RECREATE","Noise DAC calibration file");
 
   char *hid = new char[100];
   char *title = new char[100];

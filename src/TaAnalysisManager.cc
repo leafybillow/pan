@@ -18,7 +18,9 @@
 
 #include "TROOT.h"
 #include "TFile.h"
+#include <unistd.h>
 #include "TaAnalysisManager.hh" 
+#include "TaFileName.hh"
 #include "TaRun.hh"
 #include "TaString.hh"
 #include "VaDataBase.hh"
@@ -40,7 +42,8 @@ TaAnalysisManager::TaAnalysisManager ():
   fRun(0), 
   fAnalysis(0),
   fRootFile(0),
-  fOnlFlag(false)
+  fOnlFlag(false),
+  fRootFileName(0)
 {
 }
 
@@ -137,22 +140,16 @@ TaAnalysisManager::End()
   fRun->Finish(); // compute and print/store run results
   fRootFile->Write();
   fRootFile->Close();
-  // Move the generic root file to 'pan_%d.root' where %d is the run number.
-  char syscommand[200];
-  string anatype;
-  anatype = fRun->GetDataBase().GetAnaType();
-  char *path;
-  path = getenv("ROOT_OUTPUT");
-  if (path == NULL) {
-    sprintf(syscommand,"mv pan.root pan_%d.root",fRun->GetRunNumber());
-  } else {
-    sprintf(syscommand,"mv %s/pan.root %s/pan_%d.root",path,path,fRun->GetRunNumber());
-  }
-  system(syscommand);
+  // Move the generic root file to one with the run number in it
+  TaFileName RootFileName ("root");
+  string syscommand = string ("mv ") + fRootFileName->String() +
+    string (" ") + RootFileName.String();
+  system(syscommand.c_str());
 
   delete fAnalysis;
   delete fRun;
   delete fRootFile;
+  delete fRootFileName;
   return fgTAAM_OK; // for now always return OK
 }
 
@@ -167,17 +164,20 @@ TaAnalysisManager::InitCommon()
   clog << "\nTaAnalysisManager::InitCommon: Start of analysis\n" << endl;
 
   // Make the ROOT output file, generic at first since we don't know
-  // run number yet.
+  // run number yet.  Use a TaFileName name, incorporating process
+  // number and host name for uniqueness.
 
-  char rootfile[50];
-  char *path;
-  path = getenv("ROOT_OUTPUT");
-  if (path == NULL) {
-    sprintf(rootfile,"pan.root");
-  } else {
-    sprintf(rootfile,"%s/pan.root",path);
-  }
-  fRootFile = new TFile(rootfile,"RECREATE");
+  char pidc[6];
+  sprintf (pidc, "%5.5d", getpid());
+  char *hn = getenv ("HOSTNAME");
+  string com;
+  if (hn == 0)
+    com = string (pidc);
+  else
+    com = string (pidc) + string ("-") + string (hn);
+
+  fRootFileName = new TaFileName ("root", com);
+  fRootFile = new TFile(fRootFileName->String().c_str(),"RECREATE");
   fRootFile->SetCompressionLevel(0);
 
   // Initialize the run
@@ -195,7 +195,6 @@ TaAnalysisManager::InitCommon()
 
   // Make the desired kind of analysis
   TaString theAnaType = fRun->GetDataBase().GetAnaType();
-
   clog << "TaAnalysisManager::InitCommon: Analysis type is " 
        << theAnaType << endl;
 
@@ -211,7 +210,10 @@ TaAnalysisManager::InitCommon()
 	   << theAnaType << endl;
       return fgTAAM_ERROR;
     }
-  
+
+  // Now we know run number and analysis type, so set up proper file names
+  TaFileName::Setup (fRun->GetRunNumber(), theAnaType);
+
   fAnalysis->Init(fOnlFlag);
   return fAnalysis->RunIni (*fRun);
 }
