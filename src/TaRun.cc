@@ -26,12 +26,14 @@
 ////////////////////////////////////////////////////////////////////////
 
 //#define NOISY
-//#define CHECKOUT 
+//#define CHECKOUT
+//#define FAKEDEAD
 
 #include "TaRun.hh"
 #include <iostream>
 #include <iomanip>
 #include <stdlib.h>
+
 #include "TFile.h"
 #include "THaCodaData.h"
 #include "THaCodaFile.h"
@@ -47,6 +49,9 @@
 #include "VaPair.hh"
 #ifdef ONLINE
 #include "THaEtClient.h"
+#endif
+#ifdef FAKEDEAD
+#include "TRandom.h"
 #endif
 
 #ifndef NODICT
@@ -302,7 +307,6 @@ TaRun::NextEvent()
   Bool_t gotPhys = false;
   while (!gotPhys)
     {
-
       Int_t status = GetBuffer();
       if (status == -1)
 	{
@@ -581,12 +585,40 @@ Int_t
 TaRun::GetBuffer()
 {
   // Pull in a CODA buffer
+
   int status = fCoda->codaRead();
   if (status != 0) 
     {
       return status;
     } 
+
+#ifdef FAKEDEAD
+  static TRandom r;
+  UInt_t dropping (0);
+  UInt_t count (0);
+  while (r.Rndm() < (dropping == 0 ? 0.002 : 0.98))
+    {
+      if (dropping == 0)
+	count = 0;
+      dropping = 1;
+      ++count;
+      int status = fCoda->codaRead();
+      if (status != 0) 
+	{
+	  return status;
+	} 
+    }
+#endif
+
   fEvent->Load( fCoda->getEvBuffer() );
+
+#ifdef FAKEDEAD
+  if (dropping == 1)
+    clog << "TaRun::GetBuffer **** Dropped " << count
+	 << " events before reading event "
+	 << fEvent->GetEvNumber() << endl;
+  dropping = 0;
+#endif
 
   return 0;
 }
