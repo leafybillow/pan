@@ -133,6 +133,9 @@ my $commentstring;
 my %newpedmap;
 my %changedped;
 foreach $line (@templatelist) {
+  if($line =~ /^\s+([\d\D]+)/) { # take out spaces at start of lines
+    $line = $1;
+  }
   my @linestrings = split /\s+/,$line;
   my $numstrings = @linestrings;
   if($linestrings[0] =~ /comment/i) {

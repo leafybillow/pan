@@ -240,7 +240,7 @@ sub findcommon {
   my(@parselist);
 
   foreach $line (@elist) {
-    if ($line =~ /^\s+(\w+)/) {
+    if ($line =~ /^\s*(\w+)/) {
       my $mystring = $1;
       push @parselist, $mystring;
     }
