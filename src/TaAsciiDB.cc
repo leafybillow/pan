@@ -47,6 +47,7 @@ TaAsciiDB::~TaAsciiDB() {
 void TaAsciiDB::Load(int run) {
 // Load the database for this run.
   InitDB();
+  runnum = run;
   static char cnum[10];  sprintf(cnum,"%d",run);
   string rundbfile = "run_";  rundbfile += cnum;  rundbfile += ".db";
   dbfile = new ifstream(rundbfile.c_str());

@@ -39,6 +39,7 @@ TaMysql::~TaMysql() {
 void TaMysql::Load(int run) {
 // Load the database for this run.
   InitDB();
+  runnum = run;
   fRunIndex = run;
   return;
 };
