@@ -8,9 +8,12 @@
   
   TaAnalysisManager am;
   
-  am.Init (run);
-  am.Process();
-  am.End();
+  if (am.Init (run) != 0)
+    return 1;
+  if (am.Process() != 0)
+    return 1;
+  if (am.End() != 0)
+    return 1;
   
   char runfile[50];
   char *file;
