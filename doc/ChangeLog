@@ -5,6 +5,16 @@ This is a detailed list of ongoing changes.  Add changes to
 the top of this file.
 
 
+Changes by R. Michaels on 1 Aug 2002
+------------------------------------
+
+We implemented a FIFO readout of scalers.  In principle the event
+length should still not change, but there is more danger of that now.
+So, for now, I make TaEvent complain very loudly and exit(!) if it happens; 
+and if it does there is a lot to fix (basically need to use offsets to 
+headers for decoding instead of absolute buffer locations).
+	
+
 Changes by R. Holmes on 30 Jul 2002
 -----------------------------------
 
