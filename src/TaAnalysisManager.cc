@@ -146,6 +146,7 @@ TaAnalysisManager::InitCommon()
     sprintf(rootfile,"%s/pan.root",path);
   }
   fRootFile = new TFile(rootfile,"RECREATE");
+  fRootFile->SetCompressionLevel(0);
 
   // Initialize the run
   fRun->Init();
