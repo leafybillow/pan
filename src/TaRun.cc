@@ -345,7 +345,8 @@ TaRun::Decode()
 
    fEvent->Decode(*fDevices);
    fEventNumber = fEvent->GetEvNumber();
-   fEvtree->Fill();
+   if (fFirstPass)
+     fEvtree->Fill();
 // Use this to make detailed checks of decoding:
 #ifdef CHECKOUT
    fEvent->RawDump();
