@@ -30,16 +30,16 @@
 ClassImp(TaEvent)
 #endif
 
-TaEvent
-TaEvent::fgLastEv;
-
-Bool_t 
-TaEvent::fFirstDecode = true;
+// Static members
+TaEvent TaEvent::fgLastEv;
+Bool_t TaEvent::fgFirstDecode = true;
+Double_t TaEvent::fgLoBeam;
+Double_t TaEvent::fgBurpCut;
+UInt_t TaEvent::fgSizeConst;
 
 TaEvent::TaEvent(): 
-  fEvType(0),  fEvNum(0),  fEvLen(0), fSizeConst(0), fDelHel(UnkHeli)
+  fEvType(0),  fEvNum(0),  fEvLen(0), fDelHel(UnkHeli)
 {
-  fFirstCheck = kTRUE;
   fEvBuffer = new Int_t[fgMaxEvLen];
   memset(fEvBuffer, 0, fgMaxEvLen*sizeof(Int_t));
   fData = new Double_t[MAXKEYS];
@@ -47,8 +47,6 @@ TaEvent::TaEvent():
   fCutFail.clear();
   fCutPass.clear();
   fResults.clear();
-  fLoBeam = 0;
-  fBurpCut = 0;
 }
 
 TaEvent::~TaEvent() {
@@ -72,15 +70,25 @@ TaEvent &TaEvent::operator=(const TaEvent &ev)
 
 // Major functions
 
+void 
+TaEvent::RunInit(const TaRun& run)
+{
+  // initialization at start of run
+  fgFirstDecode = true;
+  fgLoBeam = run.GetDataBase()->GetCutValue("lobeam");
+  fgBurpCut = run.GetDataBase()->GetCutValue("burpcut");
+  fgLastEv = TaEvent();
+}
+  
 void TaEvent::Load (const Int_t* buff) {
 // Put a raw event into the buffer, and pull out event type and number.
   fCutFail.clear();
   fCutPass.clear();
   fEvLen = buff[0] + 1;
   if (fEvLen >= fgMaxEvLen) {
-      cout << "TaEvent::Load ERROR  fEvLen = "<<fEvLen; 
-      cout << "  is greater than fgMaxEvLen = "<<fgMaxEvLen<<endl;
-      cout << "(perhaps compile with larger fgMaxEvLen parameter)"<<endl;
+      cerr << "TaEvent::Load ERROR  fEvLen = "<<fEvLen; 
+      cerr << "  is greater than fgMaxEvLen = "<<fgMaxEvLen<<endl;
+      cerr << "(perhaps compile with larger fgMaxEvLen parameter)"<<endl;
       fEvLen = fgMaxEvLen;
   }
   memset(fEvBuffer,0,fgMaxEvLen*sizeof(Int_t));
@@ -98,19 +106,21 @@ void TaEvent::Decode(const TaDevice& devices) {
   Double_t sum,xrot,yrot;
   memset(fData, 0, MAXKEYS*sizeof(Double_t));
   if ( IsPhysicsEvent() )  {
-    if (fFirstDecode) {
-        fSizeConst = GetEvLength();
-        fFirstDecode = false;
+    if (fgFirstDecode) {
+        fgSizeConst = GetEvLength();
+        fgFirstDecode = false;
     }
-    if ( fSizeConst != (UInt_t)GetEvLength() ) {
-        cout << "TaEvent:: WARNING: Event structure is changing !!"<<endl;
-        cout << "As a result, decoding may fail."<<endl;
+    if ( fgSizeConst != (UInt_t)GetEvLength() ) {
+        cerr << "TaEvent:: WARNING: Event structure is changing !!"<<endl;
+	cerr << "Size was " << fgSizeConst << " now is " << (UInt_t)GetEvLength() << endl;
+        cerr << "As a result, decoding may fail."<<endl;
     }
   }
   for (i = 0; i < devices.GetNumRaw(); i++) {
      key = devices.GetRawKey(i);
      fData[key] =  GetRawData(devices.GetEvPointer(key));
   }
+
 // Calibrate the ADCs first
   for (i = 0;  i < ADCNUM; i++) {
     for (j = 0; j < 4; j++) {
@@ -190,17 +200,12 @@ TaEvent::CheckEvent(TaRun& run)
   Double_t current = GetData(IBCM1);
 
   Int_t val = 0;
-  if (fFirstCheck) {   // this works only if the run doesn't change.
-    fLoBeam = run.GetDataBase()->GetCutValue("lobeam");
-    fBurpCut = run.GetDataBase()->GetCutValue("burpcut");
-    fFirstCheck = kFALSE;
-  }
 
-  if ( current < fLoBeam )
+  if ( current < fgLoBeam )
     {
 #ifdef NOISY
       clog << "Event " << fEvNum << " failed lobeam cut, "
-	   << current << " < " << fLoBeam;
+	   << current << " < " << fgLoBeam << endl;
 #endif
       val = 1;
     }
@@ -213,11 +218,11 @@ TaEvent::CheckEvent(TaRun& run)
       
       // Beam burp -- current change greater than limit?
       val = 0;
-      if (abs (current-fgLastEv.GetData(IBCM1)) > fBurpCut)
+      if (abs (current-fgLastEv.GetData(IBCM1)) > fgBurpCut)
 	{
 #ifdef NOISY
 	  clog << "Event " << fEvNum << " failed beam burp cut, "
-	       << abs (current-fgLastEv.GetData(IBCM1)) << " > " << fBurpCut << endl;
+	       << abs (current-fgLastEv.GetData(IBCM1)) << " > " << fgBurpCut << endl;
 #endif
 	  val = 1;
 	}
@@ -231,7 +236,7 @@ TaEvent::CheckEvent(TaRun& run)
 	  if ( GetTimeSlot() != 
 	       fgLastEv.GetTimeSlot() % run.GetOversample() + 1 ) 
 	    {
-	      cout << "TaEvent::CheckEvent ERROR Event " 
+	      cerr << "TaEvent::CheckEvent ERROR Event " 
 		   << GetEvNumber() 
 		   << " unexpected oversample value, went from " 
 		   << fgLastEv.GetTimeSlot()
@@ -275,7 +280,7 @@ Int_t TaEvent::GetRawData(Int_t index) const {
     return fEvBuffer[index];
   else
     {
-      cout << "TaEvent::GetRawData ERROR: index " << index 
+      cerr << "TaEvent::GetRawData ERROR: index " << index 
 	   << "out of range 0 to " << fgMaxEvLen;
       return 0;
     }
@@ -463,9 +468,9 @@ void TaEvent::AddToTree(const TaDevice& devices, TTree& rawtree ) {
         key = devices.GetKey(keystr);
         if (key <= 0) continue;
         if (key >= MAXKEYS) {
-          cout << "TaEvent::AddToTree::ERROR:  Attempt to add a key = "<<key;
-          cout << " larger than array size MAXKEYS = "<<MAXKEYS<<endl;
-          cout << "Compile with a bigger MAXKEYS value."<<endl;
+          cerr << "TaEvent::AddToTree::ERROR:  Attempt to add a key = "<<key;
+          cerr << " larger than array size MAXKEYS = "<<MAXKEYS<<endl;
+          cerr << "Compile with a bigger MAXKEYS value."<<endl;
           continue;
         }
         strcpy(tinfo,keystr.c_str());  strcat(tinfo,"/D");
@@ -492,14 +497,10 @@ void TaEvent::Create(const TaEvent& rhs)
  fEvType = rhs.fEvType;
  fEvNum = rhs.fEvNum;
  fEvLen = rhs.fEvLen;
- fSizeConst = rhs.fSizeConst;
  fCutFail = rhs.fCutFail;
  fCutPass = rhs.fCutPass;
  fResults = rhs.fResults;
  fDelHel = rhs.fDelHel;
- fFirstCheck = rhs.fFirstCheck;
- fLoBeam = rhs.fLoBeam;
- fBurpCut = rhs.fBurpCut;
  fEvBuffer = new Int_t[fgMaxEvLen];
  memset (fEvBuffer, 0, fgMaxEvLen*sizeof(Int_t));
  memcpy(fEvBuffer, rhs.fEvBuffer, fEvLen*sizeof(Int_t));

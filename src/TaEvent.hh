@@ -44,6 +44,7 @@ public:
   TaEvent& operator=(const TaEvent &ev);
 
   // Major functions
+  static void RunInit(const TaRun& run);    // initialization at start of run
   void Load ( const Int_t *buffer );
   void Decode( const TaDevice& devices );             // decode the event 
   const vector<pair<ECutType,Int_t> >& CheckEvent(TaRun& run);
@@ -93,15 +94,16 @@ private:
 
   // Static members
   static TaEvent fgLastEv;  // last ev
-  static Bool_t fFirstDecode;
+  static Bool_t fgFirstDecode;
+  static Double_t fgLoBeam;
+  static Double_t fgBurpCut;
+  static UInt_t fgSizeConst;
 
   // Data members
   Int_t *fEvBuffer;
   UInt_t fEvType;
   EventNumber_t fEvNum;
-  UInt_t fEvLen,fSizeConst;
-  Bool_t fFirstCheck;
-  Double_t fLoBeam, fBurpCut;
+  UInt_t fEvLen;
   vector<pair<ECutType,Int_t> > fCutFail;
   vector<pair<ECutType,Int_t> > fCutPass;
   vector<TaLabelledQuantity> fResults;
