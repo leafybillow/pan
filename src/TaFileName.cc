@@ -14,6 +14,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "TaFileName.hh"
+#include "TaString.hh"
 #include <ctime>
 
 using namespace std;
@@ -221,8 +222,10 @@ TaFileName::Create (const string b,
 
   if (s == "root" || s == "output" || s == "result")
     {
+      // We lowercase the analysis type name before using.
+      // Case of com is the user's problem.
       if (a != "")
-	tags += string ("_") + a;
+	tags += string ("_") + TaString (a).ToLower();
       if (com != "")
 	tags += string ("_") + com;
     }
@@ -259,7 +262,7 @@ TaFileName::Basename (const RunNumber_t r)
 	{
 	  tm* lt = gmtime(&t);
 	  char yc[2];
-	  sprintf (yc, "%2.2d", (lt->tm_year) % 10);
+	  sprintf (yc, "%2.2d", (lt->tm_year) % 100);
 	  ystr = yc;
 	}
       prefix = "parity";
