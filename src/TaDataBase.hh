@@ -155,7 +155,10 @@ private:
   int i,j,jfirst,fptr;   //!
   int fNumchar;    
   TArrayC *carray; 
+
+#ifdef DICT
   ClassDef(TaRootRep,2) // Character data ROOT output for database
+#endif
 };
 
 class TaKeyMap {
@@ -382,7 +385,9 @@ private:
   TaDataBase(const TaDataBase &fn);
   TaDataBase& operator=(const TaDataBase &fn);
 
+#ifdef DICT
 ClassDef(TaDataBase,0)  // Database class
+#endif
 
 };
 

@@ -5,8 +5,10 @@
 #include "TaDataBase.hh"
 #include "TaString.hh"
 
+#ifdef DICT
 ClassImp(TaDataBase)
 ClassImp(TaRootRep)
+#endif
 
 TaDataBase::TaDataBase() {
      didinit   = kFALSE; 
