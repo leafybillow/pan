@@ -9,7 +9,7 @@
 //
 ////////////////////////////////////////////////////////////////////////
 //
-//    A class of quantities with associated labels and units.
+//    A class of quantities with associated labels, units, and flags.
 //
 ////////////////////////////////////////////////////////////////////////
 
@@ -27,10 +27,11 @@ public:
   // Constructors/destructors/operators
   TaLabelledQuantity (const string& qn = "", 
 		      const Double_t qv = 0.0, 
-		      const string& qu = ""): 
-    fName(qn), fVal(qv), fUnits(qu) {};
+		      const string& qu = "",
+		      const UInt_t qf = 0): 
+    fName(qn), fVal(qv), fUnits(qu), fFlags(qf) {};
   TaLabelledQuantity (const TaLabelledQuantity& qty):
-    fName(qty.fName), fVal(qty.fVal), fUnits(qty.fUnits) {};
+    fName(qty.fName), fVal(qty.fVal), fUnits(qty.fUnits), fFlags(qty.fFlags) {};
   virtual ~TaLabelledQuantity() {}
   TaLabelledQuantity& operator=(const TaLabelledQuantity& qty);
 
@@ -41,6 +42,7 @@ public:
   const string& GetName() const { return fName; }
   Double_t GetVal() const { return fVal;}
   const string& GetUnits() const { return fUnits; }
+  Bool_t TestFlags(UInt_t mask) const { return fFlags & mask; }
 
 private:
 
@@ -48,6 +50,7 @@ private:
   string fName;   // Name of the quantity
   Double_t fVal;  // Value of the quantity
   string fUnits;  // Units for the quantity
+  UInt_t fFlags;  // Flags for the quantity
 
 #ifdef DICT
   ClassDef(TaLabelledQuantity, 0)  // Quantity with label and units
