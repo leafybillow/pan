@@ -6,7 +6,7 @@
 //
 //           TaPanam.hh
 //
-// Author:  R. Holmes <http://mepserv.phy.syr.edu/~rsholmes>, A. Vacheret <http://www.jlab.org/~vacheret>, R. Michaels <http://www.jlab.org/~rom>
+// Author: A. Vacheret <http://www.jlab.org/~vacheret>
 // @(#)pan/src:$Name$:$Id$//
 //
 ////////////////////////////////////////////////////////////////////////
@@ -31,6 +31,7 @@ using namespace std;
 #include <TROOT.h>
 #include <TSystem.h>
 #include <TApplication.h>
+#include <TDirectory.h>
 #include <TVirtualX.h>
 #include <TGFrame.h>
 #include <TGListBox.h>
@@ -78,20 +79,24 @@ enum ETestCommandIdentifiers {
   M_FILE_SAVE2,
   M_FILE_EXIT,
 
+  M_ANA_ADC,
+  M_ANA_BEAM, 
+  M_ANA_I,
+  M_ANA_P, 
+  M_ANA_S, 
+  M_ANA_SAGDH,
+  M_ANA_HAPPEX,
+  M_ANA_MAN,
+
   M_MON_PRESTART,
   M_MON_START,
   M_MON_STOP,
   M_MON_END,
-  M_MON_HISTOALLRAZ,
- 
-  M_ANA_PROMPT,
-  M_ANA_REGRESS,
-  M_ANA_BEAMMOD,
+  M_MON_HISTOALLRAZ 
 };
 
 
 class TaPanam : public TGMainFrame, public TaThread {
-	      //, public TaCanvasWatchDog {
 
 public:
 
@@ -102,46 +107,49 @@ public:
   virtual ~TaPanam();
   // GUI functions                     
   virtual   void         CloseWindow();
-  Int_t                  CheckDevListConfig();
+  Int_t                  SetConfig(UInt_t confignum);
+  void                   AddDevToList(TGCheckButton *thebutton, string key1, string key2);
+  void                   AddADCToList(TGCheckButton *thebutton, string key1, string key2);
+  void                   Add2DDevToList(TGCheckButton *thebutton, string key1, string key2);
+  Int_t                  SetDevList();
   Int_t                  CheckOptionConfig();
   Int_t                  InitFlags(); 
-  Int_t                  CheckCanvasConfig();
+  //Int_t                  CheckCanvasConfig(Int_t DAQconfig);
   virtual Bool_t         ProcessMessage(Long_t msg, Long_t parm1, Long_t);
   Int_t                  HandleCheckButton(Long_t parm1);
   Int_t                  HandleMenuBar(Long_t parm1);
   Int_t                  HandleListBox(Long_t parm1);
   void                   UpdateEmCanvas();
   Int_t                  InitParameters();              // initialization of parameters
-  Int_t                  InitCanvasFlock();                 // initialization of Canvas list 
-  Int_t                  IsDeviceName(string devname, Int_t devtype) const;   // check if device name defined
-  void                   AddDeviceName(string devname, Int_t devtype);    // add device name in devlist
-  void                   RemoveDeviceName(string devname, Int_t devtype);    // Remove device name in devlist
-  Int_t                   ResizeDevList(Int_t devtype);    // Shrink dev list 
-  void                   UpdateDevListWithButton(TGCheckButton *thebutton, string devname, Int_t devtype);
-  void                   UpdateADCListWithButton(TGCheckButton *thebutton, string devname);
-  void                   UpdateBPMListWithButton(TGCheckButton *thebutton, string devname, Int_t devtype);
-  void                   DumpDevList(Int_t devtype);
-  void                   CheckChoice2(TGCheckButton *thebutton1,TGCheckButton *thebutton2, Bool_t flag);
-  void                   CheckChoice3(TGCheckButton *thebutton1,TGCheckButton *thebutton2,TGCheckButton *thebutton3,Int_t flag);
-  Int_t                   InitListOfAllPlots();                // initialization of device list
+  void                   ResetDevCheckButtons();              // Reset devices checkbuttons.
+  Int_t                  InitDevCheckButtons();              // initialization of checkbuttons.
   string                 itos(Int_t i);                    // integer to string converter
-  Int_t                  InitCanvasPads();                 // Initialization of canvas pads
-  Int_t                  UpdatePads();
-  void                   InitADCStacks();
-  void                   InitGraphs(Int_t dettype);
-  void                   UpdateADCStacks();
-  void                   UpdateGraphs(Int_t dettype);
-  void                   CountDataInList();                // count data if defined
+  //  void                   DumpDevList(Int_t devtype);
+  Int_t                  InitListOfAllPlots();                // initialization of device list
+  void                   SetNumOfPads();                // count data if defined
   void                   DumpOptionState();
+  void                   UpdateCanvasWithDevice(Char_t* title, vector<Int_t> idxvect, Int_t devtype, Bool_t disptype);                //
+  void                   UpdateIADCStack(Bool_t disptype);
+  void                   UpdatePADCStack(Bool_t disptype);
+  void                   UpdateSADCStack(Bool_t disptype);
+  void                   UpdateIADCRMSStack();
+  void                   UpdatePADCRMSStack();
+  void                   UpdateSADCRMSStack();
+  void                   UpdateBattStack(Bool_t disptype);
+  void                   UpdateBCMStack(Bool_t disptype);
+  void                   UpdateInjBPMStack(Bool_t disptype);
+  void                   UpdateBPMStack(Bool_t disptype);
+  void                   UpdateBPMcavStack(Bool_t disptype);
+  void                   UpdateLumiBackStack();
+  void                   UpdateLumiFrontStack();
+  void                   UpdateDaltonStack();
   void                   CanvasSafeDelete(TCanvas* can, char* name);                //
   Int_t                  UpdateCanvasFlock();                //
-  void                   InitCanFDBK();                //
-  void                   UpdateCanFDBK();                //
-  void                   UpdateCanDITH();                //
+  Int_t                  InitCanvasPads();                 // Initialization of canvas pads
+  Int_t                  UpdateCanvasPads();
   void                   ResetIdxVector();                //
-  void                   UpdateCanvas(Char_t* title, vector<Int_t> idxvect, Int_t devtype, Bool_t disptype);                //
   void                   DisplayThis(TGCheckButton *thebutton,Bool_t showcan);
-  Int_t                   InitHistoListBox(vector<string> thelist); // Get list of plots for lsitbox 
+  Int_t                  InitHistoListBox(vector<string> thelist); // Get list of plots for lsitbox 
   void                   InitGUIFrames();                  // Initialization of the GUI 
   Int_t                  ClearCanvas();
   Int_t                  ClearListBox();
@@ -150,7 +158,7 @@ public:
   Int_t                  ThreadIsRunning();                // 
   void                   DoPan();                          //  Threaded  method start Pan analysis 
   void                   DoRefreshing();                   //  Threaded method  to refresh display 
-  Int_t                   RefreshCanvas();                  //  Actual canvas update method
+  Int_t                  RefreshCanvas();                  //  Actual canvas update method
   void                   SetStyles();
  private: 
   // GUI frame
@@ -161,63 +169,68 @@ public:
   TGCompositeFrame    *fMainFrame;                                   //
   TGCompositeFrame    *fEmCanFrame;                                  //
   TGCompositeFrame    *fTimeFrame;                                   //
-  TGCompositeFrame    *fADCScalerFrame;                              //
+  TGCompositeFrame    *fADCFrame;                              //
+  TGCompositeFrame    *fADCSubFrame;                              //
   TGCompositeFrame    *fADCFrame0;                              //
   TGCompositeFrame    *fADCFrame1;                              //
   TGCompositeFrame    *fADCFrame2;                              //
-  TGCompositeFrame    *fADCFrame3;                              //
   TGCompositeFrame    *fCurrentFrame;                                       //
-  TGCompositeFrame    *fInjBPMWSFrame;                                       //
-  TGCompositeFrame    *fInjBPMWSDispFrame;                                       //
-  TGCompositeFrame    *fInjBPMWSOptFrame;                                       //
-  TGCompositeFrame    *fBCMFrame;                                       //
-  TGCompositeFrame    *fBCMDFrame;                                       //
+  TGCompositeFrame    *fCurrentSubFrame;                                       //
+  TGCompositeFrame    *fInjBCMFrame;                                       //
+  TGCompositeFrame    *fBCMFrame;                                           //
   TGCompositeFrame    *fBCMDispFrame;                                       //
   TGCompositeFrame    *fBCMOptFrame;                                       //
-  TGCompositeFrame    *fBCMCavFrame;                                    //
   TGCompositeFrame    *fPositionFrame;                                       //
+  TGCompositeFrame    *fBPMDevFrame;                                       //
   TGCompositeFrame    *fInjBPMFrame;                                      //
   TGCompositeFrame    *fBPMFrame;                                       //
   TGCompositeFrame    *fBPMDispFrame;                                       //
   TGCompositeFrame    *fBPMDFrame;                                       //
   TGCompositeFrame    *fBPMOptFrame;                                       //
-  TGCompositeFrame    *fBPMCavFrame;                                       //
-  TGCompositeFrame    *fFeedbackFrame;                                       //
-  TGCompositeFrame    *fFCurFrame;                                       //
-  TGCompositeFrame    *fFPosFrame;
-  TGCompositeFrame    *fDITHFrame;
-  TGCompositeFrame    *fControlFrame;                                         //
+//   TGCompositeFrame    *fFeedbackFrame;                                       //
+//   TGCompositeFrame    *fFCurFrame;                                       //
+//   TGCompositeFrame    *fFPosFrame;
+//   TGCompositeFrame    *fDITHFrame;
+//   TGCompositeFrame    *fControlFrame;                                         //
   TGCompositeFrame    *fDetFrame;                               //
-  TGCompositeFrame    *fDalFrame;                               //
   TGCompositeFrame    *fLumiFrame;                               //
+  TGCompositeFrame    *fDalFrame;                               //
+  TGCompositeFrame    *fScanFrame;                               //
   TGGroupFrame        *fTimegFrame;
   TGGroupFrame        *fTOptgFrame;
+  TGGroupFrame        *fIADCCrate;
+  TGGroupFrame        *fPADCCrate;
+  TGGroupFrame        *fSADCCrate;
   TGGroupFrame        *fADCOptgFrame;
   TGGroupFrame        *fCurrentgFrame;
-  TGGroupFrame        *fInjBPMWSgFrame;
+  TGGroupFrame        *fInjBCMgFrame;
   TGGroupFrame        *fBCMgFrame;
+  TGGroupFrame        *fBCMDispgFrame;
   TGGroupFrame        *fPositiongFrame;
+  TGGroupFrame        *fInjBPMgFrame;
   TGGroupFrame        *fBPMgFrame;
-  TGGroupFrame        *fFCurgFrame;
-  TGGroupFrame        *fFPosgFrame;
+  TGGroupFrame        *fBPMDispgFrame;
+  //  TGGroupFrame        *fFCurgFrame;
+  //  TGGroupFrame        *fFPosgFrame;
   TGGroupFrame        *fDITHgFrame;
-  TGGroupFrame        *fDalgFrame;
   TGGroupFrame        *fLumigFrame;
+  TGGroupFrame        *fDalgFrame;
+  TGGroupFrame        *fScangFrame;
   TGLabel             *fTitle;                                       // 
   TGLayoutHints       *fL1,*fL2,*fL3,*fL4,*fL5,*fL6,*fL7,*fL8,*fL9;            //
   TGPictureButton     *fLogoButton;                                  // 
   TGTextButton        *fButton1,*fButton2,*fButton3;                 //
-  TGCheckButton       *fTimeCheck[5],*fTOptCheck[3];  
-  TGCheckButton       *fADCOptCheck[7],*fADCCheck[10],*fIADCCheck[2],*fSADCCheck[2];
-  TGCheckButton       *fInjBPMWSCheck[2]; 
-  TGCheckButton       *fBCMCheck[3],*fBCMDCheck[2],*fBCMDispCheck[3],*fBCMOptCheck[2];
-  TGCheckButton       *fBCMCavCheck[2];
-  TGCheckButton       *fInjBPMCheck[2]
-;  
-  TGCheckButton       *fBPMCheck[6],*fBPMDispCheck[3],*fBPMDCheck[3],*fBPMOptCheck[2];
-  TGCheckButton       *fBPMCavCheck[2];
-  TGCheckButton       *fFCurCheck[2],*fFPosCheck,*fDITHCheck[2];              
-  TGCheckButton       *fDalCheck[4],*fLumiCheck[4];
+  TGTextBuffer        *fConfigBuff,*fCodaRunBuff,*fRefreshBuff; //
+  TGTextEntry         *fConfigText,*fCodaRunText,*fRefreshText; //
+  TGLabel             *fTextLab;
+  TGCheckButton       *fTimeCheck[7],*fTOptCheck[2];  
+  TGCheckButton       *fADCOptCheck[7],*fADCCheck[9],*fIADCCheck[3],*fSADCCheck[2];
+  TGCheckButton       *fInjBCMCheck[2]; 
+  TGCheckButton       *fBCMCheck[12],*fBCMDispCheck[3],*fBCMOptCheck[2];
+  TGCheckButton       *fInjBPMCheck[10];
+  TGCheckButton       *fBPMCheck[8],*fBPMDispCheck[3],*fBPMDCheck[3],*fBPMOptCheck[2];
+  //  TGCheckButton       *fFCurCheck[2],*fFPosCheck,*fDITHCheck[2];              
+  TGCheckButton       *fLumiCheck[6],*fDalCheck[4],*fScanCheck[2];
                 
   TGCanvas            *fHistoTreeView;                                // 
   TRootEmbeddedCanvas *fEmCan;                                        //
@@ -226,35 +239,38 @@ public:
   TGPopupMenu         *fMenuFile, *fMenuMon, *fMenuAna;               // 
   TGListBox           *fHistoListBox;                                                   //
   TGTab               *fTab; 
-  TCanvas             *fTimeCan,*fIADCCan,*fPADCCan,*fSADCCan;                                               //
-  TCanvas             *fBCMCan,*fBCMCAVCan,*fBPMINCan,*fBPMCan;                                               //
-  TCanvas             *fBPMCAVCan,*fFDBKCan,*fDITHCan;                                               //
-  TCanvas             *fLUMICan,*fDETCan;                                               //
+  TCanvas             *fIADCCan,*fPADCCan,*fSADCCan;         //
+  TCanvas             *fIADCRMSCan,*fPADCRMSCan,*fSADCRMSCan;         //
+  TCanvas             *fInjBCMCan,*fBattCan,*fBCMCan;
+  TCanvas             *fInjBPMCan,*fBPMCan,*fBPMcavCan;                                               //
+  TCanvas             *fLumiFrontCan,*fLumiBackCan,*fDETCan,*fScanCan;               //
   TaAnalysisManager   *fAnaMan;   // Pan Analysis Manager 
   TStyle              *fStripStyle,*fHistoStyle,*fGraphStyle;  
   vector<string>      fDeviceList;
   vector<string>      fADeviceList;
   vector<string>      fAllDeviceList;
   vector<string>      fMultiDeviceList;
-  vector<Int_t>       fTimeidx,fIADCidx,fPADCidx,fSADCidx;
-  vector<Int_t>       fBCMidx,fBCMCAVidx,fBPMidx,fBPMINidx,fBPMCAVidx,fLUMIidx,fDETidx;
+  vector<Int_t>       fTimeidx,fIADCidx,fPADCidx,fSADCidx,fBattidx;
+  vector<Int_t>       fBCMidx,fBCMcavidx,fInjBPMidx,fBPMidx,fBPMINidx,fBPMcavidx,fLUMIBackidx,fLUMIFrontidx,fDETidx;
+  TString             fCODARunNumber;
+  TString             fConfigName;
   Int_t               fColor[maxchanadc];                           //
   Int_t               fEntries;                           // 
   Int_t               fHistPadNum,fStripPadNum;            //
-  Int_t               fTimeNum, fPADCNum, fIADCNum, fSADCNum;
-  Int_t               fBCMNum, fBCMCAVNum; 
-  Int_t               fBPMINNum, fBPMNum, fBPMCAVNum;
-  Int_t               fLUMNum, fDETNum;
-  Int_t               fBPMplot,fBCMplot;
+  Int_t               fPADCNum, fIADCNum, fSADCNum;
+  Int_t               fInjBattNum,fBattNum,fInjBCMNum,fUnserNum;
+  Int_t               fQuadNum,fBCM12Num,fBCM34Num, fBCMcavNum; 
+  Int_t               fInjBPMNum, fBPMNum, fBPMcavNum;
+  Int_t               fLumiBackNum,fLumiFrontNum, fDETNum;
+  Int_t               fBPMplot,fBCMplot,fDAQConfig;
   Bool_t              fPanThreadRun;    // Pan Thread flag 
-  Bool_t              fShowTime, fShowPADC, fShowIADC, fShowSADC; // 
-  Bool_t              fShowBCM,  fShowBCMCAV;
-  Bool_t              fShowINBPM, fShowBPM,  fShowBPMCAV;
-  Bool_t              fShowFDBK, fShowDITH;
-  Bool_t              fShowLUMI, fShowDET;
+  Bool_t              fShowIADC, fShowPADC, fShowSADC; // 
+  Bool_t              fShowInjBCM, fShowBatt, fShowBCM;
+  Bool_t              fShowInjBPM, fShowBPM, fShowBPMcav;
+  Bool_t              fShowLumiFront, fShowLumiBack, fShowDET, fShowScan;
   Bool_t              fFirstAna;
   Bool_t              fPrestart,fStart,fStop,fEnd;
-  Bool_t              fADCdata,fPITA,fIA,fPZT;
+  Bool_t              fADCdata;
   Bool_t              fTSCorH,fADCSCorH,fBCMSCorH,fBPMSCorH;  
 
   ClassDef(TaPanam, 1)   // 

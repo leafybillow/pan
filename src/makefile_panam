@@ -111,7 +111,7 @@ LSRC = TaBlind.cc TaFileName.cc TaIResultsFile.cc TaLabelledQuantity.cc \
 
 SRC = $(LSRC) TaAnalysisManager.cc  \
       TaThread.cc TaPanam.cc \
-      TaPanamADevice.cc TaPanamDevice.cc TaStripChart.cc\
+      TaPanamADevice.cc TaPanamDevice.cc TaPanamMultiDevice.cc TaStripChart.cc\
       TaDebugAna.cc TaDevice.cc TaDataBase.cc \
       TaCutInterval.cc TaCutList.cc VaEvent.cc TaEvent.cc TaSimEvent.cc \
       TaPairFromPair.cc TaPairFromQuad.cc \

@@ -19,6 +19,7 @@
 
 #include "Rtypes.h"
 #include "TObject.h"
+#include "TPaveText.h"
 #include "TH1.h"
 #include <string>
 #include <iostream>
@@ -51,7 +52,10 @@ public:
   TH1D*   GetHData() const { return fHData;};
   virtual void InitSCPad(UInt_t plotidx);
   virtual void DisplaySC(UInt_t plotidx);  
-  virtual void DrawHPad();  
+  virtual void DrawHPad(UInt_t optionfit);  
+  virtual void InitStat(Double_t  x1, Double_t y1, Double_t x2, Double_t y2,Int_t textfont, Double_t textsize);
+  virtual void UpdateStat();
+  virtual void SetTiltle();
   virtual void FillFromEvent(TaRun& run);
   TH1D*   GetPlot(char* const plotname, Int_t const plottype) const;
 
@@ -63,8 +67,12 @@ protected:
   TaStripChart*  fSData;
   TaStripChart*  fSDataRMS;
   TH1D*          fHData;
+  TPaveText*    fTitle;
+  TPaveText*    fStat;  
   char*         fName;
-  Double_t      fDataVal;          
+  char*         fNeventp,*fMeanp,*fRMSp,*fSigAvep;
+  Double_t      fDataVal;
+  Double_t      fSigmaAverage;          
   Int_t         fDevicekey;
   Int_t         fSNumOfChan;
   Int_t         fSNumOfEvPerChan;
@@ -74,8 +82,16 @@ protected:
   Float_t       fXSmax;  
   Float_t       fXHmin;
   Float_t       fXHmax;  
- 
-     
+#ifdef LEAKING
+  void Leaking();
+  static UInt_t fLeaKNewHisto;    // count of histo allocations
+  static UInt_t fLeakDelHisto;    // count of histo deallocations
+  static UInt_t fLeakNewSC;   // count of SC allocations
+  static UInt_t fLeakDelSC;   // count of SC deallocations
+  static UInt_t fLeakNewSCRMS;   // count of SC allocations
+  static UInt_t fLeakDelSCRMS;   // count of SC deallocations
+#endif
+    
   ClassDef( TaPanamDevice, 0 )  // Base class 
 };
 

@@ -155,19 +155,24 @@ TaAnalysisManager::End()
   fAnalysis->Finish(); // take care of end-of-analysis tasks
   fRun->Finish(); // compute and print/store run results
 
+  cout<<"deleting analysis"<<endl;
   delete fAnalysis;
+  cout<<"analysis deleted"<<endl;
   delete fRun;
+  cout<<"run deleted"<<endl;
   return fgTAAM_OK; // for now always return OK
+  cout<<"end of TaAnalysisManager::End()"<<endl;
 }
 
 #ifdef PANAM
 TaPanamAna*
 TaAnalysisManager::GetAnalysis() const
 {
- TaString theAnaType = fRun->GetDataBase().GetAnaType(); 
- if (theAnaType.CmpNoCase("monitor") == 0) {return (TaPanamAna*) fAnalysis;}
- else { cout<<"TaAnalysisManager::GetAnalysis() BAD ANALYSIS TYPE, NEED TaPanam type analysis \n";
-       return NULL;}
+  return (TaPanamAna*) fAnalysis;
+//  TaString theAnaType = fRun->GetDataBase().GetAnaType(); 
+//  if (theAnaType.CmpNoCase("monitor") == 0) {return (TaPanamAna*) fAnalysis;}
+//  else { cout<<"TaAnalysisManager::GetAnalysis() BAD ANALYSIS TYPE, NEED TaPanam type analysis \n";
+//        return NULL;}
 }
 
 void 
@@ -208,6 +213,7 @@ TaAnalysisManager::InitCommon()
   clog << "TaAnalysisManager::InitCommon: Analysis type is " 
        << theAnaType << endl;
 
+#ifndef PANAM   
   if (theAnaType.CmpNoCase("standard") == 0 ||
       theAnaType.CmpNoCase("beam") == 0 ||
       theAnaType.CmpNoCase("prompt") == 0)
@@ -220,19 +226,17 @@ TaAnalysisManager::InitCommon()
      fAnalysis = new TaDebugAna;
   else if (theAnaType.CmpNoCase("fdbk") == 0)
     fAnalysis = new TaFeedbackAna();
-#ifdef PANAM    
-  else if (theAnaType.CmpNoCase("monitor") == 0)
-    {
-     fAnalysis = new TaPanamAna();
-     fAnalysis->InitDevicesList(fMonList);
-    }
-#endif
   else
     {
       cerr << "TaAnalysisManager::InitCommon ERROR: Invalid analysis type = "
 	   << theAnaType << endl;
       return fgTAAM_ERROR;
     }
+#else   
+  cout<<" TaAnalysisManager:: Currently initializing PANAM analysis "<<endl; 
+     fAnalysis = new TaPanamAna();
+     //fAnalysis->InitDevicesList(fMonList);
+#endif
 
   fAnalysis->Init(fOnlFlag);
   return fAnalysis->RunIni (*fRun);

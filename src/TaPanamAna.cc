@@ -18,57 +18,62 @@
 #include "TaPanamAna.hh"
 #include "TaEvent.hh"
 #include "TaRun.hh"
+#include "TaDevice.hh"
 #include "TaLabelledQuantity.hh"
 #include "VaPair.hh"
-//#define DEBUGDEV
-//#define DEBUGBOX
-
+#define DEBUGDEV
+#define DEBUGBOX
+//#define LEAKING
 #define ADCSTACK
 
 ClassImp(TaPanamAna)
 // Constructors/destructors/operators
 
-  TaPanamAna::TaPanamAna():VaAnalysis(),
-  fLumiADC(0),
-  fLumiADCRMS(0),
-  fLumiAsy(0), 
-  fLumiAsyRMS(0), 
-  fLumiADCBCMDiffAsy(0), 
-  fLumiADCBCMDiffAsyRMS(0), 
-  fDaltonADC(0), 
-  fDaltonADCRMS(0), 
-  fDaltonBCMNormADC(0),
-  fDaltonBCMNormADCRMS(0),
-  fDaltonBCMNormAsy(0),  
-  fDaltonBCMNormAsyRMS(0), 
-  fLimits(0),fADCStackSCorH(kFALSE)
-{
+TaPanamAna::TaPanamAna():VaAnalysis(),
+ fMADC(0),fMBatt(0),fMBCM(0),fMBCM2(0),fMBPMINx(0),fMBPMINy(0),  
+ fMBPMParx(0),fMBPMPary(0),fMBPMABx(0),fMBPMABy(0),fMBPMcavx(0),fMBPMcavy(0),
+ fMLumiBack(0),fMLumiFront(0),fMDalton(0)        
+{ 
+  //cout<<"TaPanamAna: CREATING ANALYSIS"<<this<<endl;
   fArrayOfDataName.clear();
   fMonDev.clear();
   fMonADev.clear();
-  //  fMultiDev.clear(); 
+  fMDIADC.clear();
+  fMDPADC.clear();
+  fMDSADC.clear();
   fADC_count=0;  
   fBCM_count=0;
   fBPM_count=0;
   fDoSlice = kFALSE;
   fDoRun = kFALSE;
   fDoRoot =kFALSE;
-  fADCStackSCorH =kFALSE;
 }
+
+
 
 TaPanamAna::~TaPanamAna()
 {
-  delete fLumiADC; delete fLumiADCRMS;
-  delete fLumiAsy; delete fLumiAsyRMS;
-  delete fLumiADCBCMDiffAsy; delete fLumiADCBCMDiffAsyRMS;
-  delete fDaltonADC; delete fDaltonADCRMS; 
-  delete fDaltonBCMNormADC; delete fDaltonBCMNormADCRMS;
-  delete fDaltonBCMNormAsy; delete fDaltonBCMNormAsyRMS;
-  delete fLimits;
-
+  if (fMADC) {delete fMADC ;fMADC  = NULL; }
+  if (fMBatt) {delete fMBatt ;fMBatt = NULL ;}
+  if (fMBCM) {delete fMBCM ; fMBCM  = NULL; }
+  if (fMBCM2) {delete fMBCM2 ; fMBCM2  = NULL; }
+  if (fMBPMINx) {delete fMBPMINx; fMBPMINx = NULL;} 
+  if (fMBPMINy) {delete fMBPMINy; fMBPMINy = NULL; } 
+  if (fMBPMParx) {delete fMBPMParx; fMBPMParx = NULL;}
+  if (fMBPMPary) {delete fMBPMPary; fMBPMPary = NULL; }
+  if (fMBPMABx) {delete fMBPMABx; fMBPMABx = NULL; }
+  if (fMBPMABy) {delete fMBPMABy; fMBPMABy = NULL; }
+  if (fMBPMcavx) {delete fMBPMcavx; fMBPMcavx = NULL; }
+  if (fMBPMcavy) {delete fMBPMcavy; fMBPMcavy = NULL; }
+  if (fMLumiBack) {delete fMLumiBack; fMLumiBack = NULL; }
+  if (fMLumiFront) {delete fMLumiFront; fMLumiFront = NULL; }
+  if (fMDalton) {delete fMDalton; fMDalton = NULL;}   
   fArrayOfDataName.clear();
   fMonDev.clear();
   fMonADev.clear();
+  fMDIADC.clear();
+  fMDPADC.clear();
+  fMDSADC.clear();
 }
 
 TaPanamAna::TaPanamAna (const TaPanamAna& copy) 
@@ -87,6 +92,7 @@ string TaPanamAna::itos(Int_t i)
   buffer<<i;
   return buffer.str();
 }
+
 vector<string>
 TaPanamAna::GetHistoForListBox() const
 {
@@ -120,14 +126,28 @@ TaPanamAna::GetHistoForListBox() const
 void 
 TaPanamAna::InitMonitorDevices()
 {  
-  fADC_color[0] = 2; fADC_color[1] = 3;
-  fADC_color[2] = 4;fADC_color[3] = 6;
-  fIsADC = kFALSE;
-  fIsLumi = kFALSE;
-  fIsDalton = kFALSE;
-  fLastADCName="";
+ fMBatt = new TaPanamMultiDevice("batteries");
+ fMBCM = new TaPanamMultiDevice("BCMs");
+ fMBCM2 = new TaPanamMultiDevice("BCM2s");
+ fMBCMcav = new TaPanamMultiDevice("BCMcav");
+ fMBPMINx = new TaPanamMultiDevice("BPMINx");
+ fMBPMINy = new TaPanamMultiDevice("BPMINy");
+ fMBPMParx = new TaPanamMultiDevice("BPMParx");
+ fMBPMPary = new TaPanamMultiDevice("BPMPary");
+ fMBPMABx = new TaPanamMultiDevice("BPMABx");
+ fMBPMABy = new TaPanamMultiDevice("BPMABy");
+ fMBPMcavx = new TaPanamMultiDevice("BPMcavx");
+ fMBPMcavy = new TaPanamMultiDevice("BPMcavy");
+ fMLumiBack = new TaPanamMultiDevice("Lumisback");
+ fMLumiFront = new TaPanamMultiDevice("Lumisfront");
+ fMDalton = new TaPanamMultiDevice("Daltons");
+ // special treatment for ADC stacks    
+ vector<TaPanamADevice*>      fADC;
+ // string::size_type cmatch;
+ 
+ fLastADCName="";
   
-  cout<<"------------------------Entering histos initialization------------------------"<<endl;
+ cout<<"------------------------Entering histos initialization------------------------"<<endl;
 
 #ifdef DEBUGDEV
   cout<<" fMondev size= "<<fMonDev.size()<<endl;
@@ -135,42 +155,46 @@ TaPanamAna::InitMonitorDevices()
 #endif  
   // clear vectors
   if ( fMonDev.size() != 0)  fMonDev.clear();
-  if ( fMonADev.size() != 0)  fMonADev.clear();
-  if ( fSTADC.size() != 0)  fSTADC.clear();
-  if ( fLumiGraph.size() != 0)fLumiGraph.clear();
-  if ( fDaltonGraph.size() != 0) fDaltonGraph.clear();  
-  if ( fLumiDev.size() != 0)fLumiDev.clear();  
-  if ( fDaltonDev.size() != 0)fDaltonDev.clear();  
+  if ( fMonADev.size() != 0)  fMonADev.clear();  
+  if ( fADC.size() != 0)  fADC.clear();
 
   for (vector<string>::const_iterator ci= fArrayOfDataName.begin(); 
                                       ci!= fArrayOfDataName.end(); 
                                       ci++)
      {
-      if (!strncmp((*ci).c_str(),"heli",4) || !strncmp((*ci).c_str(),"pair",4)  || 
-          !strncmp((*ci).c_str(),"quad",4) || !strncmp((*ci).c_str(),"times",5) || 
-          !strncmp((*ci).c_str(),"v2f",3)  || !strncmp((*ci).c_str(),"heli",4)) 
-        {
-         TaPanamDevice* md = new TaPanamDevice((char*)(*ci).c_str(),fRun->GetKey((char*)(*ci).c_str()),
-                                               striptime,60,100,0.,(Float_t) striptime,-2,2,0);
-         fMonDev.push_back(md);
-	}
+//       if (!strncmp((*ci).c_str(),"heli",4) || !strncmp((*ci).c_str(),"pair",4)  || 
+//           !strncmp((*ci).c_str(),"quad",4) || !strncmp((*ci).c_str(),"times",5)) 
+//         {
+//          TaPanamDevice* md = new TaPanamDevice((char*)(*ci).c_str(),fRun->GetKey((char*)(*ci).c_str()),
+//                                                striptime,60,100,0.,(Float_t) striptime,-2,2,0);
+//          fMonDev.push_back(md);
+//          fMSignal->InsertDevice(md);
+//          cout<<"(*ci)"<<(*ci)<<endl;
+// 	}
+//       if (!strncmp((*ci).c_str(),"v2f",3)) 
+//         {
+//          TaPanamDevice* md = new TaPanamDevice((char*)(*ci).c_str(),fRun->GetKey((char*)(*ci).c_str()),
+//                                                striptime,60,100,0.,(Float_t) striptime,-2,2,0);
+//          fMonDev.push_back(md);
+//          fMClock->InsertDevice(md);
+// 	}
       if (!strncmp((*ci).c_str(),"adc",3)) 
         {
          TaPanamADevice* md = new TaPanamADevice((char*)(*ci).c_str(),
                                                  fRun->GetKey((char*)(*ci).c_str()),
                                                  striptime,60,striptime,60,
-                                                 200,
+                                                 655,
                                                  0.,(Float_t) striptime,
                                                  0.,65535.,
-                                                 100,
+                                                 600,
                                                  0.,(Float_t) striptime,
                                                  -500,500,
                                                  0,2,kFALSE);
          fMonADev.push_back(md);
-         if (!strncmp((md->GetName()),"adc",3)) fIsADC=kTRUE;
+	 fADC.push_back(md);
 	}
-     if (!strncmp((*ci).c_str(),"bcm",3) || !strncmp((*ci).c_str(),"det",3) || 
-         !strncmp((*ci).c_str(),"bpminws",7)) 
+     if (!strncmp((*ci).c_str(),"bcm",3)  || !strncmp((*ci).c_str(),"det",3) || 
+         !strncmp((*ci).c_str(),"bcmcav",6) || !strncmp((*ci).c_str(),"bat",3)) 
         {
          TaPanamADevice* md = new TaPanamADevice((char*)(*ci).c_str(),
                                                  fRun->GetKey((char*)(*ci).c_str()),
@@ -183,7 +207,11 @@ TaPanamAna::InitMonitorDevices()
                                                  -5000,5000,
                                                  0,2,kFALSE);
          fMonADev.push_back(md);
-         if (!strncmp((md->GetName()),"det",3)) fDaltonDev.push_back(md);
+         if (!strncmp((md->GetName()),"bcm1",4) || !strncmp((md->GetName()),"bcm2",4)) fMBCM->InsertADevice(md);
+         if (!strncmp((md->GetName()),"bcm3",4) || !strncmp((md->GetName()),"bcm4",4)) fMBCM2->InsertADevice(md);
+         if (!strncmp((md->GetName()),"bcmcav",6)) fMBCMcav->InsertADevice(md);   
+         if (!strncmp((md->GetName()),"bat",3)) fMBatt->InsertADevice(md);
+         if (!strncmp((md->GetName()),"det",3)) fMDalton->InsertADevice(md);
 	}
       if (!strncmp((*ci).c_str(),"lumi",4)) 
         {
@@ -198,9 +226,29 @@ TaPanamAna::InitMonitorDevices()
                                                  -10000,10000,
                                                  0,2,kFALSE);
          fMonADev.push_back(md);
-         fLumiDev.push_back(md);
+         if (!strncmp((md->GetName()),"lumi1",5) || 
+             !strncmp((md->GetName()),"lumi2",5) ||
+             !strncmp((md->GetName()),"lumi3",5) ||
+             !strncmp((md->GetName()),"lumi4",5) ) fMLumiBack->InsertADevice(md);
+         else fMLumiFront->InsertADevice(md);
 	}
-      if (!strncmp((*ci).c_str(),"bpm",3)) 
+      if (!strncmp((*ci).c_str(),"bpm1I",5) || !strncmp((*ci).c_str(),"bpm0I",5) || !strncmp((*ci).c_str(),"bpm0L",5) ) 
+        {
+         TaPanamADevice* md = new TaPanamADevice((char*)(*ci).c_str(),
+                                                 fRun->GetKey((char*)(*ci).c_str()),
+                                                 striptime,60,striptime,60,
+                                                 100,
+                                                 0.,(Float_t) striptime,
+                                                 0.,65535.,
+                                                 200,
+                                                 0.,(Float_t) striptime,
+                                                 -500,500,
+                                                 0,2,kTRUE);
+          fMonADev.push_back(md);
+	  if ((*ci).find("x",0) != string::npos) fMBPMINx->InsertADevice(md);
+	  if ((*ci).find("y",0) != string::npos) fMBPMINy->InsertADevice(md);
+	}
+      else if (!strncmp((*ci).c_str(),"bpmca",5)) 
         {
          TaPanamADevice* md = new TaPanamADevice((char*)(*ci).c_str(),
                                                  fRun->GetKey((char*)(*ci).c_str()),
@@ -213,6 +261,40 @@ TaPanamAna::InitMonitorDevices()
                                                  -500,500,
                                                  0,2,kTRUE);
          fMonADev.push_back(md);
+	  if ((*ci).find("x",0) != string::npos) fMBPMcavx->InsertADevice(md);
+	  if ((*ci).find("y",0) != string::npos) fMBPMcavy->InsertADevice(md);
+	}
+      else if (!strncmp((*ci).c_str(),"bpm4",4)) 
+        {
+         TaPanamADevice* md = new TaPanamADevice((char*)(*ci).c_str(),
+                                                 fRun->GetKey((char*)(*ci).c_str()),
+                                                 striptime,60,striptime,60,
+                                                 100,
+                                                 0.,(Float_t) striptime,
+                                                 0.,65535.,
+                                                 200,
+                                                 0.,(Float_t) striptime,
+                                                 -500,500,
+                                                 0,2,kTRUE);
+         fMonADev.push_back(md);
+         if ((*ci).find("x",0) != string::npos) fMBPMABx->InsertADevice(md);
+         if ((*ci).find("y",0) != string::npos) fMBPMABy->InsertADevice(md);
+	}
+      else if (!strncmp((*ci).c_str(),"bpm",3)) 
+        {
+         TaPanamADevice* md = new TaPanamADevice((char*)(*ci).c_str(),
+                                                 fRun->GetKey((char*)(*ci).c_str()),
+                                                 striptime,60,striptime,60,
+                                                 100,
+                                                 0.,(Float_t) striptime,
+                                                 0.,65535.,
+                                                 200,
+                                                 0.,(Float_t) striptime,
+                                                 -500,500,
+                                                 0,2,kTRUE);
+         fMonADev.push_back(md);
+         if ((*ci).find("x",0) !=string::npos) fMBPMParx->InsertADevice(md);
+         if ((*ci).find("y",0) !=string::npos) fMBPMPary->InsertADevice(md);
 	}
       }
 
@@ -256,194 +338,189 @@ TaPanamAna::InitMonitorDevices()
     cout<<"fHAData name="<<(*md)->GetHAData()->GetName()<<" string="<<
           string((*md)->GetHAData()->GetName())<<endl;
   }
- cout<<"=== === ===  debug complete === === ==="<<endl;
+
+ cout<<"=== === ===  Device debug complete === === ==="<<endl;
 
 #endif  
 
-#ifdef ADCSTACK
-  Char_t* devname;
-  Char_t* splitstr;
-  Char_t* channum;
-  Int_t   numchan=0; 
- 
-  if (fIsADC)
-    {
-     for (vector<TaPanamADevice*>::const_iterator didx= fMonADev.begin(); didx != fMonADev.end(); didx++)
-       {
-	if (!strncmp((*didx)->GetName(),"adc",3))
-	  {
-           splitstr= (Char_t*) (*didx)->GetName();
-           //cout<<"ADC init  splitstr="<<splitstr<<endl;
-           devname=strtok(splitstr,"_");
-	   //           devname=strtok(NULL,"_");
-           channum= strtok(NULL,"_ ");
-           //cout<<"ADC init  devname="<<devname<<endl;
-           //cout<<"last adc name "<<fLastADCName<<endl;   
-           //cout<<"ADC channum="<<channum<<endl;
-           numchan=atoi(channum);
-           // create new stack if first encounter of adc number else just add channel in existing stack
-           // the channel should not been declared two times in the list....
-           //cout<<"fSTADC.size()="<<fSTADC.size()<<endl;           
-           (*didx)->GetSData()->GetSCHist()->SetLineColor(fADC_color[numchan]); 
-           (*didx)->GetHData()->SetLineColor(fADC_color[numchan]); 
-           if (strcmp(devname,fLastADCName))
-             {
-	      fLastADCName=devname; 
-              THStack *ast = new THStack(devname,devname);
-              //cout<<"Stack : "<<devname<<" initialized 2 \n";
-              //cout<<" asociated to dev "<<(*didx)->GetName()<<endl;
-              //cout<<" color setting="<<fADC_color[numchan]<<endl;
-              if (!fADCStackSCorH) ast->Add((*didx)->GetSData()->GetSCHist());
-              else ast->Add((*didx)->GetHData());
-              ast->Print();
-              fSTADC.push_back(ast);
-	      //cout<<"new stack list size="<<fSTADC.size()<<endl;
-	     }
-	   else
-	     {
-	      Int_t laststack=fSTADC.size()-1;
- 	      if (!fADCStackSCorH) fSTADC[laststack]->Add((*didx)->GetSData()->GetSCHist());
-              else fSTADC[laststack]->Add((*didx)->GetHData());
-	     }
-	  }
-       }
-         // summary of histos in stacks.  
-    for (vector<THStack*>::const_iterator sdx= fSTADC.begin(); sdx != fSTADC.end(); sdx++)
-      {
-       cout<<(*sdx)->GetName()<<" stack list  of histos : "<<endl;
-       (*sdx)->Print();
-      }
-    }
-#endif
+ //------------------------------ start init Multidevice ------------------------------------------
 
-  if (fLumiDev.size() > 0) 
+//   if (fMSignal->TypeOfDev() < 0 ) 
+//    {
+//      delete fMSignal; fMSignal = NULL;
+//    } 
+//   else 
+//    {
+//     fMSignal->InitStacks(); 
+//     fMSignal->InitStats();
+//    } 
+
+//   if (fMClock->TypeOfDev() < 0 ) {delete fMClock; fMClock = NULL;}
+//   else 
+//    {
+//     fMClock->InitStacks();
+//     fMClock->InitStats();
+//    }
+  if (fMBatt->TypeOfDev() < 0 ) {delete fMBatt; fMBatt = NULL;} 
+  else
+   { 
+    fMBatt->InitStacks();
+    fMBatt->InitStats();
+   }
+  if (fMBCM->TypeOfDev() < 0 ) {delete fMBCM;  fMBCM = NULL;}
+  else 
+   {
+    fMBCM->InitStacks();
+    fMBCM->InitStats();
+   } 
+  if (fMBCM2->TypeOfDev() < 0 ) {delete fMBCM2;  fMBCM2 = NULL;}
+  else 
+   {
+    fMBCM2->InitStacks();
+    fMBCM2->InitStats();
+   } 
+
+  if (fMBPMINx->TypeOfDev() < 0 ) 
+   {
+    delete fMBPMINx; fMBPMINx = NULL;
+    delete fMBPMINy; fMBPMINy = NULL;
+   } 
+  else 
+   {
+    fMBPMINx->InitStacks();
+    fMBPMINx->InitStats();
+    fMBPMINy->InitStacks(); 
+    fMBPMINy->InitStats();
+   } 
+  if (fMBPMParx->TypeOfDev() < 0 ) 
+   {
+    delete fMBPMParx; fMBPMParx = NULL;
+    delete fMBPMPary; fMBPMPary = NULL; 
+   } 
+  else 
+   {
+    fMBPMParx->InitStacks(); 
+    fMBPMParx->DumpInfo(); 
+    fMBPMParx->InitStats();
+    fMBPMPary->InitStacks();
+    fMBPMPary->DumpInfo();
+    fMBPMPary->InitStats();
+   } 
+  if (fMBPMABx->TypeOfDev() < 0 ) 
     {
-     fIsLumi=kTRUE;
-     fLumiADC              = new TGraph();
-     fLumiADC->SetTitle("Lumi ADC Mean");
-     fLumiGraph.push_back(fLumiADC);
-     fLumiADCRMS           = new TGraph();
-     fLumiADCRMS->SetTitle("Lumi ADC RMS");
-     fLumiGraph.push_back(fLumiADCRMS);
-     fLumiAsy              = new TGraph();
-     fLumiAsy->SetTitle("Lumi Asymmetries");
-     fLumiGraph.push_back(fLumiAsy);
-     fLumiAsyRMS           = new TGraph();
-     fLumiAsyRMS->SetTitle("Lumi Asymmetries RMS");
-     fLumiGraph.push_back(fLumiAsyRMS);
-     fLumiADCBCMDiffAsy    = new TGraph();
-     fLumiADCBCMDiffAsy->SetTitle("Lumi BCM substracted Asymmetries");
-     fLumiGraph.push_back(fLumiADCBCMDiffAsy);
-     fLumiADCBCMDiffAsyRMS = new TGraph();
-     fLumiADCBCMDiffAsyRMS->SetTitle("LumiBCM substracted  Asymmetries RMS");
-     fLumiGraph.push_back(fLumiADCBCMDiffAsyRMS);
-     for (Int_t i=0;i<numlumi;i++)
-       {
-	 LumiChan[i]= i+1;
-       }
-    }
-//   cout<<" size of lumigraph vector"<<fLumiGraph.size()<<endl;
-      for (Int_t i=0;i<numdalton;i++)
-        {
- 	 Daltons[i]= i+1;
-//          DaltonsADC[i]= 5000*i;
-//          DaltonsADCRMS[i]= 300*i;        
-//          cout<<" dalton de i "<<Daltons[i]<<endl;
-//          cout<<" dalton de i "<<DaltonsADC[i]<<endl;
-//          cout<<" dalton de i "<<DaltonsADCRMS[i]<<endl;  
-        }
-  if (fDaltonDev.size() > 0)
-    { 
-     fIsDalton=kTRUE;
-     fDaltonADC            = new TGraph();
-     fDaltonADC->SetTitle("Daltons ADC");
-     fDaltonGraph.push_back(fDaltonADC);
-     fDaltonADCRMS         = new TGraph();
-     fDaltonADCRMS->SetTitle("Daltons ADC RMS");
-     fDaltonGraph.push_back(fDaltonADCRMS);
-     fDaltonAsy            = new TGraph();
-     fDaltonAsy->SetTitle("Daltons Asymmetries");
-     fDaltonGraph.push_back(fDaltonAsy);
-     fDaltonAsyRMS         = new TGraph();
-     fDaltonAsyRMS->SetTitle("Daltons Asymmetries RMS");
-     fDaltonGraph.push_back(fDaltonAsyRMS);
-     fDaltonBCMNormADC     = new TGraph();
-     fDaltonBCMNormADC->SetTitle("Daltons BCM normalized ADC");
-     fDaltonGraph.push_back(fDaltonBCMNormADC);
-     fDaltonBCMNormADCRMS  = new TGraph();
-     fDaltonBCMNormADCRMS->SetTitle("Daltons BCM normalized ADC RMS");
-     fDaltonGraph.push_back(fDaltonBCMNormADCRMS);
-     fDaltonBCMNormAsy     = new TGraph();
-     fDaltonBCMNormAsy->SetTitle("Daltons BCM normalized Asymmetries");
-     fDaltonGraph.push_back(fDaltonBCMNormAsy);
-     fDaltonBCMNormAsyRMS  = new TGraph();
-     fDaltonBCMNormAsyRMS->SetTitle("Daltons BCM normalized Asymmetries RMS");
-     fDaltonGraph.push_back(fDaltonBCMNormAsyRMS);
-     
-     }
-  if (fIsLumi || fIsDalton) fLimits = new TH2D("","",2,0,5,2,-0.01,2.0);
+     delete fMBPMABx; fMBPMABx = NULL;
+     delete fMBPMABy; fMBPMABy = NULL;
+    } 
+  else 
+    {
+     fMBPMABx->InitStacks();
+     fMBPMABx->InitStats();
+     fMBPMABy->InitStacks(); 
+     fMBPMABy->InitStats();
+    }   
+  if (fMBPMcavx->TypeOfDev() < 0 ) 
+    {
+     delete fMBPMcavx; fMBPMcavx = NULL;
+     delete fMBPMcavy; fMBPMcavy = NULL;
+    } 
+  else 
+    {
+     fMBPMcavx->InitStacks();
+     fMBPMcavx->InitStats();
+     fMBPMcavy->InitStacks(); 
+     fMBPMcavy->InitStats();
+    }   
+  if (fMLumiBack->TypeOfDev() < 0 ) 
+    {
+     delete fMLumiBack; 
+     fMLumiBack = NULL;
+    } 
+  else
+   {
+    fMLumiBack->InitStacks();
+    fMLumiBack->InitStats();
+   } 
+  if (fMLumiFront->TypeOfDev() < 0 ) 
+    {
+     delete fMLumiFront; 
+     fMLumiFront = NULL;
+    } 
+  else
+   {
+    fMLumiFront->InitStacks();
+    fMLumiFront->InitStats();
+   } 
+
+  if (fMDalton->TypeOfDev() < 0 )
+    {
+     delete fMDalton;fMDalton = NULL;
+    } 
+  else 
+    {
+     fMDalton->InitStacks();
+     fMDalton->InitStats();
+    } 
+  
+ Char_t* devname;
+ Char_t* splitstr;
+ Char_t* channum;
+ Int_t   numchan=0; 
+
+ if (fADC.size() > 0) 
+   {   
+
+    for (vector<TaPanamADevice*>::const_iterator didx= fADC.begin(); didx != fADC.end(); didx++)
+      {
+       splitstr= (Char_t*) (*didx)->GetName();
+       //cout<<"ADC init  splitstr="<<splitstr<<endl;
+       devname=strtok(splitstr,"_");
+       channum= strtok(NULL,"_ ");
+       //cout<<"ADC init  devname="<<devname<<endl;
+       //cout<<"last adc name "<<fLastADCName<<endl;   
+       //cout<<"ADC channum="<<channum<<endl;
+       numchan=atoi(channum);
+       if (strcmp(devname,fLastADCName))
+         {
+	  fLastADCName=devname; 
+          fMADC = new TaPanamMultiDevice(devname);
+          fMADC->InsertADevice(*didx);
+          if (!strncmp(devname,"adc11",5) || !strncmp(devname,"adc12",5) || !strncmp(devname,"adc13",5))
+           fMDIADC.push_back(fMADC);
+           else if (!strncmp(devname,"adc17",5) || !strncmp(devname,"adc29",5))
+           fMDSADC.push_back(fMADC);    
+          else if (!strncmp(devname,"adc",3))    
+           fMDPADC.push_back(fMADC);
+	 }
+       else
+	 {
+          fMADC->InsertADevice(*didx);
+	 } 
+       
+      }
+    
+    cout<<" --------- Init & debug ADC multidevice ------------"<<endl;
+    cout<<" injector crate "<<endl;
+    for(vector<TaPanamMultiDevice*>::const_iterator mdidx= fMDIADC.begin(); mdidx != fMDIADC.end(); mdidx++)
+      {
+        (*mdidx)->InitStacks();(*mdidx)->InitStats();
+	cout<<(*mdidx)->GetName()<<endl;        
+      }
+    cout<<" parity crate"<<endl;
+    for(vector<TaPanamMultiDevice*>::const_iterator mdidx= fMDPADC.begin(); mdidx != fMDPADC.end(); mdidx++)
+      {
+        (*mdidx)->InitStacks();(*mdidx)->InitStats();
+	cout<<(*mdidx)->GetName()<<endl;        
+      }
+    cout<<" HRS crate "<<endl;
+    for(vector<TaPanamMultiDevice*>::const_iterator mdidx= fMDSADC.begin(); mdidx != fMDSADC.end(); mdidx++)
+      {
+       (*mdidx)->InitStacks();(*mdidx)->InitStats();
+	cout<<(*mdidx)->GetName()<<endl;        
+      }
+    cout<<" --------------------------------------------"<<endl; 
+   }
 
  cout<<"---------------------Initialization complete ! ----------------\n"<<endl;
-}
-
-void
-TaPanamAna::DefineADCStacks(Bool_t opt)
-{
-#ifdef ADCSTACK
-  Char_t* devname;
-  Char_t* splitstr;
-  Char_t* channum;
-  Int_t   numchan=0; 
- 
-  if (fIsADC)
-    {
-     for (vector<TaPanamADevice*>::const_iterator didx= fMonADev.begin(); didx != fMonADev.end(); didx++)
-       {
-	if (!strncmp((*didx)->GetName(),"adc",3))
-	  {
-           splitstr= (Char_t*) (*didx)->GetName();
-           //cout<<"ADC init  splitstr="<<splitstr<<endl;
-           devname=strtok(splitstr,"_");
-	   //           devname=strtok(NULL,"_");
-           channum= strtok(NULL,"_ ");
-           //cout<<"ADC init  devname="<<devname<<endl;
-           //cout<<"last adc name "<<fLastADCName<<endl;   
-           //cout<<"ADC channum="<<channum<<endl;
-           numchan=atoi(channum);
-           // create new stack if first encounter of adc number else just add channel in existing stack
-           // the channel should not been declared two times in the list....
-           //cout<<"fSTADC.size()="<<fSTADC.size()<<endl;           
-           (*didx)->GetSData()->GetSCHist()->SetLineColor(fADC_color[numchan]); 
-           (*didx)->GetHData()->SetLineColor(fADC_color[numchan]); 
-           if (strcmp(devname,fLastADCName))
-             {
-	      fLastADCName=devname; 
-              THStack *ast = new THStack(devname,devname);
-              //cout<<"Stack : "<<devname<<" initialized 2 \n";
-              //cout<<" asociated to dev "<<(*didx)->GetName()<<endl;
-              //cout<<" color setting="<<fADC_color[numchan]<<endl;
-              if (!opt) ast->Add((*didx)->GetSData()->GetSCHist());
-              else ast->Add((*didx)->GetHData());
-              ast->Print();
-              fSTADC.push_back(ast);
-	      //cout<<"new stack list size="<<fSTADC.size()<<endl;
-	     }
-	   else
-	     {
-	      Int_t laststack=fSTADC.size()-1;
- 	      if (!opt) fSTADC[laststack]->Add((*didx)->GetSData()->GetSCHist());
-              else fSTADC[laststack]->Add((*didx)->GetHData());
-	     }
-	  }
-       }
-         // summary of histos in stacks.  
-    for (vector<THStack*>::const_iterator sdx= fSTADC.begin(); sdx != fSTADC.end(); sdx++)
-      {
-       cout<<(*sdx)->GetName()<<" stack list  of histos : "<<endl;
-       (*sdx)->Print();
-      }
-    }
-#endif
 }
 
 
@@ -459,26 +536,6 @@ TaPanamAna::FillEventPlots()
                                               i != fMonADev.end(); 
                                               i++) 
       (*i)->FillFromEvent(*fRun);  
-
- if (fIsLumi)
-    {// fill Lumi graph if Lumi channels are defined
-         for (Int_t lu =0; lu< numlumi; lu++)
-           {
-            LumiADC[lu]     = fLumiDev[lu]->GetSData()->GetSCHist()->GetBinContent(striptime-1);
-            LumiADCRMS[lu]  = fLumiDev[lu]->GetSDataRMS()->GetSCHist()->GetBinContent(striptime-1);
-           }
-    }
-  if (fIsDalton)
-    {// fill Dalton graph if Dalton channel defined
-     for (Int_t dn =0; dn< numdalton; dn++)
-       {
-	DaltonsADC[dn]     = fDaltonDev[dn]->GetSData()->GetSCHist()->GetBinContent(striptime-1);
-	DaltonsADCRMS[dn]  = fDaltonDev[dn]->GetSDataRMS()->GetSCHist()->GetBinContent(striptime-1);             
-       }
-     cout<<" dalton ADC value "<<DaltonsADC[0]<<endl;
-     cout<<" dalton ADC RMS value "<<DaltonsADCRMS[0]<<endl;
-    }
-
 }
 
 void 
@@ -488,198 +545,121 @@ for (vector<TaPanamADevice*>::const_iterator i  = fMonADev.begin();
                                              i != fMonADev.end(); 
                                              i++)
        (*i)->FillFromPair(*fPair);
-
-  if (fIsLumi)
-    {
-      for (Int_t lu =0; lu< numlumi; lu++)
-        {
-	  cout<<" LUMI DATA : L"<<lu<<"="<<
-	    fLumiDev[lu]->GetSAData()->GetSCHist()->GetBinContent(striptime-1)<<endl;
-         LumiAsy[lu]     = fLumiDev[lu]->GetSAData()->GetSCHist()->GetBinContent(striptime-1);
-         LumiAsyRMS[lu]  = fLumiDev[lu]->GetSADataRMS()->GetSCHist()->GetBinContent(striptime-1);
-        }
-     }
-  if (fIsDalton)
-    {
-     for (Int_t dn =0; dn< numdalton; dn++)
-       {
-	cout<<" DALTON DATA : L"<<dn<<"="<<
-	  fDaltonDev[dn]->GetSAData()->GetSCHist()->GetBinContent(striptime-1)<<endl;
-        DaltonsAsy[dn]     = fDaltonDev[dn]->GetSAData()->GetSCHist()->GetBinContent(striptime-1);
-        DaltonsAsyRMS[dn]  = fDaltonDev[dn]->GetSAData()->GetSCHist()->GetBinContent(striptime-1);
-       }
-     }
+// if bcm1 -> norm by bcm2
+// if bcm3 -> norm by bcm4
+// if det or lumi ->norm by fCurmon
+// if bpm4Ax -> norm by bpm4Bx to get diff deltax
+// if bpm4Ay -> norm by bpm4By to get diff deltay
+ 
 }
 
-void TaPanamAna::InitDevicePad(Int_t devidx, UInt_t plotidx, Bool_t choice)
+void TaPanamAna::InitDevicePad(Int_t devidx, UInt_t plotidx, Bool_t choice, UInt_t optionfit)
 {
   if (!choice) {
-    cout<<"initscpad"<<endl;
+    //    cout<<"initscpad"<<endl;
    fMonDev[devidx]->InitSCPad(plotidx);
   }
- else fMonDev[devidx]->DrawHPad();
+ else fMonDev[devidx]->DrawHPad(optionfit);
 }
 
-void TaPanamAna::InitADevicePad(Int_t devidx, UInt_t plotidx, Bool_t choice)
+void TaPanamAna::InitADevicePad(Int_t devidx, UInt_t plotidx, Bool_t choice, UInt_t optionfit)
 {
  if (!choice) fMonADev[devidx]->InitSCPad(plotidx);
- else fMonADev[devidx]->DrawHPad(plotidx);
+ else fMonADev[devidx]->DrawHPad(plotidx,optionfit);
 }
 
-void TaPanamAna::DisplayDevice(Int_t devidx,UInt_t plotidx, Bool_t choice)
+void TaPanamAna::DisplayDevice(Int_t devidx,UInt_t plotidx, Bool_t choice, UInt_t optionfit)
 {
  if ( !choice) fMonDev[devidx]->DisplaySC(plotidx);
- else fMonDev[devidx]->DrawHPad();
+ else fMonDev[devidx]->DrawHPad(optionfit);
 }
 
-void TaPanamAna::DisplayADevice(Int_t devidx,UInt_t plotidx, Bool_t choice)
+void TaPanamAna::DisplayADevice(Int_t devidx,UInt_t plotidx, Bool_t choice, UInt_t optionfit)
 {
  if ( !choice) fMonADev[devidx]->DisplaySC(plotidx);
- else fMonADev[devidx]->DrawHPad(plotidx);
+ else fMonADev[devidx]->DrawHPad(plotidx,optionfit);
 }
 
-void TaPanamAna::InitADCStack(Int_t idx)
+void TaPanamAna::DrawMDStack(UInt_t stacknum, Int_t thestack, Int_t optstat)
 {
- fSTADC[idx]->Draw("nostack");
+  switch(stacknum)
+    {
+//     case 0:
+//      fMSignal->DrawStack(thestack,optstat);
+//       break;
+//     case 1:
+//      fMClock->DrawStack(thestack,optstat);
+//       break;
+    case 0:
+     fMBatt->DrawStack(thestack,optstat);
+      break;
+    case 1:
+      fMBCM->DrawStack(thestack,optstat);
+      break;
+    case 2:
+      fMBCM2->DrawStack(thestack,optstat);
+      break;
+    case 3:
+      fMBCMcav->DrawStack(thestack,optstat);
+      break;
+    case 4:
+     fMBPMINx->DrawStack(thestack,optstat);
+      break;
+    case 5:
+     fMBPMINy->DrawStack(thestack,optstat);
+      break;
+    case 6:
+     fMBPMParx->DrawStack(thestack,optstat);
+      break;
+    case 7:
+     fMBPMPary->DrawStack(thestack,optstat);
+      break;
+    case 8:
+     fMBPMABx->DrawStack(thestack,optstat);
+      break;
+    case 9:
+     fMBPMABy->DrawStack(thestack,optstat);
+      break;
+    case 10:
+     fMLumiBack->DrawStack(thestack,optstat);
+      break;
+    case 11:
+     fMLumiFront->DrawStack(thestack,optstat);
+      break;
+    case 12:
+     fMDalton->DrawStack(thestack,optstat);
+      break;
+    case 13:
+      fMBPMcavx->DrawStack(thestack,optstat);
+     break;
+    case 14:
+     fMBPMcavy->DrawStack(thestack,optstat);
+     break; 
+  }
 }
 
-void TaPanamAna::DrawADCStack(Int_t idx)
+void TaPanamAna::DrawADCStack( Int_t adccrate, UInt_t adcidx, Int_t thestack, Int_t optstat)
 {
- fSTADC[idx]->Draw("nostack");
-}
-
-void TaPanamAna::InitLumiGraph(Int_t idx)
-{
-  fLimits->Draw();
-  fLumiGraph[idx]->SetMarkerStyle(20);
-  fLumiGraph[idx]->SetMarkerSize(0.5);
-  fLumiGraph[idx]->SetMarkerColor(2);  
-   switch (idx) 
-      {
-  case 0:
-    fLumiGraph[idx]->DrawGraph(numlumi,LumiChan,LumiADC,"P");
-    break; 
-  case 1:
-    fLumiGraph[idx]->DrawGraph(numlumi,LumiChan,LumiADCRMS,"P");
-    break; 
-  case 2:
-    fLumiGraph[idx]->DrawGraph(numlumi,LumiChan,LumiAsy,"P");
-    break; 
-  case 3:
-    fLumiGraph[idx]->DrawGraph(numlumi,LumiChan,LumiAsyRMS,"P");
-    break; 
-  case 4:
-    fLumiGraph[idx]->DrawGraph(numlumi,LumiChan,LumiADCBCMDiffAsy,"P");
-    break; 
-  case 5:
-    fLumiGraph[idx]->DrawGraph(numlumi,LumiChan,LumiADCBCMDiffAsyRMS,"P");
-    break; 
-  case 6:
-    fLumiGraph[idx]->DrawGraph(numlumi,LumiChan,LumiADC,"P");
-    break; 
-  case 7:
-    fLumiGraph[idx]->DrawGraph(numlumi,LumiChan,LumiADC,"P");
-    break; 
-
- }
-}
-
-void TaPanamAna::DrawLumiGraph(Int_t idx)
-{
-   switch (idx) 
-     {
-      case 0:
-       fLumiGraph[idx]->DrawGraph(numlumi,LumiChan,LumiADC,"P");
-       break; 
-      case 1:
-       fLumiGraph[idx]->DrawGraph(numlumi,LumiChan,LumiADCRMS,"P");
-       break; 
-      case 2:
-       fLumiGraph[idx]->DrawGraph(numlumi,LumiChan,LumiAsy,"P");
-       break; 
-      case 3:
-       fLumiGraph[idx]->DrawGraph(numlumi,LumiChan,LumiAsyRMS,"P");
-       break; 
-      case 4:
-       fLumiGraph[idx]->DrawGraph(numlumi,LumiChan,LumiADCBCMDiffAsy,"P");
-       break; 
-      case 5:
-       fLumiGraph[idx]->DrawGraph(numlumi,LumiChan,LumiADCBCMDiffAsyRMS,"P");
-       break; 
-      case 6:
-       fLumiGraph[idx]->DrawGraph(numlumi,LumiChan,LumiADC,"P");
-       break; 
-      case 7:
-       fLumiGraph[idx]->DrawGraph(numlumi,LumiChan,LumiADC,"P");
-       break; 
-     }
-}
-
-void TaPanamAna::InitDaltonGraph(Int_t idx)
-{
- fLimits->Draw(); 
-  fDaltonGraph[idx]->SetMarkerStyle(20);
-  fDaltonGraph[idx]->SetMarkerColor(9);  
-  fDaltonGraph[idx]->SetMarkerSize(0.5); 
-   switch (idx) 
-     {
-      case 0:
-       fDaltonGraph[idx]->DrawGraph(numdalton,Daltons,DaltonsADC,"P");
-       break; 
-      case 1:
-       fDaltonGraph[idx]->DrawGraph(numdalton,Daltons,DaltonsADCRMS,"P");
-       break; 
-      case 2:
-       fDaltonGraph[idx]->DrawGraph(numdalton,Daltons,DaltonsAsy,"P");
-       break; 
-      case 3:
-       fDaltonGraph[idx]->DrawGraph(numdalton,Daltons,DaltonsAsyRMS,"P");
-       break; 
-      case 4:
-       fDaltonGraph[idx]->DrawGraph(numdalton,Daltons,DaltonsBCMNormADC,"P");
-       break; 
-      case 5:
-       fDaltonGraph[idx]->DrawGraph(numdalton,Daltons,DaltonsBCMNormADCRMS,"P");
-       break; 
-      case 6:
-       fDaltonGraph[idx]->DrawGraph(numdalton,Daltons,DaltonsBCMNormAsy,"P");
-       break; 
-      case 7:
-       fDaltonGraph[idx]->DrawGraph(numdalton,Daltons,DaltonsBCMNormAsyRMS,"P");
-       break; 
+  switch (adccrate)
+    {
+    case 0:
+      if (fMDIADC.size() > adcidx ) fMDIADC[adcidx]->DrawStack(thestack,optstat);
+      //else cout<<" TaPanamAna::DrawADCStack(): ERROR fMDIADC.size > adcidx"<<flush<<endl;
+      break;
+    case 1:
+      if (fMDPADC.size() > adcidx ) fMDPADC[adcidx]->DrawStack(thestack,optstat);
+      else cout<<" TaPanamAna::DrawADCStack(): ERROR fMDPADC.size > adcidx"<<flush<<endl;
+      break;
+    case 2:
+      if (fMDSADC.size() > adcidx ) {
+         fMDSADC[adcidx]->DrawStack(thestack,optstat);
       }
+      else cout<<" TaPanamAna::DrawADCStack(): ERROR fMDSADC.size > adcidx"<<flush<<endl;
+      break;
+    }
 }
 
-void TaPanamAna::DrawDaltonGraph(Int_t idx)
-{
-   switch (idx) 
-     {
-      case 0:
-       fDaltonGraph[idx]->DrawGraph(numdalton,Daltons,DaltonsADC,"P");
-       break; 
-      case 1:
-       fDaltonGraph[idx]->DrawGraph(numdalton,Daltons,DaltonsADCRMS,"P");
-       break; 
-      case 2:
-       fDaltonGraph[idx]->DrawGraph(numdalton,Daltons,DaltonsAsy,"P");
-       break; 
-      case 3:
-       fDaltonGraph[idx]->DrawGraph(numdalton,Daltons,DaltonsAsyRMS,"P");
-       break; 
-      case 4:
-       fDaltonGraph[idx]->DrawGraph(numdalton,Daltons,DaltonsBCMNormADC,"P");
-       break; 
-      case 5:
-       fDaltonGraph[idx]->DrawGraph(numdalton,Daltons,DaltonsBCMNormADCRMS,"P");
-       break; 
-      case 6:
-       fDaltonGraph[idx]->DrawGraph(numdalton,Daltons,DaltonsBCMNormAsy,"P");
-       break; 
-      case 7:
-       fDaltonGraph[idx]->DrawGraph(numdalton,Daltons,DaltonsBCMNormAsyRMS,"P");
-       break; 
-      }
-}
+
 
 void
 TaPanamAna::EventAnalysis()
@@ -717,15 +697,14 @@ TaPanamAna::PairAnalysis()
 void
 TaPanamAna::InitChanLists ()
 {
-  InitMonitorDevices();
 }
+
 void
 TaPanamAna::InitDevicesList(vector<string> arrayofname)
 {
   cout<<"\n ---- Copy of the dataname wanted for monitoring ----\n"<<endl;
   fArrayOfDataName = arrayofname;
-  for (vector<string>::const_iterator i= fArrayOfDataName.begin(); i!= fArrayOfDataName.end(); i++)
-  cout<<" key name : "<<*i<<endl;
+  cout<<"copied"<<endl;
 }
 
 TaPanamDevice* 

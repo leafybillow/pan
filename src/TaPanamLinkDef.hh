@@ -8,6 +8,7 @@
 #pragma link C++ class TaPanam+;
 //#pragma link C++ class TaCanvasWatchDog;
 //#pragma link C++ class TaCanvas;
+#pragma link C++ class TaPanamMultiDevice;
 #pragma link C++ class TaPanamADevice;
 #pragma link C++ class TaPanamDevice;
 #pragma link C++ class TaStripChart;

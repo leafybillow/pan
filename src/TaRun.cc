@@ -28,7 +28,7 @@
 //#define NOISY
 //#define CHECKOUT
 //#define FAKEDEAD
-//#define PANAMTEST
+#define PANAMTEST
 
 #include "TaRun.hh"
 #include <iostream>
@@ -620,6 +620,7 @@ TaRun::Uncreate()
   // Utility function for destructor.
 
   fCoda->codaClose();
+  cout<<"TaRun::Uncreate() CODA HAS BEEN CLOSED!"<<endl;
   // If fEvtree is deleted, some later delete will hang.  I don't know why.
   //  delete fEvtree;
   delete fCoda;

@@ -163,6 +163,7 @@ public:
   size_t PairsLeft() const { return fPDeque.size(); }
   // Monitoring related methods
 #ifdef PANAM
+  virtual TaRun* GetRun() const { return fRun;};
   virtual vector<string> GetHistoForListBox() const; 
   virtual void InitDevicesList(vector<string> monlist);
   virtual void DefineADCStacks( Bool_t opt);
