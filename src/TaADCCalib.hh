@@ -1,11 +1,17 @@
+//**********************************************************************
+//
+//     HALL A C++/ROOT Parity Analyzer  Pan           
+//
+//           TaADCCalib.hh   (interface)
+//
+// Author:  K. Paschke <http://www.jlab.org/~paschke/>
+// @(#)pan/src:$Name$:$Id$
+//
 ////////////////////////////////////////////////////////////////////////
 //
-// TaBeamAna.hh
-//
-// Beam Quality Analysis class for pan
-//
-// Authors: A. Vacheret  Sep 2001 (Round 2);
-//          R. Holmes Nov 2001 (Round 3)
+//    ADC calibration analysis.  Depending on constructor argument,
+//    this class handles analysis of ADC pedestals or DAC noise 
+//    pedestals and slopes.
 //
 ////////////////////////////////////////////////////////////////////////
 
@@ -63,8 +69,8 @@ private:
   vector<Int_t >     nEntries;     // nEntries for this channel
 
   // data members  for DAC analysis
-  vector<Double_t>   fSumY;        // additional sums needed for linear fit
-  vector<Double_t>   fSumXY;
+  vector<Double_t>   fSumY;        // sum of Y needed for linear fit
+  vector<Double_t>   fSumXY;       // sum of XY needed for linear fit
   //
   //   additional stuff needed for graph of residuals
   //
@@ -102,5 +108,3 @@ private:
 };
 
 #endif
-
-

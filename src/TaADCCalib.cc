@@ -1,12 +1,17 @@
+//**********************************************************************
+//
+//     HALL A C++/ROOT Parity Analyzer  Pan           
+//
+//           TaADCCalib.cc   (implementation)
+//
+// Author:  K. Paschke <http://www.jlab.org/~paschke/>
+// @(#)pan/src:$Name$:$Id$
+//
 ////////////////////////////////////////////////////////////////////////
 //
-// HALL A C++/ROOT parity analyzer  Pan           
-//
-// TaADCCalib.cc
-//
-// ADC calibration class
-//
-// Authors: KDP Feb 2002
+//    ADC calibration analysis.  Depending on constructor argument,
+//    this class handles analysis of ADC pedestals or DAC noise 
+//    pedestals and slopes.
 //
 ////////////////////////////////////////////////////////////////////////
 
@@ -33,6 +38,9 @@ TaADCCalib::TaADCCalib():VaAnalysis()
 TaADCCalib::TaADCCalib(const string& anName)
   :VaAnalysis()
 {
+  // TaADCCalib constructor; argument specifying calibration type may
+  // be "adcped" or "adcdac".
+
   if (TaString (anName).CmpNoCase("adcped") == 0)
     typeFlag = 1;
   else if (TaString (anName).CmpNoCase("adcdac") == 0)
@@ -96,6 +104,9 @@ TaADCCalib& TaADCCalib::operator=( const TaADCCalib& assign)
 
 void TaADCCalib::Init()
 {
+  // Initialization -- determines which channels to analyze, then
+  // calls type-specific initialization
+
   VaAnalysis::Init();
   cout << "Local init of TaADCCalib needed also..." << endl;
 
@@ -135,6 +146,8 @@ void TaADCCalib::Init()
 
 void TaADCCalib::Finish() 
 {
+  // End of analysis -- mainly just calls type-specific finish routine
+
   VaAnalysis::Finish();
   cout << " Local finish of TaADCCalib needed also..." << endl;
 
@@ -159,6 +172,8 @@ void TaADCCalib::Finish()
 
 void TaADCCalib::FinishDAC()
 {
+  // End of DAC calibration analysis; computes DAC noise pedestals and
+  // slopes
 
   char charkey[10];
   string key; 
@@ -315,6 +330,7 @@ void TaADCCalib::FinishDAC()
 
 void TaADCCalib::FinishPed()
 {
+  // End of pedestal analysis; computes ADC pedestals
 
   char charkey[10];
   string key; 
@@ -399,6 +415,8 @@ void TaADCCalib::FinishPed()
 
 void TaADCCalib::InitPed()
 {
+  // Pedestal analysis initialization -- sets up pedestal root file
+
   cout << "TaADCCalib:: Initializing ADC Pedestal analysis" << endl;
 
   // Set up ROOT.  Define output file.
@@ -428,6 +446,8 @@ void TaADCCalib::InitPed()
 
 void TaADCCalib::InitDAC()
 {
+  // DAC calibration analysis initialization -- sets up DAC root file
+
   cout << "TaADCCalib:: Initializing ADC noise DAC calibration analysis" << endl;
 
   // Set up ROOT.  Define output file.
@@ -478,7 +498,7 @@ void TaADCCalib::ProcessRun()
 void TaADCCalib::EventAnalysis()
 {
   // put everything needed to analyze one event 
-
+  //
   // when looping over all devices, make keys (strings like adc0_1, first
   // number slot, second number channel), and check whether keys exist.
   // use GetData(key) to get data?
