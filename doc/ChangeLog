@@ -4,6 +4,29 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by A. Vacheret on 25 Sept 2002
+-----------------------------------
+
+I completly restructured the feedback functions. My impressions when I 
+wanted to add some new features was that it was not optimized in a C++ 
+way, a lot of repetitions and also some little mistakes found. 
+Right now the feedback is splitted in a compuData() function to calculate 
+the asy/diff value needed for a specified monitor. Then a function SendEPICS()
+is used to send correct voltages to the source feedback device. For 
+the moment I consider this is the only way to send the voltages value.
+I will make the change when the fiber optics will be ready.
+I have written the code for the PITA feedback in case we need it in the next 
+campaign of test. 
+I left 2 minor mistake last time:
+1) I forgot a '*900' in the end run IA feedback function loop so it was doing
+feedback only if 100 pairs was left in the queu instead of 900 in the right
+case.  
+2) In the test used to send the value I was using abs() but to make the criteria
+working correctly without integer approximation it is fabs() I need to use with
+Double_t.
+It is possible to do the feedback in a compute mode (i.e we don't send anything
+to the source)
+
 
 Changes by R. Holmes on 22 Aug 2002
 -----------------------------------
