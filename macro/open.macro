@@ -1,4 +1,4 @@
-void open (Int_t run = 0, TString atype = "")
+Int_t open (Int_t run = 0, TString atype = "")
 {
   if (run <= 0)
     {
@@ -20,5 +20,6 @@ void open (Int_t run = 0, TString atype = "")
   
   TTree *raw = (TTree*)gROOT.FindObject("R");
   TTree *asy = (TTree*)gROOT.FindObject("P");
-  
+
+  return run;  
 }
