@@ -66,7 +66,9 @@ TaEvent::TaEvent():
   fEvNum(0),  
   fEvLen(0), 
   fFailedACut(false), 
-  fDelHel(UnkHeli)
+  fDelHel(UnkHeli),
+  fPrevHel(UnkHeli),
+  fPrevDelHel(UnkHeli)
 {
   fEvBuffer = new Int_t[fgMaxEvLen];
   memset(fEvBuffer, 0, fgMaxEvLen*sizeof(Int_t));
@@ -117,6 +119,8 @@ TaEvent::CopyInPlace (const TaEvent& rhs)
       fFailedACut = rhs.fFailedACut;
       fResults = rhs.fResults;
       fDelHel = rhs.fDelHel;
+      fPrevHel = rhs.fPrevHel;
+      fPrevDelHel = rhs.fPrevDelHel;
       memset (fEvBuffer, 0, fgMaxEvLen*sizeof(Int_t));
       memcpy(fEvBuffer, rhs.fEvBuffer, fEvLen*sizeof(Int_t));
       memcpy(fData, rhs.fData, MAXKEYS*sizeof(Double_t));
@@ -564,6 +568,33 @@ EHelicity TaEvent::GetDelHelicity() const {
   return fDelHel;
 }
 
+void TaEvent::SetPrevHelicity(EHelicity h)
+{
+  // Fill in the in-time helicity value for the previous event.
+
+  fPrevHel = h;
+}
+
+void TaEvent::SetPrevDelHelicity(EHelicity h)
+{
+  // Fill in the delayed helicity value for the previous event.
+
+  fPrevDelHel = h;
+}
+
+EHelicity TaEvent::GetPrevHelicity() const 
+{
+  // Return in-time helicity of previous event as RightHeli or LeftHeli.
+
+  return fPrevHel;
+}
+
+EHelicity TaEvent::GetPrevDelHelicity() const {
+  // Return delayed helicity of previous event as RightHeli or LeftHeli.
+
+  return fPrevDelHel;
+}
+
 EPairSynch TaEvent::GetPairSynch() const {
   // Return pairsynch (aka realtime) for this event as FirstPS or
   // SecondPS, tagging this as an event from the first or second
@@ -788,6 +819,8 @@ void TaEvent::Create(const TaEvent& rhs)
  fFailedACut = rhs.fFailedACut;
  fResults = rhs.fResults;
  fDelHel = rhs.fDelHel;
+ fPrevHel = rhs.fPrevHel;
+ fPrevDelHel = rhs.fPrevDelHel;
  fEvBuffer = new Int_t[fgMaxEvLen];
  memset (fEvBuffer, 0, fgMaxEvLen*sizeof(Int_t));
  memcpy(fEvBuffer, rhs.fEvBuffer, fEvLen*sizeof(Int_t));

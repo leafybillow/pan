@@ -89,6 +89,11 @@ public:
   void SetDelHelicity (EHelicity);   // set delayed helicity
   EHelicity GetHelicity() const;     // (in time) helicity
   EHelicity GetDelHelicity() const;  // delayed helicity
+  void SetPrevHelicity(EHelicity h);     // set in-time helicity of prev evt
+  void SetPrevDelHelicity(EHelicity h);  // set delayed helicity of prev evt
+  EHelicity GetPrevHelicity() const;     // get in-time helicity of prev evt
+  EHelicity GetPrevDelHelicity() const;  // get delayed helicity of prev evt
+
   EPairSynch GetPairSynch() const;   // pair synch
   EQuadSynch GetQuadSynch() const;   // quad synch
   const vector < TaLabelledQuantity > & GetResults() const; // results for event
@@ -148,6 +153,8 @@ private:
   Bool_t fFailedACut;          // True iff a cut failed
   vector<TaLabelledQuantity> fResults;     // Results of event analysis
   EHelicity fDelHel;           // Delayed helicity filled from later event
+  EHelicity fPrevHel;          // In-time helicity for previous event
+  EHelicity fPrevDelHel;       // Delayed helicity for previous event
   Double_t *fData;             // Decoded/corrected data
 
 #ifdef DICT
