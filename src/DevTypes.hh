@@ -87,7 +87,7 @@
 #define   IBPMIN1Y     51          
 #define   IBPMIN1XWS   52         
 #define   IBPMIN1YWS   53         
-#define   IBPMIN18WS   54         
+#define   IBPMIN1WS    54         
 
 #define   IBPMIN2XP    55
 #define   IBPMIN2XM    56
