@@ -6,6 +6,17 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Michaels on 20 Feb 2003
+-------------------------------------
+
+TaDataBase::GetData(string table, vector<string> keys) had a rather
+severe bug that allowed TaDataBase elsewhere to overwrite some data
+in a table if keys were a partial match to the table. This was fixed
+by requiring a full match.  The only practical effect it had was on
+the pedestal tables, which had "adc" and "scaler" sharing keys for
+"chan" and "value".
+
+
 Changes by A. Vacheret on 12 Feb 2003
 -------------------------------------
 
