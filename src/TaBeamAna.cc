@@ -52,16 +52,16 @@ void TaBeamAna::EventAnalysis()
   // values of bcm1 and bcm2 (raw and corrected).
 
   fEvt->AddResult ( TaLabelledQuantity ( "bcm1 raw",
-					 fEvt->GetData("bcm1r"), 
+					 fEvt->GetData(IBCM1R), 
 					 "chan" ) );
   fEvt->AddResult ( TaLabelledQuantity ( "bcm1",
-					 fEvt->GetData("bcm1"), 
+					 fEvt->GetData(IBCM1), 
 					 "chan" ) );
   fEvt->AddResult ( TaLabelledQuantity ( "bcm2 raw",
-					 fEvt->GetData("bcm2r"), 
+					 fEvt->GetData(IBCM2R), 
 					 "chan" ) );
   fEvt->AddResult ( TaLabelledQuantity ( "bcm2",
-					 fEvt->GetData("bcm2"), 
+					 fEvt->GetData(IBCM2), 
 					 "chan" ) );
 }
 
@@ -82,12 +82,11 @@ TaBeamAna::InitChanLists ()
   // devices, but not detectors, into the lists.
 
   // Initialize the lists of devices to analyze
-  vector<pair<string,string> > f;
+  vector<AnaList* > f;
 
   // List of channels for which to store left and right values
   fCopyList = ChanList ("tir", "helicity", "");
   f = ChanList ("tir", "pairsynch", "");
-  f = ChanList ("timeboard", "oversample_bin", "");
   fCopyList.insert (fCopyList.end(), f.begin(), f.end());
 
   // List of channels for which to store differences
@@ -99,4 +98,7 @@ TaBeamAna::InitChanLists ()
   fAsymList = ChanList ("bcm", "~", "ppm");
 
 }
+
+
+
 
