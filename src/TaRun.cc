@@ -215,10 +215,10 @@ TaRun::Init()
   fDevices->Init(*fDataBase);
   fCutList = new TaCutList(fRunNumber);
   fCutList->Init(*fDataBase);
-  fCutList->AddName(LowBeamCut, "Low_beam");
-  fCutList->AddName(BeamBurpCut, "Beam_burp");
-  fCutList->AddName(OversampleCut, "Oversample");
-  fCutList->AddName(SequenceCut, "Sequence");
+//    fCutList->AddName(LowBeamCut, "Low_beam");
+//    fCutList->AddName(BeamBurpCut, "Beam_burp");
+//    fCutList->AddName(OversampleCut, "Oversample");
+//    fCutList->AddName(SequenceCut, "Sequence");
   InitTree();
   fOversamp = fDataBase->GetOverSamp();
   if (fOversamp == 0)
@@ -228,9 +228,7 @@ TaRun::Init()
       return fgTARUN_ERROR;
     }
 
-  TaEvent::RunInit(*this);
-
-  return fgTARUN_OK;
+  return TaEvent::RunInit(*this);
 
 }
  
@@ -266,11 +264,12 @@ TaRun::ReInit()
   delete fCutList;
   fCutList = new TaCutList(fRunNumber);
   fCutList->Init(*fDataBase);
-  fCutList->AddName(LowBeamCut, "Low beam");
-  fCutList->AddName(BeamBurpCut, "Beam burp");
-  fCutList->AddName(OversampleCut, "Oversample");
-  fCutList->AddName(SequenceCut, "Sequence");
-  TaEvent::RunInit(*this);
+//    fCutList->AddName(LowBeamCut, "Low_beam");
+//    fCutList->AddName(BeamBurpCut, "Beam_burp");
+//    fCutList->AddName(OversampleCut, "Oversample");
+//    fCutList->AddName(SequenceCut, "Sequence");
+  if (TaEvent::RunInit(*this) != 0)
+    return fgTARUN_ERROR;
 
   if (fERunStats != 0)
     fERunStats->SetFirstPass (false);
@@ -484,7 +483,7 @@ TaRun::AccumPair(const VaPair& pr)
 }
 
 void 
-TaRun::UpdateCutList (const ECutType cut, const Int_t val, EventNumber_t evno) 
+TaRun::UpdateCutList (const Cut_t cut, const Int_t val, EventNumber_t evno) 
 { 
   // Update this run's cut list with the given cut type, value, and
   // event number.
