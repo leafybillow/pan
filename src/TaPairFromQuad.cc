@@ -20,7 +20,6 @@
 #include "TaEvent.hh"
 #include "TaPairFromQuad.hh"
 #include "TaRun.hh"
-//  #include "TaLabelledQuantity.hh"
 
 #ifdef DICT
 ClassImp(TaPairFromQuad)
@@ -68,6 +67,8 @@ void TaPairFromQuad::CheckSequence( TaEvent& ThisEv, TaRun& run )
   // In second window of quad, helicity unchanged from first window
   // In third window of quad, helicity changed from second window
   // In fourth window of quad, helicity unchanged from third window
+  // In first or third window of quad, pairsynch is FirstPS
+  // In second or fourth window of quad, pairsynch is SecondPS
   // In second and later events of window, pairsynch changed from first event
   // In second and later events of window, quadsynch changed from first event
   // In second and later events of window, helicity changed from first event
@@ -81,6 +82,7 @@ void TaPairFromQuad::CheckSequence( TaEvent& ThisEv, TaRun& run )
   const Int_t WQSFIRST   = 0x7;
   const Int_t WQSOTHER   = 0x8;
   const Int_t EQSCHANGE  = 0x9;
+  const Int_t WQSPSWRONG = 0x10;
 
   Int_t val = 0;
 
@@ -127,6 +129,29 @@ void TaPairFromQuad::CheckSequence( TaEvent& ThisEv, TaRun& run )
 	    }
 	}
 
+      if (fgQuadCount == 0)
+	// See if helicity is right
+	{
+	  if (!HelSeqOK (ThisEv.GetDelHelicity()))
+	    {
+	      cout << "TaPairFromQuad::CheckEvent ERROR: Event " 
+		   << ThisEv.GetEvNumber() 
+		   << " helicity sequence error" << endl;
+	      val = WHELWRONG;
+	    }	      
+	} 
+
+      if (((fgQuadCount == 0 || fgQuadCount == 2) && lps == SecondPS)
+	  ||
+	  ((fgQuadCount == 1 || fgQuadCount == 3) && lps == FirstPS))
+	// See if pairsynch is right
+	{
+	  cout << "TaPairFromQuad::CheckEvent ERROR: Event " 
+	       << ThisEv.GetEvNumber() 
+	       << " pairsynch/quadsynch mismatch" << endl;
+	  val = WQSPSWRONG;
+	} 
+
       if ( fgLastWinEv.GetEvNumber() > 0 )
 	{
 	  // Comparisons to last window
@@ -139,18 +164,7 @@ void TaPairFromQuad::CheckSequence( TaEvent& ThisEv, TaRun& run )
 	      val = WPSSAME;
 	    }
 	  
-	  if (fgQuadCount == 0)
-	    // See if helicity is right
-	    {
-	      if (!HelSeqOK (ThisEv.GetDelHelicity()))
-		{
-		  cout << "TaPairFromQuad::CheckEvent ERROR: Event " 
-		       << ThisEv.GetEvNumber() 
-		       << " helicity sequence error" << endl;
-		  val = WHELWRONG;
-		}	      
-	    } 
-	  else if (fgQuadCount == 1 || fgQuadCount == 3)
+	  if (fgQuadCount == 1 || fgQuadCount == 3)
 	    // See if helicity changed
 	    {
 	      if ( ThisEv.GetDelHelicity() == fgLastWinEv.GetDelHelicity() )
