@@ -43,6 +43,7 @@ VaEvent VaPair::fgLastWinEv;
 UInt_t VaPair::fgShreg = 1;
 UInt_t VaPair::fgNShreg = 0;
 Bool_t VaPair::fgPairMade = false;
+UInt_t VaPair::fgNCuts;
 Cut_t VaPair::fgSequenceNo;
 UInt_t VaPair::fgOldb = 2;
 Bool_t VaPair::fgRandom = 1;
@@ -123,16 +124,31 @@ VaPair::RunInit(const TaRun& run)
   fgShreg = 1;
   fgNShreg = 0;
   fgPairMade = false;
+
+  fgNCuts = (UInt_t) run.GetDataBase().GetNumCuts();
   fgSequenceNo = run.GetDataBase().GetCutNumber("Pair_seq");
-  if (fgSequenceNo ==  (UInt_t) run.GetDataBase().GetNumCuts())
+  if (fgSequenceNo == fgNCuts)
     fgSequenceNo = run.GetDataBase().GetCutNumber("Sequence"); // backward compat
-  if (fgSequenceNo == (UInt_t) run.GetDataBase().GetNumCuts())
+  if (fgSequenceNo == fgNCuts)
     {
-      cerr << "VaPair::RunInit ERROR: Pair_seq"
-	   << " cut must be defined in database" << endl;
+      cerr << "VaPair::RunInit WARNING: Following cut(s) are not defined "
+	   << "in database and are required:";
+      if (fgSequenceNo == fgNCuts) cerr << " Pair_seq";
+      cerr << endl;
       return fgVAP_ERROR;
     }
 
+  // Since there are no non-required pair cuts the following code is
+  // commented out (but left for possible future use)
+
+  //   if (fgSequenceNo == fgNCuts)
+  //     {
+  //       cerr << "VaPair::RunInit WARNING: Following cut(s) are not defined "
+  // 	   << "in database and will not be imposed:";
+  //       if (fgSequenceNo == fgNCuts) cerr << " Pair_seq";
+  //       cerr << endl;
+  //     }
+  
   // If randomheli is "no" in database set fgRandom to 0, else 1.
   TaString sran = run.GetDataBase().GetRandomHeli();
   fgRandom = sran.CmpNoCase ("no") == 0 ? 0 : 1;

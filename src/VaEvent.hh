@@ -129,6 +129,7 @@ private:
   static Cut_t fgLoBeamNo;     // cut number for low beam
   static Cut_t fgBurpNo;       // cut number for beam burp
   static Cut_t fgEvtSeqNo;     // cut number for event sequence
+  static Cut_t fgStartupNo;    // cut number for startup
   static UInt_t fgOversample;  // oversample factor
   static UInt_t fgSizeConst;   // size of first physics event should be size of all
   static UInt_t fgNCuts;       // Length of cut array
