@@ -2,9 +2,6 @@
 # for Hall A Parity Experiments.
 # R. Michaels, A. Vacheret, R. Holmes
 #
-# WARNING: I guess I don't have all the dependencies here yet, so
-# sometimes you should 'make clean' before 'make', else... badness.
-#
 # You must have the 'codaclass' library and point DCDIR to the
 # directory where codaclass headers are found.  See README.
 #
@@ -14,6 +11,9 @@
 #
 # Uncomment this if profiling (note: it slows down the code)
 # export PROFILE = 1
+#
+# To compile optimized
+export OPTIMIZE = 1
 # 
 # Would uncommment this if you want rootcint Dictionary.
 # Only works with the CVS version of root as of Dec 21, 2001.
@@ -27,7 +27,7 @@ ifeq ($(OSNAME),SunOS)
    ROOTLIBS      = $(shell root-config --libs)
    ROOTGLIBS     = $(shell root-config --glibs)
    CXX           = g++
-   CXXFLAGS      = -O -KPIC -DSUNVERS -I$(ROOTSYS)/include -I$(MAINDIR)
+   CXXFLAGS      = -KPIC -DSUNVERS -I$(ROOTSYS)/include -I$(MAINDIR)
    CXXFLAGS     += $(ROOTCFLAGS)
    LD            = g++
    LDFLAGS       = -g -D
@@ -84,15 +84,17 @@ ifdef PROFILE
    CXXFLAGS += -pg
 endif
 
+ifdef OPTIMIZE
+   CXXFLAGS += -O
+endif
 
 # Grow the list of sources here.
 
-SRC = TaADC.cc TaAnalysisManager.cc TaAsciiDB.cc TaBCM.cc \
-      TaBPM.cc TaBeamAna.cc TaFdbkAna.cc\
+SRC = TaAnalysisManager.cc TaAsciiDB.cc \
+      TaBeamAna.cc TaFdbkAna.cc TaDevice.cc \
       TaCutInterval.cc TaCutList.cc TaEvent.cc TaLabelledQuantity.cc \
-      TaPairFromPair.cc TaRun.cc TaScaler.cc TaStatistics.cc \
-      TaTB.cc TaTIR.cc \
-      VaAnalysis.cc VaDataBase.cc VaDevice.cc VaPair.cc TaADCCalib.cc
+      TaPairFromPair.cc TaRun.cc TaStatistics.cc \
+      VaAnalysis.cc VaDataBase.cc VaPair.cc TaADCCalib.cc
 
 DEPS = $(SRC:.cc=.d)
 OBJS = $(SRC:.cc=.o)
