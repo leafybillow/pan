@@ -20,6 +20,10 @@
 #include "TString.h"
 #include <string>
 #include "PanTypes.hh"
+#include <sstream>
+#include <iostream>
+
+using namespace std;
 
 class TaFileName
 {

@@ -31,6 +31,8 @@
 #include <list>
 #include <string>
 
+using namespace std;
+
 class TaCutInterval;
 class TaDataBase;
 class VaEvent;

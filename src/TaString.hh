@@ -27,6 +27,8 @@
 #include <string>
 #include <vector>
 
+using namespace std;
+
 typedef unsigned UInt_t;  // take out when done debugging!!!!!!
 
 

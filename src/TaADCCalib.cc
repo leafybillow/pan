@@ -305,7 +305,7 @@ void TaADCCalib::FinishDAC()
 	    dDACval[nGood] = (Double_t) ib;
 	    dEDACval[nGood] = 0.25;
 	    dADCavg[nGood] = avg;
-	    dADCvar[nGood] = rms/sqrt(dEntries[id][ib]);
+	    dADCvar[nGood] = rms/sqrt((Double_t) dEntries[id][ib]);
             dRes[nGood] = res;
 	    nGood++;
 	  } else if (dEntries[id][ib]==1) {

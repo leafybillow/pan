@@ -33,8 +33,8 @@ ClassImp(TaIResultsFile)
 
 TaIResultsFile::TaIResultsFile (const RunNumber_t run, 
 				const string atype, 
-				const string com = "",
-				const UInt_t chks = 0)
+				const string com,
+				const UInt_t chks)
   : ifstream()
 {
   Create (run, atype, com, chks);
@@ -43,8 +43,8 @@ TaIResultsFile::TaIResultsFile (const RunNumber_t run,
 
 TaIResultsFile::TaIResultsFile (const RunNumber_t run, 
 				const char* atype, 
-				const char* com = "",
-				const UInt_t chks = 0)
+				const char* com ,
+				const UInt_t chks)
   : ifstream()
 {
   // Non-stringy constructor for use in CINT
@@ -124,7 +124,7 @@ void
 TaIResultsFile::Create (const RunNumber_t run, 
 			const string atype, 
 			const string com,
-			const UInt_t chks = 0)
+			const UInt_t chks)
 {
   // Utility for constructors
 

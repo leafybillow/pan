@@ -14,8 +14,9 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "TaFileName.hh"
-#include <strstream>
 #include <ctime>
+
+using namespace std;
 
 #ifndef NODICT
 ClassImp(TaFileName)
@@ -29,8 +30,8 @@ string TaFileName::fgBaseName = "";
 TaFileName::TaFileName (const RunNumber_t r, 
 			const string a,
 			const string s, 
-			const string com = "", 
-			const string suf = "")
+			const string com , 
+			const string suf )
 {
   // Construct a Pan standard filename for run r, analysis type a,
   // file type s (which may be "coda" for CODA data files, "db" for
@@ -110,22 +111,22 @@ TaFileName::TaFileName (const RunNumber_t r,
 TaFileName::TaFileName (const RunNumber_t r, 
 			const char* a,
 			const char* s, 
-			const char* com = "", 
-			const char* suf = "")
+			const char* com , 
+			const char* suf )
 {
   Create (Basename (r), string (a), string (s), string (com), string (suf));
 }
 
 TaFileName::TaFileName (const string s, 
-			const string com = "", 
-			const string suf = "")
+			const string com , 
+			const string suf )
 {
   Create (fgBaseName, fgAnaStr, s, com, suf);
 }
 
 TaFileName::TaFileName (const char* s, 
-			const char* com = "", 
-			const char* suf = "")
+			const char* com , 
+			const char* suf )
 {
   Create (fgBaseName, fgAnaStr, string (s), string (com), string (suf));
 }
@@ -172,8 +173,8 @@ void
 TaFileName::Create (const string b,
 		    const string a,
 		    const string s, 
-		    const string com = "", 
-		    const string suf = "")
+		    const string com , 
+		    const string suf )
 {
   string path (".");
   string tags ("");

@@ -824,7 +824,7 @@ VaEvent::AddToTree (TaDevice& devices,
 Double_t VaEvent::Rotate(Double_t x, Double_t y, Int_t xy) {
 // Rotation to get X or Y depending on xy flag
    Double_t result = 0;
-   Double_t root2 = (Double_t)sqrt(2);
+   Double_t root2 = sqrt(2.0);
    if (xy == 2) {
       result = ( x + y ) / root2;
    } else {

@@ -64,6 +64,8 @@
 #include "TArrayC.h"
 #include "TObject.h"
 
+using namespace std;
+
 class TaString;
 
 class dtype {

@@ -26,6 +26,8 @@
 #include <iterator>
 #include <string>
 
+using namespace std;
+
 class TaDataBase;
 
 class TaDevice {

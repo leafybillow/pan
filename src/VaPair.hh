@@ -23,11 +23,13 @@
 #include <deque>
 #include <string>
 #include <vector>
-
+#include <iostream>
+#include "VaEvent.hh"
+using namespace std;
 
 class TaCutList;
 class TaRun;
-class VaEvent;
+//class VaEvent;
 class TaLabelledQuantity;
 
 class VaPair {

@@ -57,8 +57,11 @@
 #include "Rtypes.h"
 #include <string>
 #include <vector>
+#include <iostream>
 
-class TaBlind : public string
+using namespace std;
+
+class TaBlind : public string 
 {
 
 public:

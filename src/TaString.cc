@@ -54,7 +54,7 @@ TaString::CmpNoCase (const string& s) const
 }
 
 vector<string> 
-TaString::Split (size_t n = 0) const
+TaString::Split (size_t n) const
 {
   // Split on whitespace (to a maximum of n strings if n>0)
   vector<string> v;

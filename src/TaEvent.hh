@@ -27,6 +27,8 @@
 #include <string>
 #include <utility>
 
+using namespace std;
+
 class TaDevice;
 class TTree;
 class TaCutList;

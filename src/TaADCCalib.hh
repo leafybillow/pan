@@ -21,13 +21,13 @@
 #include <TObject.h>
 #include <TTree.h> 
 #include <vector>
-#include <vector>
 #include "VaAnalysis.hh"
 #include "TROOT.h"
 #include "TFile.h"
 #include "TH1.h"
 #include "TGraphErrors.h"
 
+using namespace std;
 
 #define ADC_MaxSlot 10
 #define ADC_MaxChan 4

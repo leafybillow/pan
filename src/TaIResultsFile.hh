@@ -25,6 +25,8 @@
 #include <fstream>
 #include "PanTypes.hh"
 
+using namespace std;
+
 class TaIResultsFile: public ifstream
 {
 
@@ -34,7 +36,7 @@ class TaIResultsFile: public ifstream
 
   TaIResultsFile (const RunNumber_t run, 
 		  const string atype, 
-		  const string com = "",
+		  const string com = "" ,
 		  const UInt_t chks = 0);
   
   TaIResultsFile (const RunNumber_t run, 

@@ -244,7 +244,7 @@ void TaPairFromQuad::CheckSequence( VaEvent& ThisEv, TaRun& run )
 
 
 UInt_t 
-TaPairFromQuad::RanBit (UInt_t hRead = 2)
+TaPairFromQuad::RanBit (UInt_t hRead)
 {
   // Pseudorandom bit predictor.  Following algorithm taken from
   // "Numerical Recipes in C" Press, Flannery, et al., 1988.  New bit
