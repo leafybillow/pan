@@ -23,6 +23,7 @@
 #include "TaString.hh"
 #include "TaDataBase.hh"
 #include "VaAnalysis.hh"
+#include "TaFeedbackAna.hh"
 #include "TaStandardAna.hh"
 #include "TaDebugAna.hh"
 #include "TaADCCalib.hh"
@@ -194,6 +195,8 @@ TaAnalysisManager::InitCommon()
     fAnalysis = new TaADCCalib("adcdac");
   else if (theAnaType.CmpNoCase("debug") == 0)
     fAnalysis = new TaDebugAna;
+  else if (theAnaType.CmpNoCase("fdbk") == 0)
+    fAnalysis = new TaFeedbackAna();    
   else
     {
       cerr << "TaAnalysisManager::InitCommon ERROR: Invalid analysis type = "

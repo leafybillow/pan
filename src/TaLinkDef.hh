@@ -35,6 +35,7 @@
 #pragma link C++ class TaRootRep;
 #pragma link C++ class TaRun;
 #pragma link C++ class TaStandardAna;
+#pragma link C++ class TaFeedbackAna;
 #pragma link C++ class TaStatistics;
 #pragma link C++ class TaString;
 #pragma link C++ class VaAnalysis;
