@@ -19,7 +19,7 @@
 # export INSURE = 1
 #
 # Uncomment this if you want to use MySQL database
-export MYSQLDB = 1
+#export MYSQLDB = 1
 #
 # Would uncommment this if you want rootcint Dictionary.
 # Only works with the CVS version of root as of Dec 21, 2001.
@@ -129,7 +129,7 @@ endif
 # Grow the list of sources here.
 
 SRC = TaAnalysisManager.cc  \
-      TaBeamAna.cc TaFdbkAna.cc TaDevice.cc \
+      TaBeamAna.cc TaDevice.cc TaMapFile.cc\
       TaCutInterval.cc TaCutList.cc TaEvent.cc TaLabelledQuantity.cc \
       TaPairFromPair.cc TaRun.cc TaStatistics.cc TaString.cc \
       VaAnalysis.cc VaDataBase.cc VaPair.cc TaADCCalib.cc
