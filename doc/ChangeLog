@@ -4,6 +4,43 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 18-19 Mar 2002
+----------------------------------------
+
+TaAsciiDB.cc
+
+  o Better error messages for selfcheck of windelay and oversamp;
+    oversamp can be up to 12 (is this safe?)
+
+TaEvent.{cc,hh}
+
+  o Add DumpBits for helicity etc. diagnostics
+
+TaPairFromPair.{cc,hh}
+
+  o In Fill(), now check for mismatch between number of 'first' and
+    'second' events.  I.e.:
+
+      o If we see a 'first' event immediately after a 'second' event,
+        but the event queue is not empty, then we didn't have enough
+        'seconds' to pair with all the 'firsts'.
+
+      o If we see a 'second' event while the event queue is empty,
+        then we didn't have enough 'firsts' to pair with all the
+        'seconds'. 
+
+    In either case we print an error message and return false.  In the
+    first case we also clear the event queue and set fgSkipping to
+    true if the timeslot isn't 1, to skip events until the start of
+    the next 'first' window.  In the second case we always set
+    fgSkipping to true.  We do NOT generate a cut but I believe we
+    don't need to -- there should always be a sequence cut just before
+    or after this.
+
+  o In CheckSequence(), do checks between this window and previous
+    window even if timeslot = 1 is not seen.
+
+
 Changes by R. Holmes on 15 Mar 2002
 ----------------------------------------
 
