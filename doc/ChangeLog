@@ -6,6 +6,23 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 27 Feb 2003
+-----------------------------------
+
+We've long had cond_* branches in the pair tree, e.g. cond_low_beam,
+which is nonzero for events that fail the low beam condition.  I've
+finally added cut_* branches, e.g. cut_low_beam, which is nonzero for
+events that fail the low beam cut (i.e. events that fail the
+condition, plus events in the cut extension before and after these
+events.)  This makes it easier for ROOT macros to impose sensible
+combinations of cuts other than the one combination embodied in
+ok_cut.
+
+VaAnalysis.{hh,cc}
+
+ o Add cut_* branches to pair tree
+
+
 Changes by R. Holmes on 24 Feb 2003
 -----------------------------------
 

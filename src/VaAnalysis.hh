@@ -260,7 +260,8 @@ protected:
   Int_t fTreePrevHel;           // True helicity of prev event
   Double_t* fTreeSpace;         // Other data for tree
   UInt_t fNCuts;                // Size of cut array
-  Int_t* fCutArray;             // Array of cut values for tree
+  Int_t* fCutArray;             // Array of cut condition values for tree
+  Int_t* fCutIntArray;          // Array of cut interval values for tree
   Bool_t fOnlFlag;              // Flag whether data are online or not. 
   UInt_t fEvtProc;              // Number of events processed
   UInt_t fPairProc;             // Number of pairs processed

@@ -108,6 +108,7 @@ VaAnalysis::VaAnalysis():
   fTreeSpace(0),
   fNCuts(0),
   fCutArray(0),
+  fCutIntArray(0),
   fOnlFlag(0),
   fPairType(FromPair),
   fSliceLimit(fgSLICELENGTH),
@@ -150,6 +151,7 @@ VaAnalysis::~VaAnalysis()
   delete fPairTree;
   delete[] fTreeSpace;
   delete [] fCutArray;
+  delete [] fCutIntArray;
   delete[] fPZTMatrix;
 #ifdef LEAKCHECK
   ++fLeakDelEvt;
@@ -247,6 +249,7 @@ VaAnalysis::RunIni(TaRun& run)
 
   fNCuts = fRun->GetDataBase().GetNumCuts();
   fCutArray = new Int_t[2*fNCuts];
+  fCutIntArray = new Int_t[2*fNCuts];
 
   // Initialize blinding
   string bs = fRun->GetDataBase().GetBlindingString();
@@ -638,7 +641,20 @@ VaAnalysis::ProcessPair()
 	  fCutArray[j++] = (ncr > i) ? fPair->GetRight().CutCond(i) : 0;
 	  fCutArray[j++] = (ncl > i) ? fPair->GetLeft().CutCond(i) : 0;
 	}
-      
+
+      // Cut intervals array
+
+      memset (fCutIntArray, 0, 2 * fNCuts * sizeof (Int_t));
+
+      vector<pair<Cut_t,Int_t> > cf[2];
+      cf[0] = fRun->GetCutList().CutsFailed (fPair->GetRight());
+      cf[1] = fRun->GetCutList().CutsFailed (fPair->GetLeft());
+
+      for (UInt_t irl = 0; irl < 2; ++irl)
+	for (vector<pair<Cut_t,Int_t> >::const_iterator jp = cf[irl].begin();
+	     jp != cf[irl].end();
+	     ++jp)
+	  fCutIntArray[2*(jp->first)+irl] = jp->second;
 
 #ifdef ASYMCHECK   
       clog << " paired event "<<fPair->GetLeft().GetEvNumber()<<" with "<<fPair->GetRight().GetEvNumber()<<endl;
@@ -817,7 +833,7 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
 	}
     }
   
-  // Add cut values
+  // Add values for cut conditions and intervals
   
   size_t j(0);
   for (Cut_t icut = Cut_t (0); icut < cutlist.GetNumCuts(); ++icut)
@@ -826,6 +842,12 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
       cutstr = cutstr.ToLower();
       fPairTree->Branch(cutstr.c_str(), 
 			&fCutArray[j], 
+			(cutstr + string("[2]/I")).c_str(), 
+			bufsize);
+      cutstr = "cut_" + cutlist.GetName(icut);
+      cutstr = cutstr.ToLower();
+      fPairTree->Branch(cutstr.c_str(), 
+			&fCutIntArray[j], 
 			(cutstr + string("[2]/I")).c_str(), 
 			bufsize);
       j += 2;
