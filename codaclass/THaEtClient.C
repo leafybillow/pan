@@ -184,14 +184,16 @@ int THaEtClient::codaClose() {
   }
   if (CODA_VERBOSE) 
     cout << "THaEtClient::codaClose:  detaching station "<<endl<<flush;
-  if (et_station_detach(id, my_att) != ET_OK) {
-    cout << "ERROR: codaClose: detaching from ET"<<endl<<flush;
+  fStatus = et_station_detach(id, my_att);
+  if (fStatus != ET_OK) {
+    cout << "ERROR: codaClose: detaching from ET, status = "<<fStatus<<endl<<flush;
     fStatus = CODA_ERROR;
   }
   if (CODA_VERBOSE) 
     cout << "THaEtClient::codaClose:  removing station "<<endl<<flush;
-  if (et_station_remove(id, my_stat) != ET_OK) {
-    cout << "ERROR: codaClose: removing ET station"<<endl<<flush;
+  fStatus = et_station_remove(id, my_stat);
+  if (fStatus != ET_OK) {
+    cout << "ERROR: codaClose: removing ET station, status = "<<fStatus<<endl<<flush;
     fStatus = CODA_ERROR;
   }
   if (CODA_VERBOSE) 
