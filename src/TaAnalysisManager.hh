@@ -45,7 +45,9 @@ class TaAnalysisManager
   ErrCode_t Init ();              // Initialization with online data
   ErrCode_t Init (RunNumber_t);   // Initialization with run number
   ErrCode_t Init (string);        // Initialization with file path
+  ErrCode_t InitPass2 ();         // Initialization for second pass
   ErrCode_t Process();            // Process all data
+  ErrCode_t EndPass1();           // End first pass analysis
   ErrCode_t End();                // End all analysis
   
   // Static constants

@@ -9,9 +9,10 @@
 //
 ////////////////////////////////////////////////////////////////////////
 //
-//    Manages the overall analysis.  This is a simple class whose
-//    three main methods are Init, Process, and End; calling these
-//    three in that order, once each, gives an analysis of a run.
+//    Manages the overall analysis.  Calling Init, Process, and End in
+//    that order, once each, gives a 1-pass analysis of a run.  For a
+//    2-pass analysis call Init, Process, EndPass1, InitPass2,
+//    Process, End.
 //
 ////////////////////////////////////////////////////////////////////////
 
@@ -87,12 +88,42 @@ TaAnalysisManager::Init (string runfile)
 
 
 ErrCode_t
+TaAnalysisManager::InitPass2()
+{
+  // Setup second pass
+
+  clog << "\nTaAnalysisManager::InitPass2: Start of second pass analysis\n" << endl;
+
+  // Reinitialize the run
+  int status = fRun->ReInit();
+  if (status != 0)
+    return status;
+
+  // Reinitialize the analysis
+  fAnalysis->Init();
+  return fAnalysis->RunReIni (*fRun);
+}
+
+
+ErrCode_t
 TaAnalysisManager::Process()
 {
   // Process all data
 
   return fAnalysis->ProcessRun();
 }
+
+ErrCode_t
+TaAnalysisManager::EndPass1()
+{
+  // Cleanup for analysis pass 1
+
+  fAnalysis->RunFini ();
+  fAnalysis->Finish(); // take care of end-of-analysis tasks
+  fRun->Finish(); // compute and print/store run results
+  return fgTAAM_OK; // for now always return OK
+}
+
 
 ErrCode_t
 TaAnalysisManager::End()
@@ -131,6 +162,8 @@ TaAnalysisManager::InitCommon()
 {
   // Common setup for overall management of analysis
 
+  clog << "\nTaAnalysisManager::InitCommon: Start of analysis\n" << endl;
+
   // Make the ROOT output file, generic at first since we don't know
   // run number yet.
 
@@ -154,14 +187,14 @@ TaAnalysisManager::InitCommon()
 
   clog << "checking database ..."<<endl;
   if ( !fRun->GetDataBase().SelfCheck() ) {
-    cerr << "TaAnalysisManager::Init ERROR: Invalid database.  Quitting."<<endl;
+    cerr << "TaAnalysisManager::InitCommon ERROR: Invalid database.  Quitting."<<endl;
     return fgTAAM_ERROR;
   }
 
   // Make the desired kind of analysis
   TaString theAnaType = fRun->GetDataBase().GetAnaType();
 
-  clog << "TaAnalysisManager::Init Analysis type is " 
+  clog << "TaAnalysisManager::InitCommon: Analysis type is " 
        << theAnaType << endl;
 
   if (theAnaType.CmpNoCase("beam") == 0)
@@ -172,7 +205,7 @@ TaAnalysisManager::InitCommon()
     fAnalysis = new TaADCCalib("adcdac");
   else
     {
-      cerr << "TaAnalysisManager::Init ERROR: Invalid analysis type = "
+      cerr << "TaAnalysisManager::InitCommon ERROR: Invalid analysis type = "
 	   << theAnaType << endl;
       return fgTAAM_ERROR;
     }

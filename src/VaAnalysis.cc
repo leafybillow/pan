@@ -44,7 +44,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 //#define NOISY
-#define CHECKOUT
+//#define CHECKOUT
 //#define ASYMCHECK
 #define FDBK1
 
@@ -96,7 +96,8 @@ VaAnalysis::VaAnalysis():
   fTreeOKCond(0),
   fTreeOKCut(0),
   fTreeSpace(0),
-  fPairType(FromPair)
+  fPairType(FromPair),
+  fFirstPass(true)
 { 
   fEHelDeque.clear(); 
   fEDeque.clear(); 
@@ -248,6 +249,32 @@ VaAnalysis::RunIni(TaRun& run)
 
 
 ErrCode_t
+VaAnalysis::RunReIni(TaRun& run) 
+{ 
+  // To be called at the start second pass of each run.  (Present
+  // structure of Pan is that each analysis handles only one run, so
+  // this is somewhat redundant with Init.)  "Prime the pump" by
+  // getting a new empty pair and making sure fPair is null.
+
+  fFirstPass = false;
+  fPreEvt = new TaEvent();
+#ifdef LEAKCHECK
+  ++fLeakNewEvt;
+#endif
+  NewPrePair();
+  fPrePair->RunInit();
+  fPair = 0;
+
+  fQSwitch = kFALSE;
+  fZSwitch = kFALSE;
+  fQNpair=0; fQfeedNum=0;
+  fZNpair=0; fZfeedNum=0;
+
+  return fgVAANA_OK;
+}
+
+
+ErrCode_t
 VaAnalysis::ProcessRun()
 {
   // Main analysis routine -- this is the event loop.  Get an event,
@@ -325,7 +352,12 @@ VaAnalysis::RunFini()
   if (fQSwitch) QasyEndFeedback();
   if (fZSwitch) PZTEndFeedback();
 
-  fPairTree->Write();
+  if (fFirstPass)
+    {
+      fPairTree->Write();
+      delete fPairTree;
+      fPairTree = 0;
+    }
   delete fPreEvt;
   fPreEvt = 0;
   delete fPrePair;  
@@ -348,8 +380,6 @@ VaAnalysis::RunFini()
   fPDeque.clear();
   delete fPair;
   fPair = 0;
-  delete fPairTree;
-  fPairTree = 0;
 #ifdef LEAKCHECK
   ++fLeakDelPair;
 #endif
@@ -484,7 +514,8 @@ VaAnalysis::ProcessPair()
       clog << " x diff " <<endl;       
 #endif
       PairAnalysis();
-      fPairTree->Fill();      
+      if (fFirstPass)
+	fPairTree->Fill();      
       ++fPairProc;
     }
   else

@@ -96,6 +96,7 @@ public:
   // Major functions
   virtual void Init();
   virtual ErrCode_t RunIni(TaRun&);
+  virtual ErrCode_t RunReIni(TaRun&);
   virtual ErrCode_t ProcessRun();
   virtual void RunFini();
   virtual void Finish();
@@ -183,6 +184,7 @@ protected:
   UInt_t fEvtProc;              // Number of events processed
   UInt_t fPairProc;             // Number of pairs processed
   EPairType fPairType;          // Type of beam helicity structure
+  Bool_t fFirstPass;            // Pass 1 or 2?
 
   Bool_t fQSwitch;              // feedback data
   Bool_t fZSwitch;              // feedback data
