@@ -198,6 +198,9 @@ TaBeamAna::InitChanLists ()
   f = ChanList ("bcm", "~", "ppm", fgNO_BEAM_NO_ASY + fgASY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
+  f = ChanList ("lumi", "~", "ppm", fgNO_BEAM_NO_ASY + fgASY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+
 //    f = ChanList ("bpm", "~xws", "ppm", fgNO_BEAM_NO_ASY + fgASY);
 //    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 //    f = ChanList ("bpm", "~yws", "ppm", fgNO_BEAM_NO_ASY + fgASY);
