@@ -78,7 +78,13 @@ class TaIResultsFile: public ifstream
 
   // Private member functions
 
-  TaIResultsFile (const TaIResultsFile& f): ifstream (f)  {}  // Do not use
+  // The following line generates warnings when compiled with ACLIC.
+  // It's not really needed but should be included for safety's sake
+  // when compiling Pan with gcc.
+  // So compile conditionally based on PANCOMPILE.
+#ifdef PANCOMPILE
+  TaIResultsFile (const TaIResultsFile& f)  {}  // Do not use
+#endif  
   TaIResultsFile& operator= (const TaIResultsFile&) { return *this; } // Do not use
   void Create (const RunNumber_t run, 
 	       const string atype, 

@@ -95,6 +95,11 @@ ALL_LIBS = $(LIBS) $(LIBCODACLASS)
 DCDIR=../codaclass
 INCLUDES += -I$(DCDIR)
 
+# Flag to indicate compilation of Pan executable (not defined for
+# ACLIC compilation)
+
+CXXFLAGS += -DPANCOMPILE
+
 ifdef ONLINE
     ALL_LIBS += $(ONLIBS)
     CXXFLAGS += -DONLINE
