@@ -21,6 +21,7 @@
 #include <vector>
 #include <list>
 #include "TaCutInterval.hh"
+#include "VaDataBase.hh"
 
 class TaCutList
 {
@@ -32,11 +33,13 @@ public:
   virtual ~TaCutList() {}
 
   // Major functions
-  void Init();
+  void Init(const VaDataBase&);
   Bool_t OK (const TaEvent&) const;  // True if event not in any cut interval
   vector<pair<ECutType,Int_t> > CutsFailed (const TaEvent&) const; // Cuts failed by event
   void UpdateCutInterval (const ECutType, const Int_t, const EventNumber_t);  // Update interval for this cut type
   void AddExtension (const ECutType, const UInt_t, const UInt_t);  // Add extensions to list
+
+  friend ostream& operator<< (ostream& s, const TaCutList q);
 
 private:
 

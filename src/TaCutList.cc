@@ -27,23 +27,48 @@ ClassImp(TaCutList)
 
 TaCutList::TaCutList(RunNumber_t run): fRunNumber(run)
 {
-  fLowExtension.resize (MaxCuts, 0);
-  fHighExtension.resize (MaxCuts, 0);
 }
 
 TaCutList::TaCutList()
 {
-  fLowExtension.resize (MaxCuts, 0);
-  fHighExtension.resize (MaxCuts, 0);
 }
 
 // Major functions
 
 void
-TaCutList::Init()
+TaCutList::Init(const VaDataBase& db)
 {
-  cout << "TaCutList::Init Cut list Initialization for run " 
+  clog << "TaCutList::Init Cut list Initialization for run " 
        << fRunNumber << endl;
+
+  vector<Int_t> temp;
+
+  // Cut extensions 
+
+  // These can be replaced by simple assignments if types of GetEvLo,
+  // GetEvHi are changed to vector<UInt_t>.  However, we should then
+  // still do the resize to guarantee the correct size vector.
+
+  fLowExtension.resize (MaxCuts, 0);
+  fHighExtension.resize (MaxCuts, 0);
+
+  temp = db.GetEvLo();
+  for (size_t i = 0; i < temp.size() && i < MaxCuts; ++i)
+    fLowExtension[i] = temp[i];
+
+  temp = db.GetEvHi();
+  for (size_t i = 0; i < temp.size() && i < MaxCuts; ++i)
+    fHighExtension[i] = temp[i];
+
+  // Cut values
+  for (size_t i = 0; i < db.GetNumBadEv(); ++i)
+    {
+      temp = db.GetCutValues()[i];
+      ECutType ct = temp[2];
+      EventNumber_t elo = temp[0];
+      EventNumber_t ehi = temp[1];
+      fIntervals.push_back(TaCutInterval (ct, temp[3], elo, ehi));
+    }
 }
 
 
@@ -131,3 +156,36 @@ TaCutList::AddExtension (const ECutType cut, const UInt_t lex, const UInt_t hex)
 }
 
 // Private member functions
+
+ostream& 
+operator<< (ostream& s, const TaCutList q)
+{
+  s << endl;
+  s << "Run " << q.fRunNumber << endl;
+  for (size_t i = 0;
+       i < q.fIntervals.size();
+       ++i)
+    {
+      s << q.fIntervals[i];
+      list<size_t>::const_iterator j;
+      for (j = q.fOpenIntIndices.begin();
+	   (j != q.fOpenIntIndices.end()) && (*j != i);
+	   ++j)
+	{}
+      if (j != q.fOpenIntIndices.end())
+	s << "*";
+      s << endl;
+    }
+  s << "Low extensions:" << endl;
+  for (vector<UInt_t>::const_iterator k = q.fLowExtension.begin();
+       k != q.fLowExtension.end();
+       ++k)
+    s << " " << *k;
+  s << endl;
+  s << "High extensions:" << endl;
+  for (vector<UInt_t>::const_iterator k = q.fHighExtension.begin();
+       k != q.fHighExtension.end();
+       ++k)
+    s << " " << *k;
+  s << endl;
+}
