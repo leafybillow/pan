@@ -49,11 +49,11 @@ public:
   TaEvent& operator=(const TaEvent &ev);
 
   // Major functions
-  static void RunInit(const TaRun& run);    // initialization at start of run
+  static ErrCode_t RunInit(const TaRun& run);    // initialization at start of run
   void Load ( const Int_t *buffer );
   void Decode( const TaDevice& devices );             // decode the event 
   void CheckEvent(TaRun& run);
-  void AddCut (const ECutType, const Int_t); // store cut conditions
+  void AddCut (const Cut_t, const Int_t); // store cut conditions
   void AddResult( const TaLabelledQuantity& result);
 
  // Data access functions
@@ -97,12 +97,18 @@ private:
   static const UInt_t fgMaxEvLen = 2000;    // Maximum length for event buffer
   static const EventNumber_t fgMaxEvNum = 10000000;  // Maximum event number
   static const Double_t fgKappa = 18.76;   // stripline BPM calibration
+  static const Cut_t fgMaxCuts = 10;    // Length of cut values array
+  static const ErrCode_t fgTAEVT_ERROR;  // returned on error
+  static const ErrCode_t fgTAEVT_OK;      // returned on success
 
   // Static members
   static TaEvent fgLastEv;     // copy of previous event
   static Bool_t fgFirstDecode; // true until first event decoded
   static Double_t fgLoBeam;    // cut threshold from database
   static Double_t fgBurpCut;   // cut threshold from database
+  static Cut_t fgLoBeamNo;  // cut number for low beam
+  static Cut_t fgBurpNo;    // cut number for beam burp
+  static Cut_t fgOversampleNo; // cut number for oversample
   static UInt_t fgSizeConst;   // size of first physics event should be size of all
 
   // Data members

@@ -21,18 +21,24 @@
 #include "TaPairFromPair.hh"
 #include "TaRun.hh"
 #include "TaLabelledQuantity.hh"
+#include "TaString.hh"
+#include "VaDataBase.hh"
 
 #ifdef DICT
 ClassImp(TaPairFromPair)
 #endif
 
+// Static members
+const ErrCode_t TaPairFromPair::fgTAPFP_OK = 0;
+const ErrCode_t TaPairFromPair::fgTAPFP_ERROR = -1;
 Bool_t TaPairFromPair::fgSkipping = true;
 TaEvent TaPairFromPair::fgThisWinEv;
 TaEvent TaPairFromPair::fgLastWinEv;
-UInt_t TaPairFromPair::fgShreg = 1;      // value for sequence algorithm      
-UInt_t TaPairFromPair::fgNShreg = 0;     // count since fgShreg was reset
-Bool_t TaPairFromPair::fgPairMade = false;   // set in Fill to true if pair made, else false
-Bool_t TaPairFromPair::fgNeedHelCheck = true; // need to check helicity on next first event
+UInt_t TaPairFromPair::fgShreg = 1;
+UInt_t TaPairFromPair::fgNShreg = 0;
+Bool_t TaPairFromPair::fgPairMade = false;
+Bool_t TaPairFromPair::fgNeedHelCheck = true;
+Cut_t TaPairFromPair::fgSequenceNo;
 
 TaPairFromPair::TaPairFromPair():VaPair()
 {
@@ -52,10 +58,11 @@ TaPairFromPair::~TaPairFromPair()
 {
 }
 
-void 
-TaPairFromPair::RunInit()
+ErrCode_t
+TaPairFromPair::RunInit(const TaRun& run)
 {
-  VaPair::RunInit();
+  if (VaPair::RunInit(run) != 0)
+    return fgTAPFP_ERROR;
   fgSkipping = true;
   fgThisWinEv = TaEvent();
   fgLastWinEv = TaEvent();
@@ -63,6 +70,14 @@ TaPairFromPair::RunInit()
   fgNShreg = 0;
   fgPairMade = false;
   fgNeedHelCheck = true;
+  fgSequenceNo = run.GetDataBase().GetCutNumber("Sequence");
+  if (fgSequenceNo == (UInt_t) run.GetDataBase().GetNumCuts())
+    {
+      cerr << "TaPairFromPair::RunInit ERROR: Sequence"
+	   << " cut must be defined in database" << endl;
+      return fgTAPFP_ERROR;
+    }
+  return fgTAPFP_OK;
 }
 
 void TaPairFromPair::CheckSequence( TaEvent& ThisEv, TaRun& run )
@@ -165,8 +180,8 @@ void TaPairFromPair::CheckSequence( TaEvent& ThisEv, TaRun& run )
   }
 #endif
 
-  ThisEv.AddCut (SequenceCut, val);
-  run.UpdateCutList (SequenceCut, val, ThisEv.GetEvNumber());
+  ThisEv.AddCut (fgSequenceNo, val);
+  run.UpdateCutList (fgSequenceNo, val, ThisEv.GetEvNumber());
 }
 
 
@@ -296,7 +311,7 @@ TaPairFromPair::HelSeqOK (EHelicity h)
 	clog << "Helicity expected/got = " << eb << " " << hb 
 	     << " | " << fgShreg 
 	     << " fgNShreg = " << fgNShreg << endl;
-#endif NOISY
+#endif
 
   // Generate error if expected is known and does not match found
 

@@ -37,10 +37,15 @@ ClassImp(TaEvent)
 #endif
 
 // Static members
+const ErrCode_t TaEvent::fgTAEVT_OK = 0;
+const ErrCode_t TaEvent::fgTAEVT_ERROR = -1;
 TaEvent TaEvent::fgLastEv;
 Bool_t TaEvent::fgFirstDecode = true;
 Double_t TaEvent::fgLoBeam;
 Double_t TaEvent::fgBurpCut;
+Cut_t TaEvent::fgLoBeamNo;
+Cut_t TaEvent::fgBurpNo;  
+Cut_t TaEvent::fgOversampleNo;
 UInt_t TaEvent::fgSizeConst;
 
 TaEvent::TaEvent(): 
@@ -50,8 +55,8 @@ TaEvent::TaEvent():
   memset(fEvBuffer, 0, fgMaxEvLen*sizeof(Int_t));
   fData = new Double_t[MAXKEYS];
   memset(fData, 0, MAXKEYS*sizeof(Double_t));
-  fCutArray = new Int_t[MaxCuts];
-  memset(fCutArray, 0, MaxCuts*sizeof(Int_t));
+  fCutArray = new Int_t[fgMaxCuts];
+  memset(fCutArray, 0, fgMaxCuts*sizeof(Int_t));
   fResults.clear();
 }
 
@@ -76,7 +81,7 @@ TaEvent &TaEvent::operator=(const TaEvent &ev)
 
 // Major functions
 
-void 
+ErrCode_t
 TaEvent::RunInit(const TaRun& run)
 {
   // Initialization at start of run.  Get quantities from database
@@ -86,7 +91,29 @@ TaEvent::RunInit(const TaRun& run)
   fgFirstDecode = true;
   fgLoBeam = run.GetDataBase().GetCutValue("lobeam");
   fgBurpCut = run.GetDataBase().GetCutValue("burpcut");
+
+  UInt_t ncuts = (UInt_t) run.GetDataBase().GetNumCuts();
+  if (ncuts > fgMaxCuts)
+    {
+      cerr << "TaEvent::RunInit ERROR: fgMaxCuts = " << fgMaxCuts
+	   << " < number of cuts in database -- recompile with "
+	   << " larger fgMaxCuts" << endl;
+      return fgTAEVT_ERROR;
+    }
+
+  fgLoBeamNo = run.GetDataBase().GetCutNumber("Low_beam");
+  fgBurpNo = run.GetDataBase().GetCutNumber("Beam_burp");
+  fgOversampleNo = run.GetDataBase().GetCutNumber("Oversample");
+  if (fgLoBeamNo == ncuts ||
+      fgBurpNo == ncuts ||
+      fgOversampleNo == ncuts)
+    {
+      cerr << "TaEvent::RunInit ERROR: Low_beam, Beam_burp, and Oversample"
+	   << " cuts must be defined in database" << endl;
+      return fgTAEVT_ERROR;
+    }
   fgLastEv = TaEvent();
+  return fgTAEVT_OK;
 }
   
 void 
@@ -94,7 +121,7 @@ TaEvent::Load (const Int_t* buff)
 {
   // Put a raw event into the buffer, and pull out event type and number.
 
-  memset(fCutArray, 0, MaxCuts*sizeof(Int_t));
+  memset(fCutArray, 0, fgMaxCuts*sizeof(Int_t));
   fFailedACut = false;
   fEvLen = buff[0] + 1;
   if (fEvLen >= fgMaxEvLen) {
@@ -246,8 +273,8 @@ TaEvent::CheckEvent(TaRun& run)
 #endif
       val = 1;
     }
-  AddCut (LowBeamCut, val);
-  run.UpdateCutList (LowBeamCut, val, fEvNum);
+  AddCut (fgLoBeamNo, val);
+  run.UpdateCutList (fgLoBeamNo, val, fEvNum);
 
   if ( fgLastEv.GetEvNumber() != 0 )
     {
@@ -263,8 +290,8 @@ TaEvent::CheckEvent(TaRun& run)
 #endif
 	  val = 1;
 	}
-      AddCut (BeamBurpCut, val);
-      run.UpdateCutList (BeamBurpCut, val, fEvNum);
+      AddCut (fgBurpNo, val);
+      run.UpdateCutList (fgBurpNo, val, fEvNum);
 
       // Check time slot sequence
       val = 0;
@@ -283,15 +310,15 @@ TaEvent::CheckEvent(TaRun& run)
 	      val = 1;
 	    } 
 	}
-      AddCut (OversampleCut, val);
-      run.UpdateCutList (OversampleCut, val, fEvNum);
+      AddCut (fgOversampleNo, val);
+      run.UpdateCutList (fgOversampleNo, val, fEvNum);
     }
   
   fgLastEv = *this;
 };
 
 
-void TaEvent::AddCut (const ECutType cut, const Int_t val)
+void TaEvent::AddCut (const Cut_t cut, const Int_t val)
 {
   // Store information about cut conditions passed or failed by this event.
 
@@ -335,7 +362,7 @@ TaEvent::BeamCut() const
 {
   // Return true iff event failed low beam cut
 
-  return (fCutArray[(unsigned int) LowBeamCut] != 0);
+  return (fCutArray[(unsigned int) fgLoBeamNo] != 0);
 }
 
 Bool_t TaEvent::IsPrestartEvent() const {
@@ -546,7 +573,7 @@ TaEvent::AddToTree (const TaDevice& devices,
   	rawtree.Branch(keystr.c_str(), &fData[key], tinfo, bufsize);
     }
 
-    for (ECutType icut = ECutType (0); icut < MaxCuts; ++icut)
+    for (Cut_t icut = Cut_t (0); icut < cutlist.GetNumCuts(); ++icut)
       {
 	TaString cutstr = "cut_" + cutlist.GetName(icut);
 	cutstr = cutstr.ToLower();
@@ -592,8 +619,8 @@ void TaEvent::Create(const TaEvent& rhs)
  memcpy(fEvBuffer, rhs.fEvBuffer, fEvLen*sizeof(Int_t));
  fData = new Double_t[MAXKEYS];
  memcpy(fData, rhs.fData, MAXKEYS*sizeof(Double_t));
- fCutArray = new Int_t[MaxCuts];
- memcpy(fCutArray, rhs.fCutArray, MaxCuts*sizeof(Int_t));
+ fCutArray = new Int_t[fgMaxCuts];
+ memcpy(fCutArray, rhs.fCutArray, fgMaxCuts*sizeof(Int_t));
 };
 
 void TaEvent::Uncreate()

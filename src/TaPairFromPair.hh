@@ -37,11 +37,15 @@ public:
   ~TaPairFromPair();
   
   // Major functions
-  void RunInit();
+  ErrCode_t RunInit(const TaRun&);
   Bool_t Fill (TaEvent&, TaRun&); // check for pair and fill
   
 private:
   
+  // Constants
+  static const ErrCode_t fgTAPFP_ERROR;  // returned on error
+  static const ErrCode_t fgTAPFP_OK;      // returned on success
+
   // Private member functions
   void CheckSequence (TaEvent&, TaRun&); // look for helicity/synch errors
   Bool_t ProcessPairing();
@@ -56,6 +60,7 @@ private:
   static UInt_t  fgNShreg;     // count since fgShreg was reset
   static Bool_t  fgPairMade;   // set in Fill to true if pair made, else false
   static Bool_t  fgNeedHelCheck; // need to check helicity on next first event
+  static Cut_t fgSequenceNo; // cut number for sequence
 
 #ifdef DICT
   ClassDef(TaPairFromPair, 0)  // Event pair from window pair helicity structure
