@@ -215,11 +215,11 @@ TaRun::Init()
   fDevices->Init(*fDataBase);
   fCutList = new TaCutList(fRunNumber);
   fCutList->Init(*fDataBase);
-  fCutList->AddName(LowBeamCut, "Low beam");
-  fCutList->AddName(BeamBurpCut, "Beam burp");
+  fCutList->AddName(LowBeamCut, "Low_beam");
+  fCutList->AddName(BeamBurpCut, "Beam_burp");
   fCutList->AddName(OversampleCut, "Oversample");
   fCutList->AddName(SequenceCut, "Sequence");
-  InitDevices();
+  InitTree();
   fOversamp = fDataBase->GetOverSamp();
   if (fOversamp == 0)
     {
@@ -575,19 +575,24 @@ TaRun::GetBuffer()
 }
 
 void 
-TaRun::InitDevices() {
-// Initialize the devices and add their data to the output tree.
+TaRun::InitTree() {
+// Set up the event tree
   if ( !fDevices ) {
-    cout << "TaRun::InitDevices:: ERROR:  You must create and initialize";
+    cout << "TaRun::InitTree:: ERROR:  You must create and initialize";
     cout << " fDevices before adding to tree"<<endl;
     return;
   }
   if ( !fEvtree ) {
-    cout << "TaRun::InitDevices:: ERROR:  You must create the root tree";
+    cout << "TaRun::InitTree:: ERROR:  You must create the root tree";
     cout << " before attempting to add to it."<<endl;
     return;
   }
-  fEvent->AddToTree(*fDevices, *fEvtree);
+  if ( !fCutList ) {
+    cout << "TaRun::InitTree:: ERROR:  You must create and initialize";
+    cout << " fCutList before adding to tree"<<endl;
+    return;
+  }
+  fEvent->AddToTree(*fDevices, *fCutList, *fEvtree);
 };
 
 Int_t 
