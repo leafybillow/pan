@@ -6,6 +6,19 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Michaels on 27 Dec 2002
+-------------------------------------
+
+There was a bug that negative data could not be passed as command
+line over-ride of database.  I fixed this (main.cc), but also changed 
+the command line for 2nd-pass analysis: option is -t now (t = twopass).
+There is an implicit programming rule that any command line option
+must be of the form -x where x is alphabetical (well, it could be 
+more than one character).   At present we have -o, -f, -r, -t.
+However, if x is numerical it will be data for database over-ride.
+This should cover all cases I can imagine for the future and was
+the simplest solution.
+
 Changes by R. Holmes on 26 Dec 2002
 -----------------------------------
 
