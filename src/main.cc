@@ -17,9 +17,12 @@
 #include "TaAnalysisManager.hh"
 #include "TROOT.h"
 #include "TRint.h"
+#include <signal.h>
 
 extern void InitGui();
 VoidFuncPtr_t initfuncs[] = { InitGui, 0 };
+TaAnalysisManager *am;
+extern "C" void signalhandler(int s);
 
 static TROOT root( "Pan", "Parity Analyzer Interactive Interface", initfuncs );
 
@@ -34,6 +37,8 @@ int main(int argc, char **argv)
   int choice = 0;
   char *cfilename;
   Bool_t twopass(false);
+
+  signal(31, signalhandler);
 
   int i = 1;
   while (i < argc) 
@@ -97,24 +102,25 @@ int main(int argc, char **argv)
     }
   else 
     {
-      TaAnalysisManager am;
+
+      am = new TaAnalysisManager();
 
       // Command line use with run number, file name or online specified
       if (choice == 1) 
 	{
-	  if (am.Init(runnum) != 0)
+	  if (am->Init(runnum) != 0)
 	    return 1;
 	}
       else if (choice == 2) 
 	{
 	  string filename = cfilename;
-	  if (am.Init(filename) != 0)
+	  if (am->Init(filename) != 0)
 	    return 1;
 	}
       else if (choice == 3) 
 	{
 #ifdef ONLINE
-	  if (am.Init() != 0)
+	  if (am->Init() != 0)
 	    return 1;
 #else
 	  usage();
@@ -123,13 +129,13 @@ int main(int argc, char **argv)
 	}
       if (twopass)
 	{
-	  if (am.Process() != 0 || 
-	      am.EndPass1() != 0 || 
-	      am.InitPass2() != 0)
+	  if (am->Process() != 0 || 
+	      am->EndPass1() != 0 || 
+	      am->InitPass2() != 0)
 	    return 1;
 	}
-      if (am.Process() != 0 ||
-	  am.End() != 0)
+      if (am->Process() != 0 ||
+	  am->End() != 0)
 	return 1;
       return 0;
     }
@@ -163,3 +169,12 @@ void usage() {
 #endif
   cerr << "     ./pan" << endl;
 }
+
+void signalhandler(int sig)
+{  // To deal with the signal "kill -31 pid"
+  cout << "Ending the online analysis"<<endl<<flush;
+  am->End();
+  exit(1);
+}
+
+
