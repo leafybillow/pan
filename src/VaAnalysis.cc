@@ -624,8 +624,7 @@ VaAnalysis::InitTree ()
   //#define TREEPRINT
 #ifdef TREEPRINT
   clog << "Adding to pair tree:" << endl;
-  clog << "r_ev_num" << endl;
-  clog << "l_ev_num" << endl;
+  clog << "ev_num" << endl;
   clog << "m_ev_num" << endl;
   clog << "ok_cond"  << endl;
   clog << "ok_cut"   << endl;
@@ -647,14 +646,12 @@ VaAnalysis::InitTree ()
 
   fTreeSpace = new Double_t[5+treeListSize];
   Double_t* tsptr = fTreeSpace;
-  fPairTree->Branch ("r_ev_num", &fTreeREvNum, "r_ev_num/I", bufsize); 
-  fPairTree->Branch ("l_ev_num", &fTreeLEvNum, "l_ev_num/I", bufsize); 
-  fPairTree->Branch ("m_ev_num", &fTreeMEvNum, "m_ev_num/D", bufsize); 
-  fPairTree->Branch ("ok_cond",  &fTreeOKCond, "ok_cond/I",  bufsize); 
-  fPairTree->Branch ("ok_cut",   &fTreeOKCut,  "ok_cut/I",   bufsize); 
+  fPairTree->Branch ("evt_ev_num",   &fTreeREvNum, "evt_ev_num[2]/I", bufsize); 
+  fPairTree->Branch ("m_ev_num", &fTreeMEvNum, "m_ev_num/D",  bufsize); 
+  fPairTree->Branch ("ok_cond",  &fTreeOKCond, "ok_cond/I",   bufsize); 
+  fPairTree->Branch ("ok_cut",   &fTreeOKCut,  "ok_cut/I",    bufsize); 
 
   // Add branches corresponding to channels in the channel lists
-  string suff ("/D");
   
   for (vector<AnaList>::const_iterator i = fTreeList.begin();
        i != fTreeList.end();
@@ -664,45 +661,37 @@ VaAnalysis::InitTree ()
       if (alist.fFlagInt & fgCOPY)
 	{
 	  // Channels for which to copy right and left values to tree
-	  string prefix_r ("r_");
-	  string prefix_l ("l_");
-	  fPairTree->Branch ((prefix_r+alist.fVarStr).c_str(), 
+	  fPairTree->Branch ((string("evt_")+alist.fVarStr).c_str(), 
 			     tsptr++, 
-			     (prefix_r+alist.fVarStr+suff).c_str(), 
+			     (string("evt_")+alist.fVarStr+string("[2]/D")).c_str(), 
 			     bufsize); 
-	  fPairTree->Branch ((prefix_l+alist.fVarStr).c_str(), 
-			     tsptr++, 
-			     (prefix_l+alist.fVarStr+suff).c_str(), 
-			     bufsize); 
+	  tsptr++;
 #ifdef TREEPRINT
-	  clog << (prefix_l+alist.fVarStr) << endl;
-	  clog << (prefix_r+alist.fVarStr) << endl;
+	  clog << (alist.fVarStr) << endl;
 #endif
 	}
 
       if (alist.fFlagInt & fgDIFF)
 	{
 	  // Channels for which to put difference in tree
-	  string prefix ("diff_");
-	  fPairTree->Branch ((prefix+alist.fVarStr).c_str(), 
+	  fPairTree->Branch ((string("diff_")+alist.fVarStr).c_str(), 
 			     tsptr++, 
-			     (prefix+alist.fVarStr+suff).c_str(), 
+			     (string("diff_")+alist.fVarStr+string("/D")).c_str(), 
 			     bufsize); 
 #ifdef TREEPRINT
-	  clog << (prefix+alist.fVarStr) << endl;
+	  clog << (string("diff_")+alist.fVarStr) << endl;
 #endif
 	}
 
       if (alist.fFlagInt & fgASY)
 	{
 	  // Channels for which to put asymmetry in tree
-	  string prefix = "asym_";
-	  fPairTree->Branch ((prefix+alist.fVarStr).c_str(), 
+	  fPairTree->Branch ((string("asym_")+alist.fVarStr).c_str(), 
 			     tsptr++, 
-			     (prefix+alist.fVarStr+suff).c_str(), 
+			     (string("asym_")+alist.fVarStr+string("/D")).c_str(), 
 			     bufsize); 
 #ifdef TREEPRINT
-	  clog << (prefix+alist.fVarStr) << endl;
+	  clog << (string("asym_")+alist.fVarStr) << endl;
 #endif
 	}
     }
@@ -833,18 +822,16 @@ VaAnalysis::AutoPairAna()
       if (alist.fFlagInt & fgCOPY)
 	{
 	  // Channels for which to copy right and left values to tree
-	  string prefix_r ("Right ");
-	  string prefix_l ("Left  ");
 	  
 	  val = fPair->GetRight().GetData(alist.fVarInt);
 	  *(tsptr++) = val;
-	  fPair->AddResult (TaLabelledQuantity (prefix_r+(alist.fVarStr), 
+	  fPair->AddResult (TaLabelledQuantity (string("Right ")+(alist.fVarStr), 
 						val, 
 						alist.fUniStr,
 						alist.fFlagInt));
 	  val = fPair->GetLeft().GetData(alist.fVarInt);
 	  *(tsptr++) = val;
-	  fPair->AddResult (TaLabelledQuantity (prefix_l+(alist.fVarStr), 
+	  fPair->AddResult (TaLabelledQuantity (string("Left  ")+(alist.fVarStr), 
 						val, 
 						alist.fUniStr,
 						alist.fFlagInt));
@@ -853,11 +840,10 @@ VaAnalysis::AutoPairAna()
       if (alist.fFlagInt & fgDIFF)
 	{
 	  // Channels for which to put difference in tree
-	  string prefix ("Diff ");
 
 	  val = fPair->GetDiff(alist.fVarInt) * 1E3;
 	  *(tsptr++) = val;
-	  fPair->AddResult (TaLabelledQuantity (prefix+(alist.fVarStr), 
+	  fPair->AddResult (TaLabelledQuantity (string("Diff ")+(alist.fVarStr), 
 						val, 
 						alist.fUniStr,
 						alist.fFlagInt));
@@ -866,16 +852,15 @@ VaAnalysis::AutoPairAna()
       if (alist.fFlagInt & fgASY)
 	{
 	  // Channels for which to put asymmetry in tree
-	  string prefix = "Asym ";
 
 	  if ((alist.fFlagInt & fgNO_BEAM_NO_ASY) &&
 	      (fPair->GetRight().BeamCut() ||
 	       fPair->GetLeft().BeamCut()))
-	    val = 0.0;
+	    val = -1.0E6;
 	  else
 	    val = fPair->GetAsy(alist.fVarInt) * 1E6;
 	  *(tsptr++) = val;
-	  fPair->AddResult (TaLabelledQuantity (prefix+(alist.fVarStr), 
+	  fPair->AddResult (TaLabelledQuantity (string("Asym ")+(alist.fVarStr), 
 						val, 
 						alist.fUniStr,
 						alist.fFlagInt));
