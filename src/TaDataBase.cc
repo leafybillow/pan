@@ -1493,11 +1493,13 @@ void TaDataBase::InitDataMap() {
   for (multimap<string, vector<dtype*> >::iterator dmap = lb;
          dmap != ub; dmap++) {
      vector<dtype*> datav = dmap->second;
-     string devname = datav[1]->GetS();       
+     string long_devname = datav[1]->GetS();       
+     string devname = StripRotate(long_devname);
      map<string, TaKeyMap >::iterator dm = datamap.find(devname);
      TaKeyMap keymap;
      if (dm != datamap.end()) keymap = dm->second;
      keymap.LoadType(datav[0]->GetS());
+     keymap.SetRotate(RotateState(long_devname));
      readout = datav[2]->GetS();
      devnum  = datav[3]->GetI();
      chan = datav[4]->GetI();
@@ -1540,4 +1542,41 @@ TaDataBase::LoadCksum (const string filename)
   ifstream ifile (tfilename.c_str());
   if (ifile != 0)
     ifile >> fCksum;
+}
+
+string TaDataBase::StripRotate (const string long_devname) {
+// Strip away the suffix "_r" or "_ur" from the device name
+// Of course if anyone invented a device with these suffixes and
+// didn't mean rotation, this would cause a problem.  Don't.
+
+  string result = long_devname;
+  int pos;
+  pos = long_devname.find("_r",1);
+  if (pos > 0) {
+    result.assign(long_devname, 0, pos);
+    return result;
+  }
+  pos = long_devname.find("_ur",1);
+  if (pos > 0) {
+    result.assign(long_devname, 0, pos);
+    return result;
+  }
+  return result;
+}
+
+
+Int_t TaDataBase::RotateState(const string long_devname) {
+// From the device name, recognize the suffix "_r" or "_ur"
+// if it exists, and return an integer flag:
+//      1  -->  device is rotated
+//      0  -->  device is not rotated
+//     -1  -->  unknown
+
+  int result = -1;
+  int pos;
+  pos = long_devname.find("_r",1);
+  if (pos > 0) result = 1;
+  pos = long_devname.find("_ur",1);
+  if (pos > 0) result = 0;
+  return result;
 }

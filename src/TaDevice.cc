@@ -12,6 +12,7 @@
 //#define DEBUG 1
 
 #include "TaDevice.hh" 
+#include "TaString.hh"
 #include "TaDataBase.hh"
 #include "TTree.h"
 
@@ -25,6 +26,7 @@ TaDevice::TaDevice() {
    fEvPointer = new Int_t[MAXKEYS];
    fReadOut = new Int_t[MAXKEYS];
    fIsUsed = new Int_t[MAXKEYS];
+   fIsRotated = new Int_t[MAXKEYS];
    fAdcPed = new Double_t[4*ADCNUM];
    fDacSlope = new Double_t[4*ADCNUM];
    fDevNum = new Int_t[MAXKEYS];
@@ -34,6 +36,7 @@ TaDevice::TaDevice() {
    memset(fEvPointer, 0, MAXKEYS*sizeof(Int_t));
    memset(fReadOut, 0, MAXKEYS*sizeof(Int_t));
    memset(fIsUsed, 0, MAXKEYS*sizeof(Int_t));
+   memset(fIsRotated, 0, MAXKEYS*sizeof(Int_t));
    memset(fAdcPed, 0, 4*ADCNUM*sizeof(Double_t));
    memset(fDacSlope, 0, 4*ADCNUM*sizeof(Double_t));
    memset(fDevNum, 0, MAXKEYS*sizeof(Int_t));
@@ -70,14 +73,25 @@ void TaDevice::Init(TaDataBase& db) {
 // the list of raw data defined in the database.
 // The database defines the channel mapping, but the
 // keys in the database must match the fKeyToIdx map.
+// Set up rotated BPMs.
 
    Int_t key,iadc,isca,ichan;
    string keystr;
    InitKeyList();
    TaKeyMap keymap;
+   BpmDefRotate();  
    db.DataMapReStart();
    while ( db.NextDataMap() ) {
      string devicename = db.GetDataMapName();  
+     int isrotate = 0;
+     for (vector<string>::iterator is = fRotateList.begin();
+       is != fRotateList.end(); is++) {
+         TaString sdevice = *is;
+         if (sdevice.CmpNoCase(devicename) == 0) {
+            isrotate = 1;
+            break;
+	 }
+     }
      keymap = db.GetKeyMap(devicename);
      vector<string> vkeys = keymap.GetKeys();
      for (vector<string>::iterator is = vkeys.begin(); 
@@ -92,7 +106,18 @@ void TaDevice::Init(TaDataBase& db) {
            if (keymap.IsScaler(keystr)) fReadOut[key] = SCALREADOUT;
            fDevNum[key]  = keymap.GetAdc(keystr);
            fChanNum[key] = keymap.GetChan(keystr);
+// Rotate state first set from default but can over-ridden by database
+           if (keymap.GetRotate() != -1) {
+               fIsRotated[key] = keymap.GetRotate();
+               isrotate = fIsRotated[key];
+	   }
+           if (isrotate) {
+               fIsRotated[key] = 1;
+               fIsRotated[GetKey(devicename+"x")] = 1;
+               fIsRotated[GetKey(devicename+"y")] = 1;
+	   }
       }
+      if (isrotate) cout << "  BPM "<<devicename<<" is ROTATED"<<endl;
    }
    for (iadc = 0; iadc < ADCNUM; iadc++) {
      for (ichan = 0; ichan < 4; ichan++) {
@@ -105,6 +130,29 @@ void TaDevice::Init(TaDataBase& db) {
        fScalPed[isca*32 + ichan] = db.GetScalPed(isca, ichan);
      }
    }
+};
+
+void TaDevice::BpmDefRotate() {
+// Build default list of rotated BPMs.  
+// BPMs listed here are rotated by 45 degrees.  The others are not
+// rotated, they are up/down.  This can be over-ridden by the
+// database:  by convention a device-name (3rd column) can have
+// suffix "_r" or "_ur" to force rotation or unrotation.  Leaving
+// out this suffix will result in the default behavior here.
+// Example of device-name in db file:  
+//     "bpm8"    --> rotated (default here)
+//     "bpm8_r"  --> still rotated
+//     "bpm8_ur" --> unrotated.
+
+   fRotateList.clear();
+   fRotateList.push_back("bpmin1");  // Injector #1.  
+   fRotateList.push_back("bpmin2");  // Injector #2.  
+   fRotateList.push_back("bpm8");
+   fRotateList.push_back("bpm10");
+   fRotateList.push_back("bpm12");
+   fRotateList.push_back("bpm4a");
+   fRotateList.push_back("bpm4b");
+
 };
 
 Int_t TaDevice::AddRawKey(string keyname) {
@@ -858,6 +906,8 @@ void TaDevice::Create(const TaDevice& rhs)
    memcpy(fReadOut, rhs.fReadOut, MAXKEYS*sizeof(Int_t));
    fIsUsed = new Int_t[MAXKEYS];
    memcpy(fIsUsed, rhs.fIsUsed, MAXKEYS*sizeof(Int_t));
+   fIsRotated = new Int_t[MAXKEYS];
+   memcpy(fIsRotated, rhs.fIsRotated, MAXKEYS*sizeof(Int_t));
    fAdcPed = new Double_t[4*ADCNUM];
    memcpy(fAdcPed, rhs.fAdcPed, 4*ADCNUM*sizeof(Double_t));
    fDacSlope = new Double_t[4*ADCNUM];
@@ -874,6 +924,7 @@ void TaDevice::Uncreate()
    delete [] fEvPointer;
    delete [] fReadOut;
    delete [] fIsUsed;
+   delete [] fIsRotated;
    delete [] fAdcPed;
    delete [] fDacSlope;
    delete [] fDevNum;

@@ -6,6 +6,28 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Michaels on 29 Jan 2003
+-------------------------------------
+
+BPM Rotations handled more smoothly (instead of the old kludge).
+TaDevice::BpmDefRotate() sets up the defaults for which BPMs are
+rotated.  Note, "rotation" means +/- 45 degr to the floor, while
+"unrotated" means up/down orientation.  One might hope this is enough.  
+If not, then one can also change the rotation state on-the-fly
+by adding suffix "_r" or "_ur" to the device name which is the 3rd
+element in the datamap table.  These suffixes are otherwise ignored.
+Examples:
+
+1) Default behavior = rotated, according to TaDevice::BpmDefRotate()
+datamap   bpm   bpmin1    adc  7 0 85 bpmin1xp bpmin1xm bpmin1yp bpmin1ym 
+
+2) Force bpmin1 to be unrotated.  Note the "_ur"
+datamap   bpm   bpmin1_ur adc  7 0 85 bpmin1xp bpmin1xm bpmin1yp bpmin1ym 
+
+3) Force bpmin1 to be rotated (see "_r"), unnecessary due to defaults.
+datamap   bpm   bpmin1_r  adc  7 0 85 bpmin1xp bpmin1xm bpmin1yp bpmin1ym 
+
+
 Changes by R. Holmes on 14 Jan 2003
 -----------------------------------
 

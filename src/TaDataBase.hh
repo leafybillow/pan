@@ -165,7 +165,7 @@ private:
 class TaKeyMap {
 // Utility class of device keys mapped to data locations
 public: 
-  TaKeyMap() { type == ""; }
+  TaKeyMap() { type == ""; rotate_flag = -1; }
   ~TaKeyMap() { }
   TaKeyMap(const TaKeyMap& copy) {
     type    = copy.type;
@@ -173,6 +173,7 @@ public:
     devnum  = copy.devnum;
     chan    = copy.chan;
     evboff  = copy.evboff;
+    rotate_flag  = copy.rotate_flag;
   };
   TaKeyMap &TaKeyMap::operator=(const TaKeyMap& rhs) {
     if (this != &rhs) {
@@ -181,6 +182,7 @@ public:
       devnum  = rhs.devnum;
       chan    = rhs.chan;
       evboff  = rhs.evboff;
+      rotate_flag  = rhs.rotate_flag;
     }
     return *this;
   }
@@ -234,6 +236,8 @@ public:
     }
     return result;
   };
+  void SetRotate(Int_t flag) { rotate_flag = flag; };
+  Int_t GetRotate() { return rotate_flag; };  // 1=rotated, 0=not, -1=unknown
   void Print() {
     cout << "TaKeyMap for type = "<<type<<endl;
     vector<string> keys = GetKeys();
@@ -247,6 +251,7 @@ public:
   };
 private:
   string type;
+  Int_t rotate_flag;
   map<string, Int_t> devnum, chan, evboff;
   map<string, string> readout;
 };
@@ -374,6 +379,9 @@ private:
   void LoadTable(string table, vector<dtype*>);
   string FindTable(string table);
   void InitDataMap();
+  string StripRotate (const string long_devname);
+  Int_t RotateState(const string long_devname);
+
 // To read from MYSQL, use command line interface, i.e '-D mysql'
   void Mysql(string action);  // MYSQL interface (action = "read", "write")
   void PutData(string table, vector<dtype *> dvect);

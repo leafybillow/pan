@@ -188,14 +188,14 @@ void VaEvent::DecodeCook(TaDevice& devices) {
 
 void VaEvent::Decode(TaDevice& devices) {
 // Decodes all the raw data and applies all the calibrations and BPM
-// rotations..  Note: This assumes the event structure remains
+// rotations.  Note: This assumes the event structure remains
 // constant.  We check this by verifying a constant event length.
 // Also note that in order for cooked data to appear in the output,
 // everywhere we have fData[cook_key] = function of fData[raw_key], 
 // we MUST have a line devices.SetUsed(cook_key) if we want it.
 
   Int_t i,j,key,idx,ixp,ixm,iyp,iym,ix,iy;
-  Double_t sum,xrot,yrot;
+  Double_t sum,xval,yval;
   memset(fData, 0, MAXKEYS*sizeof(Double_t));
   if ( IsPhysicsEvent() )  {
     if (fgFirstDecode) {
@@ -273,18 +273,26 @@ void VaEvent::Decode(TaDevice& devices) {
     sum = fData[ixp] + fData[ixm];
     fData[key + 6] = sum;
     if (devices.IsUsed(key)) devices.SetUsed(key+6);
-    xrot = 0;
-    if ( sum > 0 ) xrot = 
+    xval = 0;
+    if ( sum > 0 ) xval = 
           fgKappa * (fData[ixp] - fData[ixm])/ sum;
     sum = fData[iyp] + fData[iym]; 
     fData[key + 7] = sum;
     if (devices.IsUsed(key)) devices.SetUsed(key+7);
-    yrot = 0;
-    if ( sum > 0 ) yrot = 
+    yval = 0;
+    if ( sum > 0 ) yval = 
           fgKappa * (fData[iyp] - fData[iym])/ sum;
-    fData[ix] = Rotate (ix, xrot, yrot, 1);
+    if (devices.IsRotated(ix)) {
+       fData[ix] = Rotate (xval, yval, 1);
+    } else {
+       fData[ix] = xval;
+    }
     if (devices.IsUsed(key)) devices.SetUsed(ix);
-    fData[iy] = Rotate (iy, xrot, yrot, 2);
+    if (devices.IsRotated(iy)) {
+       fData[iy] = Rotate (xval, yval, 2);
+    } else {
+       fData[iy] = yval;
+    }
     if (devices.IsUsed(key)) devices.SetUsed(iy);
     fData[key + 8] = fData[key + 6] + fData[key + 7];
     if (devices.IsUsed(key)) devices.SetUsed(key+8);
@@ -813,20 +821,15 @@ VaEvent::AddToTree (TaDevice& devices,
 
 // Private methods
 
-Double_t VaEvent::Rotate(Int_t keyx, Double_t x, Double_t y, Int_t xy) {
+Double_t VaEvent::Rotate(Double_t x, Double_t y, Int_t xy) {
 // Rotation to get X or Y depending on xy flag
-// However, we do not rotate injector BPMs or cavity BPMs
    Double_t result = 0;
    Double_t root2 = (Double_t)sqrt(2);
-   if (keyx >= IBPMIN1XP) { // Do not rotate injector or cavity BPMs
-     if (xy == 1) return x;
-     if (xy == 2) return y;
-   }
    if (xy == 2) {
-       result = ( x + y ) / root2;
+      result = ( x + y ) / root2;
    } else {
-       result = ( x - y ) / root2;
-   }
+      result = ( x - y ) / root2;
+   } 
    return result;
 };
 

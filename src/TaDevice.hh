@@ -55,6 +55,7 @@ class TaDevice {
     Int_t GetRawIndex(const Int_t& key) const;
     Int_t GetCalIndex(const Int_t& key) const;
     Bool_t IsUsed(const Int_t& key) const;
+    Bool_t TaDevice::IsRotated(const Int_t& key) const;
     void SetUsed(const Int_t& key) const;
     map<string, Int_t> GetKeyList() const;
 
@@ -62,11 +63,14 @@ class TaDevice {
 
     Int_t fNumRaw;
     Int_t *fRawKeys, *fEvPointer, *fReadOut, *fIsUsed;
+    Int_t *fIsRotated;
     Double_t *fAdcPed, *fScalPed, *fDacSlope;
     Int_t *fDevNum, *fChanNum;
     map<string, Int_t> fKeyToIdx;
+    vector<string> fRotateList;
     void InitKeyList();
     Int_t AddRawKey(string keyname);
+    void BpmDefRotate();
 
  private:
 
@@ -107,6 +111,13 @@ inline Int_t TaDevice::GetChanNum(const Int_t& index) const  {
 inline Bool_t TaDevice::IsUsed(const Int_t& key) const {
   if (key >= 0 && key < MAXKEYS) {
     if (fIsUsed[key] == 1) return kTRUE;
+  }
+  return kFALSE;
+};
+
+inline Bool_t TaDevice::IsRotated(const Int_t& key) const {
+  if (key >= 0 && key < MAXKEYS) {
+    if (fIsRotated[key] == 1) return kTRUE;
   }
   return kFALSE;
 };

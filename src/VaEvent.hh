@@ -108,7 +108,7 @@ private:
 
   // Private methods
   Int_t Idx(const Int_t& key) const;
-  Double_t Rotate(Int_t key, Double_t x, Double_t y, Int_t xy);
+  Double_t Rotate(Double_t x, Double_t y, Int_t xy); 
   void DecodeCook( TaDevice& devices );   // Called by AddToTree
 
   // Constants
