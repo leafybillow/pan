@@ -18,7 +18,7 @@
 # e.g. TaDevice.cc in addition.
 
 # Hall A stripline BPMs
-@halla_strlist = qw / IBPM8 IBPM10 IBPM12 IBPM4A IBPM4B /;
+@halla_strlist = qw / IBPM8 IBPM10 IBPM12 IBPM1 IBPM4A IBPM4B/;
 # Injector stripline BPMs
 @inj_strlist =   qw / IBPM1I02 IBPM1I04 IBPM1I06 IBPM0I02 IBPM0I02A IBPM0I05 IBPM0L01 IBPM0L02 IBPM0L03 IBPM0L04 IBPM0L05 IBPM0L06 /;  
 # Cavity BPMs
@@ -41,6 +41,8 @@
 @scanlist = qw / ISCANL ISCANR /;
 # BMW words
 @bmwlist = qw / IBMW_CLN IBMW_OBJ IBMW_VAL IBMW_CYC /;
+# SYNC words
+@synclist = qw / IISYNC0 ICHSYNC0 ICHSYNC1 ICHSYNC2 IRSYNC1 IRSYNC2 ILSYNC1 ILSYNC2 /;
 # Number of ADC modules, scaler modules, and crates
 $adcnum = 31;
 $scanum = 4;
@@ -63,6 +65,7 @@ $out = "";   # output being built
 &do_qpds();
 &do_scans();
 &do_bmwwords();
+&do_syncwords();
 
 print << "END";
 //////////////////////////////////////////////////////////////////////////
@@ -1030,6 +1033,35 @@ sub add_bmwword
     my ($bmwword) = @_;
     my ($ret);
     $ret = "\#define   ${bmwword}      $p\n"; $p++;
+    return $ret;
+}
+
+sub do_syncwords
+{
+# Beam modulation information
+
+    $syncoff = $p;
+    $syncnum = scalar (@synclist);
+    $out1 = "";
+    foreach $syncword (@synclist)
+    {
+	$out1 .= &add_syncword ($syncword);
+    }
+    $out .= << "ENDSYNCWORDCOM";
+// sync words
+
+\#define   SYNCOFF     $syncoff     // sync words start here
+\#define   SYNCNUM     $syncnum     // number of sync words defined below
+
+$out1
+ENDSYNCWORDCOM
+}
+
+sub add_syncword
+{
+    my ($syncword) = @_;
+    my ($ret);
+    $ret = "\#define   ${syncword}      $p\n"; $p++;
     return $ret;
 }
 

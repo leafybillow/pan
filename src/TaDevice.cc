@@ -516,6 +516,21 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"bpm12yws",IBPM12YWS));
   fKeyToIdx.insert(make_pair((string)"bpm12ws", IBPM12WS));
 
+// BPM 1
+  fKeyToIdx.insert(make_pair((string)"bpm1xp", IBPM1XP));
+  fKeyToIdx.insert(make_pair((string)"bpm1xm", IBPM1XM));
+  fKeyToIdx.insert(make_pair((string)"bpm1yp", IBPM1YP));
+  fKeyToIdx.insert(make_pair((string)"bpm1ym", IBPM1YM));
+  fKeyToIdx.insert(make_pair((string)"bpm1xpc",IBPM1XPC));
+  fKeyToIdx.insert(make_pair((string)"bpm1xmc",IBPM1XMC));
+  fKeyToIdx.insert(make_pair((string)"bpm1ypc",IBPM1YPC));
+  fKeyToIdx.insert(make_pair((string)"bpm1ymc",IBPM1YMC));
+  fKeyToIdx.insert(make_pair((string)"bpm1x",  IBPM1X));
+  fKeyToIdx.insert(make_pair((string)"bpm1y",  IBPM1Y));
+  fKeyToIdx.insert(make_pair((string)"bpm1xws",IBPM1XWS));
+  fKeyToIdx.insert(make_pair((string)"bpm1yws",IBPM1YWS));
+  fKeyToIdx.insert(make_pair((string)"bpm1ws", IBPM1WS));
+
 // BPM 4A
   fKeyToIdx.insert(make_pair((string)"bpm4axp", IBPM4AXP));
   fKeyToIdx.insert(make_pair((string)"bpm4axm", IBPM4AXM));
@@ -1812,6 +1827,15 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"bmw_obj",IBMW_OBJ));
   fKeyToIdx.insert(make_pair((string)"bmw_val",IBMW_VAL));
   fKeyToIdx.insert(make_pair((string)"bmw_cyc",IBMW_CYC));
+
+  fKeyToIdx.insert(make_pair((string)"isync0",IISYNC0));
+  fKeyToIdx.insert(make_pair((string)"chsync0",ICHSYNC0));
+  fKeyToIdx.insert(make_pair((string)"chsync1",ICHSYNC1));
+  fKeyToIdx.insert(make_pair((string)"chsync2",ICHSYNC2));
+  fKeyToIdx.insert(make_pair((string)"rsync1",IRSYNC1));
+  fKeyToIdx.insert(make_pair((string)"rsync2",IRSYNC2));
+  fKeyToIdx.insert(make_pair((string)"lsync1",ILSYNC1));
+  fKeyToIdx.insert(make_pair((string)"lsync2",ILSYNC2));
 
 };
 
