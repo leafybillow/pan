@@ -6,6 +6,67 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 14 Jan 2003
+-----------------------------------
+
+Mainly these changes reflect the addition of results database files.
+There are new classes, TaIResultsFile and TaOResultsFile, for reading
+and writing these files, and there are changes mainly in TaRun to make
+Pan write a results file.  Pan does not use TaIResultsFile, but it can
+be used by post-Pan programs or macros to read results for further
+analysis.  Indeed, any such program or macro that produces results we
+may want to process further should read the previous stage's results
+file and write a new one containing the old and new results.  I have
+provided a toy example, macro/res_example.macro.  
+
+Supporting the results files are changes to TaDatabase having to do
+with computing and supplying a CRC checksum of the database file, new
+constructors in TaFileName to allow run number and analysis type to be
+specified instead of using the ones specified in Setup, and a new
+optional argument to TaString::Split specifying the maximum number of
+splits, in somewhat Perl-like fashion.
+
+Unrelated, there are some improvements to macro/frame.macro.
+
+macro/frame.macro
+
+ o Various minor improvements
+
+macro/res_example.macro
+
+ o Illustration of use of results database files
+
+src/Makefile src/TaIResultsFile.{hh,cc} src/TaOResultsFile.{hh,cc} 
+src/TaLinkDef.hh
+
+ o New classes: TaIResultsFile, TaOResultsFile
+
+src/TaDataBase.{hh,cc}
+
+ o Computation, storage, and access of CRC checksum
+
+src/TaFileName.{hh,cc}
+
+ o New constructors to explicitly specify run number and analysis type
+ o New file type ('result')
+ o Some consts specified
+
+src/TaRun.{hh,cc}
+
+ o Call TaFileName::Setup earlier
+ o Write results file
+
+src/TaString.{hh,cc}
+ o Optional argument to Split to limit number of splits
+ o Some consts specified
+
+src/VaAnalysis.cc
+ o Call to TaRun::WriteRun to write to results file
+
+doc/results_database.txt
+ o Description of results database files
+
+
 Changes by A. Vacheret on 14 jan 2003
 -------------------------------------
 
