@@ -5,6 +5,53 @@ This is a detailed list of ongoing changes.  Add changes to
 the top of this file.
 
 
+Changes by R. Holmes on 30 Jul 2002
+-----------------------------------
+
+Changes in TaCutList are to deal with the situation if an interval in
+the cut list has zero for its cut value.  Normally this would not be
+the case but a bug in TaAsciiDB apparently creates such a situation;
+in any case it's wise to deal with it appropriately.
+
+TaEvent has a new method CopyInPlace, which is equivalent to operator=
+but copies into existing memory allocation instead of deleting and
+reallocating.  This should always be safe, I think, but to reduce the
+possibility of catastrophe always use operator= unless there's reason
+not to want reallocation.  The one situation I know of where one
+doesn't is in copying an event to TaRun::fAccumEvent, into which the
+event tree has pointers for filling.  Also new are access methods to
+get the number of cuts in the event's cut array, and the value of one
+of those array elements, indicating the state of a cut condition for
+that event.  This is to allow cut conditions to be entered in the pair
+tree in VaAnalysis.
+
+TaRun is modified to fix the incorrect filling of the event tree.
+
+Error in batt2 specification in control.db has been fixed.
+
+
+TaCutList.cc
+
+ o For OK() and CutsFailed(), do not regard event as in interval if
+   that interval has zero value
+
+TaEvent.{hh,cc}
+
+ o New methods CopyInPlace, GetNCuts, and CutCond
+
+TaRun.{hh,cc}
+
+ o Fix bug in event tree filling
+
+VaAnalysis.{hh,cc}
+
+ o Put cut conditions in pair tree
+
+control.db
+
+ o Correct ADC number for batt2.
+
+
 Changes by R. Michaels on 1 Aug 2002
 ------------------------------------
 
