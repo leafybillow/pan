@@ -6,6 +6,39 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 24 Feb 2003
+-----------------------------------
+
+There was a request to cut the first event of a run due to a problem
+in the scaler DAQ with the first event.  That's the new Startup event
+cut.  To help debug this I added cut value outputs in MiniDump.
+
+To avoid requiring people to add the Startup cut to every database
+file out there (not that it's a bad idea to, but how annoying to HAVE
+to) I've revised the code to behave OK if a cut isn't defined -- it's
+just never imposed.  You still get an abort if Low_beam, Evt_seq, and
+Pair_seq are not defined in the database, because it doesn't make much
+sense to analyze without these -- though you can just edit the
+VaEvent::RunInit or VaPair::RunInit code that checks for these if you
+REALLY want to run with one of these cuts undefined, and it'll do it.
+Beam_burp and Startup are optional; you just get a warning if these
+are undefined.  The choice of required/optional is somewhat arbitrary
+and I am open to suggestions.
+
+db/control.db
+
+ o Startup cut.
+
+src/TaCutList.cc TaPairFromPair.cc TaPairFromQuad.cc VaPair.{hh,cc} 
+
+ o Good behavior if a cut is undefined.
+
+src/VaEvent.{hh,cc} 
+
+ o Good behavior if a cut is undefined
+ o Startup cut
+ o MiniDump prints cut values
+
 Changes by R. Michaels on 20 Feb 2003
 -------------------------------------
 
