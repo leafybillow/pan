@@ -77,6 +77,7 @@ public:
   VaDataBase& GetDataBase() const { return *fDataBase; };
   Int_t GetKey(string keystr) const;
   string GetKey(Int_t key) const;
+  TaDevice& GetDevices() const {return *fDevices;};  // Device map for this run
 
   // Static data
 
