@@ -135,11 +135,11 @@ TaStandardAna::InitChanLists ()
   f = ChanListFromName ("det", "~s",  fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
-  f = ChanListFromName ("bpm", "12mx",  fgNO_STATS + fgCOPY);
+  f = ChanListFromName ("bpm12mx", "",  fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanListFromName ("bpm", "4amx",  fgNO_STATS + fgCOPY);
+  f = ChanListFromName ("bpm4amx", "",  fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanListFromName ("bpm", "4bmx",  fgNO_STATS + fgCOPY);
+  f = ChanListFromName ("bpm4bmx", "",  fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
 
