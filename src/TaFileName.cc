@@ -34,14 +34,15 @@ TaFileName::TaFileName (const RunNumber_t r,
 			const string com, 
 			const string suf)
 {
-  // Construct a Pan standard filename for run r, analysis type a,
-  // file type s (which may be "coda" for CODA data files, "db" for
+  // Construct a Pan/Redana standard filename for run r, analysis type
+  // a, file type s (which may be "coda" for CODA data files, "db" for
   // run-specific ASCII database files, "dbdef" for generic ASCII
-  // database files, "root" for ROOT files, "output" for general
-  // output files, or "result" for standard result output files
-  // (TaIResultFile/TaOResultFile)) with additional comment tag com
-  // (for "root", "output", or "result" files only) and suffix suf
-  // (for "output" files only).
+  // database files, "conf" for run-specific ASCII configuration
+  // files, "confdef" for generic ASCII configuration files, "root"
+  // for ROOT files, "output" for general output files, or "result"
+  // for standard result output files (TaIResultFile/TaOResultFile))
+  // with additional comment tag com (for "root", "output", or
+  // "result" files only) and suffix suf (for "output" files only).
   //
   // Note that one would more commonly call Setup with r and a, and
   // then use the 3-argument constructor.
@@ -62,6 +63,14 @@ TaFileName::TaFileName (const RunNumber_t r,
   // File type "dbdef":
   //
   //   $(PAN_DB_FILE_PATH)/control.$(PAN_DB_FILE_SUFFIX)
+  //
+  // File type "conf": 
+  //
+  //   $(PAN_CONFIG_FILE_PATH)/$(PAN_FILE_PREFIX)_XXXX.$(PAN_CONFIG_FILE_SUFFIX)
+  //
+  // File type "confdef":
+  //
+  //   $(PAN_CONFIG_FILE_PATH)/control.$(PAN_CONFIG_FILE_SUFFIX)
   //
   // File type "root"
   //
@@ -100,6 +109,8 @@ TaFileName::TaFileName (const RunNumber_t r,
   //   $PAN_CODA_FILE_PATH        .
   //   $PAN_DB_FILE_SUFFIX        db
   //   $PAN_DB_FILE_PATH          ./db (for "db" type) or . (for "dbdef")
+  //   $PAN_CONFIG_FILE_SUFFIX    conf
+  //   $PAN_CONFIG_FILE_PATH      .    (for "conf" type) or . (for "confdef")
   //   $PAN_ROOT_FILE_PATH        .
   //   $PAN_ROOT_FILE_SUFFIX      root
   //   $PAN_OUTPUT_FILE_PATH      .
@@ -196,6 +207,17 @@ TaFileName::Create (const string b,
     {
       suffix = GetEnvOrDef ("PAN_DB_FILE_SUFFIX", "db");
       path = GetEnvOrDef ("PAN_DB_FILE_PATH", ".");
+      base = "control";
+    }
+  else if (s == "conf")
+    {
+      suffix = GetEnvOrDef ("PAN_CONFIG_FILE_SUFFIX", "conf");
+      path = GetEnvOrDef ("PAN_CONFIG_FILE_PATH", ".");
+    }
+  else if (s == "confdef")
+    {
+      suffix = GetEnvOrDef ("PAN_CONFIG_FILE_SUFFIX", "conf");
+      path = GetEnvOrDef ("PAN_CONFIG_FILE_PATH", ".");
       base = "control";
     }
   else if (s == "root")
