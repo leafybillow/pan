@@ -145,7 +145,6 @@ void TaDevice::BpmDefRotate() {
 //     "bpm8_ur" --> unrotated.
 
    fRotateList.clear();
-   fRotateList.push_back("bpmin1");  // Injector #1.  
    fRotateList.push_back("bpmin2");  // Injector #2.  
    fRotateList.push_back("bpm8");
    fRotateList.push_back("bpm10");
