@@ -12,7 +12,8 @@
 //////////////////////////////////////////////////////////////////////////
 
 //#define NOISY
-#define CHECKOUT
+//#define CHECKOUT
+//#define ASYMCHECK
 
 #include "TaEvent.hh"
 #include "TaLabelledQuantity.hh"
@@ -181,9 +182,15 @@ VaAnalysis::RunIni(TaRun& run)
   }
 
   // maximum events in fEHelDeque set equal to helicity delay times
-  // oversample.  
-  fEHelDequeMax = fRun->GetDataBase()->GetDelay() * 
-    fRun->GetDataBase()->GetOverSamp();
+  // oversample. 
+  if (fRun->GetDataBase()->GetDelay() != 0){   
+     fEHelDequeMax = fRun->GetDataBase()->GetDelay() * 
+     fRun->GetDataBase()->GetOverSamp();
+  }
+  else 
+    {
+      fEHelDequeMax = 1;
+    }
 
   // maximum events in fEDeque set equal to twice number of
   // events per second.  Half as many pairs in fPDeque.
@@ -227,6 +234,7 @@ VaAnalysis::RunIni(TaRun& run)
 void
 VaAnalysis::ProcessRun()
 {
+
   // Main analysis routine -- this is the event loop
 
   while ( fRun->NextEvent() )
@@ -250,7 +258,7 @@ VaAnalysis::ProcessRun()
 	       << " read -- processed " << fEvtProc << " (" << fPairProc
 	       << ") events (pairs)" << endl;
 #ifdef LEAKCHECK
-	  LeakCheck();
+	  //LeakCheck();
 #endif
 	}
       if (fRun->GetEvent().GetEvNumber() >= fMaxNumEv)
@@ -291,7 +299,6 @@ VaAnalysis::RunFini()
        << " (" << fPairProc << ") events (pairs)" << endl;
 
   fPairTree->Write();
-
   delete fPreEvt;
   fPreEvt = 0;
   delete fPrePair;  
@@ -358,7 +365,7 @@ VaAnalysis::PreProcessEvt()
   // push it onto pair delay queue.
 
 #ifdef NOISY
-  clog << "Entering PreProcessEvt" << endl;
+  clog << "Entering PreProcessEvt, fEHelDeque.size() : " <<fEHelDeque.size()<< endl;
 #endif
   fRun->GetEvent().CheckEvent(*fRun);
 
@@ -366,6 +373,7 @@ VaAnalysis::PreProcessEvt()
 
 // Memory leak here when helicity delay is 0.  Temporary dirty fix.  -Bob
   if (fEHelDequeMax == 0 || fEHelDeque.size() > 1000) {
+  //  if (fEHelDeque.size() > 1000) {
     fEHelDeque.clear();
     fEHelDeque.push_back(fRun->GetEvent());
   }
@@ -445,9 +453,16 @@ VaAnalysis::ProcessPair()
 	}
       fPair = fPDeque.front();
       fPDeque.pop_front();
-      
+
+#ifdef ASYMCHECK   
+      clog << " paired event "<<fPair->GetLeft().GetEvNumber()<<" with "<<fPair->GetRight().GetEvNumber()<<endl;
+      clog << " BCM1(L, R) "<<fPair->GetLeft().GetData("bcm1")<<" "<<fPair->GetRight().GetData("bcm1")<<endl;
+      clog << " BCM2(L, R) "<<fPair->GetLeft().GetData("bcm2")<<" "<<fPair->GetRight().GetData("bcm2")<<endl;
+      clog << " BCM asy " <<fPair->GetAsy("bcm1")*1E6 <<" "<<fPair->GetAsy("bcm2")*1E6<<endl;
+      clog << " x diff " <<endl;       
+#endif
       PairAnalysis();
-      fPairTree->Fill();
+      fPairTree->Fill();      
       ++fPairProc;
     }
   else
@@ -512,7 +527,7 @@ VaAnalysis::InitTree ()
   // Initialize the pair tree 
   Int_t bufsize = 5000;
 
-  fTreeSpace = new Double_t[3+
+  fTreeSpace = new Double_t[4+
 			   fCopyList.size()*2+
 			   fDiffList.size()+
 			   fAsymList.size()];
@@ -522,13 +537,15 @@ VaAnalysis::InitTree ()
   clog << "r_ev_num" << endl;
   clog << "l_ev_num" << endl;
   clog << "m_ev_num" << endl;
+  clog << "pair_ok"  << endl;
 #endif
 
   Double_t* tsptr = fTreeSpace;
   fPairTree->Branch ("r_ev_num", tsptr++, "r_ev_num/D", bufsize); 
   fPairTree->Branch ("l_ev_num", tsptr++, "l_ev_num/D", bufsize); 
   fPairTree->Branch ("m_ev_num", tsptr++, "m_ev_num/D", bufsize); 
-
+  fPairTree->Branch ("pair_ok", tsptr++, "pair_ok/I", bufsize); 
+  
 
   // Add branches corresponding to channels in the channel lists
   string suff ("/D");
@@ -639,6 +656,9 @@ VaAnalysis::ChanList (const string& devtype, const string& channel, const string
 void
 VaAnalysis::AutoPairAna()
 {
+#ifdef NOISY  
+ clog<<" Entering AutoPairAna()"<<endl;
+#endif
   // Routine a derived class can call to do some of the analysis
   // automatically.
 
@@ -650,6 +670,9 @@ VaAnalysis::AutoPairAna()
   // produce different lists, then just call AutoPairAna to handle
   // some if not all of the pair analysis.
 
+
+   
+
   Double_t* tsptr = fTreeSpace;
 
   // First store values not associated with a channel
@@ -657,11 +680,23 @@ VaAnalysis::AutoPairAna()
   *(tsptr++) = fPair->GetLeft().GetEvNumber();
   *(tsptr++) = (fPair->GetRight().GetEvNumber()+
 		fPair->GetLeft().GetEvNumber())*0.5;
+  *(tsptr++)= fPair->PassedCuts();
+#ifdef ASYMCHECK
+  //  cout<<" mean ev pair "<<(fPair->GetRight().GetEvNumber()+fPair->GetLeft().GetEvNumber())*0.5<<" passed Cuts :"<<fPair->PassedCuts()<<endl;
+#endif
   Double_t val;
 
   // Channels for which to copy right and left values to tree
   string prefix_r ("Right ");
   string prefix_l ("Left  ");
+
+
+#ifdef NOISY
+  clog << " --------- List of analysis ------------" << endl;
+  clog << "    COPY         " << endl;
+#endif
+
+
   for (vector<pair<string,string> >::const_iterator i = fCopyList.begin();
        i != fCopyList.end();
        ++i )
@@ -674,8 +709,15 @@ VaAnalysis::AutoPairAna()
       *(tsptr++) = val;
       fPair->AddResult ( TaLabelledQuantity ( prefix_l+(i->first), 
 					     val, i->second ) );
+#ifdef NOISY
+  clog <<val<<endl;
+#endif
     }
 
+#ifdef NOISY
+  clog << "    DIFF         " << endl;
+  clog <<val<<endl;
+#endif
   // Channels for which to put difference in tree
   string prefix ("Diff ");
   for (vector<pair<string,string> >::const_iterator i = fDiffList.begin();
@@ -686,8 +728,14 @@ VaAnalysis::AutoPairAna()
       *(tsptr++) = val;
       fPair->AddResult ( TaLabelledQuantity ( prefix+(i->first), 
 					     val, i->second ) );
+#ifdef NOISY
+  clog <<val<<endl;
+#endif
     }
 
+#ifdef NOISY
+  clog << "    ASYM         " << endl;
+#endif
   // Channels for which to put asymmetry in tree
   prefix = "Asym ";
   for (vector<pair<string,string> >::const_iterator i = fAsymList.begin();
@@ -698,6 +746,10 @@ VaAnalysis::AutoPairAna()
       *(tsptr++) = val;
       fPair->AddResult ( TaLabelledQuantity ( prefix+(i->first), 
 					     val, i->second ) );
+#ifdef NOISY
+   clog<<i->first<<endl; 
+   clog <<val<<endl;
+#endif
     }
 
 }
@@ -714,3 +766,5 @@ void VaAnalysis::LeakCheck()
        << " diff " <<fLeakNewPair-fLeakDelPair << endl;
 }
 #endif
+
+
