@@ -262,25 +262,25 @@ Int_t TaPanam::CheckCanvasConfig()
 //   fShowLUMI   = kFALSE; fShowDET    = kFALSE;
  
  // check buttons state before starting monitoring Pan
-  if (fTOptCheck[0]->GetState() == kButtonDown)   fShowTime   == kTRUE;   
-  if (fADCOptCheck[0]->GetState() == kButtonDown)   fShowIADC   == kTRUE;
-  if (fADCOptCheck[1]->GetState() == kButtonDown)   fShowPADC   == kTRUE;
-  if (fADCOptCheck[2]->GetState() == kButtonDown)   fShowSADC   == kTRUE;
-  if (fBCMDCheck[0]->GetState()   == kButtonDown)   fShowBCM    == kTRUE;
-  if (fBCMDCheck[1]->GetState()   == kButtonDown)   fShowBCMCAV == kTRUE;
-  if (fBPMDCheck[0]->GetState()   == kButtonDown)   fShowINBPM  == kTRUE;
-  if (fBPMDCheck[1]->GetState()   == kButtonDown)   fShowBPM    == kTRUE;
-  if (fBPMDCheck[2]->GetState() == kButtonDown)   fShowBPMCAV == kTRUE;
-  if (fFPosCheck->GetState() == kButtonDown) fShowFDBK == kTRUE;
+  if (fTOptCheck[0]->GetState() == kButtonDown)   fShowTime   = kTRUE;   
+  if (fADCOptCheck[0]->GetState() == kButtonDown)   fShowIADC   = kTRUE;
+  if (fADCOptCheck[1]->GetState() == kButtonDown)   fShowPADC   = kTRUE;
+  if (fADCOptCheck[2]->GetState() == kButtonDown)   fShowSADC   = kTRUE;
+  if (fBCMDCheck[0]->GetState()   == kButtonDown)   fShowBCM    = kTRUE;
+  if (fBCMDCheck[1]->GetState()   == kButtonDown)   fShowBCMCAV = kTRUE;
+  if (fBPMDCheck[0]->GetState()   == kButtonDown)   fShowINBPM  = kTRUE;
+  if (fBPMDCheck[1]->GetState()   == kButtonDown)   fShowBPM    = kTRUE;
+  if (fBPMDCheck[2]->GetState() == kButtonDown)   fShowBPMCAV = kTRUE;
+  if (fFPosCheck->GetState() == kButtonDown) fShowFDBK = kTRUE;
   for (Int_t i=0; i<2; i++)
    {
-     if (fFCurCheck[i]->GetState()     == kButtonDown)   fShowFDBK  == kTRUE;
-     //     if (fDITHCheck[i]->GetState()     == kButtonDown)   fShowDITH  == kTRUE;
+     if (fFCurCheck[i]->GetState()     == kButtonDown)   fShowFDBK  = kTRUE;
+     //     if (fDITHCheck[i]->GetState()     == kButtonDown)   fShowDITH  = kTRUE;
    }
   for (Int_t i=0; i<4; i++)
    {
-     if (fDalCheck[i]->GetState() == kButtonDown)  fShowDET == kTRUE;
-     if (fLumiCheck[i]->GetState() == kButtonDown) fShowLUMI == kTRUE;
+     if (fDalCheck[i]->GetState() == kButtonDown)  fShowDET = kTRUE;
+     if (fLumiCheck[i]->GetState() == kButtonDown) fShowLUMI = kTRUE;
    } 
   return 1;
 }
