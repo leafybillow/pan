@@ -133,7 +133,8 @@ SRC = TaAnalysisManager.cc  \
       TaBeamAna.cc TaDevice.cc \
       TaCutInterval.cc TaCutList.cc TaEvent.cc TaLabelledQuantity.cc \
       TaPairFromPair.cc TaRun.cc TaStatistics.cc TaString.cc \
-      VaAnalysis.cc VaDataBase.cc VaPair.cc TaADCCalib.cc
+      VaAnalysis.cc VaDataBase.cc VaPair.cc TaADCCalib.cc \
+      TaFileName.cc
 
 ifdef MYSQLDB
  SRC +=TaMysql.cc 
