@@ -25,6 +25,7 @@
 #pragma link C++ class TaCutList;
 #pragma link C++ class TaDevice;
 #pragma link C++ class TaEvent;
+#pragma link C++ class TaFileName;
 #pragma link C++ class TaLabelledQuantity;
 #pragma link C++ class TaPairFromPair;
 #pragma link C++ class TaRun;
