@@ -33,30 +33,56 @@ int main(int argc, char **argv)
   int runnum = 0;
   int choice = 0;
   char *cfilename;
+  Bool_t twopass(false);
 
-  for (int i=0 ; i < argc; i++) 
+  int i = 1;
+  while (i < argc) 
     {
       if (strcasecmp(argv[i],"-r") == 0) 
 	{
 	  if (i < argc-1) 
 	    {
-	      runnum = atoi(argv[i+1]);
+	      runnum = atoi(argv[++i]);
 	      choice = 1;
+	    }
+	  else
+	    {
+	      usage();
+	      return 1;
 	    }
 	}
       else if (strcasecmp(argv[i],"-f") == 0) 
 	{
 	  if (i < argc-1) 
 	    {
-	      cfilename = new char[strlen(argv[i+1])+1];
-	      strcpy(cfilename,argv[i+1]);
+	      cfilename = new char[strlen(argv[++i])+1];
+	      strcpy(cfilename,argv[i]);
 	      choice = 2;
+	    }
+	  else
+	    {
+	      usage();
+	      return 1;
 	    }
 	}
       else if (strcasecmp(argv[i],"-o") == 0)
 	choice = 3;
+      else if (strcasecmp(argv[i],"-2") == 0)
+	twopass = true;
+      else
+	{
+	  usage();
+	  return 1;
+	}
+      ++i;
     }
   
+  if (twopass && (choice == 0 || choice == 3))
+    {
+      usage();
+      return 1;
+    }
+
   // Done processing command line.  Hand off to analysis manager.  
 
   TROOT pan ( "pan", "Parity analyzer" );
@@ -95,9 +121,15 @@ int main(int argc, char **argv)
 	  return 1;
 #endif
 	}
-      if (am.Process() != 0)
-	return 1;
-      if (am.End() != 0)
+      if (twopass)
+	{
+	  if (am.Process() != 0 || 
+	      am.EndPass1() != 0 || 
+	      am.InitPass2() != 0)
+	    return 1;
+	}
+      if (am.Process() != 0 ||
+	  am.End() != 0)
 	return 1;
       return 0;
     }
@@ -106,19 +138,28 @@ int main(int argc, char **argv)
 
 void usage() {
 // Prints usage instructions
-  cerr << "Usage:  pan [-r runnum] [-f filename]" << endl;
-  cerr << "runnum is the run number" << endl;
-  cerr << "filename is the full-path-name of CODA file." << endl;
-  cerr << "(Specify at most one of the above two.  Online data" << endl;
-  cerr << "are analyzed if no run number or path is given.)"<<endl;
-  cerr << "Valid examples: " << endl;
-  cerr << "   ./pan -r 1824 -n 1000" << endl;
-  cerr << "   ./pan -f /work/halla/parity/rom/parity01_1824.dat" << endl;
-#ifndef ONLINE
-  cerr << "Since you did not compile with ONLINE flag in Makefile" << endl;
-  cerr << "a filename or run number must be specified. " << endl;
+
+  cerr << "Usage:  pan [data source specifier] [-2]" << endl;
+  cerr << "" << endl;
+  cerr << "  where data source specifier is" << endl;
+  cerr << "    -r runnum   to analyze run number <runnum>" << endl;
+  cerr << "    -f filepath to analyze CODA file at <filepath>" << endl;
+#ifdef ONLINE
+  cerr << "    -o          to analyze online data" << endl;
 #else
-  cerr << "   ./pan" << endl;
+  cerr << "                [Recompile with ONLINE flag in Makefile to allow" << endl;
+  cerr << "                analysis of online data]" << endl;
 #endif
-  cerr << "Try again..." << endl;
+  cerr << "  Interactive prompt will be given if no data source is specified." << endl;
+  cerr << "" << endl;
+  cerr << "  Other options:" << endl;
+  cerr << "    -2          Do 2-pass analysis (with -r or -f only)." << endl;
+  cerr << "" << endl;
+  cerr << "  Valid examples:" << endl;
+  cerr << "     ./pan -r 1824 -2" << endl;
+  cerr << "     ./pan -f /work/halla/parity/rom/parity01_1824.dat" << endl;
+#ifdef ONLINE
+  cerr << "     ./pan -o " << endl;
+#endif
+  cerr << "     ./pan" << endl;
 }
