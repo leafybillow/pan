@@ -109,7 +109,7 @@ void TaPairFromQuad::CheckSequence( VaEvent& ThisEv, TaRun& run )
       fgThisWinEv = ThisEv;
       if (lqs == FirstQS && fgQuadCount == 5)
 	fgQuadCount = 0;
-      else
+      else if (fgQuadCount < 5)
 	{
 	  fgQuadCount = (fgQuadCount + 1) % 4;
 	  if (lqs == FirstQS && fgQuadCount != 0)
