@@ -74,6 +74,7 @@ public:
 
   Bool_t CutStatus() const;          // Return true iff event failed one or more cut conditions 
   Bool_t BeamCut() const;            // Return true iff event failed low beam cut
+  Bool_t BeamCCut() const;            // Return true iff event failed low beam C cut
   UInt_t GetNCuts () const;          // Return size of cut array
   Int_t CutCond (const Cut_t c) const; // Return value of cut condition c
   Bool_t IsPrestartEvent() const;    // run number available in 'prestart' events.
@@ -135,13 +136,16 @@ private:
   static VaEvent fgLastEv;     // copy of previous event
   static Bool_t fgFirstDecode; // true until first event decoded
   static Double_t fgLoBeam;    // cut threshold from database
+  static Double_t fgLoBeamC;    // cut threshold from database
   static Double_t fgBurpCut;   // cut threshold from database
   static Cut_t fgLoBeamNo;     // cut number for low beam
+  static Cut_t fgLoBeamCNo;     // cut number for low beam C
   static Cut_t fgBurpNo;       // cut number for beam burp
   static Cut_t fgEvtSeqNo;     // cut number for event sequence
   static Cut_t fgStartupNo;    // cut number for startup
   static UInt_t fgOversample;  // oversample factor
   static UInt_t fgCurMon;      // index to current monitor for cuts
+  static UInt_t fgCurMonC;     // index to current monitor for cuts
   static UInt_t fgSizeConst;   // size of first physics event should be size of all
   static UInt_t fgNCuts;       // Length of cut array
   static Bool_t fgCalib;       // True to include calibration variables

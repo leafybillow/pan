@@ -366,6 +366,8 @@ public:
   string GetPairType() const;  // returns 'pair' or 'quad', etc.
 // Get current monitor to use for cuts and normalizations for this run
   string GetCurMon() const;   // returns 'bcm1', etc.
+// Get current monitor to use for Hall C cut for this run
+  string GetCurMonC() const;   // returns 'bcm10', etc.
 // True if calibration variables in the raw data tree.
   Bool_t GetCalVar() const;
 // Get a cut value for 'cutname'.  e.g. cutname = 'lowbeam', 'burpcut' 

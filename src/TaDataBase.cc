@@ -325,6 +325,7 @@ void TaDataBase::Print() {
    clog << "     Cut name  " << cutnames[i] <<endl;
   }
   clog << "   Low beam cut :  " << GetCutValue("lobeam") << endl;
+  clog << "   Low beam C cut :  " << GetCutValue("lobeamc") << endl;
   clog << "   Burp cut :  " << GetCutValue("burpcut") << endl;
   vector<Int_t> extlo = GetExtLo();
   vector<Int_t> exthi = GetExtHi();
@@ -427,6 +428,7 @@ TaDataBase::Checkout()
   cout << "ROOT file compression = " << GetCompress() << endl;
   cout << "Max events = " << GetMaxEvents() << endl;
   cout << "lobeam  cut = " << GetCutValue("LOBEAM") << endl;
+  cout << "lobeamc  cut = " << GetCutValue("LOBEAMC") << endl;
   cout << "burpcut  cut = " << GetCutValue("BURPCUT") << endl;
   cout << "window delay = " << GetDelay() << endl;
   cout << "oversampling factor = " << GetOverSamp() << endl;
@@ -1165,6 +1167,15 @@ string TaDataBase::GetCurMon() const
   return cm;
 };
 
+string TaDataBase::GetCurMonC() const
+{
+// Get current monitor to use for Hall C cuts for this run
+  string cm = GetString ("curmonc");
+  if (strlen(cm.c_str())-1 <= 0)
+    cm = "none";
+  return cm;
+};
+
 Bool_t TaDataBase::GetCalVar() const
 {
 // Return true if calibration variables (not pedestal subtracted) are
@@ -1420,6 +1431,8 @@ void TaDataBase::InitDB() {
   tables.push_back("PZTQcoupling");  //  29
   tables.push_back("IAHallCparam");  //  30
   tables.push_back("compress");      //  31
+  tables.push_back("lobeamc");       //  32
+  tables.push_back("curmonc");       //  33
 
   pair<string, int> sipair;
   int k;
@@ -1547,6 +1560,9 @@ void TaDataBase::InitDB() {
        columns.push_back(new dtype("d"));
     }
     if (i == 31) columns.push_back(new dtype("i"));  // compress
+    if (i == 32) columns.push_back(new dtype("d"));  // lobeamc
+    if (i == 33)   // curmonc
+      columns.push_back(new dtype("s"));
     sipair.second = columns.size(); 
     colsize.insert(sipair);
     LoadTable(tables[i],columns);

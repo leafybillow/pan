@@ -82,6 +82,7 @@ private:
   vector<UInt_t> fTally;             // tally of cut condition failures
   vector<string> fCutNames;          // names of cuts
   static const size_t fgMaxEvent = 1000000; // Probably should be available from VaEvent, really
+  Cut_t fLoBeamCNo;                  // cut number for low beam C
 
 #ifndef NODICT
   ClassDef(TaCutList, 0)   // List of cuts

@@ -159,6 +159,8 @@ TaStandardAna::InitChanLists ()
     {
       if (i_f->fVarStr == "bcm1")
 	i_f->fFlagInt += fgORDERED;
+      if (i_f->fVarStr == "bcm10")
+	i_f->fFlagInt = fgNO_BEAM_C_NO_ASY + fgASY + fgBLINDSIGN;
     }
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("lumi", "~", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);

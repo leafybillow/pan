@@ -29,17 +29,11 @@
 #include "TaCutInterval.hh"
 #include "TaDataBase.hh"
 #include "TaOResultsFile.hh"
+#include "TaString.hh"
 
 #ifndef NODICT
 ClassImp(TaCutList)
 #endif
-
-//  // Define a ++ for Cut_t
-
-//  Cut_t& operator++ (Cut_t& c)
-//  {
-//    return c = (c == MaxCuts) ? LowBeamCut: Cut_t (c+1);
-//  }
 
 // Constructors/destructors/operators
 
@@ -143,6 +137,11 @@ TaCutList::Init(const TaDataBase& db)
 	cerr << "TaCutList::Init WARNING: Unknown cut type = " << temp[2]
 	     << " found in database -- ignoring" << endl;
     }
+
+  // Store the cut type for lobeamc
+
+  fLoBeamCNo = db.GetCutNumber (TaString ("Low_beam_c"));
+
 }
 
 
@@ -150,14 +149,16 @@ Bool_t
 TaCutList::OK (const VaEvent& ev) const   
 {
   // Return true if event not in any cut interval of this list which
-  // has nonzero value..
+  // has nonzero value.  Lobeamc cut is excepted.
 
   Bool_t oksofar = true;
   for (vector<TaCutInterval>::const_iterator c = fIntervals->begin();
        oksofar && (c != fIntervals->end()); 
        ++c )
     {
-      if (c->Inside(ev, fLowExtension[c->GetCut()], fHighExtension[c->GetCut()]) && c->GetVal() != 0)
+      if (c->GetCut() != fLoBeamCNo &&
+	  c->Inside(ev, fLowExtension[c->GetCut()], fHighExtension[c->GetCut()]) && 
+	  c->GetVal() != 0)
 	oksofar = false;
     }
     return oksofar;
