@@ -80,10 +80,6 @@ public:
 
 private:
 
-  Bool_t fInited;
-  Int_t fNumRaw;
-  Double_t *fData;
-
   // Private methods
   void Create(const TaEvent&);
   void Uncreate();
@@ -110,6 +106,9 @@ private:
   vector<pair<ECutType,Int_t> > fCutPass;
   vector<TaLabelledQuantity> fResults;
   EHelicity fDelHel; // Delayed helicity
+  Bool_t fInited;
+  Int_t fNumRaw;
+  Double_t *fData;
 
 #ifdef DICT
 ClassDef(TaEvent,0)  // An event
