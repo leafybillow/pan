@@ -1,3 +1,19 @@
+Comments by R. Holmes, 26 Dec 2002
+----------------------------------
+
+The syntax of the database command line override causes the following to fail:
+
+   ./pan -r 2181 -D IAparam slope -600
+
+or any other attempt to set a database element to a negative value;
+the parser regards the minus sign as the start of a new command line
+option.
+
+Perhaps the syntax ought to be e.g.
+
+   ./pan -r 2181 -D 'IAparam slope -600'
+
+
 Comments by R. Holmes, 20 Nov 2002
 ----------------------------------
 
