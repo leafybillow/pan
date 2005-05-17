@@ -52,6 +52,10 @@ public:
   void AddResult (const TaLabelledQuantity&); 
   Double_t GetDiff (Int_t) const;
   Double_t GetDiffSum (vector<Int_t>, vector<Double_t> = vector<Double_t>(0)) const;
+  Double_t GetAvg (Int_t) const;
+  Double_t GetAvgSum (vector<Int_t>, vector<Double_t> = vector<Double_t>(0)) const;
+  Double_t GetAvgN (Int_t,Int_t) const;
+  Double_t GetAvgNSum (vector<Int_t>, Int_t, vector<Double_t> = vector<Double_t>(0)) const;
   Double_t GetAsy (Int_t) const;
   Double_t GetAsyN (Int_t,Int_t) const;
   Double_t GetAsySum (vector<Int_t>, vector<Double_t> = vector<Double_t>(0)) const;

@@ -319,6 +319,47 @@ VaPair::GetDiffSum (vector<Int_t> keys, vector<Double_t> wts) const
 
 
 Double_t 
+VaPair::GetAvg (Int_t key) const
+{
+  // Get average quantity indexed by key for this pair.
+  return (GetRight().GetData(key) + GetLeft().GetData(key))/2.0;
+}
+
+
+Double_t 
+VaPair::GetAvgSum (vector<Int_t> keys, vector<Double_t> wts) const
+{
+  // Get average weighted sum of quantities indexed by keys for
+  // this pair.
+
+  return (GetRight().GetDataSum (keys, wts) + 
+	  GetLeft().GetDataSum (keys, wts))/2.0;
+}
+
+Double_t 
+VaPair::GetAvgN (Int_t key, Int_t curmonkey) const
+{
+  // Get normalized average in quantity indexed by key for this pair.
+
+  return ((GetRight().GetData(key)/GetRight().GetData(curmonkey))
+	  + (GetLeft().GetData(key)/GetLeft().GetData(curmonkey))) / 2.0;
+}
+
+
+Double_t 
+VaPair::GetAvgNSum (vector<Int_t> keys, Int_t curmonkey, vector<Double_t> wts) const
+{
+  // Get normalized average weighted sum of quantities indexed by keys for
+  // this pair.
+
+  return (((GetRight().GetDataSum (keys, wts))/GetRight().GetData(curmonkey)) 
+	  + ((GetLeft().GetDataSum (keys, wts))/GetLeft().GetData(curmonkey)))
+    /2.0;
+
+}
+
+
+Double_t 
 VaPair::GetAsy (Int_t key) const
 {
   // Get asymmetry in quantity indexed by key for this pair.

@@ -77,6 +77,8 @@ const UInt_t VaAnalysis::fgBLIND          = 0x80;
 const UInt_t VaAnalysis::fgBLINDSIGN      = 0x100;
 const UInt_t VaAnalysis::fgORDERED        = 0x200;
 const UInt_t VaAnalysis::fgNO_BEAM_C_NO_ASY = 0x400;
+const UInt_t VaAnalysis::fgAVG            = 0x800;
+const UInt_t VaAnalysis::fgAVGN           = 0x1000;
 const ErrCode_t VaAnalysis::fgVAANA_ERROR = -1;  // returned on error
 const ErrCode_t VaAnalysis::fgVAANA_OK = 0;      // returned on success
 const UInt_t VaAnalysis::fgNumBpmFdbk     = 2;   // number of BPMs to feedback on
@@ -781,6 +783,10 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
 	++treeListSize;
       if (alist.fFlagInt & fgASYN)
 	++treeListSize;
+      if (alist.fFlagInt & fgAVG)
+	++treeListSize;
+      if (alist.fFlagInt & fgAVGN)
+	++treeListSize;
     }
 
   fTreeSpace = new Double_t[treeListSize];
@@ -841,6 +847,30 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
 			     bufsize); 
 #ifdef TREEPRINT
 	  clog << (string("asym_n_")+alist.fVarStr) << endl;
+#endif
+	}
+
+      if (alist.fFlagInt & fgAVG)
+	{
+	  // Channels for which to put average in tree
+	  fPairTree->Branch ((string("avg_")+alist.fVarStr).c_str(), 
+			     tsptr++, 
+			     (string("avg_")+alist.fVarStr+string("/D")).c_str(), 
+			     bufsize); 
+#ifdef TREEPRINT
+	  clog << (string("avg_")+alist.fVarStr) << endl;
+#endif
+	}
+
+      if (alist.fFlagInt & fgAVGN)
+	{
+	  // Channels for which to put normalized avg in tree
+	  fPairTree->Branch ((string("avg_n_")+alist.fVarStr).c_str(), 
+			     tsptr++, 
+			     (string("avg_n_")+alist.fVarStr+string("/D")).c_str(), 
+			     bufsize); 
+#ifdef TREEPRINT
+	  clog << (string("avg_n_")+alist.fVarStr) << endl;
 #endif
 	}
     }
@@ -1145,7 +1175,44 @@ VaAnalysis::AutoPairAna()
 						unit,
 						alist.fFlagInt));
 	}
+
+      if (alist.fFlagInt & fgAVG)
+	{
+	  // Channels for which to put average in tree
+
+	  if (alist.fVarInts != 0)
+	    val = fPair->GetAvgSum (*(alist.fVarInts), *(alist.fVarWts));
+	  else
+	    val = fPair->GetAvg(alist.fVarInt);
+	  unit = alist.fUniStr;
+	  if (fPairTree != 0)
+	    *(tsptr++) = val;
+	  fPair->AddResult (TaLabelledQuantity (string("Avg ")+(alist.fVarStr), 
+						val, 
+						unit,
+						alist.fFlagInt));
+	}      
+
+      if (alist.fFlagInt & fgAVGN)
+	{
+	  // Channels for which to put normalized average in tree
+
+	  if (alist.fVarInts != 0)
+	    val = fPair->GetAvgNSum (*(alist.fVarInts), fCurMon, *(alist.fVarWts));
+	  else
+	    val = fPair->GetAvgN(alist.fVarInt, fCurMon);
+	  unit = alist.fUniStr;
+	  if (fPairTree != 0)
+	    *(tsptr++) = val;
+	  fPair->AddResult (TaLabelledQuantity (string("AvgN ")+(alist.fVarStr), 
+						val, 
+						unit,
+						alist.fFlagInt));
+	}      
+
     }
+
+
   ProceedFeedback(); 
 }
 

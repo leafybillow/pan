@@ -155,6 +155,13 @@ TaStandardAna::InitChanLists ()
   f = ChanList ("qpd", "~y", "um", fgDIFF + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
+  // Channels for which to store averages
+  f = ChanList ("lumi", "~", "chan", fgAVG);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lumi", "~", "chan", fgAVGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  
+
   // Channels for which to store asymmetries
 //    f = ChanList ("bpm", "~xws", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
 //    fTreeList.insert (fTreeList.end(), f.begin(), f.end());

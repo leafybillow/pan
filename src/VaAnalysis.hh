@@ -182,6 +182,8 @@ public:
   static const UInt_t fgORDERED;         // Also do order dependent stats
   static const UInt_t fgAVE;             // Use average asymmetry, not sum
   static const UInt_t fgNO_BEAM_C_NO_ASY;  // Do not compute asym if lobeamc cut fails
+  static const UInt_t fgAVG;             // Store average as result
+  static const UInt_t fgAVGN;            // Store normalized average as result
   static const ErrCode_t fgVAANA_ERROR;  // returned on error
   static const ErrCode_t fgVAANA_OK;      // returned on success
   static const UInt_t fgNumBpmFdbk;
