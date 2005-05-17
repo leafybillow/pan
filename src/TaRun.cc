@@ -668,6 +668,12 @@ TaRun::Finish()
       // Why did we not do this ?
       //      if (fEvtree) fEvtree->Write();
       if (fEpicsTree) fEpicsTree->Write();
+      if(fEvtree->GetFileNumber() !=0) {
+	cout << "****** ROOT file has split. " <<
+	  fEvtree->GetFileNumber()+1 <<
+	  " Total ROOT files for this run. ******" << endl;
+	fRootFile = fEvtree->GetCurrentFile();
+      }
       fRootFile->Write();
       fRootFile->Close();
       delete fRootFile;
