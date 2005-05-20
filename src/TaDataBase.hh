@@ -126,6 +126,8 @@ public:
   void Clear() { fNumchar = 0; fptr = 0; carray->Reset(); };
   void SetRunNum(int run) { run_num = run; };
   Int_t GetRunNum() { return run_num; };
+  void SetAnaTDatime(TDatime *datime) { AnaTDatime = (TDatime*)datime; };
+  TDatime *GetAnaTDatime() { return AnaTDatime; };
   void Put(const char *tline) {
 // Input character lines.  They must end in '\n'
      jfirst = fNumchar;
@@ -163,6 +165,7 @@ private:
   int i,j,jfirst,fptr;   //!
   int fNumchar;    
   TArrayC *carray; 
+  TDatime *AnaTDatime;
 
 #ifndef NODICT
   ClassDef(TaRootRep,2) // Character data ROOT output for database
@@ -317,6 +320,8 @@ public:
   Int_t GetRunNum() const { return runnum; };
 // Get analysis type
   string GetAnaType()const;
+// Get analysis TDatime
+  TDatime *GetAnaTDatime() const { return AnaTDatime; };
 // Get simulation type
   string GetSimulationType() const;
 // Get timestamp
@@ -450,6 +455,7 @@ private:
   vector<string> tables;
   multimap<string, vector<dtype*> > database;
   TaRootRep *rootdb;   // ROOT representation
+  TDatime *AnaTDatime;  // TDatime of when run was analyzed
   string fileRead;
   vector<string> dbcommand;
   map<string, TaKeyMap > datamap; 

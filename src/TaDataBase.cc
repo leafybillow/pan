@@ -64,6 +64,7 @@ TaDataBase::TaDataBase() {
      fFirstScalPed = new Bool_t(kTRUE);
      nbadev = 0;
      rootdb = new TaRootRep();
+     AnaTDatime = new TDatime();
      fileRead = "None";
      dacparam = new Double_t[MAXADC*MAXCHAN];     
      memset(dacparam,0,MAXADC*MAXCHAN*sizeof(Double_t));
@@ -77,6 +78,7 @@ TaDataBase::~TaDataBase() {
      delete [] dacparam;
      delete [] adcped;
      delete [] scalped;
+     delete AnaTDatime;
      delete rootdb;
      tables.clear();
      for (multimap<string, vector<dtype*> >::iterator im = database.begin();
@@ -1770,6 +1772,7 @@ TaDataBase::ToRoot() {
 // Copy database to ROOT representation.  
   rootdb->Clear();
   rootdb->SetRunNum(GetRunNum());
+  rootdb->SetAnaTDatime(AnaTDatime);
   char cval[40];
   string sline,sval;
   for (multimap<string, vector<dtype*> >::iterator im = database.begin();
