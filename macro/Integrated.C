@@ -7,7 +7,7 @@
 //   a given parameter (branch of a tree) vs time.
 //
 //  *** This macro assumes that there is a perfect correlation between
-//      the branch entry number and m_ev_num/2. 
+//      the branch entry number and m_ev_num/2 (or ev_num/2.). 
 //      (Always the case??)
 //
 //  Requires:
@@ -37,25 +37,24 @@ TGraphErrors *Integrated(TTree *tree,
     return 0;
   }
   
-  // Check to make sure all other needed branches exist
-  if( (!tree->FindBranch("ok_cut")) ||
-      (!tree->FindBranch("m_ev_num")) ) {
-    cout << "Integrated: " << endl
-	 << "\t Tree does not contain crucial branches." << endl;
-    return 0;
-  }
-
   // Make sure nbins!=0
   if(nbins==0) return 0;
 
   // Grab the parameter entries from the tree
   
-  if(tree->Draw(parameter,usercut+"ok_cut","goff")==-1) {
+  Long64_t total_entries = tree->Draw(parameter,usercut,"goff");
+  if(total_entries==-1) {
     cout << "Integrated: " << endl
 	 << "\t Could not process.  Check variables within provided cut:" 
 	 << endl
 	 << "\t\t" << usercut.GetTitle() << endl;
     return 0;
+  }
+
+  // Redraw, with higher fEstimate, if necessary
+  if(total_entries>tree->GetEstimate()) {
+    tree->SetEstimate(total_entries);
+    tree->Draw(parameter,usercut,"goff");
   }
 
   // Determine the number of entries per bin (ent_per_bin)
@@ -72,7 +71,7 @@ TGraphErrors *Integrated(TTree *tree,
   for(UInt_t ient = 0; ient<tree->GetSelectedRows(); ient++) {
     if(entries_in_bin==ent_per_bin) {
       // Set current bin in TGraph, and move on to next bin
-      graph->SetPoint(current_bin,(current_bin+1)*(1./15.)*ent_per_bin/60.,stat->Mean(0));
+      graph->SetPoint(current_bin,(current_bin+1)*ent_per_bin,stat->Mean(0));
       graph->SetPointError(current_bin,0,stat->MeanErr(0));
       current_bin++; entries_in_bin=0;
     }
@@ -81,7 +80,8 @@ TGraphErrors *Integrated(TTree *tree,
     entries_in_bin++;
   }
     
-  graph->SetTitle(parameter+" Integrated Convergence;time (minutes);"+parameter);
+  // Set default titles for graph, x-axis, y-axis
+  graph->SetTitle(parameter+" Integrated Convergence;time ;"+parameter);
 
   return graph;
 
