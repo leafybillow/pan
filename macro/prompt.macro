@@ -8,7 +8,7 @@ void prompt (UInt_t run, UInt_t batch)
   // first; if batch is zero, we call the online macro as well.
 
   Int_t ret;
-  ret = open (run, "standard");
+  ret = open (run, "regress");
   TTree* tt = (TTree*) (gROOT->FindObject("P"));
 
   if (ret && tt)

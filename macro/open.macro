@@ -1,3 +1,13 @@
+TaRootRep    *pandef;
+TaRootRegDef *regdef;
+TaRootDitDef *ditdef;
+TFile *f;
+TFile *f2;
+TTree *raw;
+TTree *asy;
+TTree *reg;
+TTree *ditslps;
+
 Int_t open (Int_t run = 0, TString atype = "standard")
 {
   if (run <= 0)
@@ -15,11 +25,53 @@ Int_t open (Int_t run = 0, TString atype = "standard")
 
   TaFileName::Setup (run, atype.Data());
   TString file = (TaFileName ("root")).Tstring();
-  cout << "ROOT file is " << file << endl;
+  cout << "ROOT file is \n\t" << file << endl;
   f = new TFile(file);
   
-   TTree *raw = (TTree*)gROOT->FindObject("R");
-   TTree *asy = (TTree*)gROOT->FindObject("P");
+  if(atype=="regress") {
+    reg = (TTree*)gROOT->FindObject("reg");
+
+    TaFileName::Setup (run, "standard");
+    TString file2 = (TaFileName ("root")).Tstring();
+    f2 = new TFile(file2);
+    cout << "Also opened ROOT file: \n\t" << file2 << endl;
+    asy = (TTree*)gROOT->FindObject("P");
+
+    if (reg!=NULL) {
+      asy->AddFriend("reg",file);
+      cout << "reg tree friended to asy tree" << endl;
+      regdef = (TaRootRegDef*)gROOT->FindObject("TaRootRegDef;1");
+      if (regdef) regdef->Print();
+    }
+  }
+  if(atype=="dither") {
+    dit = (TTree*)gROOT->FindObject("dit");
+    ditslps = (TTree*)gROOT->FindObject("ditslps");
+
+    TaFileName::Setup (run, "standard");
+    TString file2 = (TaFileName ("root")).Tstring();
+    f2 = new TFile(file2);
+    cout << "Also opened ROOT file: \n\t" << file2 << endl;
+    asy = (TTree*)gROOT->FindObject("P");
+
+    if (dit!=NULL) {
+      asy->AddFriend("dit",file);
+      cout << "dit tree friended to asy tree" << endl;
+    }
+
+    ditdef = (TaRootDitDef*)gROOT->FindObject("TaRootDitDef;1");
+    if (ditdef) ditdef->Print();
+
+  } else {
+
+    pandef = (TaRootRep*)gROOT->FindObject("TaRootRep;1");
+    raw = (TTree*)gROOT->FindObject("R");
+    asy = (TTree*)gROOT->FindObject("P");
+
+  }
+  pandef = (TaRootRep*)gROOT->FindObject("TaRootRep;1");
+  raw = (TTree*)gROOT->FindObject("R");
+  //  f->cd();
 
   return run;  
 }

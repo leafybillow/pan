@@ -16,6 +16,9 @@
 
 // Uncomment to load fake correction coefficients
 //#define FAKETYFAKE 1
+// Uncomment to use regressed quantities from regress rootfile, otherwise
+//   correct quantities using regression slopes from results file
+#define USEREGROOTFILE
 
 class ParamSave
 {
@@ -95,14 +98,17 @@ ParamSave::LoadCorrs ()
   vector<Double_t> v;
 #ifndef FAKETYFAKE
   gROOT->LoadMacro("RedCoefs.macro+");
+#ifndef USEREGROOTFILE
   RedCoefs* rcr = new RedCoefs (fRun, "regress");
   fCorrMonTag[0] = rcr->Monitors();
+#endif
   RedCoefs* rcm = new RedCoefs (fRun, "dither");
   fCorrMonTag[1] = rcm->Monitors();
   for (vector<string>::const_iterator idt = corrDetTag.begin();
        idt != corrDetTag.end();
        ++idt)
     {
+#ifndef USEREGROOTFILE
       // Regression
       v.clear();
       for (vector<string>::const_iterator imt = fCorrMonTag[0].begin();
@@ -114,6 +120,7 @@ ParamSave::LoadCorrs ()
 	    v.push_back (rcr->GetMean());
 	}
       fCorrCoef[0][*idt] = v;
+#endif
       // Modulation
       v.clear();
       for (vector<string>::const_iterator imt = fCorrMonTag[1].begin();
@@ -127,7 +134,9 @@ ParamSave::LoadCorrs ()
       fCorrCoef[1][*idt] = v;
     }
   delete rcm;
+#ifndef USEREGROOTFILE
   delete rcr;
+#endif
 #else
   cerr << "=====================================" << endl;
   cerr << "WARNING!" << endl;
@@ -311,9 +320,13 @@ ParamSave::PutDet (const string dt, const string naora, TTree& t, const string s
       // Do raw, regression, modulation
       string drawstring = 
 	i == 0 ? adetstring :
+#ifdef USEREGROOTFILE
+        i == 1 ? "reg_"+adetstring :
+#else
 	i == 1 ? AsyCorr (dt, 0) :
+#endif
 	AsyCorr (dt, 1);
-      //      cerr << i << " '" << drawstring << "'" << endl; 
+//       cerr << i << " '" << drawstring << "'" << endl; 
       if (drawstring != "")
 	{
 	  cerr << "Drawing " << drawstring << endl;
