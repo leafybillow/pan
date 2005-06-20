@@ -17,12 +17,12 @@
 #   --nomacro
 
 # Normally Pan analysis of the CODA file is skipped if a Pan ROOT file
-# already exists (in the $PAN_ROOT_FILE_PATH), regression and
-# dithering analyses are skipped if a Redana ROOT file already exists,
-# and prompt.macro is run (from inside ROOT).  The above options
-# force Pan analysis, regression analysis, or dithering analysis to be
-# done in any case (--forcexxxx) or force these or prompt.macro
-# execution to be skipped (--noxxxx).
+# already exists (in the $PAN_ROOT_FILE_PATH).  Likewise, regression
+# and dithering analyses are skipped if their respective ROOT files
+# already exist, and prompt.macro is run (from inside ROOT).  The
+# above options force Pan analysis, regression analysis, or dithering
+# analysis to be done in any case (--forcexxxx) or force these or
+# prompt.macro execution to be skipped (--noxxxx).
 
 # Option --batch means batch mode: no graphics windows are opened,
 # prompt.macro is called with nonzero second argument, and Pan exits
@@ -31,7 +31,7 @@
 
 # If no runs are specified in interactive mode the user is prompted for one.
 
-use FindBin; 
+use FindBin;
 use lib $FindBin::Bin;
 use TaFileName;  # put the directory containing this (./utils) in PERL5LIB environment variable
                  # if you want to run this from a different directory
@@ -91,7 +91,8 @@ foreach $run (@runs)
     warn "\n============ Attempting Prompt analysis for run $run\n";
     $codafn = (MakeTaFileName2 ($run, "", "coda", "", ""));
     $rootfn = (MakeTaFileName2 ($run, "standard", "root", "", ""));
-    $rrootfn = (MakeTaFileName2 ($run, "red", "root", "", ""));
+    $rrootfn = (MakeTaFileName2 ($run, "regress", "root", "", ""));
+    $drootfn = (MakeTaFileName2 ($run, "dither", "root", "", ""));
 
 # Pan analysis =======================
 
@@ -117,10 +118,9 @@ foreach $run (@runs)
 
 # Regression analysis =======================
 
-    $redexists = -e $rrootfn
     if (!$noreg) 
     { 
-	if ($forcereg || !$redexists) 
+	if ($forcereg || !-e $rrootfn) 
 	{ 
 	    if (!-e $rootfn) 
 	    {
@@ -138,7 +138,7 @@ foreach $run (@runs)
 	}
 	else
 	{
-	    warn "Redana ROOT file $rrootfn already exists, regression analysis not done\n";
+	    warn "Regression ROOT file $rrootfn already exists, regression analysis not done\n";
 	}
     }
 
@@ -146,7 +146,7 @@ foreach $run (@runs)
 
     if (!$nodit) 
     { 
-	if ($forcedit || !$redexists) 
+	if ($forcedit || !-e $drootfn) 
 	{ 
 	    if (!-e $rootfn) 
 	    {
@@ -164,7 +164,7 @@ foreach $run (@runs)
 	}
 	else
 	{
-	    warn "Redana ROOT file $rrootfn already exists, dithering analysis not done\n";
+	    warn "Dithering ROOT file $drootfn already exists, dithering analysis not done\n";
 	}
     }
 
