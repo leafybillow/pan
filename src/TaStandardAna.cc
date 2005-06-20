@@ -132,7 +132,7 @@ TaStandardAna::InitChanLists ()
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanListFromName ("bmw", "", fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanListFromName ("det", "~s",  fgNO_STATS + fgCOPY);
+  f = ChanList ("det", "~s", "chan",  fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   f = ChanListFromName ("bpm12mx", "",  fgNO_STATS + fgCOPY);
@@ -156,9 +156,21 @@ TaStandardAna::InitChanLists ()
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   // Channels for which to store averages
-  f = ChanList ("lumi", "~", "chan", fgAVG);
+  f = ChanList ("bcm", "~", "chan", fgNO_STATS + fgAVG);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanList ("lumi", "~", "chan", fgAVGN);
+  f = ChanList ("bpm", "~x", "um", fgNO_STATS + fgAVG);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("bpm", "~y", "um", fgNO_STATS + fgAVG);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lumi", "~", "chan", fgNO_STATS + fgAVG);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lumi", "~", "", fgNO_STATS + fgAVGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("det", "~", "chan", fgNO_STATS + fgAVG);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("det", "~", "", fgNO_STATS + fgAVGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanListFromName ("bmw", "", fgNO_STATS + fgAVG);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   
 
@@ -180,7 +192,7 @@ TaStandardAna::InitChanLists ()
 	i_f->fFlagInt = fgNO_BEAM_C_NO_ASY + fgASY + fgBLINDSIGN;
     }
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanList ("lumi", "~", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
+  f = ChanList ("lumi", "~", "ppm", fgNO_STATS + fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("qpd", "~sum", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
@@ -192,10 +204,8 @@ TaStandardAna::InitChanLists ()
   f = ChanList ("det", "~", "ppm", fgNO_BEAM_NO_ASY + fgASYN + fgBLIND);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
-  f = ChanListFromName ("det_", "ppm",  fgNO_BEAM_NO_ASY + fgASYN + fgBLIND);
-  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-
-//   f = ChanList ("det_", "~", "ppm", fgNO_BEAM_NO_ASY + fgASYN + fgBLIND);
+  // Below is not the correct way to do this...
+//   f = ChanListFromName ("det_", "ppm",  fgNO_BEAM_NO_ASY + fgASYN + fgBLIND);
 //   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   // multi-detector asymmetries - 
@@ -255,34 +265,42 @@ TaStandardAna::InitChanLists ()
       fTreeList.push_back (AnaList ("flumi_ave", keys, wts, "ppm", 
 				    fgNO_BEAM_NO_ASY + fgASYN + fgAVE + fgBLINDSIGN));
     }
-//   if (fRun->GetDevices().IsUsed(IDET1R) &&
-//       fRun->GetDevices().IsUsed(IDET2R))
-//     {
-//       keys.clear(); keys.push_back(IDET1);  keys.push_back(IDET2);
-//       wtsa = fRun->GetDataBase().GetDetWts();
-//       wts.clear(); wts.push_back (wtsa[0]); wts.push_back (wtsa[1]); 
-//       if (!WtsOK (wts)) 
-// 	{
-// 	  cerr << "TaStandardAna::InitChanLists WARNING: det1/2 weights bad, ignored" << endl;
-// 	  wts.clear();
-// 	}
-//       fTreeList.push_back (AnaList ("det_l", keys, wts, "ppm", 
-// 				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
-//     }
-//   if (fRun->GetDevices().IsUsed(IDET3R) &&
-//       fRun->GetDevices().IsUsed(IDET4R))
-//     {
-//       keys.clear(); keys.push_back(IDET3);  keys.push_back(IDET4);
-//       wtsa = fRun->GetDataBase().GetDetWts();
-//       wts.clear(); wts.push_back (wtsa[2]); wts.push_back (wtsa[3]); 
-//       if (!WtsOK (wts)) 
-// 	{
-// 	  cerr << "TaStandardAna::InitChanLists WARNING: det3/4 weights bad, ignored" << endl;
-// 	  wts.clear();
-// 	}
-//       fTreeList.push_back (AnaList ("det_r", keys, wts, "ppm", 
-// 				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
-//     }
+  if (fRun->GetDevices().IsUsed(IDET1R) &&
+      fRun->GetDevices().IsUsed(IDET2R))
+    {
+      keys.clear(); keys.push_back(IDET1);  keys.push_back(IDET2);
+      wtsa = fRun->GetDataBase().GetDetWts();
+      wts.clear(); wts.push_back (wtsa[0]); wts.push_back (wtsa[1]); 
+      if (!WtsOK (wts)) 
+	{
+	  cerr << "TaStandardAna::InitChanLists WARNING: det1/2 weights bad, ignored" << endl;
+	  wts.clear();
+	}
+      fTreeList.push_back (AnaList ("det_l", keys, wts, "ppm", 
+				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
+      fTreeList.push_back (AnaList ("det_l", keys, wts, "ppm", 
+				    fgNO_STATS+fgAVG));
+      fTreeList.push_back (AnaList ("det_l", keys, wts, "ppm", 
+				    fgNO_STATS+fgAVGN));
+    }
+  if (fRun->GetDevices().IsUsed(IDET3R) &&
+      fRun->GetDevices().IsUsed(IDET4R))
+    {
+      keys.clear(); keys.push_back(IDET3);  keys.push_back(IDET4);
+      wtsa = fRun->GetDataBase().GetDetWts();
+      wts.clear(); wts.push_back (wtsa[2]); wts.push_back (wtsa[3]); 
+      if (!WtsOK (wts)) 
+	{
+	  cerr << "TaStandardAna::InitChanLists WARNING: det3/4 weights bad, ignored" << endl;
+	  wts.clear();
+	}
+      fTreeList.push_back (AnaList ("det_r", keys, wts, "ppm", 
+				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
+      fTreeList.push_back (AnaList ("det_r", keys, wts, "ppm", 
+				    fgNO_STATS+fgAVG));
+      fTreeList.push_back (AnaList ("det_r", keys, wts, "ppm", 
+				    fgNO_STATS+fgAVGN));
+    }
 //   if (fRun->GetDevices().IsUsed(IDET1R) &&
 //       fRun->GetDevices().IsUsed(IDET3R))
 //     {
@@ -324,9 +342,13 @@ TaStandardAna::InitChanLists ()
 	  cerr << "TaStandardAna::InitChanLists WARNING: det1-4 weights bad, ignored" << endl;
 	  wts.clear();
 	}
-//       fTreeList.push_back (AnaList ("det_all", keys, wts, "ppm", 
-// 				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
+      fTreeList.push_back (AnaList ("det_all", keys, wts, "ppm", 
+				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
       fTreeList.push_back (AnaList ("det_ave", keys, wts, "ppm", 
 				    fgNO_BEAM_NO_ASY + fgASYN + fgAVE + fgBLIND));
+      fTreeList.push_back (AnaList ("det_all", keys, wts, "ppm", 
+				    fgNO_STATS + fgAVG));
+      fTreeList.push_back (AnaList ("det_all", keys, wts, "ppm", 
+				    fgNO_STATS + fgAVGN));
     }
 }
