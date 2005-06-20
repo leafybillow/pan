@@ -16,7 +16,8 @@ class RedCoefs
 
 public:
   RedCoefs (const UInt_t run = 0, 
-	    const string ctype = "dither");
+	    const string ctype = "dither",
+	    const Bool_t goodstats = kFALSE);
   RedCoefs (const RedCoefs& rc);
   virtual ~RedCoefs () {};
   void Compute (const string dep = "asym_n_det1",
@@ -36,15 +37,17 @@ private:
   vector<Double_t> fMiniMeanErr;
   Double_t fMean;
   Double_t fMeanErr;
+  Bool_t fGoodStats;
 };
 
 RedCoefs::RedCoefs (const UInt_t run, 
-		    const string ctype)
+		    const string ctype,
+		    const Bool_t goodstats)
 {
-  // Open the file from redana (<path>/parity02_<run>_<dither or regress>.res)
   
   Double_t meanval(0);
   Double_t errval(0);
+  fGoodStats = goodstats;
   
   fRun = run;
   fTagvec.clear();
@@ -52,9 +55,17 @@ RedCoefs::RedCoefs (const UInt_t run,
   fErrvec.clear();
   fComputed = false;
   
+  // Open the file from redana (<path>/parity02_<run>_<dither or regress>.res)
   if (ctype == "dither" || ctype == "regress")
     {
-      TaIResultsFile* fi = new TaIResultsFile (run, ctype);
+
+      TaIResultsFile *fi;
+      if(ctype == "dither" && goodstats) {
+	// This file is stored as "parity02_xxxx_golden_ditslopes.res"
+	fi = new TaIResultsFile (0, "golden_ditslopes");
+      } else {
+	fi = new TaIResultsFile (run, ctype);
+      }
       fCtype = ctype;
       if (fi == NULL || !(fi->is_open()))
 	return;
@@ -101,7 +112,7 @@ RedCoefs::Compute (const string dep, const string ind)
  
   Double_t meanwsum(0);
   Double_t wsum(0);
-  
+
   for (UInt_t i = 0; i < fTagvec.size(); ++i)
     {
       string rtag = fTagvec[i];
@@ -110,7 +121,8 @@ RedCoefs::Compute (const string dep, const string ind)
 	{
 	  meanval = fMeanvec[i];
 	  // modulation analysis stores 0 for error, so use 1
-	  errval = (fCtype == "regress" ? fErrvec[i] : 1);
+	  // modulation goldenfile has good errors.
+	  errval = ((fCtype == "regress" || fGoodStats) ? fErrvec[i] : 1);
 	  if (errval > 0)
 	    {
 	      Double_t wt = 1 / errval / errval;
@@ -121,7 +133,7 @@ RedCoefs::Compute (const string dep, const string ind)
 	    }
 	}
     }
-  
+
   if (wsum > 0)
     {
       fMean = meanwsum / wsum;
@@ -130,9 +142,16 @@ RedCoefs::Compute (const string dep, const string ind)
     }
   else
     {
-      fMean = 0;
-      fMeanErr = -1;
+      if(fGoodStats && (meanval!=0 && errval!=0)) {
+	fMean = meanval;
+	fMeanErr = errval;
+	fComputed = true;
+      } else {
+	fMean = 0;
+	fMeanErr = -1;
+      }
     }
+
 }
 
 
