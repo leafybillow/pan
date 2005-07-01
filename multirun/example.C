@@ -23,7 +23,8 @@ void example()
     gROOT->LoadMacro("multirun/TaMakePairFile.C+");
 
   // Start and Finish the analysis.
-  TaMakePairFile *mpf = new TaMakePairFile("slug0.root","chooser.txt");
+  TaMakePairFile *mpf = new TaMakePairFile("slug0.root",
+					   "multirun/chooser.txt");
   mpf->SetRunList("slug0_runlist.txt");
   mpf->RunLoop();
   mpf->Finish();
