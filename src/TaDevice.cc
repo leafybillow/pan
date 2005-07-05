@@ -371,6 +371,7 @@ void TaDevice::BpmDefRotate() {
    fRotateList.push_back("bpm0L04");  
    fRotateList.push_back("bpm0L05");  
    fRotateList.push_back("bpm0L06");  
+   fRotateList.push_back("bpm0R05");  
    fRotateList.push_back("bpm8");
    fRotateList.push_back("bpm10");
    fRotateList.push_back("bpm12");
@@ -773,6 +774,21 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"bpm0L06yws",IBPM0L06YWS));
   fKeyToIdx.insert(make_pair((string)"bpm0L06ws", IBPM0L06WS));
   fKeyToIdx.insert(make_pair((string)"bpm0L06mx", IBPM0L06MX));
+
+  fKeyToIdx.insert(make_pair((string)"bpm0R05xp", IBPM0R05XP));
+  fKeyToIdx.insert(make_pair((string)"bpm0R05xm", IBPM0R05XM));
+  fKeyToIdx.insert(make_pair((string)"bpm0R05yp", IBPM0R05YP));
+  fKeyToIdx.insert(make_pair((string)"bpm0R05ym", IBPM0R05YM));
+  fKeyToIdx.insert(make_pair((string)"bpm0R05xpc",IBPM0R05XPC));
+  fKeyToIdx.insert(make_pair((string)"bpm0R05xmc",IBPM0R05XMC));
+  fKeyToIdx.insert(make_pair((string)"bpm0R05ypc",IBPM0R05YPC));
+  fKeyToIdx.insert(make_pair((string)"bpm0R05ymc",IBPM0R05YMC));
+  fKeyToIdx.insert(make_pair((string)"bpm0R05x",  IBPM0R05X));
+  fKeyToIdx.insert(make_pair((string)"bpm0R05y",  IBPM0R05Y));
+  fKeyToIdx.insert(make_pair((string)"bpm0R05xws",IBPM0R05XWS));
+  fKeyToIdx.insert(make_pair((string)"bpm0R05yws",IBPM0R05YWS));
+  fKeyToIdx.insert(make_pair((string)"bpm0R05ws", IBPM0R05WS));
+  fKeyToIdx.insert(make_pair((string)"bpm0R05mx", IBPM0R05MX));
 
 // G0 cavity monitors, raw data ("r") and calibrated 
 // "c" = data before pedestal subtracted
