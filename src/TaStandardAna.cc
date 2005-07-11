@@ -134,6 +134,8 @@ TaStandardAna::InitChanLists ()
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("det", "~s", "chan",  fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanListFromName ("scan", "",  fgNO_STATS + fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   f = ChanListFromName ("bpm12mx", "",  fgNO_STATS + fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
@@ -171,8 +173,7 @@ TaStandardAna::InitChanLists ()
   f = ChanList ("det", "~", "", fgNO_STATS + fgAVGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanListFromName ("bmw", "", fgNO_STATS + fgAVG);
-  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());  
 
   // Channels for which to store asymmetries
 //    f = ChanList ("bpm", "~xws", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);

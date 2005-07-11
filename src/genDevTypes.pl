@@ -41,8 +41,6 @@
 @v2fclocklist =  qw / IV2F_CLK0 IV2F_CLK1 IV2F_CLK2 IV2F_CLK3 IV2F_CLK4 IV2F_CLK5 IV2F_CLK6 /;
 # quad photodiode
 @qpdlist = qw / IQPD1 /;
-# Q2 scanner
-@scanlist = qw / ISCANL ISCANR /;
 # BMW words
 @bmwlist = qw / IBMWCLN IBMWOBJ IBMWVAL IBMWCYC /;
 # scanflags
@@ -72,7 +70,6 @@ $out = "";   # output being built
 &do_lumis();
 &do_v2fclocks();
 &do_qpds();
-&do_scans();
 &do_bmwwords();
 &do_scanflags();
 &do_syncwords();
@@ -1107,79 +1104,6 @@ sub add_qpdcorr
 }
 
 
-sub do_scans
-{
-# Q2 scanners
-
-    $scanoff = $p;
-    $scannum = scalar (@scanlist);
-    $out1 = "";
-    foreach $scan (@scanlist)
-    {
-	$out1 .= &add_scan ($scan);
-    }
-    
-    $out .= << "ENDSCANCOM";
-// Q2 Scanners
-
-\// Q2 scanners start here
-\#define   SCANOFF     $scanoff
-\// number of Q2 scanners defined below
-\#define   SCANNUM     $scannum
-
-// XENC, YENC = raw encoder values,  X, Y = calibrated encoder values  
-// DET = integrated PMT signal
-
-$out1
-ENDSCANCOM
-
-    $scancorroff = $p;
-    $out1 = "";
-    foreach $scan (@scanlist)
-    {
-	$out1 .= &add_scancorr ($scan);
-    }
-    
-    $out .= << "ENDSCANCORRCOM";
-// Q2 Scanners (before pedestal subtraction)
-
-\// Q2 scanners (before peds)
-\#define   SCANCORROFF     $scancorroff
-
-// XENCC, YENCC = encoder values before pedestal subtraction
-// DETC = integrated PMT signal before pedestal subtraction
-
-$out1
-ENDSCANCORRCOM
-}
-
-sub add_scan
-{
-    my ($scan) = @_;
-    my ($ret);
-    $ret = "";
-    $ret .= "\#define   ${scan}XENC   $p\n"; $p++;
-    $ret .= "\#define   ${scan}YENC   $p\n"; $p++;
-    $ret .= "\#define   ${scan}X      $p\n"; $p++;
-    $ret .= "\#define   ${scan}Y      $p\n"; $p++;
-    $ret .= "\#define   ${scan}DET    $p\n"; $p++;
-    $ret .= "\n";
-    return $ret;
-}
-
-sub add_scancorr
-{
-    my ($scan) = @_;
-    my ($ret);
-    $ret = "";
-    $ret .= "\#define   ${scan}XENCC   $p\n"; $p++;
-    $ret .= "\#define   ${scan}YENCC   $p\n"; $p++;
-    $ret .= "\#define   ${scan}DETC    $p\n"; $p++;
-    $ret .= "\n";
-    return $ret;
-}
-
-
 sub do_bmwwords
 {
 # Beam modulation information
@@ -1244,7 +1168,7 @@ sub add_scanflag
 
 sub do_syncwords
 {
-# Beam modulation information
+# Crate synchronization information
 
     $syncoff = $p;
     $syncnum = scalar (@synclist);

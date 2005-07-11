@@ -2267,26 +2267,6 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"qpd1y", IQPD1Y));
   fKeyToIdx.insert(make_pair((string)"qpd1sum", IQPD1SUM));
 
-// scanner
-// "c" = data before pedestal subtracted
-  fKeyToIdx.insert(make_pair((string)"scanlxenc",ISCANLXENC));
-  fKeyToIdx.insert(make_pair((string)"scanlyenc",ISCANLYENC));
-  fKeyToIdx.insert(make_pair((string)"scanlxencc",ISCANLXENCC));
-  fKeyToIdx.insert(make_pair((string)"scanlyencc",ISCANLYENCC));
-  fKeyToIdx.insert(make_pair((string)"scanlx",ISCANLX));
-  fKeyToIdx.insert(make_pair((string)"scanly",ISCANLY));
-  fKeyToIdx.insert(make_pair((string)"scanldet",ISCANLDET));
-  fKeyToIdx.insert(make_pair((string)"scanldetc",ISCANLDETC));
-
-  fKeyToIdx.insert(make_pair((string)"scanrxenc",ISCANRXENC));
-  fKeyToIdx.insert(make_pair((string)"scanryenc",ISCANRYENC));
-  fKeyToIdx.insert(make_pair((string)"scanrxencc",ISCANRXENCC));
-  fKeyToIdx.insert(make_pair((string)"scanryencc",ISCANRYENCC));
-  fKeyToIdx.insert(make_pair((string)"scanrx",ISCANRX));
-  fKeyToIdx.insert(make_pair((string)"scanry",ISCANRY));
-  fKeyToIdx.insert(make_pair((string)"scanrdet",ISCANRDET));
-  fKeyToIdx.insert(make_pair((string)"scanrdetc",ISCANRDETC));
-
   fKeyToIdx.insert(make_pair((string)"isync0",IISYNC0));
   fKeyToIdx.insert(make_pair((string)"chsync0",ICHSYNC0));
   fKeyToIdx.insert(make_pair((string)"chsync1",ICHSYNC1));
