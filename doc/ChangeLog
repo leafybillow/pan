@@ -6,6 +6,27 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 12 Jul 2005
+-----------------------------------
+
+These are some changes to facilitate comparison of stripline and
+cavity beamline monitors.
+
+There's a rather arcane change to the prompt.pl user interface.  The
+"for dummies" explanation is that the default behavior is to do two
+dither and two regression analyses, one using a stripline config file
+and one using a cavity config file.  However, the results are
+summarized and displayed (using prompt.macro) only for the stripline
+analysis, as before.  All sorts of other possibilities can be
+specified using one or more --conf arguments; see murky details in the
+comments.
+
+While prompt.pl doesn't take advantage of it yet, prompt.macro and
+open.macro have been modified so prompt.macro should be able to
+handle cavity analysis results by specifying an optional third
+argument, e.g. prompt (1234, 0, "cavity").
+
+
 Changes by K. Paschke on  11 Oct 2004
 --------------------------------------
 
