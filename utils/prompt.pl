@@ -27,12 +27,10 @@ use strict;
 # analysis to be done in any case (--forcexxxx) or force these or
 # prompt.macro execution to be skipped (--noxxxx).
 
-# If --conf option is not used, regression analysis uses conf file
-# suffix conf_reg and produces root file parityYY_RRRR_regress.root,
-# and similarly for dither analysis.  If -conf is used, followed by up
-# to four strings <regconf> <regcomm> <ditconf> <ditcomm>, regression
-# analysis uses conf file suffix conf_reg_<regconf> and produces root
-# file parityYY_RRRR_regress_<regcomm>.root, and similarly for dither
+# If --conf option is used, followed by up to four strings <regconf>
+# <regcomm> <ditconf> <ditcomm>, regression analysis uses conf file
+# suffix conf_reg_<regconf> and produces root file
+# parityYY_RRRR_regress_<regcomm>.root, and similarly for dither
 # analysis.  If fewer strings are given, <ditcomm> defaults to same as
 # <regcomm>, <ditconf> to same as <regconf>, and <regcomm> to same as
 # <regconf>.  Underscores are omitted before null strings.  Multiple
@@ -42,7 +40,9 @@ use strict;
 # will use conf file suffix conf_reg and produce root file
 # parityYY_RRRR_regress.root, second will use conf file suffix
 # conf_reg_cavity and produce root file
-# parityYY_RRRR_regress_cavity.root.  Likewise for dither.
+# parityYY_RRRR_regress_cavity.root.  Likewise for dither.  If --conf
+# is not used, default behavior is as if you specified --conf ''
+# --conf 'cavity'.
 
 # Option --batch means batch mode: no graphics windows are opened,
 # prompt.macro is called with nonzero second argument, and Pan exits
