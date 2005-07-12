@@ -10,7 +10,7 @@ TTree *regslps;
 TTree *dit;
 TTree *ditslps;
 
-Int_t open (Int_t run = 0, TString atype = "standard")
+Int_t open (Int_t run = 0, TString atype = "standard", TString com = "")
 {
   if (run <= 0)
     {
@@ -23,10 +23,12 @@ Int_t open (Int_t run = 0, TString atype = "standard")
       cin >> atype;
     }
      
-  cout << "Run " << run << " analysis type " << atype << endl;
+  cout << "Run " << run << " analysis type " << atype;
+  if (com != "") cout << " comment " << com;
+  cout << endl;
 
   TaFileName::Setup (run, atype.Data());
-  TString file = (TaFileName ("root")).Tstring();
+  TString file = (TaFileName ("root", com)).Tstring();
   cout << "ROOT file is \n\t" << file << endl;
   f = new TFile(file);
   

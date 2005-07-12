@@ -2,13 +2,13 @@
 
 #include <string>
 
-void prompt (UInt_t run, UInt_t batch)
+void prompt (UInt_t run, UInt_t batch, TString comment = "")
 {
   // Prompt analysis tasks for ROOT.  Noninteractive tasks are done
   // first; if batch is zero, we call the online macro as well.
 
   Int_t ret;
-  ret = open (run, "regress");
+  ret = open (run, "regress", comment);
   TTree* tt = (TTree*) (gROOT->FindObject("P"));
 
   if (ret && tt)
@@ -71,7 +71,7 @@ void prompt (UInt_t run, UInt_t batch)
   if (!batch)
     {
       online ("prompt", run);
-      ret = open (run, "red");
+      ret = open (run, "dither", comment);
       if (ret)
 	{
 	  if ((TTree*)gROOT->FindObject("ditslps"))
