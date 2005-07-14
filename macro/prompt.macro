@@ -27,19 +27,28 @@ void prompt (UInt_t run, UInt_t batch, TString comment = "")
       ps->PutMonAsym("bcm3", *tt, "ok_cut");
       ps->PutMonAsym("bcm5", *tt, "ok_cut");
       ps->PutMonAsym("bcm6", *tt, "ok_cut");
-      ps->PutMonAsym("bcm10", *tt, "ok_cut&&evt_bcm10[0]>0.0005&&evt_bcm10[1]>0.0005");
+      ps->PutMonAsym("bcm10", *tt, "ok_cutC");
+      ps->PutMonAsym("bcmcav2", *tt, "ok_cut");
+      ps->PutMonAsym("bcmcav3", *tt, "ok_cut");
       
       ps->PutMonDiff("bpm4ax", *tt, "ok_cut");
       ps->PutMonDiff("bpm4ay", *tt, "ok_cut");
       ps->PutMonDiff("bpm4bx", *tt, "ok_cut");
       ps->PutMonDiff("bpm4by", *tt, "ok_cut");
       ps->PutMonDiff("bpm12x", *tt, "ok_cut");
+      ps->PutMonDiff("bpmcav2x", *tt, "ok_cut");
+      ps->PutMonDiff("bpmcav2y", *tt, "ok_cut");
+      ps->PutMonDiff("bpmcav3x", *tt, "ok_cut");
+      ps->PutMonDiff("bpmcav3y", *tt, "ok_cut");
       
       ps->PutMonDDAsym("bcm1", "bcm2", *tt, "ok_cut");
       ps->PutMonDDAsym("bcm1", "bcm3", *tt, "ok_cut");
       ps->PutMonDDAsym("bcm2", "bcm3", *tt, "ok_cut");
       ps->PutMonDDDiff("bpm4ax", "bpm4bx", *tt, "ok_cut");
       ps->PutMonDDDiff("bpm4ay", "bpm4by", *tt, "ok_cut");
+      ps->PutMonDDAsym("bcmcav2", "bcmcav3", *tt, "ok_cut");
+      ps->PutMonDDDiff("bpmcav2x", "bpmcav3x", *tt, "ok_cut");
+      ps->PutMonDDDiff("bpmcav2y", "bpmcav3y", *tt, "ok_cut");
       
       ps->PutDetAsymn("flumi1", *tt, "ok_cut");
       ps->PutDetAsymn("flumi2", *tt, "ok_cut");
