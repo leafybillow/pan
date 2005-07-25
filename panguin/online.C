@@ -20,6 +20,7 @@
 #include <TLatex.h>
 #include "GetRootFileName.C"
 #include "GetRunNumber.C"
+#include "TPaveText.h"
 
 //#define DEBUG
 //#define DEBUG2
@@ -1140,11 +1141,14 @@ void OnlineGUI::TimerUpdate() {
 void OnlineGUI::BadDraw(TString errMessage) {
   // Routine to display (in Pad) why a particular draw method has
   // failed.
-  TLatex l;
-  l.SetTextAlign(23);
-  l.SetTextFont(72);
-  l.SetTextSize(0.1);
-  l.DrawLatex(0.5,3.0,errMessage);
+  TPaveText *pt = new TPaveText(0.1,0.1,0.9,0.9,"brNDC");
+  pt->SetBorderSize(3);
+  pt->SetFillColor(10);
+  pt->SetTextAlign(22);
+  pt->SetTextFont(72);
+  pt->SetTextColor(2);
+  pt->AddText(errMessage.Data());
+  pt->Draw();
   cout << errMessage << endl;
 
 }
