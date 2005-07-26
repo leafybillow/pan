@@ -35,7 +35,9 @@ public:
   void PutMonAsym (const string mt, TTree& t, const string sel); // Monitor asyms from plot
   void PutMon (const string mt, const string dora, TTree& t, const string sel); // Monitor diffs/asyms from plot
   void PutMon (const string mt, const Double_t m, const Double_t me, const Double_t w); // Monitor diffs/asyms specified
-  
+
+  void PutAvg (const string mt, const string dora, TTree& t, const string sel); // pair averages from plot
+  void PutAvg (const string mt, const Double_t m, const Double_t me, const Double_t w); // pair averages specified
   
   void PutMonDDDiff (const string mt1, const string mt2, TTree& t, const string sel); // Monitor ddiffs from plot
   void PutMonDDAsym (const string mt1, const string mt2, TTree& t, const string sel); // Monitor dasyms from plot
@@ -58,6 +60,12 @@ private:
   vector<string> fCorrMonTag[2];         // Monitors used [regress, modulation]
   map<string,vector<Double_t> > fCorrCoef[2];  // Correction coefficients [regress, modulation]
   
+  // Pair averaged quantities
+  vector<string> fAvgTag;
+  vector<Double_t> fAvgM;
+  vector<Double_t> fAvgME;
+  vector<Double_t> fAvgW;
+
   // Monitor quantities
   vector<string> fMonTag;
   vector<Double_t> fDifM;  // means
@@ -244,6 +252,43 @@ ParamSave::PutMon (const string mt, const Double_t m, const Double_t me, const D
 }
 
 void 
+ParamSave::PutAvg (const string mt, const string dora, TTree& t, const string sel)
+{
+  // Store pair averages (dora = "avg" or "avg_n") for monitor named mt
+  // from tree t with selection sel
+  
+  Double_t m = 1e99;
+  Double_t me = 1e99;
+  Double_t w = 1e99;
+  Double_t n;
+  
+  t.Draw ((dora + "_" + mt).c_str(), sel.c_str());
+  TH1* htemp = (TH1*)gROOT->FindObject ("htemp");
+  if (htemp)
+    {
+      n = htemp->GetEntries();
+      if (n > 1)
+	{
+	  m = htemp->GetMean(); 
+	  me = htemp->GetRMS() / sqrt (n-1);
+	  w = me * sqrt (n);
+	}
+    }
+  else
+    cerr << "htemp not found" << endl;
+  PutAvg (mt, m, me, w); 
+}
+
+void 
+ParamSave::PutAvg (const string mt, const Double_t m, const Double_t me, const Double_t w)
+{
+  fAvgTag.push_back (mt);
+  fAvgM.push_back (m);
+  fAvgME.push_back (me);
+  fAvgW.push_back (w);
+}
+
+void 
 ParamSave::PutMonDDDiff (const string mt1, const string mt2, TTree& t, const string sel)
 {
   PutMonDD (mt1, mt2, "diff", t, sel);
@@ -383,6 +428,19 @@ ParamSave::Print()
   
   ofile.setf(ios::left,ios::adjustfield);
   
+  ofile << "\nPair Averages (Monitors and Normalized Detectors):" << endl;
+  UInt_t iavg;
+  for (iavg = 0; iavg < fAvgTag.size(); ++iavg)
+    {
+      ofile << setw(8) << fAvgTag[iavg]
+	    << " Mean " 
+	    << setw(8) << fAvgM[iavg]
+	    << " +- " << setw(8) << fAvgME[iavg]
+	    << "  Width " 
+	    << setw(8) << fAvgW[iavg]
+	    << endl;
+    }
+
   ofile << "\nMonitor differences / asymmetries:" << endl;
   UInt_t idif;
   for (idif = 0; idif < fMonTag.size(); ++idif)
