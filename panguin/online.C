@@ -1149,7 +1149,7 @@ void OnlineGUI::BadDraw(TString errMessage) {
   pt->SetTextColor(2);
   pt->AddText(errMessage.Data());
   pt->Draw();
-  cout << errMessage << endl;
+//   cout << errMessage << endl;
 
 }
 
@@ -1331,6 +1331,7 @@ void OnlineGUI::TreeDraw(vector <TString> command) {
   TString drawopt = command[2];
   Int_t errcode=0;
   if(drawopt.IsNull() && var.Contains(":")) drawopt = "box";
+  if(drawopt=="scat") drawopt = "";
   if (iTree <= fRootTree.size() ) {
     errcode = fRootTree[iTree]->Draw(var,cut,drawopt,
 				     1000000000,fTreeEntries[iTree]);
@@ -1432,14 +1433,14 @@ void OnlineGUI::PrintPages() {
 //   maincanvas->SetCanvas(fCanvas);
   TLatex *lt = new TLatex();
 
-  TString filename = "sampleplots";
+  TString filename = "summaryplots";
   if(runNumber!=0) {
     filename += "_";
     filename += runNumber;
   }
   filename += ".ps";
 
-  TString pagehead = "Sample Plots";
+  TString pagehead = "Summary Plots";
   if(runNumber!=0) {
     pagehead += "(Run #";
     pagehead += runNumber;
