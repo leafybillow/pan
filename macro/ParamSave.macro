@@ -451,7 +451,7 @@ ParamSave::Print()
   
   ofile.setf(ios::left,ios::adjustfield);
   
-  ofile << "\nNumber of pairs satisifying specific cuts:" << endl;
+  ofile << "\nNumber of pairs satisfying specific cuts:" << endl;
   UInt_t icut;
   for (icut = 0; icut < fCutTag.size(); ++icut)
     {
