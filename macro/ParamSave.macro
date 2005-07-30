@@ -26,7 +26,8 @@ class ParamSave
   
 public:
   
-  ParamSave (UInt_t run): fRun(run) {};
+  ParamSave (UInt_t run): fRun(run), fComment("macro") {};
+  ParamSave (UInt_t run, string comment): fRun(run),fComment(comment) {};
   ParamSave() {};
   virtual ~ParamSave() {};
   
@@ -51,12 +52,15 @@ public:
   
   void PutCut(const string sel, TTree& t); // Pair tallies for a given cut (selection)
 
+  void PutComment(const string comment);
+
   void Print();  // Print to file
   string AsyCorr (string det, Bool_t modulation);
   
 private:
   
-  UInt_t fRun;            // run number
+  UInt_t fRun;            // run number or numerical ID
+  string fComment;        // TaFileName comment
   
   // Correction quantities
   vector<string> fCorrMonTag[2];         // Monitors used [regress, modulation]
@@ -85,7 +89,11 @@ private:
 
   // CUT entry tallies
   vector<string> fCutTag;
-  vector<Int_t> fCutM;
+  vector<Stat_t> fCutM;
+
+  // Comments to include in the textoutput
+  vector<string> fTextComments;
+
 };
 
 void 
@@ -416,7 +424,7 @@ ParamSave::PutDet (const string dt, const Double_t m, const Double_t me, const D
 void 
 ParamSave::PutCut(const string sel, TTree& t)
 {
-  Int_t n = 0;
+  Stat_t n = 0;
 
   if(sel != "") 
     {
@@ -432,11 +440,19 @@ ParamSave::PutCut(const string sel, TTree& t)
 }
 
 void
+ParamSave::PutComment(const string comment)
+{
+  if(comment != "") {
+    fTextComments.push_back(comment);
+  }
+}
+
+void
 ParamSave::Print()
 {
   // Print distribution parameters
   
-  TaFileName fn (fRun, "standard", "output", "macro", "txt");
+  TaFileName fn (fRun, "standard", "output", fComment, "txt");
   ofstream ofile(fn.String().c_str());
   if (!ofile)
     {
@@ -448,6 +464,13 @@ ParamSave::Print()
   
   ofile << "Distribution parameters for run " << fRun << endl;
   ofile << "======================================" << endl;
+  
+  UInt_t icom;
+  for (icom=0; icom < fTextComments.size(); ++icom)
+    {
+      ofile << fTextComments[icom] << endl;
+    }
+
   
   ofile.setf(ios::left,ios::adjustfield);
   
