@@ -49,6 +49,8 @@ public:
   void PutDet (const string dt, const string naora, TTree& t, const string sel); // Detector norm asyms/asyms from plot
   void PutDet (const string dt, const Double_t m, const Double_t me, const Double_t w); // Detector asyms
   
+  void PutCut(const string sel, TTree& t); // Pair tallies for a given cut (selection)
+
   void Print();  // Print to file
   string AsyCorr (string det, Bool_t modulation);
   
@@ -80,6 +82,10 @@ private:
   vector<Double_t> fAsyM;  // means
   vector<Double_t> fAsyME; // errors on means
   vector<Double_t> fAsyW;  // widths
+
+  // CUT entry tallies
+  vector<string> fCutTag;
+  vector<Int_t> fCutM;
 };
 
 void 
@@ -224,7 +230,7 @@ ParamSave::PutMon (const string mt, const string dora, TTree& t, const string se
   Double_t w = 1e99;
   Double_t n;
   
-  t.Draw ((dora + "_" + mt).c_str(), sel.c_str());
+  t.Draw ((dora + "_" + mt).c_str(), sel.c_str(),"goff");
   TH1* htemp = (TH1*)gROOT->FindObject ("htemp");
   if (htemp)
     {
@@ -262,7 +268,7 @@ ParamSave::PutAvg (const string mt, const string dora, TTree& t, const string se
   Double_t w = 1e99;
   Double_t n;
   
-  t.Draw ((dora + "_" + mt).c_str(), sel.c_str());
+  t.Draw ((dora + "_" + mt).c_str(), sel.c_str(),"goff");
   TH1* htemp = (TH1*)gROOT->FindObject ("htemp");
   if (htemp)
     {
@@ -311,7 +317,7 @@ ParamSave::PutMonDD (const string mt1, const string mt2, const string dora, TTre
   Double_t w = 1e99;
   Double_t n;
   
-  t.Draw ((dora + "_" + mt1 + "-" + dora + "_" + mt2).c_str(), sel.c_str());
+  t.Draw ((dora + "_" + mt1 + "-" + dora + "_" + mt2).c_str(), sel.c_str(),"goff");
   TH1* htemp = (TH1*)gROOT->FindObject ("htemp");
   if (htemp)
     {
@@ -375,7 +381,7 @@ ParamSave::PutDet (const string dt, const string naora, TTree& t, const string s
       if (drawstring != "")
 	{
 	  cerr << "Drawing " << drawstring << endl;
-	  t.Draw (drawstring.c_str(), sel.c_str());
+	  t.Draw (drawstring.c_str(), sel.c_str(),"goff");
 	  TH1* htemp = (TH1*)gROOT->FindObject ("htemp");
 	  if (htemp)
 	    {
@@ -407,6 +413,23 @@ ParamSave::PutDet (const string dt, const Double_t m, const Double_t me, const D
   fAsyW.push_back (w);
 }
 
+void 
+ParamSave::PutCut(const string sel, TTree& t)
+{
+  Int_t n = 0;
+
+  if(sel != "") 
+    {
+      t.Draw(sel.c_str(),sel.c_str(),"goff");
+      TH1* htemp = (TH1*)gROOT->FindObject("htemp");
+      if (htemp) 
+	{
+	  n = htemp->GetEntries();
+	}
+      fCutTag.push_back (sel);
+      fCutM.push_back (n);
+    }
+}
 
 void
 ParamSave::Print()
@@ -428,6 +451,17 @@ ParamSave::Print()
   
   ofile.setf(ios::left,ios::adjustfield);
   
+  ofile << "\nNumber of pairs satisifying specific cuts:" << endl;
+  UInt_t icut;
+  for (icut = 0; icut < fCutTag.size(); ++icut)
+    {
+      ofile << setw(8) << fCutTag[icut]
+	    << "     "
+	    << setw(8) << fCutM[icut]
+	    << " pairs"
+	    << endl;
+    }
+
   ofile << "\nPair Averages (Monitors and Normalized Detectors):" << endl;
   UInt_t iavg;
   for (iavg = 0; iavg < fAvgTag.size(); ++iavg)
