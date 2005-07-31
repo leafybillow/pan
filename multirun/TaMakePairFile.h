@@ -16,6 +16,7 @@
 #include <TTree.h>
 #include <vector>
 #include <TString.h>
+#include <multirun/TaRunlist.h>
 
 #ifndef MAXDOUBLEDATA
 #define MAXDOUBLEDATA 100
@@ -37,6 +38,7 @@ class TaMakePairFile {
   Bool_t SetRunList(vector <pair <UInt_t,UInt_t> > list);
   void Finish();
   void SetDitSlopeFile(TString ditfilename) {fDitFilename = ditfilename;};
+  void SetDBRunlist(TString filename) {fDBRunlist = new TaRunlist(filename);};
 
  private:
   TFile             *fRootFile;
@@ -46,6 +48,8 @@ class TaMakePairFile {
   TaVarChooser      *fChooser;
   TString            fDitFilename;
   TString            fRunFilename;
+  TaRunlist         *fDBRunlist;
+  Bool_t             useDBRunlist;
   vector <TString>   doubleVars;
   vector <TString>   intVars;
   vector <TString>   doubleRegVars;
@@ -66,7 +70,7 @@ class TaMakePairFile {
   Int_t ok_Both;
   Int_t ok_Left;
   Int_t ok_Right;
-  Int_t m_ev_num_off;
+  Int_t pair_num;
 
   void EventLoop(Long64_t nevents);
   void MakeBranches();

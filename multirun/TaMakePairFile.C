@@ -26,6 +26,8 @@ TaMakePairFile::TaMakePairFile(TString rootfilename,
   fChooser(0),
   fDitFilename(),
   fRunFilename(),
+  fDBRunlist(),
+  useDBRunlist(kFALSE),
   doubleVars(0),
   intVars(0),
   doubleRegVars(0),
@@ -50,10 +52,29 @@ void TaMakePairFile::RunLoop()
 
   if(!isConfigured()) return;
 
+  pair_num=0;
+
   // Loop over each run
   for(UInt_t irun=0; irun<runlist.size(); irun++) {
+
     runnumber = runlist[irun].first;
-    slug      = runlist[irun].second;
+
+    useDBRunlist=kFALSE;
+    if(fDBRunlist->GoodRunlist())
+      useDBRunlist = kTRUE;
+    
+    if(useDBRunlist) {
+      if(!fDBRunlist->IsInRunlist(runnumber)) {
+	cout << "Run " << runnumber << " is not in the runlist. "
+	     << " Not including in PairFile." << endl;
+	continue;
+      }
+      slug = fDBRunlist->GetSlug(runnumber);
+      slowsign = fDBRunlist->GetSlowSign(runnumber);
+    } else {
+      slug      = runlist[irun].second;
+      slowsign = 1; // default sign
+    }
 
     // Need to write up this routine... uses TaRootRep
     //     slowsign  = GetRunSign();
@@ -87,20 +108,13 @@ void TaMakePairFile::RunLoop()
 
     EventLoop(nevents);
 
-    cout << "close panFile" << endl;
     panFile.Close();
-    cout << "close regFile" << endl;
     regFile.Close();
 
-    cout << "delete pairSelect" << endl;
     delete pairSelect;
-    cout << "delete regSelect" << endl;
     delete regSelect;
 
-//     cout << "delete asy" << endl;
-//     if(asy) delete asy;
-//     cout << "delete reg" << endl;
-//     if(reg) delete reg;
+    cout << endl;
 
   }
 }
@@ -110,11 +124,13 @@ void TaMakePairFile::EventLoop(Long64_t nevents)
   // For the current run... loop through each event (up to nevents).
   //  grabbing the selected data from the pan/regression rootfile.
 
-  // need to work this out...
-//   Int_t minL = getHRunEventEdge(0,"L",runnumber);
-//   Int_t maxL = getHRunEventEdge(1,"L",runnumber);
-//   Int_t minR = getHRunEventEdge(0,"R",runnumber);
-//   Int_t maxR = getHRunEventEdge(1,"R",runnumber);
+  Double_t minL=0.,maxL=0.,minR=0.,maxR=0.; // These are boundaries to include! not cut!
+  if(useDBRunlist) {
+    minL = (Double_t)fDBRunlist->GetLeftDetLo(runnumber);
+    maxL = (Double_t)fDBRunlist->GetLeftDetHi(runnumber);
+    minR = (Double_t)fDBRunlist->GetRightDetLo(runnumber);
+    maxR = (Double_t)fDBRunlist->GetRightDetHi(runnumber);
+  }
 
   for(UInt_t ient=0; ient<nevents; ient++){
     
@@ -126,22 +142,26 @@ void TaMakePairFile::EventLoop(Long64_t nevents)
     ok_Right = 1;
     
     // Check for specific event cuts...
-//     Int_t m_ev_num = pairSelect->doubleData[0]; // always the first doubleVar.
+    Double_t m_ev_num = pairSelect->doubleData[0]; // always the first doubleVar.
     //	cout << "Mean event number = " << m_ev_num << endl;
-    // need the getRunEventEdge thing...
-//     if (m_ev_num<minL || m_ev_num>maxL) ok_Left = 0;
-//     if (m_ev_num<minR || m_ev_num>maxR) ok_Right = 0;
+    if((minL==0.)&&(maxL==0.)) ok_Left=1;
+    else if (m_ev_num<minL || m_ev_num>maxL) ok_Left = 0;
+
+    if((minR==0.)&&(maxR==0.)) ok_Right=1;
+    else if (m_ev_num<minR || m_ev_num>maxR) ok_Right = 0;
     
     if (ok_Left==1 && ok_Right==1) ok_Both=1;
-    if (!ok_Left && !ok_Right) continue;
+    else ok_Both=0;
 
+    if (ok_Left==0 && ok_Right==0) continue;
+
+    pair_num++;
     // Load up the regression events.
     regSelect->ProcessLoad(ient);
 
     // Copy data into the local leafs
     for(UInt_t i=0; i<intVars.size(); i++) {
       intData[i] = pairSelect->intData[i];
-      cout << intData[i] << endl;
     }
     for(UInt_t i=0; i<doubleVars.size(); i++) {
       doubleData[i] = pairSelect->doubleData[i];
@@ -186,6 +206,7 @@ void TaMakePairFile::MakeVarList()
   //  of the output tree).
 
   doubleVars.push_back("m_ev_num"); // always first doubleVar... dont change it
+  intVars.push_back("ok_cutC");
 
   PushToDoubleList(fChooser->GetBatteries(),"diff_batt");
 
@@ -207,16 +228,23 @@ void TaMakePairFile::MakeVarList()
   PushToDoubleList(flumi,"asym_n_flumi","reg");
 
   vector <TString> blumi(0);
-  if(fChooser->GetBLumi()) 
+  if(fChooser->GetBLumi()) {
     for(UInt_t i=0; i<8; i++) 
       blumi.push_back(Form("%d",i+1));
-  PushToDoubleList(blumi,"avg_n_blumi");
-  PushToDoubleList(blumi,"asym_n_blumi");
-  PushToDoubleList(blumi,"asym_n_blumi","reg");
+    PushToDoubleList(blumi,"avg_n_blumi");
+    PushToDoubleList(blumi,"asym_n_blumi");
+    PushToDoubleList(blumi,"asym_n_blumi","reg");
+    vector <TString> temp;
+    temp.push_back("_sum");
+    temp.push_back("_ave");
+    PushToDoubleList(temp,"asym_n_blumi");
+    PushToDoubleList(temp,"asym_n_blumi","reg");
+  }
 
   vector <TString> dets(0);
   if(fChooser->GetHe4Detectors()) {
     dets.push_back("1"); dets.push_back("3");
+    dets.push_back("_lo");
   } else if (fChooser->GetLH2Detectors()) {
     dets.push_back("1");   dets.push_back("2");
     dets.push_back("3");   dets.push_back("4");
@@ -279,12 +307,10 @@ void TaMakePairFile::MakeBranches()
   fTree->Branch("ok_cutB",&ok_Both,"ok_cutB/I");
   fTree->Branch("ok_cutL",&ok_Left,"ok_cutL/I");
   fTree->Branch("ok_cutR",&ok_Right,"ok_cutR/I");  
-  fTree->Branch("m_ev_num_off",&m_ev_num_off,"m_ev_num_off/I");
+  fTree->Branch("pair_num",&pair_num,"pair_num/I");
 
-  cout << "MakePairFile" << endl;
   for(UInt_t i=0; i<doubleVars.size(); i++) {
     fTree->Branch(doubleVars[i],&doubleData[i],doubleVars[i]+"/D");
-    cout << "\t" << i << "\t" << doubleVars[i] << endl;
   }
   for(UInt_t i=0; i<intVars.size(); i++) {
     fTree->Branch(intVars[i],&intData[i],intVars[i]+"/I");
