@@ -146,7 +146,7 @@ TaStandardAna::InitChanLists ()
 
 
   // Channels for which to store differences
-  f = ChanList ("batt", "~", "mchan", fgDIFF + fgBLINDSIGN);
+  f = ChanList ("batt", "~", "mchan", fgNO_STATS + fgDIFF + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("bpm", "~x", "um", fgDIFF + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
@@ -180,7 +180,7 @@ TaStandardAna::InitChanLists ()
 //    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 //    f = ChanList ("bpm", "~yws", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
 //    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanList ("bpm", "~ws", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
+  f = ChanList ("bpm", "~ws", "ppm", fgNO_STATS + fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("bcm", "~", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
   for (vector<AnaList>::iterator i_f = f.begin();
@@ -248,6 +248,10 @@ TaStandardAna::InitChanLists ()
 	}
       fTreeList.push_back (AnaList ("blumi_sum", keys, wts, "ppm", 
 				    fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN));
+      fTreeList.push_back (AnaList ("blumi_sum", keys, wts, "ppm", 
+				    fgNO_STATS + fgAVG));
+      fTreeList.push_back (AnaList ("blumi_sum", keys, wts, "ppm", 
+				    fgNO_STATS + fgAVGN));
       fTreeList.push_back (AnaList ("blumi_ave", keys, wts, "ppm", 
 				    fgNO_BEAM_NO_ASY + fgASYN + fgAVE + fgBLINDSIGN));
     }
@@ -263,6 +267,10 @@ TaStandardAna::InitChanLists ()
 	}
       fTreeList.push_back (AnaList ("flumi_sum", keys, wts, "ppm", 
 				    fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN));
+      fTreeList.push_back (AnaList ("flumi_sum", keys, wts, "ppm", 
+				    fgNO_STATS + fgAVG));
+      fTreeList.push_back (AnaList ("flumi_sum", keys, wts, "ppm", 
+				    fgNO_STATS + fgAVGN));
       fTreeList.push_back (AnaList ("flumi_ave", keys, wts, "ppm", 
 				    fgNO_BEAM_NO_ASY + fgASYN + fgAVE + fgBLINDSIGN));
     }
@@ -315,6 +323,10 @@ TaStandardAna::InitChanLists ()
 	}
       fTreeList.push_back (AnaList ("det_lo", keys, wts, "ppm", 
 				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
+      fTreeList.push_back (AnaList ("det_lo", keys, wts, "ppm", 
+				    fgAVG + fgNO_STATS));
+      fTreeList.push_back (AnaList ("det_lo", keys, wts, "ppm", 
+				    fgAVGN + fgNO_STATS));
     }
   if (fRun->GetDevices().IsUsed(IDET2R) &&
       fRun->GetDevices().IsUsed(IDET4R))
@@ -329,6 +341,10 @@ TaStandardAna::InitChanLists ()
 	}
       fTreeList.push_back (AnaList ("det_hi", keys, wts, "ppm", 
 				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
+      fTreeList.push_back (AnaList ("det_hi", keys, wts, "ppm", 
+				    fgAVG + fgNO_STATS));
+      fTreeList.push_back (AnaList ("det_hi", keys, wts, "ppm", 
+				    fgAVGN + fgNO_STATS));
     }
   if (fRun->GetDevices().IsUsed(IDET1R) &&
       fRun->GetDevices().IsUsed(IDET2R) &&
