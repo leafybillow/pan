@@ -60,9 +60,10 @@ void TaMakePairFile::RunLoop()
     runnumber = runlist[irun].first;
 
     useDBRunlist=kFALSE;
-    if(fDBRunlist->GoodRunlist())
-      useDBRunlist = kTRUE;
-    
+    if(fDBRunlist) {
+      if(fDBRunlist->GoodRunlist())
+	useDBRunlist = kTRUE;
+    }
     if(useDBRunlist) {
       if(!fDBRunlist->IsInRunlist(runnumber)) {
 	cout << "Run " << runnumber << " is not in the runlist. "
