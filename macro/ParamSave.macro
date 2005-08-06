@@ -43,7 +43,7 @@ public:
   void PutMonDDDiff (const string mt1, const string mt2, TTree& t, const string sel); // Monitor ddiffs from plot
   void PutMonDDAsym (const string mt1, const string mt2, TTree& t, const string sel); // Monitor dasyms from plot
   void PutMonDD (const string mt1, const string mt2, const string dora, TTree& t, const string sel); // Monitor ddiffs/dasyms from plot
-  void PutMonDD (const string mt1, const string mt2, const Double_t w);         // Monitor ddiffs
+  void PutMonDD (const string mt1, const string mt2, const Double_t m, const Double_t me, const Double_t w);         // Monitor ddiffs
   
   void PutDetAsymn (const string dt, TTree& t, const string sel); // Detector norm asyms from plot
   void PutDetAsym (const string dt, TTree& t, const string sel); // Detector asyms from plot
@@ -79,7 +79,9 @@ private:
   vector<Double_t> fDifW;  // widths
   vector<string> fMonTag1;   // first tags for double differences
   vector<string> fMonTag2;   // first tags for double differences
-  vector<Double_t> fDDifW;    // widths
+  vector<Double_t> fDDifM;   // means 
+  vector<Double_t> fDDifME;  // errors on means
+  vector<Double_t> fDDifW;   // widths
   
   // Detector quantities
   vector<string> fDetTag;
@@ -322,6 +324,8 @@ ParamSave::PutMonDD (const string mt1, const string mt2, const string dora, TTre
   // Store ddiffs or dasyms (dora = "diff" or "asym") for monitors
   // named mt1, mt2 from tree t with selection sel
   
+  Double_t m = 1e99;
+  Double_t me = 1e99;
   Double_t w = 1e99;
   Double_t n;
   
@@ -330,20 +334,25 @@ ParamSave::PutMonDD (const string mt1, const string mt2, const string dora, TTre
   if (htemp)
     {
       n = htemp->GetEntries();
-      if (n > 1)
-	w = htemp->GetRMS() * sqrt (n / (n-1));
+      if (n > 1) {
+	m = htemp->GetMean();
+	me = htemp->GetRMS() / sqrt (n-1);
+	w = me * sqrt (n);
+      }
     }
   else
     cerr << "htemp not found" << endl;
-  PutMonDD (mt1, mt2, w); 
+  PutMonDD (mt1, mt2, m, me, w); 
 }
 
 
 void 
-ParamSave::PutMonDD (const string mt1, const string mt2, const Double_t w)
+ParamSave::PutMonDD (const string mt1, const string mt2, const Double_t m, const Double_t me, const Double_t w)
 {
   fMonTag1.push_back (mt1);
   fMonTag2.push_back (mt2);
+  fDDifM.push_back (m);
+  fDDifME.push_back (me);
   fDDifW.push_back (w);
 }
 
@@ -516,6 +525,10 @@ ParamSave::Print()
     {
       ofile << setw(8) << fMonTag1[iddif]
 	    << " - " << setw(8) << fMonTag2[iddif]
+	    << "  Mean " 
+	    << setw(8) << fDDifM[iddif]
+	    << "  +- " 
+	    << setw(8) << fDDifME[iddif]
 	    << "  Width " 
 	    << setw(8) << fDDifW[iddif]
 	    << endl;
