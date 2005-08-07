@@ -31,7 +31,7 @@ public:
   ParamSave() {};
   virtual ~ParamSave() {};
   
-  void LoadCorrs (); // load correction coefficients and correction monitor tags
+  void LoadCorrs (const char *ditresfile=""); // load correction coefficients and correction monitor tags
   void PutMonDiff (const string mt, TTree& t, const string sel); // Monitor diffs from plot
   void PutMonAsym (const string mt, TTree& t, const string sel); // Monitor asyms from plot
   void PutMon (const string mt, const string dora, TTree& t, const string sel); // Monitor diffs/asyms from plot
@@ -99,7 +99,7 @@ private:
 };
 
 void 
-ParamSave::LoadCorrs ()
+ParamSave::LoadCorrs (const char *ditresfile)
 {
   // Detectors for which to look for coefficients
   vector<string> corrDetTag;
@@ -126,7 +126,7 @@ ParamSave::LoadCorrs ()
   RedCoefs* rcr = new RedCoefs (fRun, "regress");
   fCorrMonTag[0] = rcr->Monitors();
 #endif
-  RedCoefs* rcm = new RedCoefs (fRun, "dither");
+  RedCoefs* rcm = new RedCoefs (fRun, "dither",ditresfile);
   fCorrMonTag[1] = rcm->Monitors();
   for (vector<string>::const_iterator idt = corrDetTag.begin();
        idt != corrDetTag.end();

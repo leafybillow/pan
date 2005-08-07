@@ -17,7 +17,7 @@ class RedCoefs
 public:
   RedCoefs (const UInt_t run = 0, 
 	    const string ctype = "dither",
-	    const Bool_t goodstats = kFALSE);
+	    const char *ditresfile="");
   RedCoefs (const RedCoefs& rc);
   virtual ~RedCoefs () {};
   void Compute (const string dep = "asym_n_det1",
@@ -42,12 +42,15 @@ private:
 
 RedCoefs::RedCoefs (const UInt_t run, 
 		    const string ctype,
-		    const Bool_t goodstats)
+		    const char *ditresfile)
 {
   
   Double_t meanval(0);
   Double_t errval(0);
-  fGoodStats = goodstats;
+  if(ditresfile!="")
+    fGoodStats = kTRUE;
+  else
+    fGoodStats = kFALSE;
   
   fRun = run;
   fTagvec.clear();
@@ -60,9 +63,8 @@ RedCoefs::RedCoefs (const UInt_t run,
     {
 
       TaIResultsFile *fi;
-      if(ctype == "dither" && goodstats) {
-	// This file is stored as "parity02_xxxx_golden_ditslopes.res"
-	fi = new TaIResultsFile (0, "golden_ditslopes");
+      if(ctype == "dither" && fGoodStats) {
+	fi = new TaIResultsFile (ditresfile);
       } else {
 	fi = new TaIResultsFile (run, ctype);
       }
