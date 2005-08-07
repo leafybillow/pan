@@ -45,6 +45,10 @@ class TaOResultsFile: public ofstream
 		  const UInt_t chksum,
 		  const char* com = "");
   
+  TaOResultsFile (const string ptag, 
+		  const char* filename, 
+		  const UInt_t chksum );
+
   // There should be no need to copy or assign a TaOResultsFile, so
   // the copy constructor and assignment operator are private and
   // null.
@@ -83,6 +87,10 @@ class TaOResultsFile: public ofstream
 	       const UInt_t chksum,
 	       const string com);   // Utility for constructors
 
+  void 
+  TaOResultsFile::Create (const string ptag, 
+			  const char* filename,
+			  const UInt_t chksum); // Util for filename specified constructor
   // Data members
 
   string    fPtag;   // program tag

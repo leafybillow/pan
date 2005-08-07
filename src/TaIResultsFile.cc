@@ -29,7 +29,7 @@ ClassImp(TaIResultsFile)
 
 // Static constants
 
-// Constructors/destructors/operators
+  // Constructors/destructors/operators
 
 TaIResultsFile::TaIResultsFile (const RunNumber_t run, 
 				const string atype, 
@@ -52,6 +52,41 @@ TaIResultsFile::TaIResultsFile (const RunNumber_t run,
   Create (run, string (atype), string (com), chks);
 }
 
+
+  TaIResultsFile::TaIResultsFile (const char *filename,
+				  const UInt_t chks) : ifstream()
+{
+  // Constructor for specifying the filename of the results file.
+  open(filename);
+  if (!is_open())
+    cerr << "TaIResultsFile::Create ERROR: Cannot open file " 
+	 << filename << " for results input" << endl;
+  else
+    {
+      cerr << "TaIResultsFile::Create: Opened file " 
+	   << filename << " for results input" << endl;
+
+      // Find header line and get checksum
+      fChksum = 0;
+      while (fChksum == 0 && !eof())
+	{
+	  TaString line;
+	  std::getline (*this, line);
+	  size_t j;
+
+	  j = line.find_first_not_of (' ');
+	  if (j < line.size() && line[j] != '#')
+	    {
+	      line = line.substr (j+1);
+	      vector<string> split = line.Split();
+	      fChksum = atoi (split[2].c_str());
+	    }
+	}
+      if (chks != 0 && chks != fChksum)
+	cerr << "TaIResultsFile::Create WARNING: Checksum mismatch, expected "
+	     << chks << ", got " << fChksum << endl;
+    }
+}
 
 TaIResultsFile::~TaIResultsFile ()
 {

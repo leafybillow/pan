@@ -55,6 +55,15 @@ TaOResultsFile::TaOResultsFile (const char* ptag,
   Create (string (ptag), run, string (atype), chksum, string (com));
 }
 
+TaOResultsFile::TaOResultsFile (const string ptag, 
+				const char* filename, 
+				const UInt_t chksum )  
+  : ofstream ()
+{
+  // Constructor for specifying the filename of the results file.
+  Create (ptag, filename, chksum);
+}
+
 
 TaOResultsFile::~TaOResultsFile ()
 {
@@ -141,6 +150,34 @@ TaOResultsFile::Create (const string ptag,
       (*this) << "# Run  Ana type  Database checksum:" << endl;
 
       (*this) << run << " " << atype << " ";
+      (*this) << chksum << endl;
+      (*this) << endl;
+    }
+}
+
+void 
+TaOResultsFile::Create (const string ptag, 
+			const char* filename,
+			const UInt_t chksum)
+{
+  // Utility for filename specified constructor
+
+  fPtag = ptag;
+  open (filename);
+  if (!is_open())
+    cerr << "TaOResultsFile::Create ERROR: Cannot open file " 
+	 << filename << " for results output" << endl;
+  else
+    {
+      cerr << "TaOResultsFile::Create: Opened file " 
+	   << filename << " for results output" << endl;
+
+      (*this) << "# Pan parity analyzer results file " << filename 
+	       << " " << TDatime().AsSQLString() << endl;
+      (*this) << endl;
+      (*this) << "# Zero  specifiedfile checksum:" << endl;
+
+      (*this) << "0 specifiedfile " ;
       (*this) << chksum << endl;
       (*this) << endl;
     }

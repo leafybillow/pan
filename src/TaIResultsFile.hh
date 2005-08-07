@@ -34,6 +34,9 @@ class TaIResultsFile: public ifstream
 
   // Constructors/destructors/operators
 
+  TaIResultsFile (const char *filename, 
+		  const UInt_t chks = 0);
+
   TaIResultsFile (const RunNumber_t run, 
 		  const string atype, 
 		  const string com = "" ,
