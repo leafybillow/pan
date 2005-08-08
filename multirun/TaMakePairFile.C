@@ -16,6 +16,7 @@
 
 #include <multirun/TaMakePairFile.h>
 #include <fstream>
+#include "macro/DitherAlias.macro"
 
 TaMakePairFile::TaMakePairFile(TString rootfilename, 
 			       TString chooserfilename):
@@ -175,8 +176,6 @@ void TaMakePairFile::EventLoop(Long64_t nevents)
       doubleRegData[i] = regSelect->doubleData[i];
     }
     
-    // Need to do dither corrections here...
-
     fTree->Fill();
   }
 
@@ -189,6 +188,12 @@ void TaMakePairFile::Finish()
   cout << "Finished" << endl;
 
   if(!isConfigured()) return;
+
+  if(!fDitFilename.IsNull()) {
+    cout << "Making aliases" << endl;
+    DitherAlias ditalias(fTree,fDitFilename.Data());
+    cout << "Done" << endl;
+  }
 
 
   fRootFile->cd();
