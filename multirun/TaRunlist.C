@@ -70,3 +70,23 @@ vector <Int_t> TaRunlist::GetListOfRuns(Int_t slug)
 
   return vRuns;
 }
+
+vector <Int_t> TaRunlist::GetListOfRuns() 
+{
+  // Get a list of all runs
+
+  vector <Int_t> vRuns(0);
+
+  if(!isLoaded) return vRuns;
+
+  Run thisrun;
+  map<Int_t, Run>::iterator i;
+  for(i = mapRunlist.begin(); 
+      i!=mapRunlist.end(); i++) 
+    {
+      thisrun = i->second;
+      vRuns.push_back(thisrun.runnumber);
+    }
+
+  return vRuns;
+}
