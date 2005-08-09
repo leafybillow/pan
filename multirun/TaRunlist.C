@@ -90,3 +90,16 @@ vector <Int_t> TaRunlist::GetListOfRuns()
 
   return vRuns;
 }
+
+Int_t TaRunlist::GetRunByIndex(Int_t index) {
+
+  map<Int_t, Run>::iterator imap = mapRunlist.begin();
+  for(Int_t i=0; i<index; i++) {
+    imap++;
+    if(imap==mapRunlist.end()) return -1;
+  }
+  Run thisrun = (imap)->second;
+
+  return thisrun.runnumber;
+
+}

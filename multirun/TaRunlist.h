@@ -45,7 +45,9 @@ class TaRunlist {
   Bool_t IsInRunlist(Int_t run) {return (mapRunlist.find(run)!=mapRunlist.end());};
   Bool_t GoodRunlist() {return isLoaded;};
   Int_t GetNumberOfRuns() {return mapRunlist.size();};
-  vector <Int_t> TaRunlist::GetListOfRuns(Int_t slug);
+  vector <Int_t> GetListOfRuns(Int_t slug);
+  vector <Int_t> GetListOfRuns();
+  Int_t GetRunByIndex(Int_t index);
 
  private:
 
