@@ -8,11 +8,16 @@
 # Battery readout (on/off): diff
 # battery 1
 
+# BCMs
+bcms 1 2 3 cav1 cav2 cav3 6 10
+
 # BPM positions used for dithering (bpm position) : avg and diff
 ditbpms 12x 4ax 4ay 4bx 4by
 
+
 # Other BPMs (bpms): avg and diff
 # bpms 1 8 10
+bpms cav1x cav2x cav3x cav1y cav2y cav3y 1x 1y 1I02x 1I02y 1I04x 1I04y 1I06x 1I06y 0I02x 0I02y 0I02Ax 0I02Ay 0L01x 0L01y 0L02x 0L02y
 
 # Decision to use dithering bpms for a bpm saturation cut (on/off).
 #  These bpms are hardwired in TaPairSelector:

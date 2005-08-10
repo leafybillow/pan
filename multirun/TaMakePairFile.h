@@ -19,7 +19,7 @@
 #include <multirun/TaRunlist.h>
 
 #ifndef MAXDOUBLEDATA
-#define MAXDOUBLEDATA 100
+#define MAXDOUBLEDATA 200
 #endif
 
 #ifndef MAXINTDATA
