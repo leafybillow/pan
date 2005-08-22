@@ -6,6 +6,13 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 22 Aug 2005
+-----------------------------------
+
+Changes to TaCutList.{cc,hh}, TaDataBase.cc, and VaEvent.{cc,hh} to
+implement saturated monitor cuts.
+
+
 Changes by R. Holmes on 12 Jul 2005
 -----------------------------------
 

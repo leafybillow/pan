@@ -22,6 +22,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #define MAXROC 40
+#define MONNUM 6        // Number of monitors to check for saturation
 #define VAEVENT_VERBOSE 1
 #define DECODE_DEBUG 0  // Make this 1 to turn on debugging output
 
@@ -141,6 +142,7 @@ private:
   static Double_t fgLoBeamC;   // cut threshold from database
   static Double_t fgBurpCut;   // cut threshold from database
   static Double_t fgSatCut;    // cut threshold from database
+  static Double_t fgMonSatCut; // cut threshold from database
   static Double_t fgPosBurp[fgMaxNumPosMon]; 
                                // cut thresholds from database
   static Double_t fgCBurpCut;  // cut threshold from data base
@@ -148,6 +150,7 @@ private:
   static Cut_t fgLoBeamCNo;    // cut number for low beam C
   static Cut_t fgBurpNo;       // cut number for beam burp
   static Cut_t fgSatNo;        // cut number for saturation
+  static Cut_t fgMonSatNo;     // cut number for saturation
   static Cut_t fgEvtSeqNo;     // cut number for event sequence
   static Cut_t fgStartupNo;    // cut number for startup
   static Cut_t fgPosBurpNo;    // cut number for pos. burp cut
@@ -156,6 +159,7 @@ private:
   static UInt_t fgCurMon;      // index to current monitor for cuts
   static UInt_t fgCurMonC;     // index to current monitor for cuts
   static UInt_t fgDetRaw[DETNUM];      // index to raw detector values for cuts
+  static UInt_t fgMonRaw[MONNUM];      // index to raw monitor values for cuts
   static UInt_t fgNPosMon;     // number of Position Monitors for Pos Burp cut.
   static UInt_t fgPosMon[fgMaxNumPosMon];   
                                // index to beam monitors for cuts

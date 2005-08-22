@@ -86,7 +86,8 @@ private:
   Cut_t fLoBeamCNo;                  // cut number for hallC low beam
   Cut_t fLoBeamNo;                   // cut number for low beam 
   Cut_t fBurpNo;                     // cut number for burp beam
-  Cut_t fSatNo;                      // cut number for saturation
+  Cut_t fSatNo;                      // cut number for detector saturation
+  Cut_t fMonSatNo;                   // cut number for monitor saturation
   Cut_t fPosBurpNo;                  // cut number for pos. burp cut
   Cut_t fCBurpNo;                    // cut number for C-beam-burp cut
 

@@ -47,12 +47,14 @@ Double_t VaEvent::fgLoBeam;
 Double_t VaEvent::fgLoBeamC;
 Double_t VaEvent::fgBurpCut;
 Double_t VaEvent::fgSatCut;
+Double_t VaEvent::fgMonSatCut;
 Double_t VaEvent::fgPosBurp[fgMaxNumPosMon];
 Double_t VaEvent::fgCBurpCut;
 Cut_t VaEvent::fgLoBeamNo;
 Cut_t VaEvent::fgLoBeamCNo;
 Cut_t VaEvent::fgBurpNo;  
 Cut_t VaEvent::fgSatNo;  
+Cut_t VaEvent::fgMonSatNo;  
 Cut_t VaEvent::fgEvtSeqNo;
 Cut_t VaEvent::fgStartupNo;
 Cut_t VaEvent::fgPosBurpNo;
@@ -61,6 +63,7 @@ UInt_t VaEvent::fgOversample;
 UInt_t VaEvent::fgCurMon;
 UInt_t VaEvent::fgCurMonC;
 UInt_t VaEvent::fgDetRaw[DETNUM];
+UInt_t VaEvent::fgMonRaw[MONNUM];
 UInt_t VaEvent::fgNPosMon;
 UInt_t VaEvent::fgPosMon[fgMaxNumPosMon];   
 UInt_t VaEvent::fgSizeConst;
@@ -165,6 +168,7 @@ VaEvent::RunInit(const TaRun& run)
   fgBurpCut = run.GetDataBase().GetCutValue("burpcut");
   fgSatCut = run.GetDataBase().GetCutValue("satcut");
   fgCBurpCut = run.GetDataBase().GetCutValue("cburpcut");
+  fgMonSatCut = run.GetDataBase().GetCutValue("monsatcut");
 
   vector<TaString> vposmon = run.GetDataBase().GetStringVect("posmon");
   Int_t npm = vposmon.size();
@@ -194,6 +198,7 @@ VaEvent::RunInit(const TaRun& run)
   fgLoBeamCNo = run.GetDataBase().GetCutNumber ("Low_beam_c");
   fgBurpNo = run.GetDataBase().GetCutNumber ("Beam_burp");
   fgSatNo = run.GetDataBase().GetCutNumber ("Det_saturate");
+  fgMonSatNo = run.GetDataBase().GetCutNumber ("Mon_saturate");
   fgEvtSeqNo = run.GetDataBase().GetCutNumber ("Evt_seq");
   fgStartupNo = run.GetDataBase().GetCutNumber ("Startup");
   fgCBurpNo = run.GetDataBase().GetCutNumber ("C_burp");
@@ -212,6 +217,7 @@ VaEvent::RunInit(const TaRun& run)
     }
   if (fgBurpNo == fgNCuts ||
       fgSatNo == fgNCuts ||
+      fgMonSatNo == fgNCuts ||
       fgLoBeamCNo == fgNCuts ||
       fgStartupNo == fgNCuts ||
       fgCBurpNo == fgNCuts ||
@@ -222,6 +228,7 @@ VaEvent::RunInit(const TaRun& run)
       if (fgLoBeamCNo == fgNCuts) cerr << " Low_beam_c";
       if (fgBurpNo == fgNCuts) cerr << " Beam_burp";
       if (fgSatNo == fgNCuts) cerr << " Det_saturate";
+      if (fgMonSatNo == fgNCuts) cerr << " Mon_saturate";
       if (fgStartupNo == fgNCuts) cerr << " Startup";
       if (fgPosBurpNo == fgNCuts) cerr << " Pos_burp";
       if (fgCBurpNo == fgNCuts) cerr << " C_burp";
@@ -238,6 +245,13 @@ VaEvent::RunInit(const TaRun& run)
   fgDetRaw[1] = run.GetKey (string ("det2r"));
   fgDetRaw[2] = run.GetKey (string ("det3r"));
   fgDetRaw[3] = run.GetKey (string ("det4r"));
+
+  fgMonRaw[0] = run.GetKey (string ("bpm12x"));
+  fgMonRaw[1] = run.GetKey (string ("bpm4ax"));
+  fgMonRaw[2] = run.GetKey (string ("bpm4ay"));
+  fgMonRaw[3] = run.GetKey (string ("bpm4bx"));
+  fgMonRaw[4] = run.GetKey (string ("bpm4by"));
+  fgMonRaw[5] = run.GetKey (string ("bcm1"));
 
   fgOversample = run.GetOversample();
   fgLastEv = VaEvent();
@@ -879,6 +893,26 @@ VaEvent::CheckEvent(TaRun& run)
 	}
       AddCut (fgSatNo, thisval);
       run.UpdateCutList (fgSatNo, thisval, fEvNum);
+    }
+
+  if ( fgMonSatNo < fgNCuts)
+    {
+      Int_t thisval = 0;
+      Bool_t saturated = false;
+      UInt_t i;
+      for (i = 0; i < MONNUM && !saturated; i++) 
+	saturated = GetData (fgMonRaw[i]) >= fgMonSatCut;
+      
+      if (saturated)
+	{
+#ifdef NOISY
+	  clog << "Event " << fEvNum << " failed saturation cut, mon"
+	       << i << " raw = " << GetData (fgMonRaw[i-1]) << " > " << fgMonSatCut << endl;
+#endif
+	  thisval = 1;
+	}
+      AddCut (fgMonSatNo, thisval);
+      run.UpdateCutList (fgMonSatNo, thisval, fEvNum);
     }
 
 

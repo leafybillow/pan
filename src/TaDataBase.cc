@@ -329,7 +329,8 @@ void TaDataBase::Print() {
   clog << "   Low beam cut :  " << GetCutValue("lobeam") << endl;
   clog << "   Low beam C cut :  " << GetCutValue("lobeamc") << endl;
   clog << "   Burp cut :  " << GetCutValue("burpcut") << endl;
-  clog << "   Saturation cut :  " << GetCutValue("satcut") << endl;
+  clog << "   Det saturation cut :  " << GetCutValue("satcut") << endl;
+  clog << "   Mon saturation cut :  " << GetCutValue("monsatcut") << endl;
   clog << "   Hall C Burp cut :  " << GetCutValue("cburpcut") << endl;
 
   vector<TaString> vposmon = GetStringVect("posmon");
@@ -477,6 +478,7 @@ TaDataBase::Checkout()
   cout << "lobeamc  cut = " << GetCutValue("LOBEAMC") << endl;
   cout << "burpcut  cut = " << GetCutValue("BURPCUT") << endl;
   cout << "satcut  cut = " << GetCutValue("SATCUT") << endl;
+  cout << "monsatcut  cut = " << GetCutValue("MONSATCUT") << endl;
   clog << "cburpcut cut :  " << GetCutValue("cburpcut") << endl;
 
   vector<TaString> vposmon = GetStringVect("posmon");
@@ -1569,7 +1571,8 @@ void TaDataBase::InitDB() {
   tables.push_back("satcut");        //  37
   tables.push_back("posmon");        //  38
   tables.push_back("posburp");       //  39
-  tables.push_back("cburpcut");         //  40
+  tables.push_back("cburpcut");      //  40
+  tables.push_back("monsatcut");     //  41
 
   pair<string, int> sipair;
   int k;
@@ -1714,6 +1717,7 @@ void TaDataBase::InitDB() {
       for (k = 0; k < 40; k++) columns.push_back(new dtype("d"));
     }
     if (i == 40) columns.push_back(new dtype("d")); // cburpcut
+    if (i == 41) columns.push_back(new dtype("d"));  // monsatcut
 
     sipair.second = columns.size(); 
     colsize.insert(sipair);
