@@ -30,10 +30,6 @@ optional; it's a parameter used in checking for cut conditions.)
 
     Cut_t VaEvent::fgSatNo;  
 
-  and
-
-    UInt_t VaEvent::fgDet[4];
-
   to declare the static members.
 
   5. In VaEvent::RunInit(const TaRun& run), add
@@ -103,7 +99,14 @@ database, if you want.)
     static UInt_t fgDet[4];      // index to detectors for cuts
 
      This was needed because this cut condition check was the first
-  code in VaEvent to look at detector data values.
+  code in VaEvent to look at detector data values.  (N.B. later fgDet
+  was changed to fgDetRaw, and 4 was changed to DETNUM.)
+
+  1a. In VaEvent.cc, add
+
+    UInt_t VaEvent::fgDet[4];
+
+  to declare the static member.
 
   2. In VaEvent::RunInit(const TaRun& run), add
 
