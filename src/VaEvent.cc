@@ -246,12 +246,10 @@ VaEvent::RunInit(const TaRun& run)
   fgDetRaw[2] = run.GetKey (string ("det3r"));
   fgDetRaw[3] = run.GetKey (string ("det4r"));
 
-  fgMonRaw[0] = run.GetKey (string ("bpm12x"));
-  fgMonRaw[1] = run.GetKey (string ("bpm4ax"));
-  fgMonRaw[2] = run.GetKey (string ("bpm4ay"));
-  fgMonRaw[3] = run.GetKey (string ("bpm4bx"));
-  fgMonRaw[4] = run.GetKey (string ("bpm4by"));
-  fgMonRaw[5] = run.GetKey (string ("bcm1"));
+  fgMonRaw[0] = run.GetKey (string ("bpm12mx"));
+  fgMonRaw[1] = run.GetKey (string ("bpm4amx"));
+  fgMonRaw[2] = run.GetKey (string ("bpm4bmx"));
+  fgMonRaw[3] = run.GetKey (scurmon+string ("r"));
 
   fgOversample = run.GetOversample();
   fgLastEv = VaEvent();

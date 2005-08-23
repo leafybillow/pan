@@ -22,7 +22,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #define MAXROC 40
-#define MONNUM 6        // Number of monitors to check for saturation
+#define MONNUM 4        // Number of monitors to check for saturation
 #define VAEVENT_VERBOSE 1
 #define DECODE_DEBUG 0  // Make this 1 to turn on debugging output
 
