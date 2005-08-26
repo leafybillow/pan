@@ -65,18 +65,21 @@ void TaVarChooser::ParseLine(vector <string> line)
   TaString devices(line[0]);
   UInt_t option(atoi(line[1].c_str()));
   if(devices.ToLower() == "batteries") {
+    opt_batteries.clear();
     for(UInt_t i=1;i<line.size();i++) {
       opt_batteries.push_back(line[i].c_str());
     }
   }
   if(devices.ToLower() == "ditbpms") {
     // Options here, are which BPMs to include for dithering
+    opt_ditbpms.clear();
     for(UInt_t i=1;i<line.size();i++) {
       opt_ditbpms.push_back(line[i].c_str());
     }
   }
   if(devices.ToLower() == "bpms") {
     // Options here, are which other BPMs to include
+    opt_bpms.clear();
     for(UInt_t i=1;i<line.size();i++) {
       opt_bpms.push_back(line[i].c_str());
     }
@@ -85,6 +88,7 @@ void TaVarChooser::ParseLine(vector <string> line)
     opt_hallbpms_sat = option;
   }
   if(devices.ToLower() == "bcms") {
+    opt_bcms.clear();
     // Options here, are which BCMs to include..
     for(UInt_t i=1;i<line.size();i++) {
       opt_bcms.push_back(line[i].c_str());

@@ -39,6 +39,10 @@ TaMakePairFile::TaMakePairFile(TString rootfilename,
   // Constructor.  Create the output rootfile and tree.  
   //  Use the info in the TaVarChooser to make tree branches .
   fRootFile = new TFile(rootfilename,"RECREATE");
+  fRootFile->SetCompressionLevel(5);
+  cout << "Output ROOTfile compression level "
+       << fRootFile->GetCompressionLevel()
+       << endl;
   fTree     = new TTree("S","Pair Summary File");
   fChooser  = new TaVarChooser(chooserfilename);
 
