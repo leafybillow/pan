@@ -167,10 +167,61 @@ VaPair::Fill( VaEvent& ThisEv, TaRun& run )
   Bool_t PairMade = false;
   CheckSequence (ThisEv, run);
 
+  // Here we can use conditionals to alter the pairing.
+  // Define TOGPS and undefine SUBSAMPLE to pair adjacent events
+  // Define TOGPS and define SUBSAMPLE=n to pair events at distance n
+  // Undefine TOGPS and undefine SUBSAMPLE to pair adjacent windows (normal)
+  // Undefine TOGPS and define SUBSAMPLE=n to pair windows at distance n
+  // Note that for non oversampling data, TOGPS has no effect (except that
+  // there is a 50-50 chance of mixing up first and second events of pairs
+  // if TOGPS is defined)
+
+#define TOGPS
+  //#define SUBSAMPLE 2
+
+  static EPairSynch thisps0 = SecondPS;  // 'pairsynch' used to make subharmonics
+  static EPairSynch thisps = SecondPS;   // subharmonic
+
+#ifdef TOGPS
+  // Replace real pairsynch (after sequence checking) with a toggle.
+  // Note that it toggles on EVENTS, not WINDOWS.
+  thisps0 = thisps0 == FirstPS ? SecondPS : FirstPS;;
+#else
+  thisps0 = ThisEv.GetPairSynch();
+#endif
+
+#ifdef SUBSAMPLE
+  // Set thisps to pair events at greater than normal distance by
+  // toggling it once for every n changes in thisps0.
+
+  static EPairSynch lastps0 = SecondPS;
+  static UInt_t nsub = SUBSAMPLE-1;
+//   clog << "lastps0 = " << (lastps0==FirstPS?"F":"S")
+//        << " nsub = " << nsub
+//        << "thisps0 = " << (thisps0==FirstPS?"F":"S");
+  if (thisps0 != lastps0)
+    if (++nsub == SUBSAMPLE)
+      {
+	thisps = thisps == FirstPS ? SecondPS : FirstPS;
+	nsub = 0;
+      }
+//   clog << " thisps = " << (thisps==FirstPS?"F":"S");
+
+  lastps0 = thisps0;
+  fgSkipping = false;
+#else
+  thisps = thisps0;
+
+#ifdef TOGPS
+  fgSkipping = false;
+#else
   // Skip events until the first event of a new window pair
-  if ( ThisEv.GetPairSynch() == FirstPS &&
+  if ( thisps == FirstPS &&
        ThisEv.GetTimeSlot() == 1 )
     fgSkipping = false;
+#endif
+
+#endif
 
   if ( !fgSkipping )
     {
@@ -178,7 +229,7 @@ VaPair::Fill( VaEvent& ThisEv, TaRun& run )
     clog << "Pairing event "  << ThisEv.GetEvNumber() << ": ";
 #endif
       // If first of a pair, store it
-      if ( ThisEv.GetPairSynch() == FirstPS )
+      if ( thisps == FirstPS )
 	{
 	  if (fgPairMade && fgEventQueue.size() > 0)
 	    {
