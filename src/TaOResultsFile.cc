@@ -177,7 +177,7 @@ TaOResultsFile::Create (const string ptag,
       (*this) << endl;
       (*this) << "# Zero  specifiedfile checksum:" << endl;
 
-      (*this) << "0 specifiedfile " ;
+      (*this) << "0000 specifiedfile " ;
       (*this) << chksum << endl;
       (*this) << endl;
     }
