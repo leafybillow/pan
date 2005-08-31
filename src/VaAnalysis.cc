@@ -1085,6 +1085,15 @@ VaAnalysis::AutoPairAna()
 	{
 	  // Channels for which to put asymmetry in tree
 	  unit = alist.fUniStr;
+	  if (fBlind->Blinding())
+	    {
+	      if (alist.fFlagInt & fgBLIND)
+		unit += " (blinded)";
+#ifdef SIGNFLIP
+	      else if (alist.fFlagInt & fgBLINDSIGN)
+		unit += " (blinded sign)";
+#endif
+	    }
 	  if ((alist.fFlagInt & fgNO_BEAM_NO_ASY) &&
 	      (fPair->GetRight().BeamCut() ||
 	       fPair->GetLeft().BeamCut())
@@ -1107,17 +1116,9 @@ VaAnalysis::AutoPairAna()
 	      if (fBlind->Blinding())
 		{
 		  if (alist.fFlagInt & fgBLIND)
-		    {
-		      val = fBlind->Blind (val);
-		      unit += " (blinded)";
-		    }
+		    val = fBlind->Blind (val);
 		  else if (alist.fFlagInt & fgBLINDSIGN)
-		    {
-		      val = fBlind->BlindSignOnly (val);
-#ifdef SIGNFLIP
-		      unit += " (blinded sign)";
-#endif
-		    }
+		    val = fBlind->BlindSignOnly (val);
 		}
 	    }
 	  if (fPairTree != 0)
@@ -1133,6 +1134,15 @@ VaAnalysis::AutoPairAna()
 	  // Channels for which to put normalized asymmetry in tree
 
 	  unit = alist.fUniStr;
+	  if (fBlind->Blinding())
+	    {
+	      if (alist.fFlagInt & fgBLIND)
+		unit += " (blinded)";
+#ifdef SIGNFLIP
+	      else if (alist.fFlagInt & fgBLINDSIGN)
+		unit += " (blinded sign)";
+#endif		
+	    }
 	  if ((alist.fFlagInt & fgNO_BEAM_NO_ASY) &&
 	      (fPair->GetRight().BeamCut() ||
 	       fPair->GetLeft().BeamCut())
@@ -1155,17 +1165,9 @@ VaAnalysis::AutoPairAna()
 	      if (fBlind->Blinding())
 		{
 		  if (alist.fFlagInt & fgBLIND)
-		    {
-		      val = fBlind->Blind (val);
-		      unit += " (blinded)";
-		    }
+		    val = fBlind->Blind (val);
 		  else if (alist.fFlagInt & fgBLINDSIGN)
-		    {
-		      val = fBlind->BlindSignOnly (val);
-#ifdef SIGNFLIP
-		      unit += " (blinded sign)";
-#endif		
-		    }
+		    val = fBlind->BlindSignOnly (val);
 		}
 	    }
 	  if (fPairTree != 0)
