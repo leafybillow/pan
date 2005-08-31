@@ -176,7 +176,7 @@ VaPair::Fill( VaEvent& ThisEv, TaRun& run )
   // there is a 50-50 chance of mixing up first and second events of pairs
   // if TOGPS is defined)
 
-#define TOGPS
+  //#define TOGPS
   //#define SUBSAMPLE 2
 
   static EPairSynch thisps0 = SecondPS;  // 'pairsynch' used to make subharmonics
