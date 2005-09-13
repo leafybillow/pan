@@ -1237,7 +1237,7 @@ VaAnalysis::InitFeedback()
   fFdbkName[1]="pztX";
   fFdbkName[2]="pztY";
   fFdbkName[3]="PITA";
-  fFdbkName[3]="IAHallC";
+  fFdbkName[4]="IAHallC";
   vector<string> mykey;
   vector<Double_t> dtmp;
 
@@ -1473,8 +1473,10 @@ VaAnalysis::ComputeData(EFeedbackType fdbk, UInt_t timescale, Int_t devicekey)
     clog<<"      |\n";
 #endif
     fNPair[fdbk]=0;
-    for ( qi = fSum[fdbk].begin(); qi != fSum[fdbk].end() ; qi++)
+    vector< Double_t>::iterator qi_end = fSum[fdbk].end();
+    for ( qi = fSum[fdbk].begin(); qi != qi_end ; qi++)
        {
+	qi_end = fSum[fdbk].end();
         // if asymmetry value is not too far from the mean value 
         // (filter very large values )    
         // let's say < 6 sigma away from the calculated mean
@@ -1560,7 +1562,9 @@ VaAnalysis::ComputeLastData(EFeedbackType fdbk, UInt_t timescale, Int_t deviceke
        clog<<"      |\n";
 #endif
        fNPair[fdbk] = 0;    
-       for ( qi = fSum[fdbk].begin(); qi != fSum[fdbk].end() ; qi++){
+       vector< Double_t>::iterator qi_end = fSum[fdbk].end();
+       for ( qi = fSum[fdbk].begin(); qi != qi_end ; qi++) {
+	  qi_end = fSum[fdbk].end();
           // if asymmetry value is not too far from the mean value 
           // (filter very large values )    
           //  < 6 sigma away from the calculated mean
