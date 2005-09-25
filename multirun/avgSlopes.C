@@ -82,6 +82,13 @@ int avgSlopes(TString selection,
 			"blumi1","blumi2","blumi3","blumi4",
 			"blumi5","blumi6","blumi7","blumi8"};
 
+  TString sCut[nDet] = {"ok_slopesL","ok_slopesL","ok_slopesR","ok_slopesR",
+			"ok_slopesL&&ok_slopesR","ok_slopesL&&ok_slopesR",
+			"ok_slopesL","ok_slopesR",
+			"ok_slopesL&&ok_slopesR",
+			"ok_slopes","ok_slopes","ok_slopes","ok_slopes",
+			"ok_slopes","ok_slopes","ok_slopes","ok_slopes"};
+
   Bool_t useDet[nDet] = {kTRUE,kTRUE,kTRUE,kTRUE,
  			 kTRUE,kTRUE,kTRUE,kTRUE,kTRUE,
  			 kTRUE,kTRUE,kTRUE,kTRUE,
@@ -111,7 +118,7 @@ int avgSlopes(TString selection,
   TFile file(openfile);
 
   TTree *slopes = (TTree*) file.Get("slopes");
-  slopes->Draw("run",selection,"goff");
+  slopes->Draw("run",selection+"&&ok_slopes","goff");
   Int_t n = (Int_t)slopes->GetSelectedRows();
   if(n==0) {
     cout << "No slopes passing selection: " << selection << endl;
@@ -135,7 +142,7 @@ int avgSlopes(TString selection,
       for(UInt_t imon=0; imon<nMon; imon++) {
 	TString drawcmd;
 	drawcmd = sDet[idet]+"_"+sMon[imon];
-	slopes->Draw(drawcmd+">>h1",selection,"goff");
+	slopes->Draw(drawcmd+">>h1",selection+"&&"+sCut[idet],"goff");
 	TH1F *h1 = (TH1F*)gROOT->FindObject("h1");
 	avgSlope[idet][imon] =  h1->GetMean();
 	avgSlope_err[idet][imon] = h1->GetRMS()/sqrt(h1->GetEntries());
@@ -152,7 +159,7 @@ int avgSlopes(TString selection,
   }
 
   //Now I need to write these slopes out to a .res file
-  TString ofilename = "avgSlopes_"+exp+"_"+type+"_"+outname+".res";
+  TString ofilename = "slopes/avgSlopes_"+exp+"_"+type+"_"+outname+".res";
   cout << "Creating Results File: " << ofilename.Data() << endl;
   rfile = new TaOResultsFile("redana",ofilename,1000);
   
