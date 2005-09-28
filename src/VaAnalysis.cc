@@ -66,7 +66,7 @@
 ClassImp(VaAnalysis)
 #endif
 
-const UInt_t VaAnalysis::fgNO_STATS       = 0x1;
+const UInt_t VaAnalysis::fgSTATS          = 0x1;
 const UInt_t VaAnalysis::fgNO_BEAM_NO_ASY = 0x2;
 const UInt_t VaAnalysis::fgCOPY           = 0x4;
 const UInt_t VaAnalysis::fgDIFF           = 0x8;

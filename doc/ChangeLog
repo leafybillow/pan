@@ -6,6 +6,15 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 28 Sep 2005
+-----------------------------------
+
+Changes to TaFeedbackAna.cc, TaRun.cc, TaStandardAna.cc, and
+VaAnalysis.{cc,hh}.  fgNO_STATS has been changed to fgSTATS and its
+meaning has been reversed: by default stats are not printed for a
+quantity unless fgSTATS is set.  In TaStandardAna, only a few
+quantities have fgSTATS set.
+
 Changes by R. Holmes on 22 Aug 2005
 -----------------------------------
 

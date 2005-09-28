@@ -410,7 +410,7 @@ TaRun::AccumEvent(const VaEvent& ev, const Bool_t doSlice, const Bool_t doRun)
 	   i != lqres.end();
 	   ++i )
 	{
-	  if (!i->TestFlags(VaAnalysis::fgNO_STATS))
+	  if (i->TestFlags(VaAnalysis::fgSTATS))
 	    {
 	      fEStatsNames.push_back (i->GetName());
 	      fEStatsUnits.push_back (i->GetUnits());
@@ -434,7 +434,7 @@ TaRun::AccumEvent(const VaEvent& ev, const Bool_t doSlice, const Bool_t doRun)
 	   i != lqres.end();
 	   ++i )
 	{
-	  if (!i->TestFlags(VaAnalysis::fgNO_STATS))
+	  if (i->TestFlags(VaAnalysis::fgSTATS))
 	    vres.push_back (i->GetVal());
 	}
       if (doSlice)
@@ -466,7 +466,7 @@ TaRun::AccumPair(const VaPair& pr, const Bool_t doSlice, const Bool_t doRun)
 	   i != lqres.end();
 	   ++i )
 	{
-	  if (!i->TestFlags(VaAnalysis::fgNO_STATS))
+	  if (i->TestFlags(VaAnalysis::fgSTATS))
 	    {
 	      fPStatsNames.push_back (i->GetName());
 	      fPStatsUnits.push_back (i->GetUnits());
@@ -510,7 +510,7 @@ TaRun::AccumPair(const VaPair& pr, const Bool_t doSlice, const Bool_t doRun)
 	   i != lqres.end();
 	   ++i )
 	{
-	  if (!i->TestFlags(VaAnalysis::fgNO_STATS))
+	  if (i->TestFlags(VaAnalysis::fgSTATS))
 	    {
 	      vres.push_back (i->GetVal());
 	      if (i->TestFlags(VaAnalysis::fgORDERED))

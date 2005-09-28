@@ -111,46 +111,66 @@ TaStandardAna::InitChanLists ()
 
 
   // Channels for which to store left and right values
-  fTreeList = ChanListFromName ("helicity", "", fgNO_STATS + fgCOPY);
-  f = ChanListFromName ("pairsynch", "", fgNO_STATS + fgCOPY);
+  fTreeList = ChanListFromName ("helicity", "", fgCOPY);
+  f = ChanListFromName ("pairsynch", "", fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanListFromName ("quadsynch", "", fgNO_STATS + fgCOPY);
+  f = ChanListFromName ("quadsynch", "", fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanListFromName ("timeslot", "", fgNO_STATS + fgCOPY);
+  f = ChanListFromName ("timeslot", "", fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanListFromName ("pitadac", "", fgNO_STATS + fgCOPY);
+  f = ChanListFromName ("pitadac", "", fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanList ("batt", "~", "chan", fgNO_STATS + fgCOPY);
+  f = ChanList ("batt", "~", "chan", fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanList ("bpm", "~x", "mm", fgNO_STATS + fgCOPY);
+  f = ChanList ("bpm", "~x", "mm", fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanList ("bpm", "~y", "mm", fgNO_STATS + fgCOPY);
+  f = ChanList ("bpm", "~y", "mm", fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanList ("bcm", "~", "chan", fgNO_STATS + fgCOPY);
+  f = ChanList ("bcm", "~", "chan", fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanList ("lumi", "~", "chan", fgNO_STATS + fgCOPY);
+  f = ChanList ("lumi", "~", "chan", fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanListFromName ("bmw", "", fgNO_STATS + fgCOPY);
+  f = ChanListFromName ("bmw", "", fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanList ("det", "~s", "chan",  fgNO_STATS + fgCOPY);
+  f = ChanList ("det", "~s", "chan",  fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanListFromName ("scan", "",  fgNO_STATS + fgCOPY);
+  f = ChanListFromName ("scan", "",  fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
-  f = ChanListFromName ("bpm12mx", "",  fgNO_STATS + fgCOPY);
+  f = ChanListFromName ("bpm12mx", "",  fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanListFromName ("bpm4amx", "",  fgNO_STATS + fgCOPY);
+  f = ChanListFromName ("bpm4amx", "",  fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanListFromName ("bpm4bmx", "",  fgNO_STATS + fgCOPY);
+  f = ChanListFromName ("bpm4bmx", "",  fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
 
   // Channels for which to store differences
-  f = ChanList ("batt", "~", "mchan", fgNO_STATS + fgDIFF + fgBLINDSIGN);
+  f = ChanList ("batt", "~", "mchan", fgDIFF + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("bpm", "~x", "um", fgDIFF + fgBLINDSIGN);
+  for (vector<AnaList>::iterator i_f = f.begin();
+       i_f < f.end();
+       ++i_f)
+    {
+      if (i_f->fVarStr == "bpm12x" ||
+	  i_f->fVarStr == "bpm4ax" ||
+	  i_f->fVarStr == "bpm4bx"
+	  )
+	i_f->fFlagInt += fgSTATS;
+    }
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("bpm", "~y", "um", fgDIFF + fgBLINDSIGN);
+  for (vector<AnaList>::iterator i_f = f.begin();
+       i_f < f.end();
+       ++i_f)
+    {
+      if (i_f->fVarStr == "bpm12y" ||
+	  i_f->fVarStr == "bpm4ay" ||
+	  i_f->fVarStr == "bpm4by"
+	  )
+	i_f->fFlagInt += fgSTATS;
+    }
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("qpd", "~x", "um", fgDIFF + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
@@ -158,21 +178,21 @@ TaStandardAna::InitChanLists ()
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   // Channels for which to store averages
-  f = ChanList ("bcm", "~", "chan", fgNO_STATS + fgAVG);
+  f = ChanList ("bcm", "~", "chan", fgAVG);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanList ("bpm", "~x", "um", fgNO_STATS + fgAVG);
+  f = ChanList ("bpm", "~x", "um", fgAVG);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanList ("bpm", "~y", "um", fgNO_STATS + fgAVG);
+  f = ChanList ("bpm", "~y", "um", fgAVG);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanList ("lumi", "~", "chan", fgNO_STATS + fgAVG);
+  f = ChanList ("lumi", "~", "chan", fgAVG);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanList ("lumi", "~", "", fgNO_STATS + fgAVGN);
+  f = ChanList ("lumi", "~", "", fgAVGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanList ("det", "~", "chan", fgNO_STATS + fgAVG);
+  f = ChanList ("det", "~", "chan", fgAVG);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanList ("det", "~", "", fgNO_STATS + fgAVGN);
+  f = ChanList ("det", "~", "", fgAVGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanListFromName ("bmw", "", fgNO_STATS + fgAVG);
+  f = ChanListFromName ("bmw", "", fgAVG);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());  
 
   // Channels for which to store asymmetries
@@ -180,20 +200,25 @@ TaStandardAna::InitChanLists ()
 //    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 //    f = ChanList ("bpm", "~yws", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
 //    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanList ("bpm", "~ws", "ppm", fgNO_STATS + fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
+  f = ChanList ("bpm", "~ws", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("bcm", "~", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
   for (vector<AnaList>::iterator i_f = f.begin();
        i_f < f.end();
        ++i_f)
     {
+      if (i_f->fVarStr == "bcm1" ||
+	  i_f->fVarStr == "bcm2" ||
+	  i_f->fVarStr == "bcm3" 
+	  )
+	i_f->fFlagInt += fgSTATS;
       if (i_f->fVarStr == "bcm1")
 	i_f->fFlagInt += fgORDERED;
       if (i_f->fVarStr == "bcm10")
-	i_f->fFlagInt = fgNO_BEAM_C_NO_ASY + fgASY + fgBLINDSIGN;
+	i_f->fFlagInt = fgNO_BEAM_C_NO_ASY + fgASY + fgBLINDSIGN + fgSTATS;
     }
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanList ("lumi", "~", "ppm", fgNO_STATS + fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
+  f = ChanList ("lumi", "~", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("qpd", "~sum", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
@@ -202,7 +227,7 @@ TaStandardAna::InitChanLists ()
   f = ChanList ("lumi", "~", "ppm", fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
-  f = ChanList ("det", "~", "ppm", fgNO_BEAM_NO_ASY + fgASYN + fgBLIND);
+  f = ChanList ("det", "~", "ppm", fgNO_BEAM_NO_ASY + fgASYN + fgBLIND + fgSTATS);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   // Below is not the correct way to do this...
@@ -247,13 +272,13 @@ TaStandardAna::InitChanLists ()
 	  wts.clear();
 	}
       fTreeList.push_back (AnaList ("blumi_sum", keys, wts, "ppm", 
-				    fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN));
+				    fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN + fgSTATS));
       fTreeList.push_back (AnaList ("blumi_sum", keys, wts, "ppm", 
-				    fgNO_STATS + fgAVG));
+				    fgAVG));
       fTreeList.push_back (AnaList ("blumi_sum", keys, wts, "ppm", 
-				    fgNO_STATS + fgAVGN));
+				    fgAVGN));
       fTreeList.push_back (AnaList ("blumi_ave", keys, wts, "ppm", 
-				    fgNO_BEAM_NO_ASY + fgASYN + fgAVE + fgBLINDSIGN));
+				    fgNO_BEAM_NO_ASY + fgASYN + fgAVE + fgBLINDSIGN + fgSTATS));
     }
   if (fRun->GetDevices().IsUsed(IFLUMI1R) &&
       fRun->GetDevices().IsUsed(IFLUMI2R))
@@ -266,13 +291,13 @@ TaStandardAna::InitChanLists ()
 	  wts.clear();
 	}
       fTreeList.push_back (AnaList ("flumi_sum", keys, wts, "ppm", 
-				    fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN));
+				    fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN + fgSTATS));
       fTreeList.push_back (AnaList ("flumi_sum", keys, wts, "ppm", 
-				    fgNO_STATS + fgAVG));
+				    fgAVG));
       fTreeList.push_back (AnaList ("flumi_sum", keys, wts, "ppm", 
-				    fgNO_STATS + fgAVGN));
+				    fgAVGN));
       fTreeList.push_back (AnaList ("flumi_ave", keys, wts, "ppm", 
-				    fgNO_BEAM_NO_ASY + fgASYN + fgAVE + fgBLINDSIGN));
+				    fgNO_BEAM_NO_ASY + fgASYN + fgAVE + fgBLINDSIGN + fgSTATS));
     }
   if (fRun->GetDevices().IsUsed(IDET1R) &&
       fRun->GetDevices().IsUsed(IDET2R))
@@ -286,11 +311,11 @@ TaStandardAna::InitChanLists ()
 	  wts.clear();
 	}
       fTreeList.push_back (AnaList ("det_l", keys, wts, "ppm", 
-				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
+				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND + fgSTATS));
       fTreeList.push_back (AnaList ("det_l", keys, wts, "ppm", 
-				    fgNO_STATS+fgAVG));
+				    fgAVG));
       fTreeList.push_back (AnaList ("det_l", keys, wts, "ppm", 
-				    fgNO_STATS+fgAVGN));
+				    fgAVGN));
     }
   if (fRun->GetDevices().IsUsed(IDET3R) &&
       fRun->GetDevices().IsUsed(IDET4R))
@@ -304,11 +329,11 @@ TaStandardAna::InitChanLists ()
 	  wts.clear();
 	}
       fTreeList.push_back (AnaList ("det_r", keys, wts, "ppm", 
-				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
+				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND + fgSTATS));
       fTreeList.push_back (AnaList ("det_r", keys, wts, "ppm", 
-				    fgNO_STATS+fgAVG));
+				    fgAVG));
       fTreeList.push_back (AnaList ("det_r", keys, wts, "ppm", 
-				    fgNO_STATS+fgAVGN));
+				    fgAVGN));
     }
   if (fRun->GetDevices().IsUsed(IDET1R) &&
       fRun->GetDevices().IsUsed(IDET3R))
@@ -322,11 +347,11 @@ TaStandardAna::InitChanLists ()
 	  wts.clear();
 	}
       fTreeList.push_back (AnaList ("det_lo", keys, wts, "ppm", 
-				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
+				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND + fgSTATS));
       fTreeList.push_back (AnaList ("det_lo", keys, wts, "ppm", 
-				    fgAVG + fgNO_STATS));
+				    fgAVG));
       fTreeList.push_back (AnaList ("det_lo", keys, wts, "ppm", 
-				    fgAVGN + fgNO_STATS));
+				    fgAVGN));
     }
   if (fRun->GetDevices().IsUsed(IDET2R) &&
       fRun->GetDevices().IsUsed(IDET4R))
@@ -340,11 +365,11 @@ TaStandardAna::InitChanLists ()
 	  wts.clear();
 	}
       fTreeList.push_back (AnaList ("det_hi", keys, wts, "ppm", 
-				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
+				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND + fgSTATS));
       fTreeList.push_back (AnaList ("det_hi", keys, wts, "ppm", 
-				    fgAVG + fgNO_STATS));
+				    fgAVG));
       fTreeList.push_back (AnaList ("det_hi", keys, wts, "ppm", 
-				    fgAVGN + fgNO_STATS));
+				    fgAVGN));
     }
   if (fRun->GetDevices().IsUsed(IDET1R) &&
       fRun->GetDevices().IsUsed(IDET2R) &&
@@ -360,12 +385,12 @@ TaStandardAna::InitChanLists ()
 	  wts.clear();
 	}
       fTreeList.push_back (AnaList ("det_all", keys, wts, "ppm", 
-				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND));
+				    fgNO_BEAM_NO_ASY + fgASYN + fgBLIND + fgSTATS));
       fTreeList.push_back (AnaList ("det_ave", keys, wts, "ppm", 
-				    fgNO_BEAM_NO_ASY + fgASYN + fgAVE + fgBLIND));
+				    fgNO_BEAM_NO_ASY + fgASYN + fgAVE + fgBLIND + fgSTATS));
       fTreeList.push_back (AnaList ("det_all", keys, wts, "ppm", 
-				    fgNO_STATS + fgAVG));
+				    fgAVG));
       fTreeList.push_back (AnaList ("det_all", keys, wts, "ppm", 
-				    fgNO_STATS + fgAVGN));
+				    fgAVGN));
     }
 }

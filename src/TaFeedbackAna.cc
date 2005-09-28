@@ -74,22 +74,22 @@ TaFeedbackAna::InitChanLists ()
   vector<AnaList> f;
 
   // Channels for which to store left and right values
-  fTreeList = ChanListFromName ("helicity", "", fgNO_STATS + fgCOPY);
-//   f = ChanListFromName ("quadsynch", "", fgNO_STATS + fgCOPY);
+  fTreeList = ChanListFromName ("helicity", "", fgCOPY);
+//   f = ChanListFromName ("quadsynch", "", fgCOPY);
 //   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-//   f = ChanListFromName ("pairsynch", "", fgNO_STATS + fgCOPY);
+//   f = ChanListFromName ("pairsynch", "", fgCOPY);
 //   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-//   f = ChanListFromName ("timeslot", "", fgNO_STATS + fgCOPY);
+//   f = ChanListFromName ("timeslot", "", fgCOPY);
 //   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-//   f = ChanListFromName ("pitadac", "", fgNO_STATS + fgCOPY);
+//   f = ChanListFromName ("pitadac", "", fgCOPY);
 //   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-//   f = ChanList ("batt", "~", "chan", fgNO_STATS + fgCOPY);
+//   f = ChanList ("batt", "~", "chan", fgCOPY);
 //   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-//   f = ChanList ("bpm", "~x", "mm", fgNO_STATS + fgCOPY);
+//   f = ChanList ("bpm", "~x", "mm", fgCOPY);
 //   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-//   f = ChanList ("bpm", "~y", "mm", fgNO_STATS + fgCOPY);
+//   f = ChanList ("bpm", "~y", "mm", fgCOPY);
 //   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-//   f = ChanList ("bcm", "~", "chan", fgNO_STATS + fgCOPY);
+//   f = ChanList ("bcm", "~", "chan", fgCOPY);
 //   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 //  // Channels for which to store differences
 //   f = ChanList ("batt", "~", "mchan", fgDIFF);
