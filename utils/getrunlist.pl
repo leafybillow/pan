@@ -17,6 +17,7 @@ use strict;
 my $database = "runlist";
 my $user     = "online";
 my $hostname = "happex14";
+my $expname  = "helium05";
 #$hostname = "localhost";
 my $password;
 $password = "online";
@@ -52,7 +53,7 @@ if (defined $dbh) {
 
 $sql  =  "SELECT ";
 $sql .=  " RunNumber ";
-$sql .=  "FROM RunInfo WHERE TargetPosition>22000000;";
+$sql .=  "FROM RunInfo WHERE Experiment='$expname' AND TargetPosition>22000000;";
 
 &send2server($dbh,$sql);
 
