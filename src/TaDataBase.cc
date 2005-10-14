@@ -1573,6 +1573,7 @@ void TaDataBase::InitDB() {
   tables.push_back("posburp");       //  39
   tables.push_back("cburpcut");      //  40
   tables.push_back("monsatcut");     //  41
+  tables.push_back("PITAparam");     //  42
 
   pair<string, int> sipair;
   int k;
@@ -1718,6 +1719,10 @@ void TaDataBase::InitDB() {
     }
     if (i == 40) columns.push_back(new dtype("d")); // cburpcut
     if (i == 41) columns.push_back(new dtype("d"));  // monsatcut
+    if (i == 42) {   // PITA slope 
+       columns.push_back(new dtype("s"));
+       columns.push_back(new dtype("d"));
+    }
 
     sipair.second = columns.size(); 
     colsize.insert(sipair);

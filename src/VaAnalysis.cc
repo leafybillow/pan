@@ -1421,7 +1421,7 @@ VaAnalysis::ComputeData(EFeedbackType fdbk, UInt_t timescale, Int_t devicekey)
 {
 
  fNPair[fdbk]++;
- if (fdbk == 0 || fdbk == 4) 
+ if (fdbk == 0 || fdbk == 3 || fdbk == 4) 
    {
     fSum[fdbk].push_back(fPair->GetAsy(devicekey)*1E6);
     fMean1[fdbk]+=fPair->GetAsy(devicekey)*1E6;
