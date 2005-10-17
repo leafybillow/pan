@@ -808,21 +808,21 @@ void OnlineGUI::DoDraw()
 void OnlineGUI::DrawNext()
 {
   // Handler for the "Next" button.
-
   fRadioPage[current_page]->SetState(kButtonUp);
-  // The following line triggers DoRadio()
+  // The following line triggers DoRadio(), or at least.. used to
   fRadioPage[current_page+1]->SetState(kButtonDown);
-  
+  current_page++;
+  DoDraw();
 }
 
 void OnlineGUI::DrawPrev()
 {
   // Handler for the "Prev" button.
-
   fRadioPage[current_page]->SetState(kButtonUp);
-  // The following line triggers DoRadio()
+  // The following line triggers DoRadio(), or at least.. used to
   fRadioPage[current_page-1]->SetState(kButtonDown);
-  
+  current_page--;
+  DoDraw();  
 }
 
 void OnlineGUI::DoRadio()
