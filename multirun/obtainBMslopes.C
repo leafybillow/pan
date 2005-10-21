@@ -32,7 +32,7 @@ int obtainBMslopes(TString type="dither",
     {
       const UInt_t nDet=17;
       TString sDet[nDet] = {"det1","det2","det3","det4",
-			    "detL","detR","det_lo","det_hi","det_all",
+			    "det_l","det_r","det_lo","det_hi","det_all",
 			    "blumi1","blumi2","blumi3","blumi4",
 			    "blumi5","blumi6","blumi7","blumi8"};
       return getslopes(type,runlistStr,exp,nDet,sDet);
