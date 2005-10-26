@@ -18,6 +18,7 @@
 #include <TKey.h>
 #include <TSystem.h>
 #include <TLatex.h>
+#include <TText.h>
 #include "GetRootFileName.C"
 #include "GetRunNumber.C"
 #include "TPaveText.h"
@@ -225,6 +226,21 @@ Bool_t OnlineConfig::ParseConfig()
 	continue;
       }
       guicolor = sConfFile[i][1];
+    }
+    if(sConfFile[i][0] == "plotsdir") {
+      if(sConfFile[i].size() != 2) {
+	cerr << "WARNING: plotsdir command does not have the "
+	     << "correct number of arguments (needs 1)"
+	     << endl;
+	continue;
+      }
+      if(!plotsdir.IsNull()) {
+	cerr << "WARNING: too many plotdir's defined. " 
+	     << " Will only use the first one." 
+	     << endl;
+	continue;
+      }
+      plotsdir = sConfFile[i][1];
     }
 
   }
@@ -1428,17 +1444,25 @@ void OnlineGUI::PrintPages() {
   }
 
   // I'm not sure exactly how this works.  But it does.
-  fCanvas = new TCanvas("fCanvas","trythis",850,1050);
+  fCanvas = new TCanvas("fCanvas","trythis",850,1100);
 //   TCanvas *maincanvas = new TCanvas("maincanvas","whatever",850,1100);
 //   maincanvas->SetCanvas(fCanvas);
   TLatex *lt = new TLatex();
+
+  TString plotsdir = fConfig->GetPlotsDir();
+  Bool_t useJPG = kFALSE;
+  if(!plotsdir.IsNull()) useJPG = kTRUE;
 
   TString filename = "summaryplots";
   if(runNumber!=0) {
     filename += "_";
     filename += runNumber;
   }
-  filename += ".ps";
+  if(useJPG) {
+    filename.Prepend(plotsdir+"/");
+    filename += "_pageXXXX.jpg";
+  }
+  else filename += ".ps";
 
   TString pagehead = "Summary Plots";
   if(runNumber!=0) {
@@ -1448,16 +1472,29 @@ void OnlineGUI::PrintPages() {
   }
   pagehead += ": ";
 
-  fCanvas->Print(filename+"[");
+  gStyle->SetPalette(1);
+  gStyle->SetTitleX(0.15);
+  gStyle->SetTitleY(0.9);
+  gStyle->SetPadBorderMode(0);
+  gStyle->SetHistLineColor(1);
+  gStyle->SetHistFillColor(1);
+  if(!useJPG) fCanvas->Print(filename+"[");
+  TString origFilename = filename;
   for(UInt_t i=0; i<fConfig->GetPageCount(); i++) {
     current_page=i;
     DoDraw();
     TString pagename = pagehead + fConfig->GetPageTitle(current_page);
     lt->SetTextSize(0.025);
-    lt->DrawLatex(0,1.00,pagename);
+    lt->DrawLatex(0.05,0.98,pagename);
+    if(useJPG) {
+      filename = origFilename;
+      filename.ReplaceAll("XXXX",Form("%d",current_page));
+      cout << "Printing page " << current_page 
+	   << " to file = " << filename << endl;
+    }
     fCanvas->Print(filename);
   }
-  fCanvas->Print(filename+"]");
+  if(!useJPG) fCanvas->Print(filename+"]");
   
 }
 
@@ -1523,6 +1560,14 @@ OnlineGUI::~OnlineGUI()
 void online(TString type="standard",UInt_t run=0,Bool_t printonly=kFALSE) 
 {
   // "main" routine.  Run this at the ROOT commandline.
+
+  if(printonly) {
+    if(!gROOT->IsBatch()) {
+      cout << "Sorry... the print summary plots option only works "
+	   << "in BATCH mode." << endl;
+      return;
+    }
+  }
 
   OnlineConfig *fconfig = new OnlineConfig(type);
     //    OnlineConfig *fconfig = new OnlineConfig("halla");

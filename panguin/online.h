@@ -29,6 +29,7 @@ const char *filetypes[] = { "All files","*",
 			    "PostScript files","*.ps",
                             "Encapsulated PostScript files","*.eps",
                             "GIF files","*.gif",
+                            "JPG files","*.jpg",
 			    0,               0 };
 
 class OnlineConfig {
@@ -44,6 +45,7 @@ private:
   TString goldenrootfilename; // Golden rootfile for comparisons
   TString protorootfile; // Prototype for getting the rootfilename
   TString guicolor; // User's choice of background color
+  TString plotsdir; // Where to store sample plots.. automatically stored as .jpg's).
   vector < pair <UInt_t,UInt_t> > pageInfo; 
   vector <TCut> cutList; 
   vector <UInt_t> GetDrawIndex(UInt_t);
@@ -58,6 +60,7 @@ public:
   TString GetRootFile() { return rootfilename; };
   TString GetGoldenFile() { return goldenrootfilename; };
   TString GetGuiColor() { return guicolor; };
+  TString GetPlotsDir() { return plotsdir; };
   TCut GetDefinedCut(TString ident);
   vector <TString> GetCutIdent();
   // Page utilites
