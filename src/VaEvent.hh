@@ -186,6 +186,7 @@ private:
   EHelicity fPrevHel;          // True helicity for previous event
 
   Double_t fQPD1Pars[6];    // QPD calibration parameters
+  Double_t fCavPars[CAVNUM][2];    // QPD calibration parameters
 
 
 #ifndef NODICT

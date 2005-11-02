@@ -555,6 +555,24 @@ TaDataBase::Checkout()
     cout << "qpd1 const "<< qval <<endl;
   }
 
+  vector<Double_t> cavconst = GetCavConst1();
+  vector<Double_t>::iterator iconst = cavconst.begin();
+  cout << "Calibration for Cavity 1: " << endl;
+  cout << "    X-cal = " << (Double_t) *(iconst) << endl;
+  cout << "    Y-cal = " << (Double_t) *(iconst+1) << endl;
+
+  cavconst = GetCavConst2();
+  iconst = cavconst.begin();
+  cout << "Calibration for Cavity 2: " << endl;
+  cout << "    X-cal = " << (Double_t) *(iconst) << endl;
+  cout << "    Y-cal = " << (Double_t) *(iconst+1) << endl;
+
+  cavconst = GetCavConst3();
+  iconst = cavconst.begin();
+  cout << "Calibration for Cavity 3: " << endl;
+  cout << "    X-cal = " << (Double_t) *(iconst) << endl;
+  cout << "    Y-cal = " << (Double_t) *(iconst+1) << endl;
+
 }
 
 void TaDataBase::PrintDataBase() {
@@ -701,9 +719,6 @@ TaDataBase::GetBlindingParams() const
 vector<Double_t>
 TaDataBase::GetQpd1Const() const
 {
-  // Return the blinding parameters -- sign, mean, and offscale.
-  // Return defaults if absent from database.  Length of returned
-  // vector is always 6.
 
   vector<string> keys;
   keys.clear();
@@ -724,6 +739,72 @@ TaDataBase::GetQpd1Const() const
     data.push_back (1.);  // 
     data.push_back (1.);  // distance conversions
     data.push_back (1.);  // 
+  }
+  return data;
+}
+
+vector<Double_t>
+TaDataBase::GetCavConst1() const
+{
+  // Return the Cavity monitor calibration parameters-
+  //    xcal, ycal.
+  // Return defaults if absent from database.  
+
+  vector<string> keys;
+  keys.clear();
+  keys.push_back ("x-const");
+  keys.push_back ("y-const");
+
+  vector<Double_t> data = GetData ("cav1const", keys);
+
+  // If parameters missing, push default values.
+  if (data.size() != 2) {
+    data.push_back (1.);  // x-const
+    data.push_back (1.);  // y-const
+  }
+  return data;
+}
+
+vector<Double_t>
+TaDataBase::GetCavConst2() const
+{
+  // Return the Cavity monitor calibration parameters-
+  //    xcal, ycal.
+  // Return defaults if absent from database.  
+
+  vector<string> keys;
+  keys.clear();
+  keys.push_back ("x-const");
+  keys.push_back ("y-const");
+
+  vector<Double_t> data = GetData ("cav2const", keys);
+
+  // If parameters missing, push default values.
+  if (data.size() != 2) {
+    data.push_back (1.);  // x-const
+    data.push_back (1.);  // y-const
+  }
+  return data;
+}
+
+vector<Double_t>
+TaDataBase::GetCavConst3() const
+{
+  // Return the Cavity monitor calibration parameters-
+  //    xcal, ycal.
+  // Return defaults if absent from database.  
+
+  vector<string> keys;
+  keys.clear();
+  keys.push_back ("x-const");
+  keys.push_back ("y-const");
+
+  vector<Double_t> data = GetData ("cav3const", keys);
+
+  // If parameters missing, push default values.
+  if (data.size() != 2) {
+    data.push_back (1.);  // x-const
+    data.push_back (1.);  // y-const
   }
   return data;
 }
@@ -1215,6 +1296,7 @@ Int_t TaDataBase::GetNumBadEv() const{
    return nbadev;
 };
 
+
 map <Int_t, vector<Int_t> > TaDataBase::GetCutInt() const {
 // For bad event intervals, get formatted results 
 // First element of map goes from 0 to GetNumBadEv(), second is a vector of
@@ -1574,6 +1656,9 @@ void TaDataBase::InitDB() {
   tables.push_back("cburpcut");      //  40
   tables.push_back("monsatcut");     //  41
   tables.push_back("PITAparam");     //  42
+  tables.push_back("cav1const");     //  43
+  tables.push_back("cav2const");     //  44
+  tables.push_back("cav3const");     //  45
 
   pair<string, int> sipair;
   int k;
@@ -1722,6 +1807,24 @@ void TaDataBase::InitDB() {
     if (i == 42) {   // PITA slope 
        columns.push_back(new dtype("s"));
        columns.push_back(new dtype("d"));
+    }
+    if (i == 43) {  // cav1const
+      columns.push_back(new dtype("s"));
+      columns.push_back(new dtype("d"));
+      columns.push_back(new dtype("s"));
+      columns.push_back(new dtype("d"));
+    }
+    if (i == 44) {  // cav2const
+      columns.push_back(new dtype("s"));
+      columns.push_back(new dtype("d"));
+      columns.push_back(new dtype("s"));
+      columns.push_back(new dtype("d"));
+    }
+    if (i == 45) {  // cav3const
+      columns.push_back(new dtype("s"));
+      columns.push_back(new dtype("d"));
+      columns.push_back(new dtype("s"));
+      columns.push_back(new dtype("d"));
     }
 
     sipair.second = columns.size(); 

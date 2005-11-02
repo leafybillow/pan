@@ -259,6 +259,22 @@ VaEvent::RunInit(const TaRun& run)
   for(vector<Double_t>::iterator iconst = qpd1const.begin();
       iconst != qpd1const.end(); iconst++)  fQPD1Pars[ip++] = *iconst;
 
+
+  vector<Double_t> cav1const = run.GetDataBase().GetCavConst1();
+  ip=0;
+  for(vector<Double_t>::iterator iconst = cav1const.begin();
+      iconst != cav1const.end(); iconst++)  fCavPars[0][ip++] = *iconst;
+
+  vector<Double_t> cav2const = run.GetDataBase().GetCavConst2();
+  ip=0;
+  for(vector<Double_t>::iterator iconst = cav2const.begin();
+      iconst != cav2const.end(); iconst++)  fCavPars[1][ip++] = *iconst;
+
+  vector<Double_t> cav3const = run.GetDataBase().GetCavConst3();
+  ip=0;
+  for(vector<Double_t>::iterator iconst = cav3const.begin();
+      iconst != cav3const.end(); iconst++)  fCavPars[2][ip++] = *iconst;
+
   fgCalib = run.GetDataBase().GetCalVar();
 
 
@@ -533,7 +549,7 @@ VaEvent::Decode(TaDevice& devices)
        if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
        idx = devices.GetCalIndex(key);
        if (idx < 0) continue;
-       fData[key+2] = fData[idx];
+       fData[key+2] = fData[idx]*fCavPars[i][j];
        if (devices.IsUsed(key)) devices.SetUsed(key+2);
     }
   }

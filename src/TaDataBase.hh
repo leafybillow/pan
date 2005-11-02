@@ -417,6 +417,12 @@ public:
   vector<TaString> GetStringVect(const string& table) const;
 // List of EPICS variables to put into output
   vector<TaString> GetEpicsKeys() const;
+// Get the Cavity monitor 1 constants ( x-const, y-const)
+  vector<Double_t> GetCavConst1() const;
+// Get the Cavity monitor 2 constants ( x-const, y-const)
+  vector<Double_t> GetCavConst2() const;
+// Get the Cavity monitor 3 constants ( x-const, y-const)
+  vector<Double_t> GetCavConst3() const;
 
 // -------------------------------------------------
 // Put() methods to modify the database.
