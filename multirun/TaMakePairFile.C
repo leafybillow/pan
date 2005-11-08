@@ -263,8 +263,19 @@ void TaMakePairFile::MakeVarList()
     dets.push_back("_all");
   }
   PushToDoubleList(dets,"avg_n_det");
+  if(fChooser->GetLH2Detectors()) 
+    dets.push_back("_ave");
   PushToDoubleList(dets,"asym_n_det");
   PushToDoubleList(dets,"asym_n_det","reg");
+
+  vector <TString> bmw(0);
+  if(fChooser->GetBMW()) {
+    bmw.push_back("bmwcln");
+    bmw.push_back("bmwcyc");
+    bmw.push_back("bmwobj");
+    bmw.push_back("bmwval");
+  }
+  PushToDoubleList(bmw,"avg_");
   
 }
 
