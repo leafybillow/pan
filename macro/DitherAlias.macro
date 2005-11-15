@@ -120,6 +120,12 @@ DitherAlias::MakeAliases()
 	    }
 	  cout << "Made Alias Called \"" << aliasname << "\"" << endl;
 	  fTree->SetAlias(aliasname,aliasformula);
+	} 
+      else 
+	{
+	  aliasname = "dit_asym_n_"+fDetName[iDet];
+	  cout << "Made Empty Alias Called \"" << aliasname << "\"" << endl;
+	  fTree->SetAlias(aliasname,"-1e6");
 	}
       
     }
