@@ -190,8 +190,8 @@ RedCoefs::Monitors () const
 
 RedCoefs::RedCoefs (const RedCoefs& rc)
 {
+  rc.GetMean();
   cerr << "?copy?" << endl;
 }
-
 
 #endif
