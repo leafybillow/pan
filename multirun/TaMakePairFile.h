@@ -26,18 +26,26 @@
 #define MAXINTDATA    10
 #endif
 
+#ifndef MAXDITDET
+#define MAXDITDET 30
+#endif
+
+#ifndef MAXDITMON
+#define MAXDITMON 10
+#endif
+
 using namespace std;
 
 class TaMakePairFile {
 
  public:
-  TaMakePairFile(TString rootfilename, TString chooserfilename);
+  TaMakePairFile(TString rootfilename, TString chooserfilename, 
+		 TString ditfilename="");
   virtual ~TaMakePairFile() {};
   void RunLoop();
   Bool_t SetRunList(TString listfilename);
   Bool_t SetRunList(vector <pair <UInt_t,UInt_t> > list);
   void Finish();
-  void SetDitSlopeFile(TString ditfilename) {fDitFilename = ditfilename;};
   void SetDBRunlist(TString filename) {fDBRunlist = new TaRunlist(filename);};
 
  private:
@@ -61,7 +69,16 @@ class TaMakePairFile {
   vector <UInt_t>    ditBPMindex;
   vector <UInt_t>    DETindex;
   vector <pair <UInt_t,UInt_t> > runlist; // first is run, second is slug
-  
+
+  vector <TString>   doubleDitVars;
+  Double_t           doubleDitData[MAXDOUBLEDATA];
+  Double_t           fSlopes[MAXDITDET][MAXDITMON];
+  vector <TString>   ditMonStr;
+  vector <TString>   ditDetSkel;
+  vector <TString>   ditDetUD;
+  UInt_t             ditMapMon[MAXDITMON];
+  UInt_t             ditMapUD[MAXDITDET];
+  Bool_t             ditOK;
 
   // Some default leafs, not in the pan/redana rootfiles.
   Int_t runnumber;
@@ -78,6 +95,7 @@ class TaMakePairFile {
   void PushToDoubleList(vector <TString> thisvar,
 			TString suffix) {
     PushToDoubleList(thisvar,suffix,""); };
+  void PushToDitList(vector <TString>,TString);
   void MakeVarList();
   Bool_t isConfigured();
 

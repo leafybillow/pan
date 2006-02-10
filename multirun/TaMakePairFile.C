@@ -19,7 +19,8 @@
 #include "macro/DitherAlias.macro"
 
 TaMakePairFile::TaMakePairFile(TString rootfilename, 
-			       TString chooserfilename):
+			       TString chooserfilename,
+			       TString ditfilename):
   fRootFile(0),
   fTree(0),
   pairSelect(0),
@@ -45,6 +46,7 @@ TaMakePairFile::TaMakePairFile(TString rootfilename,
        << endl;
   fTree     = new TTree("S","Pair Summary File");
   fChooser  = new TaVarChooser(chooserfilename);
+  fDitFilename = ditfilename;
 
   MakeVarList();
   MakeBranches();
@@ -104,6 +106,7 @@ void TaMakePairFile::RunLoop()
 	   << runnumber << endl;
       continue;
     }
+
     // Should find a crafty way to check the trees too..
     //  ... like valid keys...
 
@@ -151,9 +154,11 @@ void TaMakePairFile::EventLoop(Long64_t nevents)
     Double_t m_ev_num = pairSelect->doubleData[0]; // always the first doubleVar.
     //	cout << "Mean event number = " << m_ev_num << endl;
     if((minL==0.)&&(maxL==0.)) ok_Left=1;
+    else if (m_ev_num>minL && maxL==0) ok_Left=1;
     else if (m_ev_num<minL || m_ev_num>maxL) ok_Left = 0;
 
     if((minR==0.)&&(maxR==0.)) ok_Right=1;
+    else if (m_ev_num>minR && maxR==0) ok_Right=1;
     else if (m_ev_num<minR || m_ev_num>maxR) ok_Right = 0;
     
     if (ok_Left==1 && ok_Right==1) ok_Both=1;
@@ -179,11 +184,22 @@ void TaMakePairFile::EventLoop(Long64_t nevents)
     for(UInt_t i=0; i<doubleRegVars.size(); i++) {
       doubleRegData[i] = regSelect->doubleData[i];
     }
+
+    // Calculate DitherCorected data
+    for(UInt_t id=0; id<doubleDitVars.size(); id++) {
+      Double_t cor=0;
+      for(UInt_t im=0; im<ditMonStr.size(); im++)
+	cor += fSlopes[id][im]*pairSelect->doubleData[ditMapMon[im]];
+      Double_t cordet = pairSelect->doubleData[ditMapUD[id]] - cor;
+      doubleDitData[id] = cordet;
+    }
     
     fTree->Fill();
   }
 
 }
+
+
 
 void TaMakePairFile::Finish() 
 {
@@ -192,12 +208,6 @@ void TaMakePairFile::Finish()
   cout << "Finished" << endl;
 
   if(!isConfigured()) return;
-
-  if(!fDitFilename.IsNull()) {
-    cout << "Making aliases" << endl;
-    DitherAlias ditalias(fTree,fDitFilename.Data());
-    cout << "Done" << endl;
-  }
 
 
   fRootFile->cd();
@@ -208,6 +218,7 @@ void TaMakePairFile::Finish()
 //   if(fTree) delete fTree;
 //   if(fRootFile) delete fRootFile;
 }
+
 
 void TaMakePairFile::MakeVarList() 
 {
@@ -276,8 +287,90 @@ void TaMakePairFile::MakeVarList()
     bmw.push_back("bmwval");
   }
   PushToDoubleList(bmw,"avg_");
-  
+
+  // Add dither corrected words here
+  ditOK=kFALSE;
+  if (!fDitFilename.IsNull()) {
+    ditOK=kTRUE;
+    // First, make list of dit corrected detectors:
+    PushToDitList(dets,"asym_n_det");
+
+    
+    if (doubleDitVars.size()) { 
+      // only continue if some dither correction detectors are defined
+      DitherAlias* dita = new DitherAlias(fDitFilename.Data());
+
+      // Get ordered list of monitors
+      vector<string> mstr = dita->GetMonNames();
+      for (UInt_t im=0; im<mstr.size(); im++) {
+	TString addmon = "diff_" + mstr[im];
+	ditMonStr.push_back(addmon);
+	//cout << "monitor list id: "<<im << "  monitor: " << ditMonStr[im] << endl;
+      }
+      // Get vectors of coeffs for each cor. det.
+      for (UInt_t i=0; i<doubleDitVars.size(); i++) {
+	vector <Double_t> corrcoefs = dita->GetCorSlopes(ditDetSkel[i]);
+	if (corrcoefs.size()) {
+	  for (UInt_t im=0; im<ditMonStr.size(); im++) {
+	    fSlopes[i][im] = corrcoefs[im];
+	  }
+	} else {
+	  cout << " *** Dithering problem *** " << endl;
+	  cout << " *** Failed to get slopes for det " << ditDetSkel[i] << endl;
+	  cout << endl;
+	  for (UInt_t im=0; im<ditMonStr.size(); im++) fSlopes[i][im] = 0.0;
+	}
+      }
+
+      // Search doubleVar to make sure that monitors are there and get index.
+      for (UInt_t im=0; im<ditMonStr.size(); im++) {
+	for (UInt_t i=0; i<doubleVars.size(); i++) {	
+	    ditMapMon[im] = i;
+	    if (doubleVars[i]==ditMonStr[im]) break;
+	}
+	if (ditMapMon[im]==(doubleVars.size()-1)) {
+	  cout << "Dithering Monitor not found in list: " << ditMonStr[im] << endl;
+	  ditOK=kFALSE;
+	}
+      }
+
+      // Search doubleVar to make sure that uncorrected asyms are there and get index.
+      for (UInt_t id=0; id<ditDetUD.size(); id++) {
+	for (UInt_t i=0; i<doubleVars.size(); i++) {	
+	    ditMapUD[id] = i;
+	    if (doubleVars[i]==ditDetUD[id]) break;
+	}
+	if (ditMapUD[id]==(doubleVars.size()-1)) {
+	  cout << "Dithering Detector not found in list: " << ditMapUD[id] << endl;
+	  ditOK=kFALSE;
+	}
+      }
+    }
+    cout << "CHECK: is dithering configured correctly: " << ditOK << endl;
+  }  
+
+
 }
+
+
+void TaMakePairFile::PushToDitList(vector <TString> thisvar,
+				      TString prefix) 
+{
+  // Given a vector of variables... push them onto the variable list,
+  //  adding the prefix and a suffix where needed.
+
+  // Regular Pan pushes...
+  if(thisvar.size()) {
+    for(UInt_t i=0; i<thisvar.size();i++) {
+      doubleDitVars.push_back("dit_"+prefix+thisvar[i]);
+      ditDetSkel.push_back("det"+thisvar[i]);
+      ditDetUD.push_back(prefix+thisvar[i]);
+      cout << "adding " << "dit_"+prefix+thisvar[i] << " to doubleDitVars" << endl;
+    }
+  }
+}
+
+
 
 void TaMakePairFile::PushToDoubleList(vector <TString> thisvar,
 				      TString prefix,
@@ -296,7 +389,7 @@ void TaMakePairFile::PushToDoubleList(vector <TString> thisvar,
     // Regular Pan pushes...
     if(thisvar.size()) {
       for(UInt_t i=0; i<thisvar.size();i++)
-	if(thisvar[i].Contains("bpm") && type!="dit") {
+	if (thisvar[i].Contains("bpm") && type!="dit") {
 	  // Push for BPMs... dithering BPMs already have x and y
 	  doubleVars.push_back(prefix+thisvar[i]+"x");
 	  doubleVars.push_back(prefix+thisvar[i]+"y");
@@ -342,6 +435,9 @@ void TaMakePairFile::MakeBranches()
   for(UInt_t i=0; i<intRegVars.size(); i++) {
     fTree->Branch(intRegVars[i],&intRegData[i],intRegVars[i]+"/I");
   }
+  for(UInt_t i=0; i<doubleDitVars.size(); i++) {
+    fTree->Branch(doubleDitVars[i],&doubleDitData[i],doubleDitVars[i]+"/D");
+  }
 
 }
 
@@ -353,9 +449,6 @@ Bool_t TaMakePairFile::isConfigured()
 //   if(fDitFilename.IsNull() || runlist.empty()) {
   if(runlist.empty()) {
     cout << "Need to configure TaMakePairFile with:" << endl;
-//     if(fDitFilename.IsNull()) 
-//       cout << "\t o Dithering Slope source.." << endl
-// 	   << "\t\t TaMakePairFile::SetDitSlopeFile(filename)" << endl;
     if(runlist.empty())
       cout << "\t o Run/Slug list source.." << endl
 	   << "\t\t TaMakePairFile::SetRunList(filename)" << endl;
