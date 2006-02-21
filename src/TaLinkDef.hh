@@ -47,5 +47,19 @@
 #pragma link C++ class VaAnalysis;
 #pragma link C++ class VaPair;
 
+#ifdef __MAKECINT__
+#pragma link C++ class std::string;
+#pragma link C++ class std::vector<short>;
+#pragma link C++ class std::vector<int>;
+#pragma link C++ class std::vector<unsigned short>;
+#pragma link C++ class std::vector<unsigned int>;
+#pragma link C++ class std::vector<float>;
+#pragma link C++ class std::vector<double>;
+#pragma link C++ class std::vector<std::string>;
+#pragma link C++ class std::vector<std::vector<int>>;
+#pragma link C++ class std::vector<std::vector<double>>;
+#pragma link C++ class std::vector<TString>;
+#endif
+
 #endif
 
