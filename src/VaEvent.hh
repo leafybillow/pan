@@ -136,6 +136,8 @@ private:
   // Static members
   static const UInt_t fgMaxNumPosMon = 5;   // Maximum number of position 
                                             // monitors for posburp
+  static const UInt_t fgMaxNumPosMonE = 5;   // Maximum number of energy
+                                            // monitors for posburp
   static VaEvent fgLastEv;     // copy of previous event
   static Bool_t fgFirstDecode; // true until first event decoded
   static Double_t fgLoBeam;    // cut threshold from database
@@ -144,6 +146,8 @@ private:
   static Double_t fgSatCut;    // cut threshold from database
   static Double_t fgMonSatCut; // cut threshold from database
   static Double_t fgPosBurp[fgMaxNumPosMon]; 
+                               // cut thresholds from database
+  static Double_t fgPosBurpE[fgMaxNumPosMonE]; 
                                // cut thresholds from database
   static Double_t fgCBurpCut;  // cut threshold from data base
   static Cut_t fgLoBeamNo;     // cut number for low beam
@@ -154,6 +158,7 @@ private:
   static Cut_t fgEvtSeqNo;     // cut number for event sequence
   static Cut_t fgStartupNo;    // cut number for startup
   static Cut_t fgPosBurpNo;    // cut number for pos. burp cut
+  static Cut_t fgPosBurpENo;    // cut number for energy burp cut
   static Cut_t fgCBurpNo;      // cut number for C-beam-burp cut
   static UInt_t fgOversample;  // oversample factor
   static UInt_t fgCurMon;      // index to current monitor for cuts
@@ -162,6 +167,9 @@ private:
   static UInt_t fgMonRaw[MONNUM];      // index to raw monitor values for cuts
   static UInt_t fgNPosMon;     // number of Position Monitors for Pos Burp cut.
   static UInt_t fgPosMon[fgMaxNumPosMon];   
+                               // index to beam monitors for cuts
+  static UInt_t fgNPosMonE;     // number of Position Monitors for Energy Burp cut.
+  static UInt_t fgPosMonE[fgMaxNumPosMonE];   
                                // index to beam monitors for cuts
   static UInt_t fgSizeConst;   // size of first physics event should be size of all
   static UInt_t fgNCuts;       // Length of cut array

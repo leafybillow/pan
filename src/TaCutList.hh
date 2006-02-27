@@ -89,6 +89,7 @@ private:
   Cut_t fSatNo;                      // cut number for detector saturation
   Cut_t fMonSatNo;                   // cut number for monitor saturation
   Cut_t fPosBurpNo;                  // cut number for pos. burp cut
+  Cut_t fPosBurpENo;                 // cut number for energy burp cut
   Cut_t fCBurpNo;                    // cut number for C-beam-burp cut
 
 #ifndef NODICT

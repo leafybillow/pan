@@ -1,4 +1,4 @@
-//**********************************************************************
+/**********************************************************************/
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
@@ -16,6 +16,7 @@
 //    conditions.
 //
 ////////////////////////////////////////////////////////////////////////
+
 
 //#define NOISY
 //#define DEBUG
@@ -49,6 +50,7 @@ Double_t VaEvent::fgBurpCut;
 Double_t VaEvent::fgSatCut;
 Double_t VaEvent::fgMonSatCut;
 Double_t VaEvent::fgPosBurp[fgMaxNumPosMon];
+Double_t VaEvent::fgPosBurpE[fgMaxNumPosMonE];
 Double_t VaEvent::fgCBurpCut;
 Cut_t VaEvent::fgLoBeamNo;
 Cut_t VaEvent::fgLoBeamCNo;
@@ -58,6 +60,7 @@ Cut_t VaEvent::fgMonSatNo;
 Cut_t VaEvent::fgEvtSeqNo;
 Cut_t VaEvent::fgStartupNo;
 Cut_t VaEvent::fgPosBurpNo;
+Cut_t VaEvent::fgPosBurpENo;
 Cut_t VaEvent::fgCBurpNo;  
 UInt_t VaEvent::fgOversample;
 UInt_t VaEvent::fgCurMon;
@@ -66,6 +69,8 @@ UInt_t VaEvent::fgDetRaw[DETNUM];
 UInt_t VaEvent::fgMonRaw[MONNUM];
 UInt_t VaEvent::fgNPosMon;
 UInt_t VaEvent::fgPosMon[fgMaxNumPosMon];   
+UInt_t VaEvent::fgNPosMonE;
+UInt_t VaEvent::fgPosMonE[fgMaxNumPosMonE];   
 UInt_t VaEvent::fgSizeConst;
 UInt_t VaEvent::fgNCuts;
 Bool_t VaEvent::fgCalib;
@@ -85,7 +90,7 @@ VaEvent::VaEvent():
   fEvBuffer = new Int_t[fgMaxEvLen];
   memset(fEvBuffer, 0, fgMaxEvLen*sizeof(Int_t));
   fData = new Double_t[MAXKEYS];
-  memset(fData, 0, MAXKEYS*sizeof(Double_t));
+  memset(fData, 0, MAXKEYS*sizeof(Double_t)); 
   fN1roc = new Int_t[MAXROC];
   memset(fN1roc, 0, MAXROC*sizeof(Int_t));
   fLenroc = new Int_t[MAXROC];
@@ -192,6 +197,28 @@ VaEvent::RunInit(const TaRun& run)
   } 
   fgNPosMon = ic;
 
+  vector<TaString> vposmonE = run.GetDataBase().GetStringVect("posmone");
+  Int_t npmE = vposmonE.size();
+  vector<Double_t> vposbcutE = run.GetDataBase().GetCutValueDVector("posburpe");
+  Int_t npcE = vposbcutE.size();
+  if (npcE < npmE) vposmonE.resize(npcE);
+  Int_t icE=0;
+  vector<Double_t>::iterator ipbcE = vposbcutE.begin();  
+  for(vector<TaString>::iterator iconst = vposmonE.begin();
+      iconst != vposmonE.end(); iconst++) {
+    //    clog << " for beam burp, looking for monitor " << *iconst<< endl;
+    if ((iconst->size()>2) && (*ipbcE)!=0 && run.GetKey(string (*iconst))) {
+      // the size requirement is a kludge to get around the fact
+      // that GetStringVect returns spaces as elements of the space deliminated
+      // array, even if they didn't exist in the database, while 
+      // GetCutDVect returns zeros... Beauty.
+      fgPosMonE[icE] = run.GetKey(string ( *iconst));
+      fgPosBurpE[icE] = *ipbcE;
+      ipbcE++; icE++;
+    }
+  } 
+  fgNPosMonE = icE;
+
   fgNCuts = (UInt_t) run.GetDataBase().GetNumCuts();
 
   fgLoBeamNo = run.GetDataBase().GetCutNumber ("Low_beam");
@@ -203,6 +230,7 @@ VaEvent::RunInit(const TaRun& run)
   fgStartupNo = run.GetDataBase().GetCutNumber ("Startup");
   fgCBurpNo = run.GetDataBase().GetCutNumber ("C_burp");
   fgPosBurpNo = run.GetDataBase().GetCutNumber ("Pos_burp");
+  fgPosBurpENo = run.GetDataBase().GetCutNumber ("Pos_burp_E");
   if (fgEvtSeqNo == fgNCuts)
     fgEvtSeqNo = run.GetDataBase().GetCutNumber ("Oversample"); // backward compat
   if (fgLoBeamNo == fgNCuts ||
@@ -221,6 +249,7 @@ VaEvent::RunInit(const TaRun& run)
       fgLoBeamCNo == fgNCuts ||
       fgStartupNo == fgNCuts ||
       fgCBurpNo == fgNCuts ||
+      fgPosBurpENo == fgNCuts ||
       fgPosBurpNo == fgNCuts )
     {
       cerr << "VaEvent::RunInit WARNING: Following cut(s) are not defined "
@@ -231,6 +260,7 @@ VaEvent::RunInit(const TaRun& run)
       if (fgMonSatNo == fgNCuts) cerr << " Mon_saturate";
       if (fgStartupNo == fgNCuts) cerr << " Startup";
       if (fgPosBurpNo == fgNCuts) cerr << " Pos_burp";
+      if (fgPosBurpENo == fgNCuts) cerr << " Pos_burp_E";
       if (fgCBurpNo == fgNCuts) cerr << " C_burp";
       cerr << endl;
     }
@@ -977,6 +1007,32 @@ VaEvent::CheckEvent(TaRun& run)
 	  run.UpdateCutList (fgCBurpNo, thisval, fEvNum);
 	}
 
+    
+      //Check Energy Beam Burp
+      if ( fgPosBurpENo < fgNCuts)
+	{
+	  Int_t thisval = 0;
+	  Bool_t posburpE = false;
+	  UInt_t i;
+	  for (i = 0; !posburpE && i < fgNPosMonE; i++)
+	    if (run.GetDevices().IsUsed(fgPosMonE[i]))
+	      posburpE = abs( GetData(fgPosMonE[i]) -
+			     fgLastEv.GetData(fgPosMonE[i]) ) > fgPosBurpE[i];
+	  
+	  if (posburpE)
+	    {
+#ifdef NOISY
+	      clog << "Event " << fEvNum 
+		   << " failed beam energy burp cut, monitor " << 
+	           << i << " = " 
+		   << abs( GetData(fgPosMonE[i-1])-fgLastEv.GetData(fgPosMonE[i-1]))
+		   << " > " << fgPosBurpE[i-1] << endl;
+#endif
+	      thisval = 1;
+	    }
+	  AddCut (fgPosBurpENo, thisval);
+	  run.UpdateCutList (fgPosBurpENo, thisval, fEvNum);
+	}
 
       //Check Position Beam Burp
       if ( fgPosBurpNo < fgNCuts)

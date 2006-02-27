@@ -347,6 +347,20 @@ void TaDataBase::Print() {
     ipbc++;    
   }
 
+  vector<TaString> vposmonE = GetStringVect("posmone");
+  UInt_t npmE = vposmonE.size();
+  vector<Double_t> vposbcutE = GetCutValueDVector("posburpe");
+  UInt_t npcE = vposbcutE.size();
+  if (npcE < npmE) vposmonE.resize(npcE);
+  clog << "   Energy Burp Cut : " << endl;
+  vector<Double_t>::iterator ipbcE = vposbcutE.begin();
+  for(vector<TaString>::iterator iconst = vposmonE.begin();
+      iconst != vposmonE.end(); iconst++) {
+    if (iconst->size()>1 && (*ipbcE)!=0 )
+      clog << "        " << *iconst << " burpcutE = " << *ipbcE << endl;
+    ipbcE++;    
+  }
+
   clog << "   Hall C Burp cut :  " << GetCutValue("cburpcut") << endl;
 
   vector<Double_t> wts = GetDetWts();
@@ -495,6 +509,20 @@ TaDataBase::Checkout()
     ipbc++;
   }
   
+  vector<TaString> vposmonE = GetStringVect("posmone");
+  UInt_t npmE = vposmonE.size();
+  vector<Double_t> vposbcutE = GetCutValueDVector("posburpe");
+  UInt_t npcE = vposbcutE.size();
+  if (npcE < npmE) vposmonE.resize(npcE);
+  clog << "   Energy Burp Cut : " << endl;
+  vector<Double_t>::iterator ipbcE = vposbcutE.begin();
+  for(vector<TaString>::iterator iconst = vposmonE.begin();
+      iconst != vposmonE.end(); iconst++) {
+    if (iconst->size()>1 && (*ipbcE)!=0 )
+      clog << "        " << *iconst << " burpcutE = " << *ipbcE << endl;
+    ipbcE++;    
+  }
+
 
   cout << "window delay = " << GetDelay() << endl;
   cout << "oversampling factor = " << GetOverSamp() << endl;
@@ -1653,12 +1681,14 @@ void TaDataBase::InitDB() {
   tables.push_back("satcut");        //  37
   tables.push_back("posmon");        //  38
   tables.push_back("posburp");       //  39
-  tables.push_back("cburpcut");      //  40
-  tables.push_back("monsatcut");     //  41
-  tables.push_back("PITAparam");     //  42
-  tables.push_back("cav1const");     //  43
-  tables.push_back("cav2const");     //  44
-  tables.push_back("cav3const");     //  45
+  tables.push_back("posmone");       //  40
+  tables.push_back("posburpe");      //  41
+  tables.push_back("cburpcut");      //  42
+  tables.push_back("monsatcut");     //  43
+  tables.push_back("PITAparam");     //  44
+  tables.push_back("cav1const");     //  45
+  tables.push_back("cav2const");     //  46
+  tables.push_back("cav3const");     //  47
 
   pair<string, int> sipair;
   int k;
@@ -1802,25 +1832,31 @@ void TaDataBase::InitDB() {
     if (i == 39) {   // thresholds for the posburp cut
       for (k = 0; k < 40; k++) columns.push_back(new dtype("d"));
     }
-    if (i == 40) columns.push_back(new dtype("d")); // cburpcut
-    if (i == 41) columns.push_back(new dtype("d"));  // monsatcut
-    if (i == 42) {   // PITA slope 
+    if (i == 40) {   // position monitors for the posburpE cut
+      for (k = 0; k < 40; k++) columns.push_back(new dtype("s"));
+    }
+    if (i == 41) {   // thresholds for the posburpE cut
+      for (k = 0; k < 40; k++) columns.push_back(new dtype("d"));
+    }
+    if (i == 42) columns.push_back(new dtype("d")); // cburpcut
+    if (i == 43) columns.push_back(new dtype("d"));  // monsatcut
+    if (i == 44) {   // PITA slope 
        columns.push_back(new dtype("s"));
        columns.push_back(new dtype("d"));
     }
-    if (i == 43) {  // cav1const
+    if (i == 45) {  // cav1const
       columns.push_back(new dtype("s"));
       columns.push_back(new dtype("d"));
       columns.push_back(new dtype("s"));
       columns.push_back(new dtype("d"));
     }
-    if (i == 44) {  // cav2const
+    if (i == 46) {  // cav2const
       columns.push_back(new dtype("s"));
       columns.push_back(new dtype("d"));
       columns.push_back(new dtype("s"));
       columns.push_back(new dtype("d"));
     }
-    if (i == 45) {  // cav3const
+    if (i == 47) {  // cav3const
       columns.push_back(new dtype("s"));
       columns.push_back(new dtype("d"));
       columns.push_back(new dtype("s"));
