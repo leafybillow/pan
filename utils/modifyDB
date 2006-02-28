@@ -266,7 +266,7 @@ sub contains {
   my($eline, @elist) = @_;
   $exists = 0;
   foreach $line (@elist) {
-    if ($line =~ /$eline/) {
+    if ($line =~ /\b$eline\b/) {
       $exists = 1;
     }
   }
