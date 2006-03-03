@@ -49,12 +49,16 @@ int getslopes(TString type,
 {
 
   typedef UInt_t Long64_t;
-  gROOT->LoadMacro("multirun/TaRunlist.C+");
+  //  gROOT->LoadMacro("multirun/TaRunlist.C+");
 
   const UInt_t nMon = 5;
   TString sMon[nMon] = {"bpm4bx", "bpm4by", 
 		     "bpm4ax", "bpm4ay",
 		     "bpm12x"};
+  // I need a way to kludge in a new energy monitor for Helium slugs 39-41
+  TString sMon2[nMon] = {"bpm4bx", "bpm4by", 
+		     "bpm4ax", "bpm4ay",
+		     "bpm10x"};
 
   // Array containing run numbers and slug identifiers
   UInt_t runlist[MAXRUNS];
@@ -87,7 +91,7 @@ int getslopes(TString type,
   Int_t runnumber;
   Int_t supercycle,minirun;
   Int_t slugnum;
-  Int_t firstev, lastev;
+  Int_t firstev, lastev, lastSCev, lostCount;
   Double_t runmod;  // runmod = run + supercycle/(max supercycles in run)
   Int_t ok_slopes=1;
   Int_t ok_slopesL=1;
@@ -100,6 +104,8 @@ int getslopes(TString type,
     slopes.Branch("supercycle",&supercycle,"supercycle/I");
     slopes.Branch("firstev",&firstev,"firstev/I");
     slopes.Branch("lastev",&lastev,"lastev/I");
+    slopes.Branch("lastSCev",&lastSCev,"lastSCev/I");
+    slopes.Branch("lostCount",&lostCount,"lostCount/I");
   } else if(type=="regress") {
     slopes.Branch("minirun",&minirun,"minirun/I");
   }
@@ -165,6 +171,10 @@ int getslopes(TString type,
 	for(UInt_t imon=0; imon<nMon; imon++) {
 	  if(type=="dither") index = ditdef->GetMonitorIndex(sMon[imon]);
 	  if(type=="regress") index = regdef->GetIVIndex("diff_"+sMon[imon]);
+	  if (exp="helium" && sluglist[irun]>=39 && sluglist[irun]<=41) {
+	    if(type=="dither") index = ditdef->GetMonitorIndex(sMon2[imon]);
+	    if(type=="regress") index = regdef->GetIVIndex("diff_"+sMon2[imon]);
+	  }
 	  if(index==-1) {
 	    badIndex=imon;
 	    badType=1;
@@ -217,6 +227,7 @@ int getslopes(TString type,
 	  UInt_t slope_sc[100];
 	  Double_t max_sc;
 	  UInt_t sc_firstev[100], sc_lastev[100];
+	  Int_t sc_lastSCev[100], sc_lostCount[100];
 	  // initialize the arrays to some default values
 	  for(UInt_t idet=0; idet<nDet; idet++) {
 	    for(UInt_t imon=0; imon<nMon; imon++) {
@@ -224,7 +235,54 @@ int getslopes(TString type,
 		allslopes[idet][imon][isc] = -100000;
 		slope_sc[isc] = 0;
 		sc_firstev[isc] = 0; sc_lastev[isc]=0;
+		sc_lastSCev[isc] = 0; sc_lostCount[isc]=0;
 	      }
+	    }
+	  }
+	  
+	  // Get the general supercycle information
+	  TString drawcom;
+	  if(type=="dither") {
+		drawcom += "supercyc";
+		drawcom += ":firstev:lastev";
+		drawcom += ":lastSCev";
+	  }
+	  if(type=="regress") drawcom += "minirun";
+	  
+	  if(c1==NULL) c1 = new TCanvas("c1","ROOT BUG");
+	  slpsTree->Draw(drawcom,"","goff");
+	  Long64_t nrows = slpsTree->GetSelectedRows();
+	  if(nSC!=nrows) {
+	    // I dont anticipate this as a problem... 
+	    // ... but just in case... here's a BIG warning.
+	    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" 
+		 << endl;
+	    cout << "!!! Number of Entries != Number of Supercycles !!!" 
+		 << endl;
+	    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" 
+		 << endl;
+	  }
+	  for(UInt_t isc=0;isc<nrows;isc++) {
+	    // isc doesn't necessarily equal the current supercycle #
+	    slope_sc[isc] = TMath::Nint(slpsTree->GetV1()[isc]);
+	    if(type=="dither") {
+	      sc_firstev[isc] = TMath::Nint(slpsTree->GetV2()[isc]);
+	      sc_lastev[isc] = TMath::Nint(slpsTree->GetV3()[isc]);
+	      sc_lastSCev[isc] = TMath::Nint(slpsTree->GetV4()[isc]);
+	    }
+	  }
+	  // we can assume that the last isc contains the largest observed SC
+	  Int_t mxrow = (UInt_t) nrows;
+	  max_sc = slope_sc[mxrow-1] + 1;
+
+	  // Go again, for dithering, to get more info
+	  if(type=="dither") {
+	    drawcom = "lostCount";
+	    if(c1==NULL) c1 = new TCanvas("c1","ROOT BUG");
+	    slpsTree->Draw(drawcom,"","goff");
+	    Long64_t nrows = slpsTree->GetSelectedRows();
+	    for(UInt_t isc=0;isc<nrows;isc++) {
+	      sc_lostCount[isc] = TMath::Nint(slpsTree->GetV1()[isc]);
 	    }
 	  }
 	  
@@ -238,7 +296,6 @@ int getslopes(TString type,
 	      drawcom += monIndex[imon]; 
 	      if(type=="dither") {
 		drawcom += "]:supercyc";
-		drawcom += ":firstev:lastev";
 	      }
 	      if(type=="regress") drawcom += "]:minirun";
 	      
@@ -256,49 +313,43 @@ int getslopes(TString type,
 		     << endl;
 	      }
 	      for(UInt_t isc=0;isc<nrows;isc++) {
-		// isc doesn't necessarily equal the current supercycle #
-		slope_sc[isc] = TMath::Nint(slpsTree->GetV2()[isc]);
+		// in principle, one could check this, but whatever
+		// slope_sc[isc] = TMath::Nint(slpsTree->GetV2()[isc]);
 		allslopes[idet][imon][isc] = slpsTree->GetV1()[isc];
-		if(type=="dither") {
-		  sc_firstev[isc] = TMath::Nint(slpsTree->GetV3()[isc]);
-		  sc_lastev[isc] = TMath::Nint(slpsTree->GetV4()[isc]);
-		}
 	      }
-	      // we can assume that the last isc contains the largest observed SC
-	      Int_t mxrow = (UInt_t) nrows;
-	      max_sc = slope_sc[mxrow-1] + 1;
 	    }
 	  }
+
 	  
 	  // Fill the branch variables with their values for this run.
 	  runnumber = runlist[irun];
 	  slugnum = sluglist[irun];
 	  for(UInt_t isc=0; isc<nSC; isc++) {
+	    // check here, to see if the slopes are within
+	    // good detector event ranges.
+	    Int_t minL = dblist.GetLeftDetLo(runnumber);
+	    Int_t maxL = dblist.GetLeftDetHi(runnumber);
+	    Int_t minR = dblist.GetRightDetLo(runnumber);
+	    Int_t maxR = dblist.GetRightDetHi(runnumber);
+
+	    // Remove the slopes if one or both detetectors are off
 	    ok_slopes=1; ok_slopesL=1; ok_slopesR=1;
-	    for(UInt_t idet=0; idet<nDet; idet++) {
-	      // check here, to see if the slopes are within
-	      // good detector event ranges.
-	      Int_t minL = dblist.GetLeftDetLo(runnumber);
-	      Int_t maxL = dblist.GetLeftDetHi(runnumber);
-	      Int_t minR = dblist.GetRightDetLo(runnumber);
-	      Int_t maxR = dblist.GetRightDetHi(runnumber);
-	      // Remove the slopes if one or both detetectors are off
-	      if((minL==-1)&&(maxL==-1))
+	    if((minL==-1)&&(maxL==-1))
+	      ok_slopesL=0;
+	    if((minR==-1)&&(maxR==-1))
+	      ok_slopesR=0;
+	    if(type=="dither") {
+	      if(minL>(sc_firstev[isc]) || (maxL!=0 && maxL<(sc_lastSCev[isc])))
 		ok_slopesL=0;
-	      if((minR==-1)&&(maxR==-1))
+	      if(minR>(sc_firstev[isc]) || (maxR!=0 && maxR<(sc_lastSCev[isc])))
 		ok_slopesR=0;
-	      if(type=="dither") {
-		if(minL>sc_firstev[isc] || maxL<sc_lastev[isc])
-		  ok_slopesL=0;
-		if(minR>sc_firstev[isc] || maxR<sc_lastev[isc])
-		  ok_slopesR=0;
-	      }
-	      if(minL==0 && maxL==0) 
-		ok_slopesL=1;
-	      if(minR==0 && maxR==0)
-		ok_slopesR=1;
-	      
-	      
+	    }
+	    if(minL==0 && maxL==0) 
+	      ok_slopesL=1;
+	    if(minR==0 && maxR==0)
+	      ok_slopesR=1;
+	    
+	    for(UInt_t idet=0; idet<nDet; idet++) {
 	      for(UInt_t imon=0; imon<nMon; imon++) {
 		// check for invalid slopes (-100000 is bad)
 		if(allslopes[idet][imon][isc]==-100000) {
@@ -316,8 +367,10 @@ int getslopes(TString type,
 	      supercycle = slope_sc[isc];
 	      firstev = sc_firstev[isc];
 	      lastev = sc_lastev[isc];
- 	      runmod = (Double_t)runlist[irun] 
- 		+ Double_t(supercycle)/Double_t(max_sc);
+	      lastSCev = sc_lastSCev[isc];
+	      lostCount = sc_lostCount[isc];
+	      runmod = (Double_t)runlist[irun] 
+		+ Double_t(supercycle)/Double_t(max_sc);
 #ifdef NOISY
 	      cout << " supercycle " << supercycle << endl;
 #endif
