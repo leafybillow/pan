@@ -17,6 +17,7 @@
 #include <vector>
 #include <TString.h>
 #include <multirun/TaRunlist.h>
+#include <macro/DitherAlias.h>
 
 #ifndef MAXDOUBLEDATA
 #define MAXDOUBLEDATA 200

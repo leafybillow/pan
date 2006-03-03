@@ -16,7 +16,6 @@
 
 #include <multirun/TaMakePairFile.h>
 #include <fstream>
-#include "macro/DitherAlias.macro"
 
 TaMakePairFile::TaMakePairFile(TString rootfilename, 
 			       TString chooserfilename,
