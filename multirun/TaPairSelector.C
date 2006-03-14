@@ -76,14 +76,31 @@ void TaPairSelector::Init(TTree *tree,
    }
 
    for(UInt_t i=0; i<doublevars.size(); i++) {
-     fChain->SetBranchAddress(doublevars[i],&doubleData[i]);
+     TLeaf* tl = fChain->GetLeaf(doublevars[i]);
+     if (tl) {
+       fChain->SetBranchAddress(doublevars[i],&doubleData[i]);
+       doubleIsGood[i]=kTRUE;
+     } else {
+       cout << "\n **** No data found for " << doublevars[i] << endl;
+       doubleData[i]=-1e-6;
+       doubleIsGood[i]=kFALSE;
+     }
    }
+   
    for(UInt_t i=0; i<intvars.size(); i++) {
-     fChain->SetBranchAddress(intvars[i],&intData[i]);
+     TLeaf* tl = fChain->GetLeaf(intvars[i]);
+     if (tl) {
+       fChain->SetBranchAddress(intvars[i],&intData[i]);
+       intIsGood[i]=kTRUE;
+     } else {
+       cout << "/n **** No data found for " << intvars[i] << endl;
+       intData[i]= -1000000;
+       intIsGood[i]=kFALSE;
+     }
    }
    if(isPanTree) {
      fChain->SetBranchAddress("ok_cut",&ok_cut);
-/*      fChain->SetBranchAddress("evt_bmwcyc",evt_bmwcyc); */
+     /*      fChain->SetBranchAddress("evt_bmwcyc",evt_bmwcyc); */
      if(fChooser->GetHallBPMSat()) {
        doBPMSat_cuts=kTRUE;
        fChain->SetBranchAddress("evt_bpm4amx",evt_bpm4amx);
@@ -96,10 +113,14 @@ void TaPairSelector::Init(TTree *tree,
 
    fChain->SetBranchStatus("*",0);  // disable all branches
    for(UInt_t i=0; i<doublevars.size(); i++) {
-     fChain->SetBranchStatus(doublevars[i],1);
+     if (doubleIsGood[i]) {
+       fChain->SetBranchStatus(doublevars[i],1);
+     }
    }
    for(UInt_t i=0; i<intvars.size(); i++) {
-     fChain->SetBranchStatus(intvars[i],1);
+     if (intIsGood[i]) {
+       fChain->SetBranchStatus(intvars[i],1);
+     }
    } 
    if(isPanTree) {
      fChain->SetBranchStatus("ok_cut",1);

@@ -37,6 +37,7 @@ class TaPairSelector {
    TaVarChooser   *fChooser;  // Currently only use the chooser for
                               // BPM saturation cuts... but keep it
                               // here for future improvements.
+
    Int_t           ok_cut;
    Bool_t          isPanTree;
    Bool_t          doBPMSat_cuts;
@@ -49,6 +50,8 @@ class TaPairSelector {
 
    Double_t doubleData[MAXDOUBLEDATA];
    Int_t    intData[MAXINTDATA];
+   Bool_t   doubleIsGood[MAXDOUBLEDATA];
+   Bool_t   intIsGood[MAXINTDATA];
 
    TaPairSelector(TTree *tree,
 		  vector <TString> doublevars,

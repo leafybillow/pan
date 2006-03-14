@@ -19,7 +19,7 @@
 
 TaMakePairFile::TaMakePairFile(TString rootfilename, 
 			       TString chooserfilename,
-			       TString ditfilename):
+			       Bool_t ditherSwitch):
   fRootFile(0),
   fTree(0),
   pairSelect(0),
@@ -34,10 +34,12 @@ TaMakePairFile::TaMakePairFile(TString rootfilename,
   doubleRegVars(0),
   intRegVars(0),
   ditBPMindex(0),
-  DETindex(0)
+  DETindex(0),
+  fB12Kludge(kFALSE)
 {
   // Constructor.  Create the output rootfile and tree.  
   //  Use the info in the TaVarChooser to make tree branches .
+
   fRootFile = new TFile(rootfilename,"RECREATE");
   fRootFile->SetCompressionLevel(5);
   cout << "Output ROOTfile compression level "
@@ -45,12 +47,24 @@ TaMakePairFile::TaMakePairFile(TString rootfilename,
        << endl;
   fTree     = new TTree("S","Pair Summary File");
   fChooser  = new TaVarChooser(chooserfilename);
-  fDitFilename = ditfilename;
+  doDit = ditherSwitch;
 
   MakeVarList();
   MakeBranches();
 
 }
+
+void TaMakePairFile::GetKludge() 
+{ 
+  if (fB12Kludge) {
+    cout << "BPM12 Kludge is set" << endl;
+    cout << "  any dither slope read in for bpm12x will be applied to bpm10x" 
+	 << endl;
+  } else {
+    cout << "Kludge?  I don't see any Kludges around here" << endl;
+  }
+}
+    
 
 void TaMakePairFile::RunLoop() 
 {
@@ -113,6 +127,9 @@ void TaMakePairFile::RunLoop()
     
     pairSelect = new TaPairSelector(asy,doubleVars,intVars,*fChooser); 
     regSelect = new TaPairSelector(reg,doubleRegVars,intRegVars,*fChooser);
+
+    // Configure dithering for each run, here. If fails, ditOK=0;
+    ConfigureDithering();
 
     EventLoop(nevents);
 
@@ -184,14 +201,21 @@ void TaMakePairFile::EventLoop(Long64_t nevents)
       doubleRegData[i] = regSelect->doubleData[i];
     }
 
-    // Calculate DitherCorected data
-    for(UInt_t id=0; id<doubleDitVars.size(); id++) {
-      Double_t cor=0;
-      for(UInt_t im=0; im<ditMonStr.size(); im++)
-	cor += fSlopes[id][im]*pairSelect->doubleData[ditMapMon[im]];
-      Double_t cordet = pairSelect->doubleData[ditMapUD[id]] - cor;
-      doubleDitData[id] = cordet;
+    if (ditOK) {
+      // Calculate DitherCorected data
+      for(UInt_t id=0; id<doubleDitVars.size(); id++) {
+	Double_t cor=0;
+	for(UInt_t im=0; im<ditMonStr.size(); im++)
+	  cor += fSlopes[id][im]*pairSelect->doubleData[ditMapMon[im]];
+	Double_t cordet = pairSelect->doubleData[ditMapUD[id]] - cor;
+	doubleDitData[id] = cordet;
+      }
+    } else { 
+      for(UInt_t id=0; id<doubleDitVars.size(); id++) {
+	doubleDitData[id] = -1e6;
+      }
     }
+      
     
     fTree->Fill();
   }
@@ -265,12 +289,14 @@ void TaMakePairFile::MakeVarList()
   if(fChooser->GetHe4Detectors()) {
     dets.push_back("1"); dets.push_back("3");
     dets.push_back("_lo");
+    targetType=1; // helium
   } else if (fChooser->GetLH2Detectors()) {
     dets.push_back("1");   dets.push_back("2");
     dets.push_back("3");   dets.push_back("4");
     dets.push_back("_l");  dets.push_back("_r");
     dets.push_back("_lo"); dets.push_back("_hi");
     dets.push_back("_all");
+    targetType=2; // hydrogen
   }
   PushToDoubleList(dets,"avg_n_det");
   if(fChooser->GetLH2Detectors()) 
@@ -287,13 +313,32 @@ void TaMakePairFile::MakeVarList()
   }
   PushToDoubleList(bmw,"avg_");
 
-  // Add dither corrected words here
-  ditOK=kFALSE;
-  if (!fDitFilename.IsNull()) {
-    ditOK=kTRUE;
-    // First, make list of dit corrected detectors:
+  // Make list of dit corrected detectors. Assume that all
+  // detectors will be used. If no dithering, these will be set 
+  // with -1e6.
+  if (doDit)
     PushToDitList(dets,"asym_n_det");
 
+}
+
+
+void TaMakePairFile::ConfigureDithering() {
+  
+  // Add dither corrected words here
+  ditOK=kFALSE;
+  
+  if (targetType==1) {
+    fDitFilename = getDitSetFilenameHe(runnumber);    
+  } else if (targetType==2) {
+    fDitFilename = getDitSetFilenameH(runnumber);
+  } else {
+    ditOK=kFALSE;
+    doDit = kFALSE;
+    fDitFilename="";
+  }
+    
+  if (!fDitFilename.IsNull()) {
+    ditOK=kTRUE;
     
     if (doubleDitVars.size()) { 
       // only continue if some dither correction detectors are defined
@@ -303,8 +348,9 @@ void TaMakePairFile::MakeVarList()
       vector<string> mstr = dita->GetMonNames();
       for (UInt_t im=0; im<mstr.size(); im++) {
 	TString addmon = "diff_" + mstr[im];
+	if (fB12Kludge && mstr[im]=="bpm12x") addmon = "diff_bpm10x";
 	ditMonStr.push_back(addmon);
-	//cout << "monitor list id: "<<im << "  monitor: " << ditMonStr[im] << endl;
+	cout << "monitor list id: "<<im << "  monitor: " << ditMonStr[im] << endl;
       }
       // Get vectors of coeffs for each cor. det.
       for (UInt_t i=0; i<doubleDitVars.size(); i++) {
@@ -347,7 +393,6 @@ void TaMakePairFile::MakeVarList()
     }
     cout << "CHECK: is dithering configured correctly: " << ditOK << endl;
   }  
-
 
 }
 

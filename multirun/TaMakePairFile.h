@@ -18,6 +18,8 @@
 #include <TString.h>
 #include <multirun/TaRunlist.h>
 #include <macro/DitherAlias.h>
+#include <multirun/HeDitOrganizer.h>
+#include <multirun/HDitOrganizer.h>
 
 #ifndef MAXDOUBLEDATA
 #define MAXDOUBLEDATA 200
@@ -41,13 +43,17 @@ class TaMakePairFile {
 
  public:
   TaMakePairFile(TString rootfilename, TString chooserfilename, 
-		 TString ditfilename="");
+		 Bool_t ditherSwitch=kTRUE);
   virtual ~TaMakePairFile() {};
   void RunLoop();
   Bool_t SetRunList(TString listfilename);
   Bool_t SetRunList(vector <pair <UInt_t,UInt_t> > list);
   void Finish();
   void SetDBRunlist(TString filename) {fDBRunlist = new TaRunlist(filename);};
+  void SetDoDit(Bool_t state=kTRUE) { doDit = state;};
+  void SetBPM12Kludge() { fB12Kludge=kTRUE;};
+  void GetKludge();
+  void ConfigureDithering();
 
  private:
   TFile             *fRootFile;
@@ -80,6 +86,9 @@ class TaMakePairFile {
   UInt_t             ditMapMon[MAXDITMON];
   UInt_t             ditMapUD[MAXDITDET];
   Bool_t             ditOK;
+  Bool_t             doDit;
+  Bool_t             fB12Kludge;
+  UInt_t             targetType;
 
   // Some default leafs, not in the pan/redana rootfiles.
   Int_t runnumber;
