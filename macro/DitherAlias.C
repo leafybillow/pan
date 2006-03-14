@@ -118,6 +118,41 @@ DitherAlias::MakeAliases()
     }
 }
 
+void
+DitherAlias::MakeAliases_12xKludge(TTree *tree) 
+{
+
+  fTree = tree;
+  TString aliasname, aliasformula;
+  for (UInt_t iDet=0; iDet<fDetName.size(); iDet++) 
+    {
+      vector<Double_t> corrcoef = fSlope[fDetName[iDet]];
+      if (corrcoef.size())
+	{
+	  aliasformula = "asym_n_"+fDetName[iDet];
+	  aliasname = "dit_"+aliasformula;
+	  for (UInt_t i = 0; i < fMonName.size(); ++i)
+	    {
+	      aliasformula += Form("-(%.3f)*",corrcoef[i]);
+	      if (fMonName[i]=="bpm12x") {
+		aliasformula += "diff_bpm10x";
+	      } else {
+		aliasformula += "diff_"+fMonName[i];
+	      }
+	    }
+	  cout << "Made Alias Called \"" << aliasname << "\"" << endl;
+	  fTree->SetAlias(aliasname,aliasformula);
+	} 
+      else 
+	{
+	  aliasname = "dit_asym_n_"+fDetName[iDet];
+	  cout << "Made Empty Alias Called \"" << aliasname << "\"" << endl;
+	  fTree->SetAlias(aliasname,"-1e6");
+	}
+      
+    }
+}
+
 vector <string>
 DitherAlias::GetMonNames() 
 {

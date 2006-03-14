@@ -33,6 +33,7 @@ class DitherAlias
   vector<string> GetMonNames();
   vector<Double_t> GetCorSlopes(TString);
   virtual ~DitherAlias();
+  void MakeAliases_12xKludge(TTree *tree);
 
  private:
   void Load();
