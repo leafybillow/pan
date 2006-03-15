@@ -34,6 +34,7 @@ class DitherAlias
   vector<Double_t> GetCorSlopes(TString);
   virtual ~DitherAlias();
   void MakeAliases_12xKludge(TTree *tree);
+  void MakeIndividualAliases(TTree *tree);
 
  private:
   void Load();

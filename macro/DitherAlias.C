@@ -181,3 +181,27 @@ DitherAlias::GetCorSlopes(TString inDetName)
     } 
   return retcoef;
 }
+
+void
+DitherAlias::MakeIndividualAliases(TTree *tree) 
+{
+
+  fTree = tree;
+  TString aliasname, aliasformula;
+  for (UInt_t iDet=0; iDet<fDetName.size(); iDet++) 
+    {
+      vector<Double_t> corrcoef = fSlope[fDetName[iDet]];
+      if (corrcoef.size())
+	{
+	  for (UInt_t i = 0; i < fMonName.size(); ++i)
+	    {
+	      aliasname = fDetName[iDet];
+	      aliasname += "_" + fMonName[i];
+	      aliasformula = Form("(%.3f)*diff_",corrcoef[i]);
+	      aliasformula += fMonName[i];
+	      cout << "Made Alias Called \"" << aliasname << "\"" << endl;
+	      fTree->SetAlias(aliasname,aliasformula);
+	    }
+	}       
+    }
+}
