@@ -18,17 +18,12 @@
 int runSlugH(Int_t slugnumber) {
 
   // plug in some run list here...
-  //  TString runlistStr = "/work/halla/parity/disk1/lkaufman/pan/runlistH.txt";
-  TString runlistStr = "/work/halla/parity/disk1/lkaufman/pan/testlistH.txt";
+  TString runlistStr = "/work/halla/parity/disk1/lkaufman/pan/runlistH.txt";
+  //TString runlistStr = "/work/halla/parity/disk1/lkaufman/pan/testlistH.txt";
 
   // set Chooser file name here.
   TString chooserStr = "/work/halla/parity/disk1/lkaufman/pan/multirun/chooserH.txt" ;
   
-//   // set avg Slope file name here.
-//   TString slopefile = 
-//     Form("/work/halla/parity/disk1/lkaufman/pan/slopes/avgSlopes_hydrogen_dither_slug%d.res",slugnumber);
-
-
   TaRunlist dblist(runlistStr.Data());
   if(!dblist.GoodRunlist()) {
     cout << "Bad runlist" << endl;
@@ -52,12 +47,12 @@ int runSlugH(Int_t slugnumber) {
 
   TaFileName::Setup(slugnumber,"slug");
   TString filename = (TaFileName ("root")).Tstring();
-  filename = "./testpairfile.root";
+  //  filename = "./testpairfile.root";
 
   TaMakePairFile *mpf = new TaMakePairFile(filename,chooserStr);
   mpf->SetRunList(runlist);
   mpf->SetDBRunlist(runlistStr);
-  //  mpf->SetDitSlopeFile(slopefile);
+
   mpf->RunLoop();
   mpf->Finish();
   

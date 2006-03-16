@@ -20,17 +20,10 @@ int runSlugHe(Int_t slugnumber) {
   // plug in some run list here...
   TString runlistStr = "/work/halla/parity/disk1/lkaufman/pan/runlistHe.txt";
   //TString runlistStr = "/work/halla/parity/disk1/kent/pan/testlistHe.txt";
-  //  TString runlistStr = "/work/halla/parity/disk1/lkaufman/pan/runlistH.txt";
 
   // set Chooser file name here.
   TString chooserStr = "/work/halla/parity/disk1/lkaufman/pan/multirun/chooserHe.txt" ;
   
-  // set avg Slope file name here.
-  //  TString slopefile = 
-    //    Form("/work/halla/parity/disk1/kent/pan/slopes/avgSlopes_helium_dither_slug%d.res",slugnumber);
-//     Form("/work/halla/parity/disk1/lkaufman/pan/slopes/avgSlopes_helium_dither_slug%d.res",slugnumber);
-
-
   TaRunlist dblist(runlistStr.Data());
   if(!dblist.GoodRunlist()) {
     cout << "Bad runlist" << endl;
@@ -59,7 +52,7 @@ int runSlugHe(Int_t slugnumber) {
   TaMakePairFile *mpf = new TaMakePairFile(filename,chooserStr);
   if(slugnumber>=39 && slugnumber<=41) mpf->SetBPM12Kludge();
   mpf->GetKludge();
-  //  mpf->SetDitFilename(slopefile);
+
   mpf->SetRunList(runlist);
   mpf->SetDBRunlist(runlistStr);
   mpf->RunLoop();

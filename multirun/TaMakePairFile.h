@@ -85,7 +85,8 @@ class TaMakePairFile {
   vector <TString>   ditDetUD;
   UInt_t             ditMapMon[MAXDITMON];
   UInt_t             ditMapUD[MAXDITDET];
-  Bool_t             ditOK;
+  vector <Bool_t>    ditOK;
+  //  Bool_t             ditOK;
   Bool_t             doDit;
   Bool_t             fB12Kludge;
   UInt_t             targetType;

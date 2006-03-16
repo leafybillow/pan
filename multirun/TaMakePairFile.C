@@ -201,22 +201,24 @@ void TaMakePairFile::EventLoop(Long64_t nevents)
       doubleRegData[i] = regSelect->doubleData[i];
     }
 
-    if (ditOK) {
+    if (doDit) {
       // Calculate DitherCorected data
       for(UInt_t id=0; id<doubleDitVars.size(); id++) {
-	Double_t cor=0;
-	for(UInt_t im=0; im<ditMonStr.size(); im++)
-	  cor += fSlopes[id][im]*pairSelect->doubleData[ditMapMon[im]];
-	Double_t cordet = pairSelect->doubleData[ditMapUD[id]] - cor;
-	doubleDitData[id] = cordet;
+	if (ditOK[id]) {
+	  Double_t cor=0;
+	  for(UInt_t im=0; im<ditMonStr.size(); im++)
+	    cor += fSlopes[id][im]*pairSelect->doubleData[ditMapMon[im]];
+	  Double_t cordet = pairSelect->doubleData[ditMapUD[id]] - cor;
+	  doubleDitData[id] = cordet;
+	} else {
+	  doubleDitData[id] = -1e6;
+	}
       }
     } else { 
-      for(UInt_t id=0; id<doubleDitVars.size(); id++) {
+      for(UInt_t id=0; id<doubleDitVars.size(); id++)
 	doubleDitData[id] = -1e6;
-      }
     }
-      
-    
+
     fTree->Fill();
   }
 
@@ -325,32 +327,31 @@ void TaMakePairFile::MakeVarList()
 void TaMakePairFile::ConfigureDithering() {
   
   // Add dither corrected words here
-  ditOK=kFALSE;
   
   if (targetType==1) {
     fDitFilename = getDitSetFilenameHe(runnumber);    
   } else if (targetType==2) {
     fDitFilename = getDitSetFilenameH(runnumber);
   } else {
-    ditOK=kFALSE;
     doDit = kFALSE;
     fDitFilename="";
   }
     
   if (!fDitFilename.IsNull()) {
-    ditOK=kTRUE;
-    
+
     if (doubleDitVars.size()) { 
       // only continue if some dither correction detectors are defined
       DitherAlias* dita = new DitherAlias(fDitFilename.Data());
 
       // Get ordered list of monitors
+      ditMonStr.clear();
       vector<string> mstr = dita->GetMonNames();
       for (UInt_t im=0; im<mstr.size(); im++) {
 	TString addmon = "diff_" + mstr[im];
 	if (fB12Kludge && mstr[im]=="bpm12x") addmon = "diff_bpm10x";
 	ditMonStr.push_back(addmon);
-	cout << "monitor list id: "<<im << "  monitor: " << ditMonStr[im] << endl;
+	//cout << "monitor list id: "<<im << "  monitor: " << ditMonStr[im] << endl;
+	//cout << " Monitor list size = " << ditMonStr.size() << endl;
       }
       // Get vectors of coeffs for each cor. det.
       for (UInt_t i=0; i<doubleDitVars.size(); i++) {
@@ -359,11 +360,13 @@ void TaMakePairFile::ConfigureDithering() {
 	  for (UInt_t im=0; im<ditMonStr.size(); im++) {
 	    fSlopes[i][im] = corrcoefs[im];
 	  }
+	  ditOK[i]=kTRUE;
 	} else {
-	  cout << " *** Dithering problem *** " << endl;
-	  cout << " *** Failed to get slopes for det " << ditDetSkel[i] << endl;
+	  cout << " *** Dithering problem : Failed to get slopes for det " 
+	       << ditDetSkel[i] << endl;
 	  cout << endl;
 	  for (UInt_t im=0; im<ditMonStr.size(); im++) fSlopes[i][im] = 0.0;
+	  ditOK[i]=kFALSE;
 	}
       }
 
@@ -375,11 +378,11 @@ void TaMakePairFile::ConfigureDithering() {
 	}
 	if (ditMapMon[im]==(doubleVars.size()-1)) {
 	  cout << "Dithering Monitor not found in list: " << ditMonStr[im] << endl;
-	  ditOK=kFALSE;
+	  doDit=kFALSE;
 	}
       }
 
-      // Search doubleVar to make sure that uncorrected asyms are there and get index.
+      // Search doubleVar to make sure that uncorrected asyms are there and get index
       for (UInt_t id=0; id<ditDetUD.size(); id++) {
 	for (UInt_t i=0; i<doubleVars.size(); i++) {	
 	    ditMapUD[id] = i;
@@ -387,11 +390,11 @@ void TaMakePairFile::ConfigureDithering() {
 	}
 	if (ditMapUD[id]==(doubleVars.size()-1)) {
 	  cout << "Dithering Detector not found in list: " << ditMapUD[id] << endl;
-	  ditOK=kFALSE;
+	  ditOK[id]=kFALSE;
 	}
       }
     }
-    cout << "CHECK: is dithering configured correctly: " << ditOK << endl;
+    cout << "CHECK if dithering configured correctly: " << doDit << endl;
   }  
 
 }
@@ -409,6 +412,7 @@ void TaMakePairFile::PushToDitList(vector <TString> thisvar,
       doubleDitVars.push_back("dit_"+prefix+thisvar[i]);
       ditDetSkel.push_back("det"+thisvar[i]);
       ditDetUD.push_back(prefix+thisvar[i]);
+      ditOK.push_back(kFALSE);
       cout << "adding " << "dit_"+prefix+thisvar[i] << " to doubleDitVars" << endl;
     }
   }

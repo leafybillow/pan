@@ -9,7 +9,7 @@ TCut getDitCutH_byIndex(Int_t ind) {
   // by the AvgSlope routine.
   
 
-  TCut superslugselect[7];
+  TCut superslugselect[8];
   superslugselect[0] = TCut("run<=5773");
   superslugselect[1] = TCut("run>5773&&run<=5803");
   superslugselect[2] = TCut("run>5803&&run<=5860");
@@ -17,11 +17,10 @@ TCut getDitCutH_byIndex(Int_t ind) {
   superslugselect[4] = TCut("run>5890&&run<=5905");
   superslugselect[5] = TCut("(run>5930&&run<=5982)||(run>5994&&run<=6000)");
   superslugselect[6] = TCut("run>5905&&run<=6077&&!((run>5930&&run<=5982)||(run>5994&&run<=6000))");
-  //" && !superslugselect[5];
-
+  superslugselect[7] = TCut("run>6077");
 
   TCut dcut;
-  if (ind>=0 && ind<7) {
+  if (ind>=0 && ind<8) {
     dcut = superslugselect[ind];
     dcut += "lostCount<20";
   } else {
@@ -50,6 +49,9 @@ Int_t getDitSetH(Int_t run) {
   } else if (run>5905&&run<=6077) {
     // order in the list separates this one from section in previous
     ind=6;
+  } else if (run>6077) {
+    // order in the list separates this one from section in previous
+    ind=7;
   } else {
     // default case... nothing works!
     ind=-1;
@@ -74,7 +76,7 @@ TString getDitSetFilenameH(Int_t run) {
 
   Int_t ind = getDitSetH(run);
   TString filename;
-  if (ind>=0 && ind<7) {
+  if (ind>=0 && ind<8) {
     filename = Form("/w/work1704/parity/kent/pan/slopes/avgSlopes_hydrogen_dither_Superslug%d.res",ind);
   }else{
     filename = "";
