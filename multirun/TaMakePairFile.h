@@ -98,6 +98,7 @@ class TaMakePairFile {
   Int_t ok_Both;
   Int_t ok_Left;
   Int_t ok_Right;
+  Int_t ok_regBoth, ok_regLeft, ok_regRight;
   Int_t pair_num;
 
   void EventLoop(Long64_t nevents);

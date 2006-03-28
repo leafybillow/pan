@@ -168,7 +168,10 @@ void TaMakePairFile::EventLoop(Long64_t nevents)
     
     // Check for specific event cuts...
     Double_t m_ev_num = pairSelect->doubleData[0]; // always the first doubleVar.
+    Int_t rfirst_ev = regSelect->intData[0];  // always the first two intRegVars
+    Int_t rlast_ev = regSelect->intData[1];
     //	cout << "Mean event number = " << m_ev_num << endl;
+
     if((minL==0.)&&(maxL==0.)) ok_Left=1;
     else if (m_ev_num>minL && maxL==0) ok_Left=1;
     else if (m_ev_num<minL || m_ev_num>maxL) ok_Left = 0;
@@ -180,7 +183,26 @@ void TaMakePairFile::EventLoop(Long64_t nevents)
     if (ok_Left==1 && ok_Right==1) ok_Both=1;
     else ok_Both=0;
 
+
+    ok_regLeft = ok_Left; ok_regRight = ok_Right; ok_regBoth = ok_Both;
     if (ok_Left==0 && ok_Right==0) continue;
+
+    // now check for ok_regLeft and ok_regRight
+    //
+    // first, a kludgey way to not be screwed if the new words don't exist.
+    if ((rlast_ev - rfirst_ev)>1) {
+
+      if((minL==0.)&&(maxL==0.)) ok_regLeft=ok_Left;
+      else if (rfirst_ev>minL && maxL==0) ok_regLeft=ok_Left;
+      else if (rfirst_ev<minL || rlast_ev>maxL) ok_regLeft = 0;
+
+      if((minR==0.)&&(maxR==0.)) ok_regRight=ok_Right;
+      else if (rfirst_ev>minR && maxR==0) ok_regRight=ok_Right;
+      else if (rfirst_ev<minR || rlast_ev>maxR) ok_regRight = 0;
+    
+      if (ok_regLeft==1 && ok_regRight==1) ok_regBoth=ok_Both;
+      else ok_regBoth=0;
+    }
 
     pair_num++;
     // Load up the regression events.
@@ -253,6 +275,9 @@ void TaMakePairFile::MakeVarList()
 
   doubleVars.push_back("m_ev_num"); // always first doubleVar... dont change it
   intVars.push_back("ok_cutC");
+  intRegVars.push_back("reg_mini_first_ev");  // Always the first two intRegVars... 
+  intRegVars.push_back("reg_mini_last_ev");
+  intRegVars.push_back("minirun");  
 
   PushToDoubleList(fChooser->GetBatteries(),"diff_batt");
 
@@ -469,6 +494,9 @@ void TaMakePairFile::MakeBranches()
   fTree->Branch("ok_cutB",&ok_Both,"ok_cutB/I");
   fTree->Branch("ok_cutL",&ok_Left,"ok_cutL/I");
   fTree->Branch("ok_cutR",&ok_Right,"ok_cutR/I");  
+  fTree->Branch("ok_regB",&ok_regBoth,"ok_regB/I");
+  fTree->Branch("ok_regL",&ok_regLeft,"ok_regL/I");
+  fTree->Branch("ok_regR",&ok_regRight,"ok_regR/I");  
   fTree->Branch("pair_num",&pair_num,"pair_num/I");
 
   for(UInt_t i=0; i<doubleVars.size(); i++) {
