@@ -71,7 +71,7 @@ Int_t open (Int_t run = 0, TString atype = "standard", TString com = "")
     }
 
     ditdef = (TaRootDitDef*)f_pan_dither->Get("TaRootDitDef;1");
-    if (ditdef) ditdef_pan_dither->Print();
+    if (ditdef) ditdef->Print();
 
     pandef = (TaRootRep*)f_pan_standard->Get("TaRootRep;1");
     raw = (TTree*)f_pan_standard->Get("R");
