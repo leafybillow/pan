@@ -108,6 +108,8 @@ int getslopes(TString type,
     slopes.Branch("lostCount",&lostCount,"lostCount/I");
   } else if(type=="regress") {
     slopes.Branch("minirun",&minirun,"minirun/I");
+    slopes.Branch("firstev",&firstev,"firstev/I");
+    slopes.Branch("lastev",&lastev,"lastev/I");
   }
   slopes.Branch("runmod",&runmod,"runmod/D");
   slopes.Branch("slug",&slugnum,"slug/I");
@@ -171,7 +173,7 @@ int getslopes(TString type,
 	for(UInt_t imon=0; imon<nMon; imon++) {
 	  if(type=="dither") index = ditdef->GetMonitorIndex(sMon[imon]);
 	  if(type=="regress") index = regdef->GetIVIndex("diff_"+sMon[imon]);
-	  if (exp="helium" && sluglist[irun]>=39 && sluglist[irun]<=41) {
+	  if (exp=="helium" && sluglist[irun]>=39 && sluglist[irun]<=41) {
 	    if(type=="dither") index = ditdef->GetMonitorIndex(sMon2[imon]);
 	    if(type=="regress") index = regdef->GetIVIndex("diff_"+sMon2[imon]);
 	  }
@@ -243,11 +245,14 @@ int getslopes(TString type,
 	  // Get the general supercycle information
 	  TString drawcom;
 	  if(type=="dither") {
-		drawcom += "supercyc";
-		drawcom += ":firstev:lastev";
-		drawcom += ":lastSCev";
+	    drawcom = "supercyc";
+	    drawcom += ":firstev:lastev";
+	    drawcom += ":lastSCev";
 	  }
-	  if(type=="regress") drawcom += "minirun";
+	  if(type=="regress") {
+	    drawcom = "minirun";
+	    drawcom += ":reg_mini_first_ev:reg_mini_last_ev";
+	  }
 	  
 	  if(c1==NULL) c1 = new TCanvas("c1","ROOT BUG");
 	  slpsTree->Draw(drawcom,"","goff");
@@ -259,6 +264,10 @@ int getslopes(TString type,
 		 << endl;
 	    cout << "!!! Number of Entries != Number of Supercycles !!!" 
 		 << endl;
+	    cout << 
+	      Form( "!!!     Run Number = %4d                       !!!"
+		    ,runlist[irun])
+		 << endl;
 	    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" 
 		 << endl;
 	  }
@@ -269,6 +278,11 @@ int getslopes(TString type,
 	      sc_firstev[isc] = TMath::Nint(slpsTree->GetV2()[isc]);
 	      sc_lastev[isc] = TMath::Nint(slpsTree->GetV3()[isc]);
 	      sc_lastSCev[isc] = TMath::Nint(slpsTree->GetV4()[isc]);
+	    }
+	    if(type=="regress") {
+	      sc_firstev[isc] = TMath::Nint(slpsTree->GetV2()[isc]);
+	      sc_lastev[isc] = TMath::Nint(slpsTree->GetV3()[isc]);
+	      sc_lastSCev[isc] = TMath::Nint(slpsTree->GetV3()[isc]);
 	    }
 	  }
 	  // we can assume that the last isc contains the largest observed SC
@@ -338,16 +352,24 @@ int getslopes(TString type,
 	      ok_slopesL=0;
 	    if((minR==-1)&&(maxR==-1))
 	      ok_slopesR=0;
-	    if(type=="dither") {
-	      if(minL>(sc_firstev[isc]) || (maxL!=0 && maxL<(sc_lastSCev[isc])))
-		ok_slopesL=0;
-	      if(minR>(sc_firstev[isc]) || (maxR!=0 && maxR<(sc_lastSCev[isc])))
-		ok_slopesR=0;
-	    }
+ 	    //if(type=="dither") {
+	    if(minL>(sc_firstev[isc]) || (maxL!=0 && maxL<(sc_lastSCev[isc])))
+	      ok_slopesL=0;
+	    if(minR>(sc_firstev[isc]) || (maxR!=0 && maxR<(sc_lastSCev[isc])))
+	      ok_slopesR=0;
+	    //	    }
 	    if(minL==0 && maxL==0) 
 	      ok_slopesL=1;
 	    if(minR==0 && maxR==0)
 	      ok_slopesR=1;
+
+	    if(type=="dither") {
+	      if (sc_lastSCev[isc]==sc_lastev[isc]) {
+		ok_slopesL=0;
+		ok_slopesR=0;
+	      }
+	    }
+
 	    
 	    for(UInt_t idet=0; idet<nDet; idet++) {
 	      for(UInt_t imon=0; imon<nMon; imon++) {
@@ -377,6 +399,8 @@ int getslopes(TString type,
 	    }
 	    if(type=="regress") {
 	      minirun = slope_sc[isc];
+	      firstev = sc_firstev[isc];
+	      lastev = sc_lastSCev[isc];
 	      runmod = (Double_t)runlist[irun] 
 		+ Double_t(minirun)/Double_t(nSC);
 #ifdef NOISY
