@@ -161,6 +161,9 @@ void TaMakePairFile::EventLoop(Long64_t nevents)
     
     // Load up the events
     pairSelect->ProcessLoad(ient);
+    // Load up the regression events.
+    regSelect->ProcessLoad(ient);
+
     // Check for an ok_cut, or bpm saturation cut
     if(!pairSelect->ProcessCut()) continue; // Nope... move along..
     ok_Left = 1;
@@ -205,8 +208,6 @@ void TaMakePairFile::EventLoop(Long64_t nevents)
     }
 
     pair_num++;
-    // Load up the regression events.
-    regSelect->ProcessLoad(ient);
 
     // Copy data into the local leafs
     for(UInt_t i=0; i<intVars.size(); i++) {
