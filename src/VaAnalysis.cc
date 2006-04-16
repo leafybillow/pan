@@ -1473,10 +1473,8 @@ VaAnalysis::ComputeData(EFeedbackType fdbk, UInt_t timescale, Int_t devicekey)
     clog<<"      |\n";
 #endif
     fNPair[fdbk]=0;
-    vector< Double_t>::iterator qi_end = fSum[fdbk].end();
-    for ( qi = fSum[fdbk].begin(); qi != qi_end ; qi++)
+    for ( qi = fSum[fdbk].begin(); qi != fSum[fdbk].end() ; qi++)
        {
-	qi_end = fSum[fdbk].end();
         // if asymmetry value is not too far from the mean value 
         // (filter very large values )    
         // let's say < 6 sigma away from the calculated mean
@@ -1489,6 +1487,7 @@ VaAnalysis::ComputeData(EFeedbackType fdbk, UInt_t timescale, Int_t devicekey)
           {
            fSum[fdbk].erase(qi); 
           }
+	if (qi == fSum[fdbk].end()) break;
        } 
 
 #ifdef FDBK1
@@ -1562,9 +1561,7 @@ VaAnalysis::ComputeLastData(EFeedbackType fdbk, UInt_t timescale, Int_t deviceke
        clog<<"      |\n";
 #endif
        fNPair[fdbk] = 0;    
-       vector< Double_t>::iterator qi_end = fSum[fdbk].end();
-       for ( qi = fSum[fdbk].begin(); qi != qi_end ; qi++) {
-	  qi_end = fSum[fdbk].end();
+       for ( qi = fSum[fdbk].begin(); qi != fSum[fdbk].end() ; qi++) {
           // if asymmetry value is not too far from the mean value 
           // (filter very large values )    
           //  < 6 sigma away from the calculated mean
@@ -1576,6 +1573,7 @@ VaAnalysis::ComputeLastData(EFeedbackType fdbk, UInt_t timescale, Int_t deviceke
               {
              fSum[fdbk].erase(qi); 
               }
+	  if(qi == fSum[fdbk].end()) break;
           } 
 #ifdef FDBK1
        clog<<"      | Filtering processed, new Npair :"<<fNPair[fdbk]<<"\n"; 
@@ -1673,7 +1671,7 @@ VaAnalysis::SendEPICS(EFeedbackType fdbk, Int_t EpicsOption)
 #else
 	clog<<"Sending VOLTAGE value for PITA:"<<endl<<flush;
 #endif
-	sprintf(cinfo," 4 %6.2f",setpoint);
+	sprintf(cinfo," 4 %6.3f",setpoint);
 	strcat(command, cinfo);
 	clog << "Command for PITA feedback "<<command<<endl;
       }
