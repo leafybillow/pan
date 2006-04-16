@@ -1473,8 +1473,9 @@ VaAnalysis::ComputeData(EFeedbackType fdbk, UInt_t timescale, Int_t devicekey)
     clog<<"      |\n";
 #endif
     fNPair[fdbk]=0;
-    for ( qi = fSum[fdbk].begin(); qi != fSum[fdbk].end() ; qi++)
-       {
+    qi = fSum[fdbk].begin();
+    while(qi != fSum[fdbk].end()) 
+      {
         // if asymmetry value is not too far from the mean value 
         // (filter very large values )    
         // let's say < 6 sigma away from the calculated mean
@@ -1482,12 +1483,12 @@ VaAnalysis::ComputeData(EFeedbackType fdbk, UInt_t timescale, Int_t devicekey)
           { 
            fNPair[fdbk]++;
            fMean2[fdbk] += *qi;             
+	   qi++;
           }
         else
           {
-           fSum[fdbk].erase(qi); 
+           qi = fSum[fdbk].erase(qi); 
           }
-	if (qi == fSum[fdbk].end()) break;
        } 
 
 #ifdef FDBK1
@@ -1561,20 +1562,22 @@ VaAnalysis::ComputeLastData(EFeedbackType fdbk, UInt_t timescale, Int_t deviceke
        clog<<"      |\n";
 #endif
        fNPair[fdbk] = 0;    
-       for ( qi = fSum[fdbk].begin(); qi != fSum[fdbk].end() ; qi++) {
+       qi = fSum[fdbk].begin();
+       while(qi != fSum[fdbk].end())
+	 {
           // if asymmetry value is not too far from the mean value 
           // (filter very large values )    
           //  < 6 sigma away from the calculated mean
-          if ( abs(Int_t(*qi) - Int_t(fMean1[fdbk])) < 6*fRMS[fdbk] ) { 
-               fNPair[fdbk]++;
-               fMean2[fdbk] += *qi;             
-              }
-            else
-              {
-             fSum[fdbk].erase(qi); 
-              }
-	  if(qi == fSum[fdbk].end()) break;
-          } 
+	   if ( abs(Int_t(*qi) - Int_t(fMean1[fdbk])) < 6*fRMS[fdbk] ) { 
+	     fNPair[fdbk]++;
+	     fMean2[fdbk] += *qi;             
+	     qi++;
+	   }
+	   else
+	     {
+	       qi = fSum[fdbk].erase(qi); 
+	     }
+	 } 
 #ifdef FDBK1
        clog<<"      | Filtering processed, new Npair :"<<fNPair[fdbk]<<"\n"; 
 #endif
