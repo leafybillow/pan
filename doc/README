@@ -49,7 +49,9 @@ or in csh-like shells:
 
 (substituting in the first line whatever path is appropriate on your
 system for the top level of the ROOT directory structure -- you'll
-probably want to put these lines in your startup command files); then:
+probably want to put these lines in your startup command files)
+
+Then, at the shell prompt:
 
    cd codaclass
    make libcoda.a
