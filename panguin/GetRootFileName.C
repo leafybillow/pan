@@ -3,7 +3,7 @@
 // Helper macro for OnlineGUI to determine ROOT Filename
 //   from a given runnumber
 //
-#include "src/TaFileName.hh"
+#include "../src/TaFileName.hh"
 
 TString GetRootFileName(UInt_t runnumber)
 {

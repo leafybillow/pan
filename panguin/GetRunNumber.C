@@ -2,7 +2,7 @@
 //
 // Helper macro for OnlineGUI to determine runnumber
 //
-#include "src/TaDataBase.hh"
+#include "../src/TaDataBase.hh"
 
 UInt_t GetRunNumber()
 {

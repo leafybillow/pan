@@ -10,6 +10,7 @@
 #include "TGLabel.h"
 #include "TGString.h"
 #include <RQ_OBJECT.h>
+#include <TQObject.h>
 #include <vector>
 #include <TString.h>
 #include <TCut.h>
@@ -25,14 +26,8 @@ using namespace std;
 /* TTree *raw; */
 /* TFile *file; */
 
-const char *filetypes[] = { "All files","*",
-			    "PostScript files","*.ps",
-                            "Encapsulated PostScript files","*.eps",
-                            "GIF files","*.gif",
-                            "JPG files","*.jpg",
-			    0,               0 };
-
 class OnlineConfig {
+  RQ_OBJECT("OnlineConfig");
   // Class that takes care of the config file
 private:
   TString confFileName;                   // config filename
@@ -78,7 +73,6 @@ public:
 class OnlineGUI {
   // Class that takes care of the GUI
   RQ_OBJECT("OnlineGUI")
-
 private:
   TGMainFrame                      *fMain;
   TGHorizontalFrame                *fTopframe;

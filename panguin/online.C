@@ -22,7 +22,9 @@
 #include "GetRootFileName.C"
 #include "GetRunNumber.C"
 #include "TPaveText.h"
-
+#ifdef STANDALONE
+#include <TApplication.h>
+#endif
 //#define DEBUG
 //#define DEBUG2
 //#define NOISY
@@ -568,7 +570,11 @@ void OnlineGUI::CreateGUI(const TGWindow *p, UInt_t w, UInt_t h)
     if(fConfig->IsMonitor()) {
       cout << "Will wait... hopefully.." << endl;
     } else {
+#ifdef STANDALONE
+      gApplication->Terminate();
+#else
       return;
+#endif
     }
   } else {
     fFileAlive = kTRUE;
@@ -1393,7 +1399,14 @@ void OnlineGUI::PrintToFile()
   gStyle->SetPaperSize(20,24);
   static TString dir("printouts");
   TGFileInfo fi;
-  fi.fFileTypes = filetypes;
+  const char *myfiletypes[] = 
+    { "All files","*",
+      "PostScript files","*.ps",
+      "Encapsulated PostScript files","*.eps",
+      "GIF files","*.gif",
+      "JPG files","*.jpg",
+      0,               0 };
+  fi.fFileTypes = myfiletypes;
   fi.fIniDir    = StrDup(dir.Data());
 
   new TGFileDialog(gClient->GetRoot(), fMain, kFDSave, &fi);
@@ -1411,7 +1424,11 @@ void OnlineGUI::PrintPages() {
     cout << "ERROR:  rootfile: " << fConfig->GetRootFile()
 	 << " does not exist"
 	 << endl;
+#ifdef STANDALONE
+    gApplication->Terminate();
+#else
     return;
+#endif
   } else {
     fFileAlive = kTRUE;
     ObtainRunNumber();
@@ -1496,6 +1513,9 @@ void OnlineGUI::PrintPages() {
   }
   if(!useJPG) fCanvas->Print(filename+"]");
   
+#ifdef STANDALONE
+  gApplication->Terminate();
+#endif
 }
 
 void OnlineGUI::MyCloseWindow()
@@ -1523,6 +1543,10 @@ void OnlineGUI::MyCloseWindow()
   if(fGoldenFile!=NULL) delete fGoldenFile;
   if(fRootFile!=NULL) delete fRootFile;
   delete fConfig;
+
+#ifdef STANDALONE
+  gApplication->Terminate();
+#endif
 }
 
 void OnlineGUI::CloseGUI() 
@@ -1563,9 +1587,13 @@ void online(TString type="standard",UInt_t run=0,Bool_t printonly=kFALSE)
 
   if(printonly) {
     if(!gROOT->IsBatch()) {
+#ifdef STANDALONE
+      gROOT->SetBatch();
+#else
       cout << "Sorry... the print summary plots option only works "
 	   << "in BATCH mode." << endl;
       return;
+#endif
     }
   }
 
@@ -1573,7 +1601,11 @@ void online(TString type="standard",UInt_t run=0,Bool_t printonly=kFALSE)
     //    OnlineConfig *fconfig = new OnlineConfig("halla");
 
   if(!fconfig->ParseConfig()) {
+#ifdef STANDALONE
+    gApplication->Terminate();
+#else
     return;
+#endif
   }
 
   if(run!=0) fconfig->OverrideRootFile(run);
@@ -1582,3 +1614,57 @@ void online(TString type="standard",UInt_t run=0,Bool_t printonly=kFALSE)
 
 }
 
+#ifdef STANDALONE
+void Usage()
+{
+  cerr << "Usage: online [-r] [-f] [-P]"
+       << endl;
+  cerr << "Options:" << endl;
+  cerr << "  -r : runnumber" << endl;
+  cerr << "  -f : configuration file" << endl;
+  cerr << "  -P : Only Print Summary Plots" << endl;
+  cerr << endl;
+
+}
+
+int main(int argc, char **argv)
+{
+  TString type="default";
+  UInt_t run=0;
+  Bool_t printonly=kFALSE;
+  Bool_t showedUsage=kFALSE;
+
+  TApplication theApp("App",&argc,argv,NULL,-1);
+
+  for(Int_t i=1;i<theApp.Argc();i++)
+    {
+      TString sArg = theApp.Argv(i);
+      if(sArg=="-f") {
+	type = theApp.Argv(++i);
+	cout << " File specifier: "
+	     <<  type << endl;
+      } else if (sArg=="-r") {
+	run = atoi(theApp.Argv(++i));
+	cout << " Runnumber: "
+	     << run << endl;
+      } else if (sArg=="-P") {
+	printonly = kTRUE;
+	cout <<  " PrintOnly" << endl;
+      } else if (sArg=="-h") {
+	if(!showedUsage) Usage();
+	showedUsage=kTRUE;
+	return 0;
+      } else {
+	cerr << "\"" << sArg << "\"" << " not recognized.  Ignored." << endl;
+	if(!showedUsage) Usage();
+	showedUsage=kTRUE;
+      }
+    }
+
+  online(type,run,printonly);
+  theApp.Run();
+
+  return 0;
+}
+
+#endif
