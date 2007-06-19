@@ -15,6 +15,7 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+#include <math.h>
 #include <fstream>
 #include "TaADCCalib.hh"
 #include "TaEvent.hh"

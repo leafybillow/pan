@@ -60,6 +60,7 @@
 #include "TaDataBase.hh"
 #include "VaPair.hh"
 #include <iostream>
+#include <math.h>
 #include <stdio.h>
 
 #ifndef NODICT
