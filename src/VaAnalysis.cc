@@ -677,8 +677,17 @@ VaAnalysis::ProcessPair()
       clog << " x diff " <<endl;       
 #endif
       PairAnalysis();
-      if (fPairTree)
+      if (fPairTree) {
 	fPairTree->Fill();      
+#ifdef PANGUIN
+    // Autosave the Pair Tree and Rootfile every 100 events (if
+    // compiled with PANGUIN)
+        if ((Int_t(fTreeMEvNum+0.5)%100==0)||(Int_t(fTreeMEvNum-0.5)%100==0)) {
+          cout << "Autosaving PairTree at m_ev_num = " << fTreeMEvNum << endl;
+          fPairTree->AutoSave("SaveSelf");
+        }
+#endif
+      }
       ++fPairProc;
     }
   else

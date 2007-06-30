@@ -446,8 +446,18 @@ TaRun::AccumEvent(const VaEvent& ev, const Bool_t doSlice, const Bool_t doRun)
   else
     clog << "Event " << ev.GetEvNumber() << " is in cut interval" << endl;
 #endif
-  if (fFirstPass && fEvtree != 0)
+  if (fFirstPass && fEvtree != 0) {
     fEvtree->Fill();
+#ifdef PANGUIN
+    // Autosave the Event Tree and Rootfile every 100 events (if
+    // compiled with PANGUIN)
+    if(fEventNumber%100==0) {
+      cout << "Autosaving EventTree at ev_num = " << fEventNumber << endl;
+      fEvtree->AutoSave("SaveSelf");
+    }
+#endif
+  }
+  
 }
 
 
