@@ -61,6 +61,7 @@ TaDataBase::TaDataBase() {
      firstiter = kTRUE;
      fFirstgdn = new Bool_t(kTRUE);
      fFirstAdcPed = new Bool_t(kTRUE);
+     fFirstAdcxPed = new Bool_t(kTRUE);
      fFirstScalPed = new Bool_t(kTRUE);
      nbadev = 0;
      rootdb = new TaRootRep();
@@ -68,15 +69,21 @@ TaDataBase::TaDataBase() {
      fileRead = "None";
      dacparam = new Double_t[MAXADC*MAXCHAN];     
      memset(dacparam,0,MAXADC*MAXCHAN*sizeof(Double_t));
+     dacxparam = new Double_t[MAXADCX*MAXCHAN];     
+     memset(dacxparam,0,MAXADCX*MAXCHAN*sizeof(Double_t));
      adcped = new Double_t[MAXADC*MAXCHAN];
      memset(adcped,0,MAXADC*MAXCHAN*sizeof(Double_t));
+     adcxped = new Double_t[MAXADCX*MAXCHAN];
+     memset(adcxped,0,MAXADCX*MAXCHAN*sizeof(Double_t));
      scalped = new Double_t[MAXSCAL*MAXSCALCHAN];
      memset(scalped,0,MAXSCAL*MAXSCALCHAN*sizeof(Double_t));
  }
 
 TaDataBase::~TaDataBase() {
      delete [] dacparam;
+     delete [] dacxparam;
      delete [] adcped;
+     delete [] adcxped;
      delete [] scalped;
      delete AnaTDatime;
      delete rootdb;
@@ -523,7 +530,6 @@ TaDataBase::Checkout()
     ipbcE++;    
   }
 
-
   cout << "window delay = " << GetDelay() << endl;
   cout << "oversampling factor = " << GetOverSamp() << endl;
   cout << "pair type (i.e. pair or quad) =  " << GetPairType() << endl;
@@ -534,6 +540,14 @@ TaDataBase::Checkout()
       cout << "\n  channel " << chan;
       cout << "   ped = " << GetAdcPed(adc,chan);
       cout << "   dac slope = " << GetDacNoise(adc,chan,"slope");
+    }
+  }  
+  for (int adcx = 0; adcx < 10 ; adcx++) {
+    cout << "\n\n-----  For ADCX " << adcx << endl;
+    for (int chan = 0; chan < 4; chan++) {
+      cout << "\n  channel " << chan;
+      cout << "   ped = " << GetAdcxPed(adcx,chan);
+      cout << "   dac slope = " << GetDacxNoise(adcx,chan,"slope");
     }
   }  
   cout << "\n\nPedestal parameters for a few scalers : " << endl;
@@ -1194,6 +1208,99 @@ Double_t TaDataBase::GetAdcPed(const Int_t& adc, const Int_t& chan) const {
      return 0;
   }
 };
+Double_t TaDataBase::GetDacxNoise(const Int_t& adcx, const Int_t& chan, const string& key) const {
+// Get Dac noise parameters for adcx,chan with key = 'slope'
+  if (!didinit) {
+      cerr << "DataBase::GetDacxNoise ERROR: Database not initialized\n";
+      return 0;
+  }
+  int idx;
+  if (*fFirstgdn)  {
+     *fFirstgdn = kFALSE;
+     if (!didread) {
+         cerr << "DataBase::GetDacxNoise:: WARNING: ";
+         cerr << "Did not read any database yet\n";
+     }
+     vector<string> keys;
+     keys.clear();
+     keys.push_back("adcx");   
+     keys.push_back("chan");
+     keys.push_back("slope");
+     vector<Double_t> data = GetData("dacnoise",keys);
+     int iadcx,ichan;
+     int index = 0;
+     while (index < (long)data.size()) 
+       {
+        if ((index+(long)keys.size()-1) < (long)data.size()) 
+	  {
+           iadcx = (int)data[index];
+           ichan= (int)data[index+1];
+           idx = iadcx*MAXCHAN+ichan;
+           if (idx < MAXADCX*MAXCHAN) 
+             {
+              dacxparam[idx] = data[index+2];
+             }
+          }
+        index += keys.size();
+      }
+  }
+    idx = adcx*MAXCHAN+chan;
+    if (idx >= 0 && idx < MAXADCX*MAXCHAN) 
+      {
+       if (TaString(key).CmpNoCase("slope") == 0) return dacxparam[idx];
+      }
+    else 
+      {
+     cerr << "WARNING: DataBase::GetDacxNoise:";
+     cerr << "  illegal combination of adcx and channel #"<<endl;
+     cerr << "  idx = " << idx << " adcx "<<adcx<<"  chan "<<chan<<endl;
+     return 0;
+      }
+  return 0;
+};
+
+Double_t TaDataBase::GetAdcxPed(const Int_t& adcx, const Int_t& chan) const {
+// Get Pedestals for adcx, chan 
+  if (!didinit) {
+      cerr << "DataBase::GetAdcxPed ERROR: Database not initialized\n";
+      return 0;
+  }
+  int idx;
+  if (*fFirstAdcxPed) {
+    *fFirstAdcxPed = kFALSE;
+    if (!didread) {
+         cerr << "DataBase::GetAdcxPed:: WARNING: ";
+         cerr << "Did not read any database yet\n";
+    }
+    vector<string> keys;
+    keys.clear();
+    keys.push_back("adcx");   // this must match a string in database
+    keys.push_back("chan");
+    keys.push_back("value");
+    vector<Double_t> data = GetData("ped",keys);
+    int iadcx,ichan;
+    int index = 0;
+    while (index < (long)data.size()) {
+      if ((index+(long)keys.size()-1) < (long)data.size()) {
+        iadcx = (int)data[index];
+        ichan= (int)data[index+1];
+        idx = iadcx*MAXCHAN+ichan;
+        if (idx < MAXADCX*MAXCHAN) {
+           adcxped[idx] = data[index+2];
+         }
+      }
+      index += keys.size();
+    }
+  }
+  idx = adcx*MAXCHAN+chan;
+  if (idx >=0 && idx < MAXADCX*MAXCHAN) {
+     return adcxped[idx];
+  } else {
+     cerr << "WARNING: DataBase::GetAdcxPed:";
+     cerr << "  illegal combination of adcx and channel #"<<endl;
+     return 0;
+  }
+};
 
 Double_t TaDataBase::GetScalPed(const Int_t& scal, const Int_t& chan) const {
 // Get Pedestals for scaler, chan 
@@ -1563,6 +1670,42 @@ void TaDataBase::PutAdcPed(const Int_t& adc, const Int_t& chan, const Double_t& 
   dtype *dat;
   dat = new dtype("s");  dat->Load("adc");   dvec.push_back(dat);
   dat = new dtype("i");  dat->Load(adc);     dvec.push_back(dat);
+  dat = new dtype("s");  dat->Load("chan");  dvec.push_back(dat);
+  dat = new dtype("i");  dat->Load(chan);    dvec.push_back(dat);
+  dat = new dtype("s");  dat->Load("value"); dvec.push_back(dat);
+  dat = new dtype("d");  dat->Load(ped);     dvec.push_back(dat);
+  didput = kTRUE;
+  PutData(table, dvec);
+};
+
+void TaDataBase::PutDacxNoise(const Int_t& adcx, const Int_t& chan, const Double_t& slope) {
+// Put Dac noise parameters slope  for adcx,chan 
+  if (!didinit) {
+      cerr << "DataBase::PutDacxNoise ERROR: Database not initialized\n";
+  }
+  string table = "dacnoise";
+  vector<dtype *> dvec;   dvec.clear();
+  dtype *dat;
+  dat = new dtype("s");  dat->Load("adcx");   dvec.push_back(dat);
+  dat = new dtype("i");  dat->Load(adcx);     dvec.push_back(dat);
+  dat = new dtype("s");  dat->Load("chan");  dvec.push_back(dat);
+  dat = new dtype("i");  dat->Load(chan);    dvec.push_back(dat);
+  dat = new dtype("s");  dat->Load("slope"); dvec.push_back(dat);
+  dat = new dtype("d");  dat->Load(slope);   dvec.push_back(dat);
+  didput = kTRUE;
+  PutData(table, dvec);
+};
+
+void TaDataBase::PutAdcxPed(const Int_t& adcx, const Int_t& chan, const Double_t& ped) {
+// Put Pedestals for adcx, chan 
+  if (!didinit) {
+      cerr << "DataBase::PutAdcxPed ERROR: Database not initialized\n";
+  }
+  string table = "ped";
+  vector<dtype *> dvec;   dvec.clear();
+  dtype *dat;
+  dat = new dtype("s");  dat->Load("adcx");   dvec.push_back(dat);
+  dat = new dtype("i");  dat->Load(adcx);     dvec.push_back(dat);
   dat = new dtype("s");  dat->Load("chan");  dvec.push_back(dat);
   dat = new dtype("i");  dat->Load(chan);    dvec.push_back(dat);
   dat = new dtype("s");  dat->Load("value"); dvec.push_back(dat);

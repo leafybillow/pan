@@ -42,6 +42,7 @@
 /////////////////////////////////////////////////////////////////////
 
 #define MAXADC  31
+#define MAXADCX  31
 #define MAXSCAL 7
 #define MAXCHAN 10
 #define MAXSCALCHAN 32
@@ -228,6 +229,10 @@ public:
     if (GetReadOut(key) == "adc") return kTRUE;
     return kFALSE;
   };     
+  Bool_t IsAdcx(const string& key) {
+    if (GetReadOut(key) == "adcx") return kTRUE;
+    return kFALSE;
+  };     
   Bool_t IsScaler(const string& key) {
     if (GetReadOut(key) == "scaler") return kTRUE;
     return kFALSE;
@@ -246,6 +251,10 @@ public:
   };     
   Int_t GetAdc(const string& key) {
     if (IsAdc(key)) return devnum[key];
+    return 0;
+  };
+  Int_t GetAdcx(const string& key) {
+    if (IsAdcx(key)) return devnum[key];
     return 0;
   };
   Int_t GetDevNum(const string& key) {
@@ -343,6 +352,11 @@ public:
         const string& key)const;  
 // Get Pedestals for adc, chan
   Double_t GetAdcPed(const Int_t& adc, const Int_t& chan) const;
+// Get Dac noise parameters for adcx,chan with key = 'slope'
+  Double_t GetDacxNoise(const Int_t& adcx, const Int_t& chan, 
+        const string& key)const;  
+// Get Pedestals for adcx, chan
+  Double_t GetAdcxPed(const Int_t& adcx, const Int_t& chan) const;
 // Get Pedestals for scaler, chan
   Double_t GetScalPed(const Int_t& adc, const Int_t& chan) const;
 // Get Headers for decoding (needed by datamap)
@@ -433,6 +447,10 @@ public:
   void PutDacNoise(const Int_t& adc, const Int_t& chan, const Double_t& slope);
 // Put Pedestals for adc, chan
   void PutAdcPed(const Int_t& adc, const Int_t& chan, const Double_t& value);
+// Put Dac noise parameters for adcx,chan with key = 'slope'
+  void PutDacxNoise(const Int_t& adcx, const Int_t& chan, const Double_t& slope);
+// Put Pedestals for adcx, chan
+  void PutAdcxPed(const Int_t& adcx, const Int_t& chan, const Double_t& value);
 // Put Pedestals for scaler, chan
   void PutScalPed(const Int_t& scal, const Int_t& chan, const Double_t& value);
 // Put cut intervals
@@ -471,8 +489,8 @@ private:
   map<string, int> dbinit,colsize;
   Bool_t didinit,didread,didput,initdm,firstiter;
   Bool_t usemysql,useroot,usectrl;
-  Double_t *dacparam, *adcped, *scalped;
-  Bool_t *fFirstgdn, *fFirstAdcPed, *fFirstScalPed;
+  Double_t *dacparam, *dacxparam, *adcped, *adcxped, *scalped;
+  Bool_t *fFirstgdn, *fFirstAdcPed, *fFirstAdcxPed, *fFirstScalPed;
   Int_t nbadev;
   UInt_t fCksum;  // checksum
 
