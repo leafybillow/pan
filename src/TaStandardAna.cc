@@ -280,6 +280,130 @@ TaStandardAna::InitChanLists ()
       fTreeList.push_back (AnaList ("blumi_ave", keys, wts, "ppm", 
 				    fgNO_BEAM_NO_ASY + fgASYN + fgAVE + fgBLINDSIGN + fgSTATS));
     }
+
+  if (fRun->GetDevices().IsUsed(IBLUMI1R) &&
+      fRun->GetDevices().IsUsed(IBLUMI5R))
+    {
+      keys.clear(); keys.push_back(IBLUMI1);  keys.push_back(IBLUMI5);
+      wtsa = fRun->GetDataBase().GetBlumiWts();
+      wts.clear(); wts.push_back (wtsa[0]); wts.push_back (wtsa[4]); 
+      if (!WtsOK (wts)) 
+	{
+	  cerr << "TaStandardAna::InitChanLists WARNING: blumi 1/5 weights bad, ignored" << endl;
+	  wts.clear();
+	}
+      fTreeList.push_back (AnaList ("blumi_v", keys, wts, "ppm", 
+				    fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN + fgSTATS));
+      fTreeList.push_back (AnaList ("blumi_v", keys, wts, "ppm", 
+				    fgAVG));
+      fTreeList.push_back (AnaList ("blumi_v", keys, wts, "ppm", 
+				    fgAVGN));
+    }
+
+  if (fRun->GetDevices().IsUsed(IBLUMI3R) &&
+      fRun->GetDevices().IsUsed(IBLUMI7R))
+    {
+      keys.clear(); keys.push_back(IBLUMI3);  keys.push_back(IBLUMI7);
+      wtsa = fRun->GetDataBase().GetBlumiWts();
+      wts.clear(); wts.push_back (wtsa[2]); wts.push_back (wtsa[6]); 
+      if (!WtsOK (wts)) 
+	{
+	  cerr << "TaStandardAna::InitChanLists WARNING: blumi 3/7 weights bad, ignored" << endl;
+	  wts.clear();
+	}
+      fTreeList.push_back (AnaList ("blumi_h", keys, wts, "ppm", 
+				    fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN + fgSTATS));
+      fTreeList.push_back (AnaList ("blumi_h", keys, wts, "ppm", 
+				    fgAVG));
+      fTreeList.push_back (AnaList ("blumi_h", keys, wts, "ppm", 
+				    fgAVGN));
+    }
+
+  if (fRun->GetDevices().IsUsed(IBLUMI2R) &&
+      fRun->GetDevices().IsUsed(IBLUMI6R))
+    {
+      keys.clear(); keys.push_back(IBLUMI2);  keys.push_back(IBLUMI6);
+      wtsa = fRun->GetDataBase().GetBlumiWts();
+      wts.clear(); wts.push_back (wtsa[1]); wts.push_back (wtsa[5]); 
+      if (!WtsOK (wts)) 
+	{
+	  cerr << "TaStandardAna::InitChanLists WARNING: blumi 2/6 weights bad, ignored" << endl;
+	  wts.clear();
+	}
+      fTreeList.push_back (AnaList ("blumi_d1", keys, wts, "ppm", 
+				    fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN + fgSTATS));
+      fTreeList.push_back (AnaList ("blumi_d1", keys, wts, "ppm", 
+				    fgAVG));
+      fTreeList.push_back (AnaList ("blumi_d1", keys, wts, "ppm", 
+				    fgAVGN));
+    }
+
+  if (fRun->GetDevices().IsUsed(IBLUMI4R) &&
+      fRun->GetDevices().IsUsed(IBLUMI8R))
+    {
+      keys.clear(); keys.push_back(IBLUMI4);  keys.push_back(IBLUMI8);
+      wtsa = fRun->GetDataBase().GetBlumiWts();
+      wts.clear(); wts.push_back (wtsa[3]); wts.push_back (wtsa[7]); 
+      if (!WtsOK (wts)) 
+	{
+	  cerr << "TaStandardAna::InitChanLists WARNING: blumi 4/8 weights bad, ignored" << endl;
+	  wts.clear();
+	}
+      fTreeList.push_back (AnaList ("blumi_d2", keys, wts, "ppm", 
+				    fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN + fgSTATS));
+      fTreeList.push_back (AnaList ("blumi_d2", keys, wts, "ppm", 
+				    fgAVG));
+      fTreeList.push_back (AnaList ("blumi_d2", keys, wts, "ppm", 
+				    fgAVGN));
+    }
+
+  if (fRun->GetDevices().IsUsed(IBLUMI1R) &&
+      fRun->GetDevices().IsUsed(IBLUMI5R) && 
+      fRun->GetDevices().IsUsed(IBLUMI3R) &&
+      fRun->GetDevices().IsUsed(IBLUMI7R))
+    {
+      keys.clear(); keys.push_back(IBLUMI1);  keys.push_back(IBLUMI3);
+      keys.push_back(IBLUMI5);  keys.push_back(IBLUMI7);
+      wtsa = fRun->GetDataBase().GetBlumiWts();
+      wts.clear(); wts.push_back (wtsa[0]); wts.push_back (wtsa[2]); 
+      wts.push_back (wtsa[4]); wts.push_back (wtsa[6]); 
+      if (!WtsOK (wts)) 
+	{
+	  cerr << "TaStandardAna::InitChanLists WARNING: blumi 1/3/5/7 weights bad, ignored" << endl;
+	  wts.clear();
+	}
+      fTreeList.push_back (AnaList ("blumi_c", keys, wts, "ppm", 
+				    fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN + fgSTATS));
+      fTreeList.push_back (AnaList ("blumi_c", keys, wts, "ppm", 
+				    fgAVG));
+      fTreeList.push_back (AnaList ("blumi_c", keys, wts, "ppm", 
+				    fgAVGN));
+    }
+
+  if (fRun->GetDevices().IsUsed(IBLUMI2R) &&
+      fRun->GetDevices().IsUsed(IBLUMI4R) && 
+      fRun->GetDevices().IsUsed(IBLUMI6R) &&
+      fRun->GetDevices().IsUsed(IBLUMI8R))
+    {
+      keys.clear(); keys.push_back(IBLUMI2);  keys.push_back(IBLUMI4);
+      keys.push_back(IBLUMI6);  keys.push_back(IBLUMI8);
+      wtsa = fRun->GetDataBase().GetBlumiWts();
+      wts.clear(); wts.push_back (wtsa[1]); wts.push_back (wtsa[3]); 
+      wts.push_back (wtsa[5]); wts.push_back (wtsa[7]); 
+      if (!WtsOK (wts)) 
+	{
+	  cerr << "TaStandardAna::InitChanLists WARNING: blumi 2/4/6/8 weights bad, ignored" << endl;
+	  wts.clear();
+	}
+      fTreeList.push_back (AnaList ("blumi_x", keys, wts, "ppm", 
+				    fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN + fgSTATS));
+      fTreeList.push_back (AnaList ("blumi_x", keys, wts, "ppm", 
+				    fgAVG));
+      fTreeList.push_back (AnaList ("blumi_x", keys, wts, "ppm", 
+				    fgAVGN));
+    }
+
+
   if (fRun->GetDevices().IsUsed(IFLUMI1R) &&
       fRun->GetDevices().IsUsed(IFLUMI2R))
     {
