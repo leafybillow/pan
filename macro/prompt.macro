@@ -13,7 +13,7 @@ void prompt (UInt_t run, UInt_t batch, TString comment = "")
 
   if (ret && tt)
     {
-      TCanvas* cparsave = new TCanvas();
+       TCanvas* cparsave = new TCanvas();
 
       // Get parameters of asymmetry and difference distributions
       // and print them to a file.
@@ -21,7 +21,20 @@ void prompt (UInt_t run, UInt_t batch, TString comment = "")
       gROOT->LoadMacro("ParamSave.macro+");
       ParamSave* ps = new ParamSave (run);
       ps->LoadCorrs();
+
+      ps->PutCut("ok_cut", *tt);
       
+      ps->PutAvg("bcm3", "avg", *tt, "ok_cut");
+      ps->PutAvg("bpm4ax", "avg", *tt, "ok_cut");
+      ps->PutAvg("bpm4ay", "avg", *tt, "ok_cut");
+      ps->PutAvg("bpm4bx", "avg", *tt, "ok_cut");
+      ps->PutAvg("bpm4by", "avg", *tt, "ok_cut");
+      ps->PutAvg("bpm12x", "avg", *tt, "ok_cut");
+      ps->PutAvg("det1", "avg_n", *tt, "ok_cut");
+      ps->PutAvg("det2", "avg_n", *tt, "ok_cut");
+      ps->PutAvg("det3", "avg_n", *tt, "ok_cut");
+      ps->PutAvg("det4", "avg_n", *tt, "ok_cut");
+
       ps->PutMonAsym("bcm1", *tt, "ok_cut");
       ps->PutMonAsym("bcm2", *tt, "ok_cut");
       ps->PutMonAsym("bcm3", *tt, "ok_cut");
@@ -49,6 +62,7 @@ void prompt (UInt_t run, UInt_t batch, TString comment = "")
       ps->PutMonDDAsym("bcmcav2", "bcmcav3", *tt, "ok_cut");
       ps->PutMonDDDiff("bpmcav2x", "bpmcav3x", *tt, "ok_cut");
       ps->PutMonDDDiff("bpmcav2y", "bpmcav3y", *tt, "ok_cut");
+      ps->PutMonDD("det_l", "det_r", "reg_asym_n", *tt, "ok_cut");
       
       ps->PutDetAsymn("flumi1", *tt, "ok_cut");
       ps->PutDetAsymn("flumi2", *tt, "ok_cut");
@@ -68,6 +82,8 @@ void prompt (UInt_t run, UInt_t batch, TString comment = "")
       ps->PutDetAsymn("det2", *tt, "ok_cut");
       ps->PutDetAsymn("det3", *tt, "ok_cut");
       ps->PutDetAsymn("det4", *tt, "ok_cut");
+      ps->PutDetAsymn("det_l", *tt, "ok_cut");
+      ps->PutDetAsymn("det_r", *tt, "ok_cut");
       ps->PutDetAsymn("det_lo", *tt, "ok_cut");
       ps->PutDetAsymn("det_hi", *tt, "ok_cut");
       ps->PutDetAsymn("det_all", *tt, "ok_cut");
