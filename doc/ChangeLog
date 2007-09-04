@@ -6,6 +6,23 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+
+Changes by R. Michaels on 4 Sep 2007
+------------------------------------
+
+Mostly changes by R. Holmes and Zafar Ahmed at Syracuse U
+to add the 18-bit ADC (ADCX), but there were a few diffs that
+had crept in between CVS, HAPPEX05, and dpan07 as well.
+
+  genDevTypes.pl  --  Add 18-bit ADC
+  TaDevice (.hh, .cc)  -- 18-bit ADC, modified by me to reflect
+       that there is NO concept of DAC noise subtraction.
+  TaDataBase (.hh, .cc) -- 18-bit ADC, merged with CVS which
+       had "posmone" and "posburpe" tables, I preserved these.
+  TaStandardAna.cc -- changes from Luis in dpan07.  Looks
+       like some new weighting schemes.
+
+
 Changes by R. Holmes on 28 Sep 2005
 -----------------------------------
 
