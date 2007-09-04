@@ -122,6 +122,7 @@ private:
   void DecodeCook( TaDevice& devices );   // Called by AddToTree
   Int_t DecodeCrates( TaDevice& devices );   
   void CalibDecode(TaDevice& devices); // Called if indicated in database
+  Double_t UnpackAdcx (Int_t rawd, Int_t key); // Unpack and check ADCX data
 
   // Constants
   static const UInt_t fgMaxEvLen = 2000;    // Maximum length for event buffer
@@ -132,12 +133,12 @@ private:
 
   static const ErrCode_t fgTAEVT_ERROR;  // returned on error
   static const ErrCode_t fgTAEVT_OK;      // returned on success
-
-  // Static members
   static const UInt_t fgMaxNumPosMon = 5;   // Maximum number of position 
                                             // monitors for posburp
   static const UInt_t fgMaxNumPosMonE = 5;   // Maximum number of energy
                                             // monitors for posburp
+
+  // Static members
   static VaEvent fgLastEv;     // copy of previous event
   static Bool_t fgFirstDecode; // true until first event decoded
   static Double_t fgLoBeam;    // cut threshold from database
@@ -177,7 +178,7 @@ private:
 
   static UInt_t fgDetKey[DETNUM];  // index to calibrated detector values, used for det combos
   static Double_t fgCombWt[DETCOMBNUM][DETNUM];  // wts for detector combinations
-
+  static Int_t fgDvalue;       // Previous divider value seen in UnpackAdcx
 
   // Data members
   Int_t *fEvBuffer;            // Raw event data

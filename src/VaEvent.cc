@@ -1,4 +1,4 @@
-/**********************************************************************/
+//**********************************************************************
 //
 //     HALL A C++/ROOT Parity Analyzer  Pan           
 //
@@ -16,7 +16,6 @@
 //    conditions.
 //
 ////////////////////////////////////////////////////////////////////////
-
 
 //#define NOISY
 //#define DEBUG
@@ -76,6 +75,7 @@ UInt_t VaEvent::fgNCuts;
 Bool_t VaEvent::fgCalib;
 UInt_t VaEvent::fgDetKey[DETNUM];
 Double_t VaEvent::fgCombWt[DETCOMBNUM][DETNUM];
+Int_t VaEvent::fgDvalue = -1;
 
 VaEvent::VaEvent(): 
   fEvType(0),  
@@ -90,7 +90,7 @@ VaEvent::VaEvent():
   fEvBuffer = new Int_t[fgMaxEvLen];
   memset(fEvBuffer, 0, fgMaxEvLen*sizeof(Int_t));
   fData = new Double_t[MAXKEYS];
-  memset(fData, 0, MAXKEYS*sizeof(Double_t)); 
+  memset(fData, 0, MAXKEYS*sizeof(Double_t));
   fN1roc = new Int_t[MAXROC];
   memset(fN1roc, 0, MAXROC*sizeof(Int_t));
   fLenroc = new Int_t[MAXROC];
@@ -289,7 +289,6 @@ VaEvent::RunInit(const TaRun& run)
   for(vector<Double_t>::iterator iconst = qpd1const.begin();
       iconst != qpd1const.end(); iconst++)  fQPD1Pars[ip++] = *iconst;
 
-
   vector<Double_t> cav1const = run.GetDataBase().GetCavConst1();
   ip=0;
   for(vector<Double_t>::iterator iconst = cav1const.begin();
@@ -404,6 +403,7 @@ VaEvent::Decode(TaDevice& devices)
 // EvPointer Convention:  If the crate number is <= 0, then the 
 // event pointer is an absolute offset.  If crate > 0, then the 
 // pointer is relative to the header for that device and crate.
+      Int_t rawd;
       if (icra <= 0) {
 #ifdef SANE_DECODE
 // This is almost certainly an error, but ... if you know
@@ -413,10 +413,18 @@ VaEvent::Decode(TaDevice& devices)
           cout << "for key = "<<devices.GetKey(key)<<endl;
 	}
 #endif
-        fData[key] =  GetRawData(devices.GetEvPointer(key));
+        rawd =  GetRawData(devices.GetEvPointer(key));
       } else {
-        fData[key] =  GetRawData(
+        rawd =  GetRawData(
           devices.GetOffset(key)+devices.GetEvPointer(key) );
+      }
+      // ADCX data have to be masked out and checked before conversion
+      // to floating point
+      if (devices.IsAdcx (key)) {
+        if (DECODE_DEBUG) cout << endl << "==============="<<endl<< "adcx key = "<<key<<"    data = 0x"<<rawd<<dec<<endl;
+	fData[key] = UnpackAdcx (rawd, key);
+      } else {
+	fData[key] = rawd;
       }
       if (DECODE_DEBUG == 1) {
         cout << endl << "------------------" <<endl;
@@ -436,7 +444,7 @@ VaEvent::Decode(TaDevice& devices)
   }
 
 // Calibrate the ADCs first
-  for (i = 0;  i < ADCNUM; i++) {
+  for (i = 0;  i < ADCNUM+ADCXNUM; i++) {
     for (j = 0; j < 4; j++) {
       key = i*4 + j;
       fData[ACCOFF + key] = fData[ADCOFF + key] 
@@ -579,7 +587,7 @@ VaEvent::Decode(TaDevice& devices)
        if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
        idx = devices.GetCalIndex(key);
        if (idx < 0) continue;
-       fData[key+2] = fData[idx]*fCavPars[i][j];
+       fData[key+2] = fData[idx];
        if (devices.IsUsed(key)) devices.SetUsed(key+2);
     }
   }
@@ -724,7 +732,7 @@ VaEvent::CalibDecode(TaDevice& devices)
 
 
 // Calibrate the ADCs first (no pedestal subtraction here!)
-  for (i = 0;  i < ADCNUM; i++) {
+  for (i = 0;  i < ADCNUM+ADCXNUM; i++) {
     for (j = 0; j < 4; j++) {
       key = i*4 + j;
       corrkey = ADCDACSUBOFF + key;
@@ -1007,7 +1015,6 @@ VaEvent::CheckEvent(TaRun& run)
 	  run.UpdateCutList (fgCBurpNo, thisval, fEvNum);
 	}
 
-    
       //Check Energy Beam Burp
       if ( fgPosBurpENo < fgNCuts)
 	{
@@ -1636,3 +1643,186 @@ void VaEvent::Uncreate()
   if (fCutArray != 0)
     delete [] fCutArray;
 };
+
+Double_t 
+VaEvent::UnpackAdcx (Int_t rawd, Int_t key)
+{
+  // Data from ADCX are unpacked and dealt with
+  // If the key is within one of the data blocks used for an ADCX
+  // signal, we check for compatibility between the key and the
+  // data.  If not (presumably meaning it's a device tied to an ADCX)
+  // we do no checking.  If there's a problem it should be caught in
+  // checking the ADC signal.
+
+  Int_t mask31x   = 0x80000000;   // Header bit mask
+  Int_t mask3029x = 0x60000000;   // Channel number mask
+  Int_t mask2625x = 0x06000000;   // Divider value mask
+  Int_t mask2422x = 0x01c00000;   // Data type mask
+  Int_t mask21x   = 0x00200000;   // Data type 0 value sign mask
+  Int_t mask200x  = 0x001fffff;   // Data type 0 value field mask
+  Int_t mask2118x = 0x003c0000;   // Data types 1-2 sample number mask
+  Int_t mask170x  = 0x0003ffff;   // Data types 1-2 value field mask
+  Int_t mask150x  = 0x0000ffff;   // Data type 4 value field mask
+
+  // "Actual" values from data word
+  Int_t act_dtype  = (rawd & mask2422x) >> 22;
+  Int_t act_chan   = act_dtype != 4 ? ((rawd & mask3029x) >> 29) : 0;
+  Int_t act_dvalue = (rawd & mask2625x) >> 25;
+  Int_t act_snum   = act_dtype == 1 || act_dtype == 2 ?
+    ((rawd & mask2118x) >> 18) : 0;
+
+  // To check the data we need to see what kind of data are expected
+  // based on where in the data array it's going to go (i.e. value of key)
+
+  Bool_t checking = true;  // should we check?
+  Int_t keyo;  // key minus offset
+  Int_t adcx;  // ADC number
+  Int_t exp_chan;  // Expected ADC channel number
+  Int_t exp_dtype; // Expected data type
+  Int_t exp_snum;  // Expected sample number
+  if (key >= ADCXOFF && key < ADCXOFF + 4 * ADCXNUM)
+    {
+      // Raw integrated signal
+      keyo = key - ADCXOFF;
+      adcx = keyo / 4;
+      exp_chan = keyo % 4;
+      exp_dtype = 0;
+    }
+  else if (key >= ADCXBSOFF && key < ADCXBSOFF + 4 * 4 * ADCXNUM)
+    {
+      // Baseline sample
+      keyo = key - ADCXBSOFF;
+      adcx = keyo / 16;
+      exp_chan = (keyo % 16) / 4;
+      exp_dtype = 1;
+      exp_snum = keyo % 4 + 1;
+    }
+  else if (key >= ADCXPSOFF && key < ADCXPSOFF + 4 * 4 * ADCXNUM)
+    {
+      // Peak sample
+      keyo = key - ADCXPSOFF;
+      adcx = keyo / 16;
+      exp_chan = (keyo % 16) / 4;
+      exp_dtype = 2;
+      exp_snum = keyo % 4 + 1;
+    }
+  else if (key >= DACXOFF && key < DACXOFF + DACXNUM)
+    {
+      // DAC value
+      keyo = key - DACXOFF;
+      adcx = keyo;
+      exp_dtype = 4;
+    }
+  else if (key >= CSRXOFF && key < CSRXOFF + CSRXNUM)
+    {
+      // CSR value -- nothing to mask or check
+      return rawd;
+    }
+  else
+    {
+      // Must be a tied device, so we won't do any checking
+      checking = false;
+    }
+
+  Double_t retval; 
+
+  // Here are checks common to all (or almost all) data types
+
+  if (checking)
+    {
+      // If this is a header word we're doomed already
+      if ((rawd & mask31x) != 0)
+	{
+	  cout << "VaEvent::UnpackAdcx: ERROR -- Header found where data expected for ADCX"
+	       << adcx;
+	  if (exp_dtype != 4) cout << " channel " << exp_chan;
+	  cout << endl;
+	  //	  exit(0);
+	}
+      
+      if (exp_dtype != 4)
+	{
+	  // Check channel number
+	  if (act_chan != exp_chan)
+	    {
+	      cout << "VaEvent::UnpackAdcx: ERROR -- Unexpected channel number " 
+		   << act_chan << " for ADCX"
+		   << adcx << " channel = " << exp_chan << endl;
+	      //    exit(0);
+	    }
+	}
+
+      // Check the data type
+      if (act_dtype != exp_dtype )
+	{
+	  cout << " VaEvent::UnpackAdcx:  ERROR -- Unexpected data type, expected " 
+	       << exp_dtype << ", got " << act_dtype
+	       << " for ADCX" << adcx;
+	  if (exp_dtype != 4) cout << " channel " << exp_chan;
+	  cout << endl; 
+	  //	  exit(0);
+	}
+    }
+  
+  // Done with general checking.  Here we check (if needed) and unpack
+  // values for types 0, 1 or 2, and 4 separately
+
+  if (act_dtype == 0) // Regular signal data
+    {
+      if (checking)
+	{
+	  // Check divider value to see if it changes
+	  // act_dvalue = log_2 (number of samples)
+	  if (fgDvalue != -1 && fgDvalue != act_dvalue)
+	    {
+	      cout << "VaEvent::UnpackAdcx:  ERROR -- Number of ADCX samples changes during the run from " 
+		   << fgDvalue << " to " << act_dvalue 
+		   << "  for ADCX" << adcx << " channel " << exp_chan << endl; 
+	      //	      exit (0);
+	    }
+	  fgDvalue = act_dvalue;
+	}
+
+      // Now get the value, fix the sign, and divide by 2^act_dvalue
+      Int_t iretval = rawd & mask200x;
+      if (rawd & mask21x) // Is sign bit set?
+	iretval = -((~iretval & 0x1fffff) + 1); // -(2's complement)
+      retval = (Double_t) iretval / (1 << act_dvalue);
+    }
+  else if (act_dtype == 1 || act_dtype == 2) // Baseline or peak sample data
+    {
+      if (checking)
+	{
+	  // Check sample number (sample number is not the "number of samples") to see if it is as expected
+	  if (act_snum != exp_snum)
+	    {
+	      cout <<  "VaEvent::UnpackAdcx:  ERROR -- unexpected sample value " 
+		   << act_snum		
+		   << " expected value " << exp_snum << " for ADCX" << adcx << " channel "
+		   << exp_chan << endl;
+	      //	      exit (0);
+	    }
+	  if (act_dvalue != 0)
+	    {
+	      cout <<  "VaEvent::UnpackAdcx:  ERROR --  dvalue != 0 for data type 1 or 2 for ADCX"
+		   << adcx << " channel " << exp_chan << endl;
+	      //	      exit (0);
+	    }
+	}
+
+       //Now get the value
+       retval = rawd & mask170x;
+    }
+  else if (act_dtype == 4)
+    {
+      if (act_dvalue != 0)
+	{
+	  cout <<  "VaEvent::UnpackAdcx:  ERROR --  dvalue != 0 for data type 4 for ADCX" << adcx
+	       << " channel " << exp_chan << endl;
+	  //	  exit (0);
+	}
+      //Now get the return value
+      retval = rawd & mask150x;
+    }
+  return retval;
+}
