@@ -7,8 +7,8 @@
 # Output to stdout.
 #
 # To add a new device of an existing type to DevTypes.hh, add its
-# (unique) name to the appropriate list (or, for a new ADC or scaler,
-# increase $adcnum or $scanum). 
+# (unique) name to the appropriate list (or, for a new ADC or ADCX or
+# scaler, increase $adcnum or $adcxnum or $scanum).
 #
 # To add a new type of device, add a list of device names and a sub
 # do_<whatever> modelled on do_striplines, do_bcms, etc., and call it
@@ -47,8 +47,9 @@
 @scanflist = qw / ISCANCLEAN ISCANDATA1 ISCANDATA2 ISCANDATA3 ISCANDATA4 /;
 # SYNC words
 @synclist = qw / IISYNC0 ICHSYNC0 ICHSYNC1 ICHSYNC2 IRSYNC1 IRSYNC2 ILSYNC1 ILSYNC2 /;
-# Number of ADC modules, scaler modules, and crates
+# Number of old ADC modules, new ADC modoules, scaler modules, and crates
 $adcnum = 31;
+$adcxnum = 31;
 $scanum = 7;
 $ncrates = 4;
 
@@ -104,10 +105,10 @@ print << "END";
 \#define   MAXKEYS        $p
 \#define   ADCREADOUT     1
 \#define   SCALREADOUT    2
-\#define   SCALREADOUT    2
 \#define   TBDREADOUT     3
 \#define   TIRREADOUT     4
 \#define   DAQFLAG        5
+\#define   ADCXREADOUT   6
 
 // Keys for getting data from devices.
 // They keys are mapped to devices automatically.
@@ -551,96 +552,180 @@ sub add_detcomb
 
 sub do_adcs
 {
-# ADCs
+# ADCs -- old and new.  We guarantee new ADC quantities will
+# immediately follow corresponding old ADC quantities, so one can loop
+# over both.
 
     $adcoff = $p;
-    $out1 = "";
+    $adcxoff = $p + $adcnum * 4;
+    $out1 = "// Here are the old ADCs\n";
     for $iadc (0..$adcnum-1)
     {
 	$adc = "IADC$iadc";
 	$out1 .= &add_adc ($adc);
     }
+    $out1 .= "// Here are the new (18 bit) ADCs\n";
+    for $iadcx (0..$adcxnum-1)
+    {
+	$adcx = "IADCX$iadcx";
+	$out1 .= &add_adc ($adcx);
+    }
     $out .= << "ENDADCCOM";
-// ADC data.  Data are arranged in sequence starting with ADC0_0
-// First index is the adc#, second is channel#.  Indices start at 0
-// ADC# 0 - 9 are in first crate, 10 in next crate, etc.  
+\// ADC data.  Data are arranged in sequence starting with ADC0_0
+\// First index is the adc#, second is channel#.  Indices start at 0
+\// ADC# 0 - 9 are in first crate, 10 in next crate, etc.  Both old
+\// ADCs (type adc) and new (type adcx) are included.
 
-// First the raw data
+\// First the raw data
 
 \// Raw ADCs start here
 \#define   ADCOFF     $adcoff
+\#define   ADCXOFF   $adcxoff
 \// number of ADCs defined below
 \#define   ADCNUM     $adcnum
+\#define   ADCXNUM   $adcxnum
 
 $out1
 ENDADCCOM
 
     $adcdacsuboff = $p;
-    $out1 = "";
+    $adcxdacsuboff = $p + $adcnum * 4;
+    $out1 = "// Here are the old ADCs\n";
     for $iadcdacsub (0..$adcnum-1)
     {
 	$adcdacsub = "IADC$iadcdacsub";
 	$out1 .= &add_adcdacsub ($adcdacsub);
+    }
+    $out1 .= "// Here are the new (18 bit) ADCs\n";
+    for $iadcxdacsub (0..$adcxnum-1)
+    {
+	$adcxdacsub = "IADCX$iadcxdacsub";
+	$out1 .= &add_adcdacsub ($adcxdacsub);
     }
     $out .= << "ENDADCDACSUBCOM";
 // Now the dacnoise subtracted data
 
 \// Dacnoise Subtracted ADCs start here
 \#define   ADCDACSUBOFF     $adcdacsuboff
+\#define   ADCXDACSUBOFF   $adcxdacsuboff
 
 $out1
 ENDADCDACSUBCOM
 
     $accoff = $p;
-    $out1 = "";
+    $accxoff = $p + $adcnum * 4;
+    $out1 = "// Here are the old ADCs\n";
     for $iacc (0..$adcnum-1)
     {
 	$acc = "IADC$iacc";
 	$out1 .= &add_adccal ($acc);
+    }
+    $out1 .= "// Here are the new (18 bit) ADCs\n";
+    for $iaccx (0..$adcxnum-1)
+    {
+	$accx = "IADCX$iaccx";
+	$out1 .= &add_adccal ($accx);
     }
     $out .= << "ENDACCCOM";
 // Now the calibrated data
 
 \// Calibrated ADCs start here
 \#define   ACCOFF     $accoff
+\#define   ACCXOFF   $accxoff
 
 $out1
 ENDACCCOM
 
+# New ADCs only: Baseline samples
+
+    $adcxbsoff = $p;
+    $out1 = "";
+    for $iadcxbs (0..$adcxnum-1)
+    {
+	$adcxbs = "IADCX$iadcxbs";
+	$out1 .= &add_adcbs ($adcxbs);
+    }
+    $out .= << "ENDADCBSCOM";
+// Now the baseline sample data
+
+\// ADCX baseline samples start here
+\#define   ADCXBSOFF   $adcxbsoff
+
+$out1
+ENDADCBSCOM
+
+# New ADCs only: Baseline samples
+
+    $adcxpsoff = $p;
+    $out1 = "";
+    for $iadcxps (0..$adcxnum-1)
+    {
+	$adcxps = "IADCX$iadcxps";
+	$out1 .= &add_adcps ($adcxps);
+    }
+    $out .= << "ENDADCPSCOM";
+// Now the peak sample data
+
+\// ADCX baseline samples start here
+\#define   ADCXPSOFF   $adcxpsoff
+
+$out1
+ENDADCPSCOM
+
     $dacoff = $p;
     $dacnum = $adcnum;
-    $out1 = "";
+    $dacxoff = $p + $dacnum;
+    $dacxnum = $adcxnum;
+    $out1 = "// Here are the old ADCs\n";
     for $idac (0..$dacnum-1)
     {
 	$dac = "IDAC$idac";
 	$out1 .= &add_daccsr ($dac);
+    }
+    $out1 .= "// Here are the new (18 bit) ADCs\n";
+    for $idacx (0..$dacxnum-1)
+    {
+	$dacx = "IDACX$idacx";
+	$out1 .= &add_daccsr ($dacx);
     }
     $out .= << "ENDDACCOM";
 // DAC noise.
 
 \// DACs start here
 \#define   DACOFF     $dacoff
+\#define   DACXOFF     $dacxoff
 \// number of DACs defined below
 \#define   DACNUM     $dacnum
+\#define   DACXNUM     $dacxnum
 
 $out1
 ENDDACCOM
 
     $csroff = $p;
     $csrnum = $adcnum;
-    $out1 = "";
+    $csrxoff = $p + $csrnum;
+    $csrxnum = $adcxnum;
+    $out1 = "// Here are the old ADCs\n";
     for $icsr (0..$csrnum-1)
     {
 	$csr = "ICSR$icsr";
 	$out1 .= &add_daccsr ($csr);
+    }
+    $out1 .= "// Here are the new (18 bit) ADCs\n";
+    for $icsrx (0..$csrxnum-1)
+    {
+	$csrx = "ICSRX$icsrx";
+	$out1 .= &add_daccsr ($csrx);
     }
     $out .= << "ENDCSRCOM";
 // CSRs
 
 \// CSRs start here
 \#define   CSROFF     $csroff
+\#define   CSRXOFF     $csrxoff
 \// number of CSRs defined below
 \#define   CSRNUM     $csrnum
+\#define   CSRXNUM     $csrxnum
 
 $out1
 ENDCSRCOM
@@ -679,6 +764,54 @@ sub add_adccal
     $ret .= "\#define   ${adc}_1_CAL     $p\n"; $p++;
     $ret .= "\#define   ${adc}_2_CAL     $p\n"; $p++;
     $ret .= "\#define   ${adc}_3_CAL     $p\n"; $p++;
+    return $ret;
+}
+
+sub add_adcbs
+{
+    my ($adc) = @_;
+    my ($ret);
+    $ret = "";
+    $ret .= "\#define   ${adc}_0_B0     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_0_B1     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_0_B2     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_0_B3     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_1_B0     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_1_B1     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_1_B2     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_1_B3     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_2_B0     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_2_B1     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_2_B2     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_2_B3     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_3_B0     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_3_B1     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_3_B2     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_3_B3     $p\n"; $p++;
+    return $ret;
+}
+
+sub add_adcps
+{
+    my ($adc) = @_;
+    my ($ret);
+    $ret = "";
+    $ret .= "\#define   ${adc}_0_P0     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_0_P1     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_0_P2     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_0_P3     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_1_P0     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_1_P1     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_1_P2     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_1_P3     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_2_P0     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_2_P1     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_2_P2     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_2_P3     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_3_P0     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_3_P1     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_3_P2     $p\n"; $p++;
+    $ret .= "\#define   ${adc}_3_P3     $p\n"; $p++;
     return $ret;
 }
 

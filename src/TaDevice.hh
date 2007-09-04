@@ -60,6 +60,7 @@ class TaDevice {
     void PrintHeaders();
     Double_t GetPedestal(const Int_t& index) const;
     Double_t GetDacSlope(const Int_t& index) const;
+    Double_t GetDacSlopeA (const Int_t& index) const;
     Int_t GetDevNum(const Int_t& index) const;
     Int_t GetChanNum(const Int_t& index) const;
     Int_t GetRawIndex(const Int_t& key) const;
@@ -68,6 +69,7 @@ class TaDevice {
     Bool_t IsUsed(const Int_t& key) const;
     Bool_t IsRotated(const Int_t& key) const;
     Bool_t IsAdc(const Int_t& key) const;
+    Bool_t IsAdcx(const Int_t& key) const;
     Bool_t IsScaler(const Int_t& key) const;
     Bool_t IsTimeboard(const Int_t& key) const;
     Bool_t IsTir(const Int_t& key) const;
@@ -78,15 +80,15 @@ class TaDevice {
  protected:
 
     Int_t fNumRaw, fNtied;
-    UInt_t fgAdcHeader, fgScalHeader, fgTbdHeader;
+    UInt_t fgAdcHeader, fgAdcxHeader, fgScalHeader, fgTbdHeader;
     UInt_t fgTirHeader, fgDaqHeader;
-    UInt_t fgAdcMask, fgScalMask, fgTbdMask;
+    UInt_t fgAdcMask, fgAdcxMask, fgScalMask, fgTbdMask;
     UInt_t fgTirMask,  fgDaqMask;       
     Int_t *fRawKeys, *fEvPointer, *fCrate;
     Int_t *fReadOut, *fIsUsed, *fIsRotated;
-    Double_t *fAdcPed, *fScalPed, *fDacSlope;
+    Double_t *fAdcPed, *fAdcxPed, *fScalPed, *fDacSlope, *fDacxSlope;
     Int_t *fDevNum, *fChanNum;
-    Int_t *fAdcptr, *fScalptr;   
+    Int_t *fAdcptr, *fAdcxptr, *fScalptr;   
     Int_t *fTbdptr, *fTirptr;    
     Int_t *fDaqptr;
     map<string, Int_t> fKeyToIdx;
@@ -129,6 +131,7 @@ inline Int_t TaDevice::GetOffset(const Int_t& key) const {
   Int_t crate = GetCrate(key);
   if (crate <= 0 || crate > MAXROC) return 0;
   if (IsAdc(key)) return fAdcptr[crate];
+  if (IsAdcx(key)) return fAdcxptr[crate];
   if (IsScaler(key)) return fScalptr[crate];
   if (IsTimeboard(key)) return fTbdptr[crate];
   if (IsTir(key)) return fTirptr[crate];
@@ -137,6 +140,8 @@ inline Int_t TaDevice::GetOffset(const Int_t& key) const {
 };
 
 inline Double_t TaDevice::GetDacSlope(const Int_t& index) const  {
+  // Disparaged -- instead use GetDacSlope, whose parameter is 
+  // a device key and works with both old and new ADCs.
   return fDacSlope[index];
 };
 
@@ -165,6 +170,13 @@ inline Bool_t TaDevice::IsRotated(const Int_t& key) const {
 inline Bool_t TaDevice::IsAdc(const Int_t& key) const {
   if (key >= 0 && key < MAXKEYS) {
     if (fReadOut[key] == ADCREADOUT) return kTRUE;
+  }
+  return kFALSE;
+};
+
+inline Bool_t TaDevice::IsAdcx(const Int_t& key) const {
+  if (key >= 0 && key < MAXKEYS) {
+    if (fReadOut[key] == ADCXREADOUT) return kTRUE;
   }
   return kFALSE;
 };
