@@ -67,3 +67,20 @@ Examples of CVS commands for username = rsholmes:
 
 * Committing a change
    cvs commit -m "correct path to codaclass" Makefile
+
+--------------------------------------------------------
+
+An obscure problem with CVS (in case it happens again)
+
+Once I could not do a "cvs checkout", got error message 
+   "cvs server: failed to create lock directory "
+It couldn't create #cvs.lock in a particular directory.
+I went to that directory on /group/halla/parity/cvs/pan,
+saw no such file, and tried this:
+   touch #cvs.lock
+   chmod 775 #cvs.lock
+
+Then checkout got a different error message.  Next I did
+   rm #cvs.lock
+ 
+... finally the checkout worked !
