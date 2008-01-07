@@ -30,6 +30,23 @@
 # To make standalone, independent of root CINT macros
 export STANDALONE = 1
 
+# If ROOTSYS is defined, look for ROOT files under there.  
+# If not, look in <prefix>/inc, <prefix>/bin, etc., where
+# <prefix> is specified here.
+PREFIX=/usr
+ifdef ROOTPREFIX
+  PREFIX=ROOTPREFIX
+endif
+
+ROOTINC=$(PREFIX)/include/root
+ROOTBIN=$(PREFIX)/bin
+ROOTLIBDIR=$(PREFIX)/lib
+ifdef ROOTSYS
+  ROOTINC=$(ROOTSYS)/include
+  ROOTBIN=$(ROOTSYS)/bin
+  ROOTLIBDIR=$(ROOTSYS)/lib
+endif
+
 export OSNAME := $(shell uname)
 
 ifeq ($(OSNAME),SunOS)
@@ -38,7 +55,7 @@ ifeq ($(OSNAME),SunOS)
    ROOTLIBS      = $(shell root-config --libs)
    ROOTGLIBS     = $(shell root-config --glibs)
    CXX           = CC
-#   CXXFLAGS      = -O  -DSUNVERS -I$(ROOTSYS)/root/include
+#   CXXFLAGS      = -O  -DSUNVERS -I$(ROOTINC)
    CXXFLAGS      = -O  -DSUNVERS 
    LD            = CC
    LDFLAGS       = -g -D
@@ -68,7 +85,7 @@ endif
 ifeq ($(OSNAME),Linux)
 
    ifdef OLDROOT
-     ROOTLIBS      = -L$(ROOTSYS)/lib -lNew -lBase -lCint -lClib -lCont -lFunc \
+     ROOTLIBS      = -L$(ROOTLIBDIR) -lNew -lBase -lCint -lClib -lCont -lFunc \
                     -lGraf -lGraf3d -lHist -lHtml -lMatrix -lMeta -lMinuit -lNet \
                     -lPhysics -lPostscript -lProof -lRint -lTree -lUnix -lZip
      ROOTGLIBS     = -lGpad -lGui -lGX11 -lX3d
@@ -79,10 +96,10 @@ ifeq ($(OSNAME),Linux)
 
    CXX           = g++
    CXXFLAGS      = -Wall -fno-rtti -fno-exceptions -fPIC \
-                   -DLINUXVERS -I$(ROOTSYS)/include -O
+                   -DLINUXVERS -I$(ROOTINC) -O
 
 # Linux with egcs
-   INCLUDES      = -I$(ROOTSYS)/include 
+   INCLUDES      = -I$(ROOTINC)
    CXX           = g++
    CXXFLAGS      = -O -Wall -fno-rtti -fno-exceptions -fPIC $(INCLUDES)
    LD            = g++
