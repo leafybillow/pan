@@ -21,7 +21,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "TaString.hh"
-#include <strstream>
+#include <sstream>
 
 #ifndef NODICT
 ClassImp(TaString)
@@ -95,7 +95,7 @@ UInt_t
 TaString::Hex() const
 {
   // Conversion to to unsigned interpreting as hex.
-  istrstream ist(this->c_str());
+  istringstream ist(this->c_str());
   UInt_t in;
   ist >> hex >> in;
   return in;

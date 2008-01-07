@@ -20,7 +20,7 @@
 #include "TROOT.h"
 #include "TaOResultsFile.hh" 
 #include <iomanip>
-#include <streambuf.h>
+#include <streambuf>
 #include "TDatime.h"
 #include "TaFileName.hh"
 

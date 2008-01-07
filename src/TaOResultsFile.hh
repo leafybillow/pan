@@ -87,10 +87,9 @@ class TaOResultsFile: public ofstream
 	       const UInt_t chksum,
 	       const string com);   // Utility for constructors
 
-  void 
-  TaOResultsFile::Create (const string ptag, 
-			  const char* filename,
-			  const UInt_t chksum); // Util for filename specified constructor
+  void Create (const string ptag, 
+	       const char* filename,
+	       const UInt_t chksum); // Util for filename specified constructor
   // Data members
 
   string    fPtag;   // program tag

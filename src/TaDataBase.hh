@@ -188,7 +188,7 @@ public:
     rotate_flag  = copy.rotate_flag;
     istied  = copy.istied;
   };
-  TaKeyMap &TaKeyMap::operator=(const TaKeyMap& rhs) {
+  TaKeyMap &operator=(const TaKeyMap& rhs) {
     if (this != &rhs) {
       type    = rhs.type;
       readout = rhs.readout;

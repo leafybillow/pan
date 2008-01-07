@@ -97,16 +97,16 @@ private:
   //
   // Member functions
   //
-  virtual void TaADCCalib::Init(const Bool_t&);
-  void TaADCCalib::InitPed();
-  void TaADCCalib::InitDAC();
-  virtual ErrCode_t TaADCCalib::ProcessRun();
-  virtual void TaADCCalib::Finish();
-  void TaADCCalib::FinishPed();
-  void TaADCCalib::FinishDAC();
-  void TaADCCalib::EventAnalysis ();
-  void TaADCCalib::PairAnalysis ();
-  void TaADCCalib::InitChanLists ();
+  virtual void Init(const Bool_t&);
+  void InitPed();
+  void InitDAC();
+  virtual ErrCode_t ProcessRun();
+  virtual void Finish();
+  void FinishPed();
+  void FinishDAC();
+  void EventAnalysis ();
+  void PairAnalysis ();
+  void InitChanLists ();
   
 
 #ifndef NODICT
