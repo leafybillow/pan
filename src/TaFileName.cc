@@ -283,7 +283,7 @@ TaFileName::Basename (const RunNumber_t r)
       else
 	{
 	  tm* lt = gmtime(&t);
-	  char yc[2];
+	  char yc[3];
 	  sprintf (yc, "%2.2d", (lt->tm_year) % 100);
 	  ystr = yc;
 	}
