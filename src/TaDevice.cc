@@ -33,9 +33,11 @@ TaDevice::TaDevice() {
    fAdcxPed = new Double_t[4*ADCXNUM];
    fDacSlope = new Double_t[4*ADCNUM];
    fDacxSlope = new Double_t[4*ADCXNUM];
+   fVqwkPed = new Double_t[8*VQWKNUM];
    fDevNum = new Int_t[MAXKEYS];
    fChanNum = new Int_t[MAXKEYS];
    fScalPed = new Double_t[32*SCANUM];
+   fVqwkptr = new Int_t[MAXROC];
    fAdcptr = new Int_t[MAXROC];
    fAdcxptr = new Int_t[MAXROC];
    fScalptr = new Int_t[MAXROC];
@@ -48,6 +50,7 @@ TaDevice::TaDevice() {
    memset(fReadOut, 0, MAXKEYS*sizeof(Int_t));
    memset(fIsUsed, 0, MAXKEYS*sizeof(Int_t));
    memset(fIsRotated, 0, MAXKEYS*sizeof(Int_t));
+   memset(fVqwkPed, 0, 8*VQWKNUM*sizeof(Double_t));
    memset(fAdcPed, 0, 4*ADCNUM*sizeof(Double_t));
    memset(fAdcxPed, 0, 4*ADCXNUM*sizeof(Double_t));
    memset(fDacSlope, 0, 4*ADCNUM*sizeof(Double_t));
@@ -55,6 +58,7 @@ TaDevice::TaDevice() {
    memset(fDevNum, 0, MAXKEYS*sizeof(Int_t));
    memset(fChanNum, 0, MAXKEYS*sizeof(Int_t));
    memset(fScalPed, 0, 32*SCANUM*sizeof(Int_t));
+   memset(fVqwkptr, 0, MAXROC*sizeof(Int_t));
    memset(fAdcptr, 0, MAXROC*sizeof(Int_t));
    memset(fAdcxptr, 0, MAXROC*sizeof(Int_t));
    memset(fScalptr, 0, MAXROC*sizeof(Int_t));
@@ -94,14 +98,16 @@ void TaDevice::Init(TaDataBase& db) {
 // keys in the database must match the fKeyToIdx map.
 // Set up rotated BPMs.
 // Some devices like 'bpm', 'bcm', 'lumi' can be tied
-// to others like 'adc', 'adcx', 'scaler' according to rules.
+// to others like 'vqwk', 'adc', 'adcx', 'scaler' according to rules.
 
-   Int_t key,tiedkey,iadc, iadcx, isca,ichan,i,k;
+   Int_t key,tiedkey,ivqwk,iadc, iadcx, isca,ichan,i,k;
    string keystr;
    InitKeyList();
    TaKeyMap keymap;
    BpmDefRotate();  
    db.DataMapReStart();
+   fgVqwkHeader = db.GetHeader("vqwk");
+   fgVqwkMask = db.GetMask("vqwk");
    fgAdcHeader = db.GetHeader("adc");
    fgAdcMask = db.GetMask("adc");
    fgAdcxHeader = db.GetHeader("adcx");
@@ -115,6 +121,16 @@ void TaDevice::Init(TaDataBase& db) {
    fgDaqHeader = db.GetHeader("daqflag");
    fgDaqMask = db.GetMask("daqflag");
 // Try to recover from a database that doesn't define header, mask.
+   if (fgVqwkHeader == 0) {
+     fgVqwkHeader = 0xffadd000;
+     cout << "WARNING:  Header for VQWK was zero.";
+     cout <<"  Using default  " << hex << fgVqwkHeader << dec << endl;
+   }
+   if (fgVqwkMask == 0) {
+     fgVqwkMask = 0xfffff000;  
+     cout << "WARNING:  Mask for Vqwk was zero."; 
+     cout <<"  Using default  " << hex << fgVqwkMask << dec << endl;
+   }
    if (fgAdcHeader == 0) {
      fgAdcHeader = 0xffadc000;
      cout << "WARNING:  Header for ADC was zero.";
@@ -188,13 +204,13 @@ void TaDevice::Init(TaDataBase& db) {
             break;
 	 }
      }
-     keymap = db.GetKeyMap(devicename);
+     keymap = db.GetKeyMap(devicename); 
      if (keymap.IsTiedDevice()) AddTiedDevices(keymap);
-     vector<string> vkeys = keymap.GetKeys();
+     vector<string> vkeys = keymap.GetKeys();  
      for (vector<string>::iterator is = vkeys.begin(); 
         is != vkeys.end(); is++) {
            string keystr = *is;
-           key = AddRawKey(keystr);
+           key = AddRawKey(keystr); 
            if (key < 0) continue;
            fEvPointer[key] = keymap.GetEvOffset(keystr);
            fCrate[key] = keymap.GetCrate();
@@ -202,7 +218,7 @@ void TaDevice::Init(TaDataBase& db) {
            fIsUsed[key] = 1;
            if (keymap.IsAdc(keystr)) fReadOut[key] = ADCREADOUT;
            if (keymap.IsAdcx(keystr)) fReadOut[key] = ADCXREADOUT;
-           if (keymap.IsScaler(keystr)) fReadOut[key] = SCALREADOUT;
+           if (keymap.IsVqwk(keystr)) fReadOut[key] = VQWKREADOUT;
            if (keymap.IsScaler(keystr)) fReadOut[key] = SCALREADOUT;
            if (keymap.IsTimeboard(keystr)) fReadOut[key] = TBDREADOUT;
            if (keymap.IsTir(keystr)) fReadOut[key] = TIRREADOUT;
@@ -227,19 +243,19 @@ void TaDevice::Init(TaDataBase& db) {
    if (DECODE_DEBUG) cout << "Number tied "<<fNtied<<endl; 
    if (fNtied > 0) {
      for (i = 0; i < fNtied; i++) {
-       vector<string> vtiedkey = fTiedKeys[i].GetKeys();
+       vector<string> vtiedkey = fTiedKeys[i].GetKeys(); 
        k = 0;
        db.DataMapReStart();
        while ( db.NextDataMap() ) {
          string devicename = db.GetDataMapName();  
-         keymap = db.GetKeyMap(devicename);
-         vector<string> vkeys = keymap.GetKeys();
+         keymap = db.GetKeyMap(devicename); 
+         vector<string> vkeys = keymap.GetKeys(); 
          for (vector<string>::iterator is = vkeys.begin(); 
            is != vkeys.end(); is++) {
            if ((unsigned int)k >= vtiedkey.size()) break;
            string keystr = *is;
            key = GetKey(keystr); 
-           tiedkey = GetKey(vtiedkey[k]);
+           tiedkey = GetKey(vtiedkey[k]); 
            if ((key != tiedkey) && (key > 0 && tiedkey > 0) &&
                (keymap.GetDevNum(keystr) == 
                 fTiedKeys[i].GetDevNum(vtiedkey[k])) &&
@@ -287,6 +303,12 @@ void TaDevice::Init(TaDataBase& db) {
  	
      }
    }
+   for (ivqwk = 0; ivqwk < VQWKNUM; ivqwk++) {
+     for (ichan = 0; ichan < 8; ichan++) {
+        fVqwkPed[ivqwk*8 + ichan] = db.GetVqwkPed(ivqwk, ichan);
+     }
+   }
+
    for (isca = 0; isca < SCANUM; isca++) {
      for (ichan = 0;  ichan < 32; ichan++) {
        fScalPed[isca*32 + ichan] = db.GetScalPed(isca, ichan);
@@ -299,6 +321,7 @@ void TaDevice::AddTiedDevices(TaKeyMap& keymap) {
 // Note, e.g. "bpm" can be tied to an "adc", but not vice versa.
   if (keymap.GetType() == "adc" || 
       keymap.GetType() == "adcx" || 
+      keymap.GetType() == "vqwk" || 
       keymap.GetType() == "scaler") {
     cout << "TaDevice::ERROR:  Attempting to tie a raw device ";
     cout << "to something else."<<endl;
@@ -317,7 +340,7 @@ void TaDevice::AddTiedDevices(TaKeyMap& keymap) {
 void TaDevice::FindHeaders(const Int_t& roc, 
       const Int_t& ipt, const Int_t& data) {
 // Find the pointer to the header for the various devices.
-// The "fundamental" devices are ADC, ADCX, SCALER, TIMEBOARD, TIR.
+// The "fundamental" devices are ADC, ADCX, SCALER, VQWK, TIMEBOARD, TIR.
 // roc==0 is an error and probably means CODA is not set up 
 // correctly. Although roc==0 is logically possible in CODA
 // it is forbidden because of database conventions.
@@ -332,6 +355,10 @@ void TaDevice::FindHeaders(const Int_t& roc,
   }     
   if ((data & fgAdcxMask) == fgAdcxHeader) {
     fAdcxptr[roc] = ipt;
+    return;
+  }     
+  if ((data & fgVqwkMask) == fgVqwkHeader) {
+    fVqwkptr[roc] = ipt;
     return;
   }     
   if ((data & fgScalMask) == fgScalHeader) {
@@ -356,12 +383,14 @@ void TaDevice::FindHeaders(const Int_t& roc,
 
 void TaDevice::PrintHeaders() {
 //  Printout for debugging multiroc decoding.
-  cout << "Headers for adc, adcx, scaler, timebd, tir, daqflag "<<hex;
-  cout << fgAdcHeader << "   " << fgAdcxHeader << "   " <<fgScalHeader<<"   ";
+  cout << "Headers for adc, adcx, vqwk, scaler, timebd, tir, daqflag "<<hex;
+  cout << fgAdcHeader << "   " << fgAdcxHeader << "   " <<fgVqwkHeader<<"   ";
+  cout << fgScalHeader << "   ";
   cout << fgTbdHeader<<"   "<<fgTirHeader;
   cout << "   " << fgDaqHeader << endl;
-  cout << "Masks for adc, scaler, timebd, tir, daqflag "<<hex;
-  cout << fgAdcMask << "   " << fgAdcxMask << "   " <<fgScalMask<<"   ";
+  cout << "Masks for adc, adcx, vqwk, scaler, timebd, tir, daqflag "<<hex;
+  cout << fgAdcMask << "   " << fgAdcxMask << "   " <<fgVqwkMask<<"   ";
+  cout <<fgScalMask<<"   ";
   cout << fgTbdMask<<"   "<<fgTirMask;
   cout << "    "<<fgDaqMask<<endl;
   cout << "Pointers to data : "<<dec<<endl;
@@ -371,6 +400,9 @@ void TaDevice::PrintHeaders() {
    }
    if (fAdcxptr[iroc] > 0) {
        cout << "roc "<<iroc << "  ADCXptr= "<<fAdcxptr[iroc]<<endl;
+   }
+   if (fVqwkptr[iroc] > 0) {
+       cout << "roc "<<iroc << "  Vqwkptr= "<<fVqwkptr[iroc]<<endl;
    }
    if (fScalptr[iroc] > 0) {
        cout << "roc "<<iroc << "  Scaler ptr= "<<fScalptr[iroc]<<endl;
@@ -476,6 +508,13 @@ Double_t TaDevice::GetPedestal(const Int_t& key) const {
      index = key - ADCXOFF;
      if (index >= 0 && index < 4*ADCXNUM) return fAdcxPed[index];
   }  
+  if (fReadOut[key] == VQWKREADOUT) {
+    index = (key - VQWKOFF)/7; 
+    // make an integer counter for
+    // the 7-word blocks for each VQWK channel
+    //    cout << Form("Get Integer for channel %d, key %d, offset %d",index,key,VQWKOFF) << endl;
+     if (index >= 0 && index < 7*8*VQWKNUM) return fVqwkPed[index];
+  }  
   if (fReadOut[key] == SCALREADOUT) {
      index = key - SCAOFF;
      if (index >= 0 && index < 32*SCANUM) return fScalPed[index];
@@ -500,7 +539,7 @@ Double_t TaDevice::GetDacSlopeA (const Int_t& key) const
 }
 
 Int_t TaDevice::GetRawIndex(const Int_t& key) const {
-// Return a pointer to the raw ADC or ADCX or SCALER data corresponding to key
+// Return a pointer to the raw ADC, ADCX, VQWK or SCALER data corresponding to key
   Int_t index = -1;
   if (fReadOut[key] == ADCREADOUT) {
      index = ADCOFF + 4*GetDevNum(key) + GetChanNum(key);
@@ -508,6 +547,11 @@ Int_t TaDevice::GetRawIndex(const Int_t& key) const {
   }  
   if (fReadOut[key] == ADCXREADOUT) {
      index = ADCXOFF + 4*GetDevNum(key) + GetChanNum(key);
+     return index;
+  }  
+  if (fReadOut[key] == VQWKREADOUT) {
+    // raw index for vqwk corresponds to total integration period is 7th word (of 7)
+    index = VQWKOFF + 6+ 7*(8*GetDevNum(key) + GetChanNum(key));
      return index;
   }  
   if (fReadOut[key] == SCALREADOUT) {
@@ -518,7 +562,7 @@ Int_t TaDevice::GetRawIndex(const Int_t& key) const {
 }
 
 Int_t TaDevice::GetCalIndex(const Int_t& key) const {
-// Return a pointer to the calibrated ADC or ADCX or SCALER data corresponding to key
+// Return a pointer to the calibrated ADC, ADCX, VQWK or SCALER data corresponding to key
   Int_t index = -1;
   if (fReadOut[key] == ADCREADOUT) {
      index = ACCOFF + 4*GetDevNum(key) + GetChanNum(key);
@@ -526,6 +570,11 @@ Int_t TaDevice::GetCalIndex(const Int_t& key) const {
   }  
   if (fReadOut[key] == ADCXREADOUT) {
      index = ACCXOFF + 4*GetDevNum(key) + GetChanNum(key);
+     return index;
+  }  
+  if (fReadOut[key] == VQWKREADOUT) {
+    // cal index should point to full integrate period= 5th word (of 5)
+    index = VQWKCOFF + 4+ 5*(8*GetDevNum(key) + GetChanNum(key));
      return index;
   }  
   if (fReadOut[key] == SCALREADOUT) {
@@ -545,6 +594,10 @@ Int_t TaDevice::GetCorrIndex(const Int_t& key) const {
   }  
   if (fReadOut[key] == ADCXREADOUT) {
      index = ADCXDACSUBOFF + 4*GetDevNum(key) + GetChanNum(key);
+     return index;
+  }  
+  if (fReadOut[key] == VQWKREADOUT) {
+     index = 8*GetDevNum(key) + GetChanNum(key);
      return index;
   }  
   if (fReadOut[key] == SCALREADOUT) {
@@ -2921,6 +2974,110 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"csrx29",ICSRX29));
   fKeyToIdx.insert(make_pair((string)"csrx30",ICSRX30));
 
+// VQWKs first index is VQWK board, second is channel
+// b* = time blocks 1-4
+// These are RAW data
+  fKeyToIdx.insert(make_pair((string)"vqwk0_0_nsamp",IVQWK0_0_NSAMP));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_0_num",  IVQWK0_0_NUM));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_0_b1",   IVQWK0_0_B1));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_0_b2",   IVQWK0_0_B2));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_0_b3",   IVQWK0_0_B3));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_0_b4",   IVQWK0_0_B4));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_0",      IVQWK0_0));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_1_nsamp",IVQWK0_1_NSAMP));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_1_num",  IVQWK0_1_NUM));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_1_b1",   IVQWK0_1_B1));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_1_b2",   IVQWK0_1_B2));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_1_b3",   IVQWK0_1_B3));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_1_b4",   IVQWK0_1_B4));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_1",      IVQWK0_1));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_2_nsamp",IVQWK0_2_NSAMP));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_2_num",  IVQWK0_2_NUM));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_2_b1",   IVQWK0_2_B1));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_2_b2",   IVQWK0_2_B2));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_2_b3",   IVQWK0_2_B3));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_2_b4",   IVQWK0_2_B4));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_2",      IVQWK0_2));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_3_nsamp",IVQWK0_3_NSAMP));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_3_num",  IVQWK0_3_NUM));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_3_b1",   IVQWK0_3_B1));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_3_b2",   IVQWK0_3_B2));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_3_b3",   IVQWK0_3_B3));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_3_b4",   IVQWK0_3_B4));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_3",      IVQWK0_3));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_4_nsamp",IVQWK0_4_NSAMP));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_4_num",  IVQWK0_4_NUM));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_4_b1",   IVQWK0_4_B1));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_4_b2",   IVQWK0_4_B2));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_4_b3",   IVQWK0_4_B3));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_4_b4",   IVQWK0_4_B4));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_4",      IVQWK0_4));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_5_nsamp",IVQWK0_5_NSAMP));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_5_num",  IVQWK0_5_NUM));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_5_b1",   IVQWK0_5_B1));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_5_b2",   IVQWK0_5_B2));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_5_b3",   IVQWK0_5_B3));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_5_b4",   IVQWK0_5_B4));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_5",      IVQWK0_5));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_6_nsamp",IVQWK0_6_NSAMP));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_6_num",  IVQWK0_6_NUM));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_6_b1",   IVQWK0_6_B1));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_6_b2",   IVQWK0_6_B2));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_6_b3",   IVQWK0_6_B3));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_6_b4",   IVQWK0_6_B4));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_6",      IVQWK0_6));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_7_nsamp",IVQWK0_7_NSAMP));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_7_num",  IVQWK0_7_NUM));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_7_b1",   IVQWK0_7_B1));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_7_b2",   IVQWK0_7_B2));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_7_b3",   IVQWK0_7_B3));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_7_b4",   IVQWK0_7_B4));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_7",      IVQWK0_7));
+
+// VQWKs first index is VQWK board, second is channel
+// b* = time blocks 1-4
+// These are CALIBRATED data
+  fKeyToIdx.insert(make_pair((string)"vqwk0_0_b1_cal",   IVQWK0_0_B1_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_0_b2_cal",   IVQWK0_0_B2_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_0_b3_cal",   IVQWK0_0_B3_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_0_b4_cal",   IVQWK0_0_B4_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_0_cal",      IVQWK0_0_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_1_b1_cal",   IVQWK0_1_B1_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_1_b2_cal",   IVQWK0_1_B2_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_1_b3_cal",   IVQWK0_1_B3_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_1_b4_cal",   IVQWK0_1_B4_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_1_cal",      IVQWK0_1_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_2_b1_cal",   IVQWK0_2_B1_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_2_b2_cal",   IVQWK0_2_B2_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_2_b3_cal",   IVQWK0_2_B3_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_2_b4_cal",   IVQWK0_2_B4_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_2_cal",      IVQWK0_2_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_3_b1_cal",   IVQWK0_3_B1_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_3_b2_cal",   IVQWK0_3_B2_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_3_b3_cal",   IVQWK0_3_B3_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_3_b4_cal",   IVQWK0_3_B4_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_3_cal",      IVQWK0_3_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_4_b1_cal",   IVQWK0_4_B1_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_4_b2_cal",   IVQWK0_4_B2_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_4_b3_cal",   IVQWK0_4_B3_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_4_b4_cal",   IVQWK0_4_B4_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_4_cal",      IVQWK0_4_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_5_b1_cal",   IVQWK0_5_B1_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_5_b2_cal",   IVQWK0_5_B2_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_5_b3_cal",   IVQWK0_5_B3_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_5_b4_cal",   IVQWK0_5_B4_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_5_cal",      IVQWK0_5_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_6_b1_cal",   IVQWK0_6_B1_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_6_b2_cal",   IVQWK0_6_B2_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_6_b3_cal",   IVQWK0_6_B3_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_6_b4_cal",   IVQWK0_6_B4_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_6_cal",      IVQWK0_6_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_7_b1_cal",   IVQWK0_7_B1_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_7_b2_cal",   IVQWK0_7_B2_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_7_b3_cal",   IVQWK0_7_B3_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_7_b4_cal",   IVQWK0_7_B4_CAL));
+  fKeyToIdx.insert(make_pair((string)"vqwk0_7_cal",      IVQWK0_7_CAL));
+
 // Scalers 
   fKeyToIdx.insert(make_pair((string)"scaler0_0",ISCALER0_0));
   fKeyToIdx.insert(make_pair((string)"scaler0_1",ISCALER0_1));
@@ -3815,6 +3972,8 @@ void TaDevice::Create(const TaDevice& rhs)
    memcpy(fAdcxPed, rhs.fAdcxPed, 4*ADCXNUM*sizeof(Double_t));
    fDacxSlope = new Double_t[4*ADCXNUM];
    memcpy(fDacxSlope, rhs.fDacxSlope, 4*ADCXNUM*sizeof(Double_t));
+   fVqwkPed = new Double_t[8*VQWKNUM];
+   memcpy(fVqwkPed, rhs.fVqwkPed, 8*VQWKNUM*sizeof(Double_t));
    fDevNum = new Int_t[MAXKEYS];
    memcpy(fDevNum, rhs.fDevNum, MAXKEYS*sizeof(Int_t));
    fChanNum = new Int_t[MAXKEYS];
@@ -3823,6 +3982,8 @@ void TaDevice::Create(const TaDevice& rhs)
    memcpy(fAdcptr, rhs.fAdcptr, MAXROC*sizeof(Int_t));
    fAdcxptr = new Int_t[MAXROC];
    memcpy(fAdcxptr, rhs.fAdcxptr, MAXROC*sizeof(Int_t));
+   fVqwkptr = new Int_t[MAXROC];
+   memcpy(fVqwkptr, rhs.fVqwkptr, MAXROC*sizeof(Int_t));
    fScalptr = new Int_t[MAXROC];
    memcpy(fScalptr, rhs.fScalptr, MAXROC*sizeof(Int_t));
    fTbdptr = new Int_t[MAXROC];
@@ -3842,6 +4003,7 @@ void TaDevice::Uncreate()
    delete [] fIsUsed;
    delete [] fIsRotated;
    delete [] fAdcPed;
+   delete [] fVqwkPed;
    delete [] fDacSlope;
    delete [] fAdcxPed;
    delete [] fDacxSlope;
@@ -3849,6 +4011,7 @@ void TaDevice::Uncreate()
    delete [] fChanNum;
    delete [] fAdcptr;
    delete [] fAdcxptr;
+   delete [] fVqwkptr;
    delete [] fScalptr;
    delete [] fTbdptr;
    delete [] fTirptr;

@@ -62,6 +62,7 @@ TaDataBase::TaDataBase() {
      fFirstgdn = new Bool_t(kTRUE);
      fFirstAdcPed = new Bool_t(kTRUE);
      fFirstAdcxPed = new Bool_t(kTRUE);
+     fFirstVqwkPed = new Bool_t(kTRUE);
      fFirstScalPed = new Bool_t(kTRUE);
      nbadev = 0;
      rootdb = new TaRootRep();
@@ -75,6 +76,8 @@ TaDataBase::TaDataBase() {
      memset(adcped,0,MAXADC*MAXCHAN*sizeof(Double_t));
      adcxped = new Double_t[MAXADCX*MAXCHAN];
      memset(adcxped,0,MAXADCX*MAXCHAN*sizeof(Double_t));
+     vqwkped = new Double_t[MAXVQWK*MAXVQWKCHAN];
+     memset(vqwkped,0,MAXVQWK*MAXVQWKCHAN*sizeof(Double_t));
      scalped = new Double_t[MAXSCAL*MAXSCALCHAN];
      memset(scalped,0,MAXSCAL*MAXSCALCHAN*sizeof(Double_t));
  }
@@ -84,6 +87,7 @@ TaDataBase::~TaDataBase() {
      delete [] dacxparam;
      delete [] adcped;
      delete [] adcxped;
+     delete [] vqwkped;
      delete [] scalped;
      delete AnaTDatime;
      delete rootdb;
@@ -548,6 +552,13 @@ TaDataBase::Checkout()
       cout << "\n  channel " << chan;
       cout << "   ped = " << GetAdcxPed(adcx,chan);
       cout << "   dac slope = " << GetDacxNoise(adcx,chan,"slope");
+    }
+  }  
+  for (int vqwk = 0; vqwk < 1 ; vqwk++) {
+    cout << "\n\n-----  For VQWK " << vqwk << endl;
+    for (int chan = 0; chan < 8; chan++) {
+      cout << "\n  channel " << chan;
+      cout << "   ped = " << GetVqwkPed(vqwk,chan);
     }
   }  
   cout << "\n\nPedestal parameters for a few scalers : " << endl;
@@ -1302,6 +1313,50 @@ Double_t TaDataBase::GetAdcxPed(const Int_t& adcx, const Int_t& chan) const {
   }
 };
 
+Double_t TaDataBase::GetVqwkPed(const Int_t& vqwk, const Int_t& chan) const {
+// Get Pedestals for Qweak ADC, chan 
+  if (!didinit) {
+      cerr << "DataBase::GetVqwkPed ERROR: Database not initialized\n";
+      return 0;
+  }
+  int idx;
+  if (*fFirstVqwkPed) {
+    *fFirstVqwkPed = kFALSE;
+    if (!didread) {
+         cerr << "DataBase::GetVqwkPed:: WARNING: ";
+         cerr << "Did not read any database yet\n";
+    }
+    vector<string> keys;
+    keys.clear();
+    keys.push_back("vqwk");   // this must match a string in the database
+    keys.push_back("chan");
+    keys.push_back("value");
+    vector<Double_t> data = GetData("ped",keys);
+    int ivqwk,ichan;
+    int index = 0;
+    while (index < (long)data.size()) {
+      if ((index+(long)keys.size()-1) < (long)data.size()) {
+        ivqwk = (int)data[index];
+        ichan= (int)data[index+1];
+        idx = ivqwk*MAXVQWKCHAN+ichan;
+        if (idx < MAXVQWK*MAXVQWKCHAN) {
+           vqwkped[idx] = data[index+2];
+         }
+      }
+      index += keys.size();
+    }
+  }
+  idx = vqwk*MAXVQWKCHAN+chan;
+  if (idx >=0 && idx < MAXVQWK*MAXVQWKCHAN) {
+     return vqwkped[idx];
+  } else {
+     cerr << "WARNING: DataBase::GetVqwkPed:";
+     cerr << "  illegal combination of vqwk and channel #"<<endl;
+     return 0;
+  }
+};
+
+
 Double_t TaDataBase::GetScalPed(const Int_t& scal, const Int_t& chan) const {
 // Get Pedestals for scaler, chan 
   if (!didinit) {
@@ -1724,6 +1779,24 @@ void TaDataBase::PutScalPed(const Int_t& scal, const Int_t& chan, const Double_t
   dtype *dat;
   dat = new dtype("s");  dat->Load("scaler"); dvec.push_back(dat);
   dat = new dtype("i");  dat->Load(scal);     dvec.push_back(dat);
+  dat = new dtype("s");  dat->Load("chan");   dvec.push_back(dat);
+  dat = new dtype("i");  dat->Load(chan);     dvec.push_back(dat);
+  dat = new dtype("s");  dat->Load("value");  dvec.push_back(dat);
+  dat = new dtype("d");  dat->Load(ped);      dvec.push_back(dat);
+  didput = kTRUE;
+  PutData(table, dvec);
+};
+
+void TaDataBase::PutVqwkPed(const Int_t& vqwk, const Int_t& chan, const Double_t& ped) {
+// Put Pedestals for qweak adc (vqwk), chan 
+  if (!didinit) {
+      cerr << "DataBase::PutVqwkPed ERROR: Database not initialized\n";
+  }
+  string table = "ped";
+  vector<dtype *> dvec;   dvec.clear();
+  dtype *dat;
+  dat = new dtype("s");  dat->Load("vqwk");   dvec.push_back(dat);
+  dat = new dtype("i");  dat->Load(vqwk);     dvec.push_back(dat);
   dat = new dtype("s");  dat->Load("chan");   dvec.push_back(dat);
   dat = new dtype("i");  dat->Load(chan);     dvec.push_back(dat);
   dat = new dtype("s");  dat->Load("value");  dvec.push_back(dat);

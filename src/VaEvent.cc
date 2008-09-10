@@ -378,7 +378,7 @@ VaEvent::Decode(TaDevice& devices)
 // everywhere we have fData[cook_key] = function of fData[raw_key], 
 // we MUST have a line devices.SetUsed(cook_key) if we want it.
 
-  Int_t i,j,key,idx,ixp,ixm,iyp,iym,ix,iy,icra;
+  Int_t i,j,key,idx,ixp,ixm,iyp,iym,ix,iy,icra,jb,ckey;
   Int_t ixpyp,ixpym,ixmyp,ixmym;
 
   Double_t sum,xval,yval;
@@ -423,9 +423,13 @@ VaEvent::Decode(TaDevice& devices)
       if (devices.IsAdcx (key)) {
         if (DECODE_DEBUG) cout << endl << "==============="<<endl<< "adcx key = "<<key<<"    data = 0x"<<rawd<<dec<<endl;
 	fData[key] = UnpackAdcx (rawd, key);
+      } else if (devices.IsVqwk (key)) {
+        if (DECODE_DEBUG) cout << endl << "==============="<<endl<< "Vqwk key = "<<key<<"    data = 0x"<<rawd<<dec<<endl;
+	fData[key] = UnpackVqwk (rawd, key);
       } else {
 	fData[key] = rawd;
       }
+
       if (DECODE_DEBUG == 1) {
         cout << endl << "------------------" <<endl;
         cout << "Raw Data for key "<< devices.GetKey(key)<<dec<<endl;
@@ -453,7 +457,58 @@ VaEvent::Decode(TaDevice& devices)
       if (devices.IsUsed(ADCOFF+key)) devices.SetUsed(ACCOFF+key);
     }
   }
+  // Calibrate VQWKs
+  // No way at this time to use oversampled blocks for derived objects
+  // Too bad...
+  Int_t nsampkey;
+  for (i = 0; i < VQWKNUM; i++) { //number of vqwk boards
+    for (j = 0; j < 8; j++) { // number of channels
 
+      nsampkey = VQWKOFF+7*(8*i+j);  // first key for each channel
+      // If there's no samples... then there's no calibration.
+      if (fData[nsampkey] == 0) {
+	for (jb = 0; jb < 5; jb++) {  // loop over the integrated words (4 blocks+total)
+	  //calibrated vqwk keys 0-4 (of 5) are calibrated integrated blocks 1-4 and total
+	  ckey = jb + 5*(j + i*8);
+	  // but they correspond to raw vqwk keys 2-6 (of 7)
+	  key = jb + 2+ 7*(j + i*8);
+	  fData[VQWKCOFF + ckey] = -1e6;
+	  if (devices.IsUsed(VQWKOFF+key)) devices.SetUsed(VQWKCOFF+ckey);
+	}
+      } else {
+	// HA! There IS a sample count!
+	Double_t nsamp = fData[nsampkey];
+	Double_t nsamp4 = nsamp/4;
+	// loop over the integrated words (4 blocks+total)
+	for (jb = 0; jb < 4; jb++) {   
+	  //calibrated vqwk keys 0-3 
+	  // are calibrated integrated blocks 1-4
+	  ckey = jb + 5*(j + i*8);
+	  // but they correspond to raw vqwk keys 2-5 (of 7)
+	  key = jb + 2+ 7*(j + i*8);
+	  fData[VQWKCOFF + ckey] =
+	    (fData[VQWKOFF + key]/nsamp4) - devices.GetPedestal(VQWKOFF + key);
+	  if (devices.IsUsed(VQWKOFF+key)) devices.SetUsed(VQWKCOFF+ckey);
+	}
+	//calibrated vqwk key 4 
+	// is calibrated integrated total
+	ckey = 4 + 5*(j + i*8);
+	// but this corresponds to raw vqwk key 6 (last of 7)
+	key = 4 + 2+ 7*(j + i*8);
+	fData[VQWKCOFF + ckey] =
+	  (fData[VQWKOFF + key] / nsamp) - devices.GetPedestal(VQWKOFF + key);
+	if (devices.IsUsed(VQWKOFF+key)) devices.SetUsed(VQWKCOFF+ckey);
+// 	cout << endl << "-----------------------" << endl;
+// 	cout << Form("VQWK = %1d_%1d \n",i,j);
+// 	cout << Form("   raw   = %g \n",fData[VQWKOFF+key]);
+// 	cout << Form("   ped   = %g \n",devices.GetPedestal(VQWKOFF+key));
+// 	cout << Form("   nsamp = %g \n",nsamp);
+// 	cout << Form("   cal   = %g \n",fData[VQWKCOFF+ckey]);
+// 	cout << "-----------------------" << endl;
+      }
+    }
+  }  
+  
   // Calibrate Scalers for use with v2fs
   // Only one V2F is allowed per scaler.  Sorry.
   Int_t clockkey;
@@ -668,6 +723,14 @@ VaEvent::Decode(TaDevice& devices)
   for (i = 0; i < TIRNUM; i++) {
     key = TIROFF + i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    //      For UVa Lab:
+    // Quadsynch
+    //    fData[QUDOFF + i] = (Double_t)(((int)GetData(key) & 0x40) >> 6);
+    // Helicity
+    //    fData[HELOFF + i] = (Double_t)(((int)GetData(key) & 0x10) >> 4);
+    // Pairsynch
+    //    fData[PAROFF + i] = (Double_t)(((int)GetData(key) & 0x20) >> 5);
+    //      Standard Configuration
     // Quadsynch
     fData[QUDOFF + i] = (Double_t)(((int)GetData(key) & 0x20) >> 5);
     // Helicity
@@ -1824,5 +1887,57 @@ VaEvent::UnpackAdcx (Int_t rawd, Int_t key)
       //Now get the return value
       retval = rawd & mask150x;
     }
+  return retval;
+}
+
+
+Double_t 
+VaEvent::UnpackVqwk (Int_t rawd, Int_t key)
+{
+  // Data from Vqwk are unpacked.  
+  // The 6th word for each channel requires care.
+  // Since linked words don't support oversampling, 
+  // a more fundamental rewrite is necessary to accomodate in-window oversampling
+
+//   /*  Permanent change in the structure of the 6th word of the ADC readout.   
+//    *  The upper 16 bits are the number of samples, and the upper 8 of the     
+//    *  lower 16 are the sequence number.  This matches the structure of        
+//    *  the ADC readout in block read mode, and now also in register read mode. 
+//    *  P.King, 2007sep04.      
+//    */
+//   for (size_t i=0; i<4; i++) fBlock[i] = Double_t(localbuf[i]);
+//   fHardwareBlockSum = Double_t(localbuf[4]);
+//   fSequenceNumber   = (localbuf[5]>>8)  & 0xFF;
+//   fNumberOfSamples  = (localbuf[5]>>16) & 0xFFFF;
+
+  Int_t keyo;  // key minus offset
+  Int_t chwd; // word in channel readout
+//   Int_t vqwk;  // vqwk number
+//   Int_t exp_chan;  // Expected ADC channel number
+  Double_t retval; 
+  if (key >= VQWKOFF && key < VQWKOFF + 8 * 7 * VQWKNUM) { // vqwk device
+    // Raw integrated signal or possibly number of samples
+    keyo = key - VQWKOFF;
+    // There are 6 words per channel, 
+    // and the 6th word needs special treatment
+    // this corresponds to the 1st and 2nd (of 7) entry keys for each vqwk channel
+    chwd = keyo % 7;
+    //      vqwk = keyo / (6*8);        // might be useful, eventually
+    //      exp_chan = keyo/6 - 8*vqwk; // for using oversample blocks
+    if (chwd==0) {
+      // combined word, number of samples
+      Int_t numsamp = (rawd>>16) & 0xFFFF;
+      retval = numsamp;
+    } else if (chwd==1) {
+      // combined word: sequence number
+      retval = (rawd>>8) & 0xFF;
+    } else {
+      retval =  rawd;
+    }
+  } else {  // tied device
+    // this should be pointed to integrated data word
+    retval = rawd;
+  }
+        
   return retval;
 }

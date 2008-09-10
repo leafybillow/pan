@@ -43,8 +43,10 @@
 
 #define MAXADC  31
 #define MAXADCX  31
+#define MAXVQWK 1
 #define MAXSCAL 7
 #define MAXCHAN 10
+#define MAXVQWKCHAN 8
 #define MAXSCALCHAN 32
 #define DMAPSIZE 6
 #define MAXLINES 500
@@ -233,6 +235,10 @@ public:
     if (GetReadOut(key) == "adcx") return kTRUE;
     return kFALSE;
   };     
+  Bool_t IsVqwk(const string& key) {
+    if (GetReadOut(key) == "vqwk") return kTRUE;
+    return kFALSE;
+  };     
   Bool_t IsScaler(const string& key) {
     if (GetReadOut(key) == "scaler") return kTRUE;
     return kFALSE;
@@ -255,6 +261,10 @@ public:
   };
   Int_t GetAdcx(const string& key) {
     if (IsAdcx(key)) return devnum[key];
+    return 0;
+  };
+  Int_t GetVqwk(const string& key) {
+    if (IsVqwk(key)) return devnum[key];
     return 0;
   };
   Int_t GetDevNum(const string& key) {
@@ -357,6 +367,8 @@ public:
         const string& key)const;  
 // Get Pedestals for adcx, chan
   Double_t GetAdcxPed(const Int_t& adcx, const Int_t& chan) const;
+// Get Pedestals for VQWK, chan
+  Double_t GetVqwkPed(const Int_t& vqwk, const Int_t& chan) const;
 // Get Pedestals for scaler, chan
   Double_t GetScalPed(const Int_t& adc, const Int_t& chan) const;
 // Get Headers for decoding (needed by datamap)
@@ -451,6 +463,8 @@ public:
   void PutDacxNoise(const Int_t& adcx, const Int_t& chan, const Double_t& slope);
 // Put Pedestals for adcx, chan
   void PutAdcxPed(const Int_t& adcx, const Int_t& chan, const Double_t& value);
+// Put Pedestals for vqwk, chan
+  void PutVqwkPed(const Int_t& vqwk, const Int_t& chan, const Double_t& value);
 // Put Pedestals for scaler, chan
   void PutScalPed(const Int_t& scal, const Int_t& chan, const Double_t& value);
 // Put cut intervals
@@ -489,8 +503,9 @@ private:
   map<string, int> dbinit,colsize;
   Bool_t didinit,didread,didput,initdm,firstiter;
   Bool_t usemysql,useroot,usectrl;
-  Double_t *dacparam, *dacxparam, *adcped, *adcxped, *scalped;
+  Double_t *dacparam, *dacxparam, *adcped, *adcxped, *vqwkped, *scalped;
   Bool_t *fFirstgdn, *fFirstAdcPed, *fFirstAdcxPed, *fFirstScalPed;
+  Bool_t *fFirstVqwkPed;
   Int_t nbadev;
   UInt_t fCksum;  // checksum
 

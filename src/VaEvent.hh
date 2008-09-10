@@ -123,6 +123,7 @@ private:
   Int_t DecodeCrates( TaDevice& devices );   
   void CalibDecode(TaDevice& devices); // Called if indicated in database
   Double_t UnpackAdcx (Int_t rawd, Int_t key); // Unpack and check ADCX data
+  Double_t UnpackVqwk (Int_t rawd, Int_t key); // Unpack VQWK data
 
   // Constants
   static const UInt_t fgMaxEvLen = 2000;    // Maximum length for event buffer

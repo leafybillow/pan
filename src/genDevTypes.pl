@@ -7,8 +7,8 @@
 # Output to stdout.
 #
 # To add a new device of an existing type to DevTypes.hh, add its
-# (unique) name to the appropriate list (or, for a new ADC or ADCX or
-# scaler, increase $adcnum or $adcxnum or $scanum).
+# (unique) name to the appropriate list (or, for a new ADC or ADCX or VQWK or
+# scaler, increase $adcnum or $adcxnum or $vqwknum of $scanum).
 #
 # To add a new type of device, add a list of device names and a sub
 # do_<whatever> modelled on do_striplines, do_bcms, etc., and call it
@@ -47,8 +47,9 @@
 @scanflist = qw / ISCANCLEAN ISCANDATA1 ISCANDATA2 ISCANDATA3 ISCANDATA4 /;
 # SYNC words
 @synclist = qw / IISYNC0 ICHSYNC0 ICHSYNC1 ICHSYNC2 IRSYNC1 IRSYNC2 ILSYNC1 ILSYNC2 /;
-# Number of old ADC modules, new ADC modoules, scaler modules, and crates
+# Number of old ADC modules, new ADC modules, VQWK modules, scaler modules, and crates
 $adcnum = 31;
+$vqwknum = 1;
 $adcxnum = 31;
 $scanum = 7;
 $ncrates = 4;
@@ -64,6 +65,7 @@ $out = "";   # output being built
 &do_dets();
 &do_detcombs();
 &do_adcs();
+&do_vqwk();
 &do_scalers();
 &do_tirs();
 &do_daqflag();
@@ -108,7 +110,8 @@ print << "END";
 \#define   TBDREADOUT     3
 \#define   TIRREADOUT     4
 \#define   DAQFLAG        5
-\#define   ADCXREADOUT   6
+\#define   ADCXREADOUT    6
+\#define   VQWKREADOUT    7
 
 // Keys for getting data from devices.
 // They keys are mapped to devices automatically.
@@ -822,6 +825,89 @@ sub add_daccsr
     $ret = "\#define   ${adc}      $p\n"; $p++;
     return $ret;
 }
+
+
+sub do_vqwk
+{
+# VQWK -- Qweak voltage integrators. 
+
+    $vqwkoff = $p;
+    $out1 = "// Here are the Qweak Integrators\n";
+    for $ivqw (0..$vqwknum-1)
+    {
+	$vqwk = "IVQWK$ivqw";
+	$out1 .= &add_vqwk ($vqwk);
+    }
+    $out .= << "ENDVQWKCOM";
+\// VQWK data.  Data are arranged in sequence starting with VQWK0_0
+\// First index is the VQWK#, second is channel#.  Indices start at 0
+
+\// First the raw data
+
+\// Raw VQWK data start here
+\#define   VQWKOFF     $vqwkoff
+\// number of VQWKs defined below
+\#define   VQWKNUM     $vqwknum
+
+$out1
+ENDVQWKCOM
+
+
+    $vqcoff = $p;
+    $out1 = "// Here are the Qweak integrators\n";
+    for $ivqc (0..$vqwknum-1)
+    {
+	$vqwk = "IVQWK$ivqc";
+	$out1 .= &add_vqwkcal ($vqwk);
+    }
+    $out .= << "ENDVQCCOM";
+// Now the calibrated data
+
+\// Calibrated ADCs start here
+\#define   VQWKCOFF     $vqcoff
+
+$out1
+ENDVQCCOM
+}
+
+sub add_vqwk
+{
+    my ($vqwk) = @_;
+    my ($ret);
+    $ret = "";
+    for $i (0..7)
+    {
+	$ret .= "\#define   ${vqwk}_${i}_NSAMP    $p\n"; $p++;
+	$ret .= "\#define   ${vqwk}_${i}_NUM      $p\n"; $p++;
+	$ret .= "\#define   ${vqwk}_${i}_B1       $p\n"; $p++;
+	$ret .= "\#define   ${vqwk}_${i}_B2       $p\n"; $p++;
+	$ret .= "\#define   ${vqwk}_${i}_B3       $p\n"; $p++;
+	$ret .= "\#define   ${vqwk}_${i}_B4       $p\n"; $p++;
+	$ret .= "\#define   ${vqwk}_${i}          $p\n"; $p++;
+    }
+    $ret .= "\n";
+    return $ret;
+}
+
+sub add_vqwkcal
+{
+    my ($vqwk) = @_;
+    my ($ret);
+    $ret = "";
+    for $i (0..7)
+    {
+	$ret .= "\#define   ${vqwk}_${i}_B1_CAL    $p\n"; $p++;
+	$ret .= "\#define   ${vqwk}_${i}_B2_CAL    $p\n"; $p++;
+	$ret .= "\#define   ${vqwk}_${i}_B3_CAL    $p\n"; $p++;
+	$ret .= "\#define   ${vqwk}_${i}_B4_CAL    $p\n"; $p++;
+	$ret .= "\#define   ${vqwk}_${i}_CAL       $p\n"; $p++;
+    }
+    $ret .= "\n";
+    return $ret;
+
+}
+
+
 
 sub do_scalers
 {
