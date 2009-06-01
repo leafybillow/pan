@@ -67,6 +67,7 @@ public:
   static Int_t BuffSize() { return fgMaxEvLen; };
   static Int_t GetMaxEvNumber() { return fgMaxEvNum; }; // Maximum event number
   Int_t GetRawData(Int_t index) const; // raw data, index = location in buffer 
+  Int_t GetRawData(Int_t key, TaDevice& dev, Int_t index) const; // raw data by key and index
   Double_t GetData(Int_t key) const;   // get data by unique key
   Double_t GetDataSum (vector<Int_t>, vector<Double_t> = vector<Double_t>(0)) const; // get weighted sum of data
   Double_t GetRawADCData(Int_t slot, Int_t chan) const;  // get raw ADC data in slot and chan.
@@ -98,6 +99,7 @@ public:
   EQuadSynch GetQuadSynch() const;   // quad synch
   const vector < TaLabelledQuantity > & GetResults() const; // results for event
   void RawDump() const;      // dump raw data for debugging.
+  void RawPrevDump() const;  // dump raw data of previous event
   void DeviceDump() const;   // dump device data for debugging.
   void MiniDump() const;     // dump of selected data on one line
 
@@ -124,6 +126,7 @@ private:
   void CalibDecode(TaDevice& devices); // Called if indicated in database
   Double_t UnpackAdcx (Int_t rawd, Int_t key); // Unpack and check ADCX data
   Double_t UnpackVqwk (Int_t rawd, Int_t key); // Unpack VQWK data
+  Int_t FindEventPhase(Int_t key, TaDevice &devices) const; // For synching PVDIS and HAPPEX data.
 
   // Constants
   static const UInt_t fgMaxEvLen = 2000;    // Maximum length for event buffer
@@ -183,6 +186,7 @@ private:
 
   // Data members
   Int_t *fEvBuffer;            // Raw event data
+  Int_t *fPrevBuffer;          // Previous event data
   UInt_t fEvType;              // Event type: 17 = prestart, 1-11 = physics
   EventNumber_t fEvNum;        // Event number from data stream
   Int_t fLastPhyEv;            // Last physics event number.
@@ -194,6 +198,10 @@ private:
   EHelicity fHel;              // True helicity filled from later event
   EHelicity fPrevROHel;        // Readout helicity for previous event
   EHelicity fPrevHel;          // True helicity for previous event
+  static const Int_t fgCareSize = 0;  // if we care(1) or not(0) about
+                                      // size of event changing.
+  static const Int_t fPvdisPhaseShift=0; // To shift(1) or not(0) the phase
+                                 // for testing PVDIS event-phase problem
 
   Double_t fQPD1Pars[6];    // QPD calibration parameters
   Double_t fCavPars[CAVNUM][2];    // QPD calibration parameters

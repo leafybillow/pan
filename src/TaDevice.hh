@@ -66,6 +66,12 @@ class TaDevice {
     Int_t GetRawIndex(const Int_t& key) const;
     Int_t GetCalIndex(const Int_t& key) const;
     Int_t GetCorrIndex(const Int_t& key) const;
+    Int_t GetNumPvdisDev();
+    Int_t GetPvdisDev(Int_t i);
+    Int_t GetMinPvdisDKey(); 
+    Int_t GetMaxPvdisDKey();
+    Int_t GetMinPvdisPKey(); 
+    Int_t GetMaxPvdisPKey();
     Bool_t IsUsed(const Int_t& key) const;
     Bool_t IsRotated(const Int_t& key) const;
     Bool_t IsAdc(const Int_t& key) const;
@@ -82,9 +88,11 @@ class TaDevice {
 
     Int_t fNumRaw, fNtied;
     UInt_t fgAdcHeader, fgAdcxHeader, fgScalHeader, fgTbdHeader;
+    UInt_t fgPvdScaHeader,fgPvdSca1Header;
     UInt_t fgTirHeader, fgDaqHeader, fgVqwkHeader;
     UInt_t fgAdcMask, fgAdcxMask, fgScalMask, fgTbdMask;
-    UInt_t fgTirMask,  fgDaqMask, fgVqwkMask;       
+    UInt_t fgTirMask,  fgDaqMask, fgVqwkMask;   
+    UInt_t fgPvdScaMask,fgPvdSca1Mask;
     Int_t *fRawKeys, *fEvPointer, *fCrate;
     Int_t *fReadOut, *fIsUsed, *fIsRotated;
     Double_t *fAdcPed, *fAdcxPed, *fScalPed, *fDacSlope, *fDacxSlope;
@@ -95,8 +103,13 @@ class TaDevice {
     Int_t *fDaqptr;
     map<string, Int_t> fKeyToIdx;
     vector<TaKeyMap> fTiedKeys;
+    map<Int_t, Int_t > fRevKeyMap;
     vector<string> fRotateList;
+    vector<Int_t > pvdisKeys;   // list of pvdis scaler keys
+    Int_t PvdisPmin, PvdisPmax; // min, max of primary pvdis keys
+    Int_t PvdisDmin, PvdisDmax; // min, max of derived pvdis keys
     void InitKeyList();
+    void InitPvdisList();
     Int_t AddRawKey(string keyname);
     void AddTiedDevices(TaKeyMap& keymap);
     void BpmDefRotate();
@@ -105,6 +118,8 @@ class TaDevice {
 
     void Create(const TaDevice&);
     void Uncreate();
+
+    static const Int_t fgPvdKchk = 999999;
 
 #ifndef NODICT
 ClassDef (TaDevice, 0)   // Collection of devices that contain data

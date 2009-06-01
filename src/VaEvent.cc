@@ -89,6 +89,8 @@ VaEvent::VaEvent():
 {
   fEvBuffer = new Int_t[fgMaxEvLen];
   memset(fEvBuffer, 0, fgMaxEvLen*sizeof(Int_t));
+  fPrevBuffer = new Int_t[fgMaxEvLen];
+  memset(fPrevBuffer, 0, fgMaxEvLen*sizeof(Int_t));
   fData = new Double_t[MAXKEYS];
   memset(fData, 0, MAXKEYS*sizeof(Double_t));
   fN1roc = new Int_t[MAXROC];
@@ -146,6 +148,7 @@ VaEvent::CopyInPlace (const VaEvent& rhs)
       fPrevROHel = rhs.fPrevROHel;
       fPrevHel = rhs.fPrevHel;
       memcpy(fEvBuffer, rhs.fEvBuffer, fEvLen*sizeof(Int_t));
+      memcpy(fPrevBuffer, rhs.fPrevBuffer, fEvLen*sizeof(Int_t));
       memcpy(fData, rhs.fData, MAXKEYS*sizeof(Double_t));
       if (rhs.fCutArray != 0 && fgNCuts > 0)
 	memcpy(fCutArray, rhs.fCutArray, fgNCuts*sizeof(Int_t));
@@ -349,6 +352,15 @@ VaEvent::Load (const Int_t* buff)
       cerr << "(perhaps compile with larger fgMaxEvLen parameter)"<<endl;
       fEvLen = fgMaxEvLen;
   }
+  // Load previous event if its a physics event type
+  Int_t prev_len = fEvBuffer[0]+1;                 
+  Int_t prev_evtype = fEvBuffer[1]>>16;
+  if (prev_evtype >= 1 && prev_evtype < 12) {      // Load if physics trig
+    memset(fPrevBuffer,0,fgMaxEvLen*sizeof(Int_t));  
+    if (prev_len > 0 && prev_len < fgMaxEvLen) {
+      memcpy(fPrevBuffer,fEvBuffer,prev_len*sizeof(Int_t));
+    }
+  }
   memset(fEvBuffer,0,fgMaxEvLen*sizeof(Int_t));
   memcpy(fEvBuffer,buff,fEvLen*sizeof(Int_t));
   fEvType = fEvBuffer[1]>>16;
@@ -388,7 +400,7 @@ VaEvent::Decode(TaDevice& devices)
         fgSizeConst = GetEvLength();
         fgFirstDecode = false;
     }
-    if ( fgSizeConst != (UInt_t)GetEvLength() ) {
+    if (fgCareSize &&  fgSizeConst != (UInt_t)GetEvLength() ) {
         cerr << "VaEvent:: FATAL ERROR: Event structure is changing !!"<<endl;
 	cerr << "Size was " << fgSizeConst << " now is " << (Int_t)GetEvLength() << endl;
         cerr << "As a result, decoding will fail."<<endl;
@@ -413,11 +425,12 @@ VaEvent::Decode(TaDevice& devices)
           cout << "for key = "<<devices.GetKey(key)<<endl;
 	}
 #endif
-        rawd =  GetRawData(devices.GetEvPointer(key));
+        rawd =  GetRawData(key, devices, devices.GetEvPointer(key));
       } else {
-        rawd =  GetRawData(
+        rawd =  GetRawData(key, devices,
           devices.GetOffset(key)+devices.GetEvPointer(key) );
       }
+
       // ADCX data have to be masked out and checked before conversion
       // to floating point
       if (devices.IsAdcx (key)) {
@@ -514,24 +527,41 @@ VaEvent::Decode(TaDevice& devices)
   Int_t clockkey;
   for (i = 0; i < V2FCLKNUM; i++) {
     clockkey = i + V2FCLKOFF;
-    // If there's no clock... then there's no calibration.
-    if (fData[clockkey] == 0) {
+    Double_t clockval;
+
+    // For PVDIS we don't care about clock.  Let it be 1.
+    // But leave the other devices alone.
+
+    if (devices.GetMinPvdisPKey() != -1 && 
+        devices.GetMaxPvdisPKey() != -1 &&
+        SCAOFF+i*32 >= devices.GetMinPvdisPKey() && 
+        SCAOFF+i*32 <= devices.GetMaxPvdisPKey()) {
+
+           clockval = 1; 
+
+    } else {
+
+           clockval = fData[clockkey];
+    }
+
+// If there's no clockval... then there's no calibration.
+   
+    if (clockval == 0) {
       for (j = 0; j < 32; j++) {
 	key = j + i*32;
 	fData[SCCOFF + key] = 0;
         if (devices.IsUsed(SCAOFF+key)) devices.SetUsed(SCCOFF+key);
       }
     } else {
-      // HA! There IS a clock!
-      Double_t clock = fData[clockkey];
+      // HA! There IS a clockval!
       for (j = 0; j < 32; j++) {
 	key = j + i*32;
 	fData[SCCOFF + key] = 
-	  (fData[SCAOFF + key])/clock - devices.GetPedestal(SCAOFF + key);
+	  (fData[SCAOFF + key])/clockval - devices.GetPedestal(SCAOFF + key);
         if (devices.IsUsed(SCAOFF+key)) devices.SetUsed(SCCOFF+key);
       }
     }
-  }  
+  }
 
 // Batteries
   for (i = 0; i < BATNUM; i++) {
@@ -709,6 +739,301 @@ VaEvent::Decode(TaDevice& devices)
     }
   }
 
+  // DIS detectors.
+
+  for (i = 0; i < DISTSRNUM; i++) {      //R-HRS showser
+    key = DISTSROFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+  for (i = 0; i < DISTSLNUM; i++) {       //L-HRS shower
+    key = DISTSLOFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+  for (i = 0; i < DISPSRNUM; i++) {       //R-HRS preshower
+    key = DISPSROFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+  for (i = 0; i < DISPSLNUM; i++) {        //L-HRS preshower
+    key = DISPSLOFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+  // DIS triggers
+
+  for (i = 0; i < DISTRIGENRNUM; i++) {          //R-HRS Electron narrow
+    key = DISTRIGENROFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+  for (i = 0; i < DISTRIGENLNUM; i++) {            //L-HRS Electron narrow
+    key = DISTRIGENLOFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+  for (i = 0; i < DISTRIGEWRNUM; i++) {          //R-HRS Electron WIDE
+    key = DISTRIGEWROFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+  for (i = 0; i < DISTRIGEWLNUM; i++) {            //L-HRS Electron WIDE
+    key = DISTRIGEWLOFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+
+  for (i = 0; i < DISTRIGPWRNUM; i++) {          //R-HRS PION WIDE
+    key = DISTRIGPWROFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+  for (i = 0; i < DISTRIGPWLNUM; i++) {            //L-HRS PION WIDE
+    key = DISTRIGPWLOFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+  for (i = 0; i < DISTRIGPNRNUM; i++) {          //R-HRS PION NARROW
+    key = DISTRIGPNROFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+  for (i = 0; i < DISTRIGPNLNUM; i++) {            //L-HRS PION NARROW
+    key = DISTRIGPNLOFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+  for (i = 0; i < DISTRIGTGRNUM; i++) {          //R-HRS TAGGER
+    key = DISTRIGTGROFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+  for (i = 0; i < DISTRIGTGLNUM; i++) {            //L-HRS TAGGER
+    key = DISTRIGTGLOFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+  for (i = 0; i < DISTRIGMXDRNUM; i++) {          //R-HRS MIXED STUFF
+    key = DISTRIGMXDROFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+  for (i = 0; i < DISTRIGMXDLNUM; i++) {            //L-HRS MIXED STUFF
+    key = DISTRIGMXDLOFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+  for (i = 0; i < DISTRIGTSCRNUM; i++) {          //R-HRS TOTAL SHOWER COPY
+    key = DISTRIGTSCROFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+  for (i = 0; i < DISTRIGTSCLNUM; i++) {            //L-HRS TOTAL SHOWER COPY
+    key = DISTRIGTSCLOFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+  for (i = 0; i < DISTRIGPSCRNUM; i++) {          //R-HRS PRESHOWER COPY
+    key = DISTRIGPSCROFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+  for (i = 0; i < DISTRIGPSCLNUM; i++) {            //L-HRS PRESHOWER COPY
+    key = DISTRIGPSCLOFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+  
+  
+  for (i = 0; i < DISTRIGENCRNUM; i++) {          //R-HRS ELECTRON NARROW COPY
+    key = DISTRIGENCROFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+  for (i = 0; i < DISTRIGENCLNUM; i++) {            //L-HRS ELECTRON NARROW COPY
+    key = DISTRIGENCLOFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+ 
+  for (i = 0; i < DISTRIGEWCRNUM; i++) {          //R-HRS ELECTRON WIDE COPY
+    key = DISTRIGEWCROFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+  for (i = 0; i < DISTRIGEWCLNUM; i++) {            //L-HRS ELECTRON WIDE COPY
+    key = DISTRIGEWCLOFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+ 
+  for (i = 0; i < DISTRIGPWCRNUM; i++) {          //R-HRS PION WIDE COPY
+    key = DISTRIGPWCROFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+  for (i = 0; i < DISTRIGPWCLNUM; i++) {            //L-HRS PION WIDE COPY
+    key = DISTRIGPWCLOFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+  
+   for (i = 0; i < DISTRIGPNCRNUM; i++) {          //R-HRS PION NARROW COPY
+    key = DISTRIGPNCROFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+  for (i = 0; i < DISTRIGPNCLNUM; i++) {            //L-HRS PION NARROW COPY
+    key = DISTRIGPNCLOFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+    for (i = 0; i < DISTRIGTGCRNUM; i++) {          //R-HRS TAGGER COPY
+    key = DISTRIGTGCROFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+  for (i = 0; i < DISTRIGTGCLNUM; i++) {            //L-HRS TAGGER COPY
+    key = DISTRIGTGCLOFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+  for (i = 0; i < DISTRIGMXDCRNUM; i++) {          //R-HRS MIXED STUFF COPY
+    key = DISTRIGMXDCROFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+  for (i = 0; i < DISTRIGMXDCLNUM; i++) {            //L-HRS MIXED STUFF COPY
+    key = DISTRIGMXDCLOFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+ 
   // UMass Profile scanners
   for (i = 0; i < PROFNUM; i++) {
      key = PROFOFF + 3*i;
@@ -810,8 +1135,25 @@ VaEvent::CalibDecode(TaDevice& devices)
   Int_t clockkey;
   for (i = 0; i < V2FCLKNUM; i++) {
     clockkey = i + V2FCLKOFF;
-    // If there's no clock... then there's no calibration.
-    if (fData[clockkey] == 0) {
+    Double_t clockval;
+
+    // For PVDIS we don't care about clock.  Let it be 1.
+    // But leave the other devices alone.
+
+    if (devices.GetMinPvdisPKey() != -1 && 
+        devices.GetMaxPvdisPKey() != -1 &&
+        SCAOFF+i*32 >= devices.GetMinPvdisPKey() && 
+        SCAOFF+i*32 <= devices.GetMaxPvdisPKey()) {
+
+           clockval = 1; 
+
+    } else {
+
+           clockval = fData[clockkey];
+    }
+
+    // If there's no clockval... then there's no calibration.
+    if (clockval == 0) {
       for (j = 0; j < 32; j++) {
 	key = j + i*32;
 	corrkey = SCACLKDIVOFF + key;
@@ -819,12 +1161,11 @@ VaEvent::CalibDecode(TaDevice& devices)
         if (devices.IsUsed(SCAOFF+key)) devices.SetUsed(corrkey);
       }
     } else {
-      // HA! There IS a clock!
-      Double_t clock = fData[clockkey];
+      // HA! There IS a clockval!
       for (j = 0; j < 32; j++) {
 	key = j + i*32;
 	corrkey = SCACLKDIVOFF + key;
-	fData[corrkey] = (fData[SCAOFF + key])/clock;
+	fData[corrkey] = (fData[SCAOFF + key])/clockval;
         if (devices.IsUsed(SCAOFF+key)) devices.SetUsed(corrkey);
       }
     }
@@ -1284,6 +1625,68 @@ Int_t VaEvent::GetRawData(Int_t index) const {
     }
 };
 
+Int_t VaEvent::GetRawData(Int_t key, TaDevice &devices, Int_t index) const {
+
+  // Return an item from the event buffer.
+  // This routine has a trick needed by PVDIS to align
+  // the datastreams, but only if fgPvdisPhaseShift != 0
+  // If 'key' is from among the PVDIS devices, we use 
+  // the present event.
+  // Otherwise we use the previous event !
+
+  Int_t which_event = FindEventPhase(key, devices);
+
+  
+  if (index >= 0 && (UInt_t)index < fgMaxEvLen) 
+    if (which_event == 0) {
+      return fEvBuffer[index];
+    } else {
+      return fPrevBuffer[index];
+    }
+  else
+    {
+      cerr << "VaEvent::GetRawData ERROR: index " << index 
+	   << "out of range 0 to " << fgMaxEvLen;
+      return 0;
+    }
+};
+
+
+Int_t VaEvent::FindEventPhase(Int_t key, TaDevice &devices) const {
+
+  // To rapidly handle the event-phase shift necessary for PVDIS.
+
+  // Returns 0 if the event belongs to this data buffer
+  // Returns 1 if we need the previous event buffer.
+
+  if ( !fPvdisPhaseShift ) return 0;
+
+#ifdef DUMB_SLOW
+  for (Int_t i=0; i < devices.GetNumPvdisDev(); i++) {
+    if (key == devices.GetPvdisDev(i)) {
+      return 0;
+    }
+  }
+#endif
+
+  if (devices.GetMinPvdisPKey() == -1 || devices.GetMaxPvdisPKey() == -1) {
+    cout << "ERROR: Pvdis primary keys min,max not found "<<endl;
+  }
+  if (devices.GetMinPvdisDKey() == -1 || devices.GetMaxPvdisDKey() == -1) {
+    cout << "ERROR: Pvdis derived keys min,max not found "<<endl;
+  }
+
+  if (  key >= devices.GetMinPvdisPKey() && 
+        key <= devices.GetMaxPvdisPKey()) return 0;
+
+  if (  key >= devices.GetMinPvdisDKey() && 
+        key <= devices.GetMaxPvdisDKey()) return 0;
+
+  return 1;
+
+}
+
+
 Bool_t VaEvent::CutStatus() const {
   // Return true iff event failed one or more cut conditions 
 
@@ -1477,6 +1880,36 @@ void VaEvent::RawDump() const {
    }
    cout << "--------------------------------\n\n";
 };
+
+void VaEvent::RawPrevDump() const {
+// Diagnostic dump of raw data for debugging purposes
+// For Previous Buffer.
+
+   cout << "\n\n==========  Previous Raw Data Dump  ==========" << hex << endl;
+   Int_t pevlen = fPrevBuffer[0]+1;
+   Int_t ptype = fPrevBuffer[1]>>16;
+   cout << "Length "<<pevlen<<"   Type "<<ptype<<endl;
+   UInt_t ipt = 0;
+   for (UInt_t j = 0; j < pevlen/5; j++) {
+       cout << dec << "\n fPrevBuffer[" << ipt << "] = ";
+       for (UInt_t k = j; k < j+5; k++) {
+	 cout << hex << " 0x"<< fPrevBuffer[ipt];
+	 cout << " = (d)"<< dec << fPrevBuffer[ipt] << " |";
+         ipt++;
+       }
+   }
+   if (ipt < pevlen) {
+      cout << dec << "\n fPrevBuffer[" << ipt << "] = ";
+      for (UInt_t k = ipt; k < pevlen; k++) {
+	 cout << hex << " 0x"<< fPrevBuffer[ipt];
+	 cout << " = (d)"<< dec << fPrevBuffer[ipt] << " |";
+         ipt++;
+      }
+      cout << endl;
+   }
+   cout << "--------------------------------\n\n";
+};
+
 
 void VaEvent::DeviceDump() const {
 // Diagnostic dump of device data for debugging purposes.

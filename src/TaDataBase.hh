@@ -44,7 +44,7 @@
 #define MAXADC  31
 #define MAXADCX  31
 #define MAXVQWK 1
-#define MAXSCAL 7
+#define MAXSCAL 12
 #define MAXCHAN 10
 #define MAXVQWKCHAN 8
 #define MAXSCALCHAN 32

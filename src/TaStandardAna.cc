@@ -144,6 +144,10 @@ TaStandardAna::InitChanLists ()
   f = ChanListFromName ("bpm4bmx", "",  fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
+  // PVDIS variables
+  f = ChanList ("pvdis", "~", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+
 
   // Channels for which to store differences
   f = ChanList ("batt", "~", "mchan", fgDIFF + fgBLINDSIGN);
@@ -177,6 +181,10 @@ TaStandardAna::InitChanLists ()
   f = ChanList ("qpd", "~y", "um", fgDIFF + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
+  // PVDIS variables
+  f = ChanList ("pvdis", "~", "chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+
   // Channels for which to store averages
   f = ChanList ("bcm", "~", "chan", fgAVG);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
@@ -194,6 +202,10 @@ TaStandardAna::InitChanLists ()
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanListFromName ("bmw", "", fgAVG);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());  
+
+  // PVDIS variables
+  f = ChanList ("pvdis", "~", "chan", fgAVG);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   // Channels for which to store asymmetries
 //    f = ChanList ("bpm", "~xws", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
@@ -222,6 +234,8 @@ TaStandardAna::InitChanLists ()
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("qpd", "~sum", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("pvdis", "~", "chan", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   // Channels for which to store normalized asymmetries
   f = ChanList ("lumi", "~", "ppm", fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN);
@@ -233,6 +247,10 @@ TaStandardAna::InitChanLists ()
   // Below is not the correct way to do this...
 //   f = ChanListFromName ("det_", "ppm",  fgNO_BEAM_NO_ASY + fgASYN + fgBLIND);
 //   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+
+  // for pvdis
+  f = ChanList ("pvdis", "~", "chan", fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   // multi-detector asymmetries - 
   // ***  mostly removed from here and generated from raw tree entries  -KDP

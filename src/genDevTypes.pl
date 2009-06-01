@@ -27,6 +27,74 @@
 @old_bcmlist =   qw / IBCM1 IBCM2 IBCM3 IBCM4 IBCM5 IBCM6 IBCM7 IBCM8 IBCM9 IBCM10 /;
 # G0 current monitors
 @g0_bcmlist =    qw / IBCMCAV1 IBCMCAV2 IBCMCAV3 IBCMCAV4 /;
+
+# DIS total shower on Left HRS
+@dis_totsh_left = qw / IDISLTS1 IDISLTS2 IDISLTS3 IDISLTS4 IDISLTS5 IDISLTS6 IDISLTS7 IDISLTS8 /;
+# DIS total shower on Right HRS
+@dis_totsh_right = qw / IDISRTS1 IDISRTS2 IDISRTS3 IDISRTS4 IDISRTS5 IDISRTS6 IDISRTS7 IDISRTS8 /;
+# DIS preshower on Left HRS
+@dis_presh_left = qw / IDISLPS1 IDISLPS2 IDISLPS3 IDISLPS4 IDISLPS5 IDISLPS6 IDISLPS7 IDISLPS8 /;
+# DIS preshower on Right HRS
+@dis_presh_right = qw / IDISRPS1 IDISRPS2 IDISRPS3 IDISRPS4 IDISRPS5 IDISRPS6 IDISRPS7 IDISRPS8 /;
+# DIS electron narrow on Left HRS
+@dis_electnar_left = qw / IDISLEN1 IDISLEN2 IDISLEN3 IDISLEN4 IDISLEN5 IDISLEN6 IDISLEN7 IDISLEN8 /;
+# DIS electron narrow on Right HRS
+@dis_electnar_right = qw / IDISREN1 IDISREN2 IDISREN3 IDISREN4 IDISREN5 IDISREN6 IDISREN7 IDISREN8 /;
+# DIS electron wide on Left HRS
+@dis_electwid_left = qw / IDISLEW1 IDISLEW2 IDISLEW3 IDISLEW4 IDISLEW5 IDISLEW6 IDISLEW7 IDISLEW8 /;
+# DIS electron wide on Right HRS
+@dis_electwid_right = qw / IDISREW1 IDISREW2 IDISREW3 IDISREW4 IDISREW5 IDISREW6 IDISREW7 IDISREW8 /;
+# DIS pion wide on Left HRS
+@dis_pionwid_left = qw / IDISLPW1 IDISLPW2 IDISLPW3 IDISLPW4 IDISLPW5 IDISLPW6 IDISLPW7 IDISLPW8 /;
+# DIS pion wide on Right HRS
+@dis_pionwid_right = qw / IDISRPW1 IDISRPW2 IDISRPW3 IDISRPW4 IDISRPW5 IDISRPW6 IDISRPW7 IDISRPW8 /;
+# DIS pion narrow on Left HRS
+@dis_pionnar_left = qw / IDISLPN1 IDISLPN2 IDISLPN3 IDISLPN4 IDISLPN5 IDISLPN6 IDISLPN7 IDISLPN8 /;
+# DIS pion narrow on Right HRS
+@dis_pionnar_right = qw / IDISRPN1 IDISRPN2 IDISRPN3 IDISRPN4 IDISRPN5 IDISRPN6 IDISRPN7 IDISRPN8 /;
+# DIS tagger on Left HRS
+@dis_tagger_left = qw / IDISLTG1 IDISLTG2 IDISLTG3 IDISLTG4 IDISLTG5 IDISLTG6 IDISLTG7 IDISLTG8 /;
+# DIS tagger on Right HRS
+@dis_tagger_right = qw / IDISRTG1 IDISRTG2 IDISRTG3 IDISRTG4 IDISRTG5 IDISRTG6 IDISRTG7 IDISRTG8 /;
+# DIS mixed stuff on Left HRS
+@dis_mixed_left = qw / IDISLMXD1 IDISLMXD2 IDISLMXD3 IDISLMXD4 IDISLMXD5 IDISLMXD6 IDISLMXD7 IDISLMXD8 /;
+# DIS mixed stuff on Right HRS
+@dis_mixed_right = qw / IDISRMXD1 IDISRMXD2 IDISRMXD3 IDISRMXD4 IDISRMXD5 IDISRMXD6 IDISRMXD7 IDISRMXD8 /;
+
+# DIS total shower copy on Left HRS
+@dis_totshC_left = qw / IDISLTSC1 IDISLTSC2 IDISLTSC3 IDISLTSC4 IDISLTSC5 IDISLTSC6 IDISLTSC7 IDISLTSC8 /;
+# DIS total shower copy on Right HRS
+@dis_totshC_right = qw / IDISRTSC1 IDISRTSC2 IDISRTSC3 IDISRTSC4 IDISRTSC5 IDISRTSC6 IDISRTSC7 IDISRTSC8 /;
+# DIS preshower copy on Left HRS
+@dis_preshC_left = qw / IDISLPSC1 IDISLPSC2 IDISLPSC3 IDISLPSC4 IDISLPSC5 IDISLPSC6 IDISLPSC7 IDISLPSC8 /;
+# DIS preshower copy on Right HRS
+@dis_preshC_right = qw / IDISRPSC1 IDISRPSC2 IDISRPSC3 IDISRPSC4 IDISRPSC5 IDISRPSC6 IDISRPSC7 IDISRPSC8 /;
+# DIS electron narrow copy on Left HRS
+@dis_electnarC_left = qw / IDISLENC1 IDISLENC2 IDISLENC3 IDISLENC4 IDISLENC5 IDISLENC6 IDISLENC7 IDISLENC8 /;
+# DIS electron narrow copy on Right HRS
+@dis_electnarC_right = qw / IDISRENC1 IDISRENC2 IDISRENC3 IDISRENC4 IDISRENC5 IDISRENC6 IDISRENC7 IDISRENC8 /;
+# DIS electron wide copy on Left HRS
+@dis_electwidC_left = qw / IDISLEWC1 IDISLEWC2 IDISLEWC3 IDISLEWC4 IDISLEWC5 IDISLEWC6 IDISLEWC7 IDISLEWC8 /;
+# DIS electron wide copy on Right HRS
+@dis_electwidC_right = qw / IDISREWC1 IDISREWC2 IDISREWC3 IDISREWC4 IDISREWC5 IDISREWC6 IDISREWC7 IDISREWC8 /;
+
+# DIS pion wide copy on Left HRS
+@dis_pionwidC_left = qw / IDISLPWC1 IDISLPWC2 IDISLPWC3 IDISLPWC4 IDISLPWC5 IDISLPWC6 IDISLPWC7 IDISLPWC8 /;
+# DIS pion wide copy on Right HRS
+@dis_pionwidC_right = qw / IDISRPWC1 IDISRPWC2 IDISRPWC3 IDISRPWC4 IDISRPWC5 IDISRPWC6 IDISRPWC7 IDISRPWC8 /;
+# DIS pion narrow copy on Left HRS
+@dis_pionnarC_left = qw / IDISLPNC1 IDISLPNC2 IDISLPNC3 IDISLPNC4 IDISLPNC5 IDISLPNC6 IDISLPNC7 IDISLPNC8 /;
+# DIS pion narrow copy on Right HRS
+@dis_pionnarC_right = qw / IDISRPNC1 IDISRPNC2 IDISRPNC3 IDISRPNC4 IDISRPNC5 IDISRPNC6 IDISRPNC7 IDISRPNC8 /;
+# DIS tagger copy on Left HRS
+@dis_taggerC_left = qw / IDISLTGC1 IDISLTGC2 IDISLTGC3 IDISLTGC4 IDISLTGC5 IDISLTGC6 IDISLTGC7 IDISLTGC8 /;
+# DIS tagger copy on Right HRS
+@dis_taggerC_right = qw / IDISRTGC1 IDISRTGC2 IDISRTGC3 IDISRTGC4 IDISRTGC5 IDISRTGC6 IDISRTGC7 IDISRTGC8 /;
+# DIS mixed stuff copy on Left HRS
+@dis_mixedC_left = qw / IDISLMXDC1 IDISLMXDC2 IDISLMXDC3 IDISLMXDC4 IDISLMXDC5 IDISLMXDC6 IDISLMXDC7 IDISLMXDC8 /;
+# DIS mixed stuff copy on Right HRS
+@dis_mixedC_right = qw / IDISRMXDC1 IDISRMXDC2 IDISRMXDC3 IDISRMXDC4 IDISRMXDC5 IDISRMXDC6 IDISRMXDC7 IDISRMXDC8 /;
+
 # UMass profile scanner
 @prof_list =    qw / IRPROF IRPROFX IRPROFY IRPROFV1 IRPROFV2 IRPROFV3 ILPROF ILPROFX ILPROFY ILPROFV1 ILPROFV2 ILPROFV3 /;
 # Batteries
@@ -38,7 +106,7 @@
 # Lumi detectors
 @lumilist =      qw / IBLUMI1 IBLUMI2 IBLUMI3 IBLUMI4 IBLUMI5 IBLUMI6 IBLUMI7 IBLUMI8 IFLUMI1 IFLUMI2 IFLUMI3 ILUMI1 ILUMI2 ILUMI3 ILUMI4/;
 # V2F clocks
-@v2fclocklist =  qw / IV2F_CLK0 IV2F_CLK1 IV2F_CLK2 IV2F_CLK3 IV2F_CLK4 IV2F_CLK5 IV2F_CLK6 /;
+@v2fclocklist =  qw / IV2F_CLK0 IV2F_CLK1 IV2F_CLK2 IV2F_CLK3 IV2F_CLK4 IV2F_CLK5 IV2F_CLK6 IV2F_CLK7 IV2F_CLK8 IV2F_CLK9 IV2F_CLK10 IV2F_CLK11 /;
 # quad photodiode
 @qpdlist = qw / IQPD1 /;
 # BMW words
@@ -51,7 +119,7 @@
 $adcnum = 31;
 $vqwknum = 1;
 $adcxnum = 31;
-$scanum = 7;
+$scanum = 12;
 $ncrates = 4;
 
 $p = 1;      # next value to be assigned
@@ -60,6 +128,8 @@ $out = "";   # output being built
 &do_striplines();
 &do_cavities();
 &do_bcms();
+&do_disdet();
+&do_distrig();
 &do_profile();
 &do_batts();
 &do_dets();
@@ -277,6 +347,632 @@ sub add_cavcorr
     return $ret;
 }
 
+sub do_disdet
+{
+    $disoff = $p;
+    $disnum = scalar (@dis_totsh_right);
+    $out1 = "";
+    foreach $dis (@dis_totsh_right)
+    {
+	$out1 .= &add_disdet ($dis);
+    }
+    $out .= << "ENDDIS1COM";
+// DIS TOTAL SHOWER R-HRS
+
+\#define   DISTSROFF     $disoff
+\// Number of Total showser on R-HRS
+\#define   DISTSRNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDIS1COM
+
+    $disoff = $p;
+    $disnum = scalar (@dis_presh_right);
+    $out1 = "";
+    foreach $dis (@dis_presh_right)
+    {
+	$out1 .= &add_disdet ($dis);
+    }
+    $out .= << "ENDDIS1COM";
+// DIS PRESHOWER R-HRS
+
+\#define   DISPSROFF     $disoff
+\// Number of Preshower on R-HRS
+\#define   DISPSRNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDIS1COM
+
+    $disoff = $p;
+    $disnum = scalar (@dis_totsh_left);
+    $out1 = "";
+    foreach $dis (@dis_totsh_left)
+    {
+	$out1 .= &add_disdet ($dis);
+    }
+    $out .= << "ENDDIS1COM";
+// DIS TOTAL SHOWER L-HRS
+
+\#define   DISTSLOFF     $disoff
+\// Number of Total shower on L-HRS
+\#define   DISTSLNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDIS1COM
+
+    $disoff = $p;
+    $disnum = scalar (@dis_presh_left);
+    $out1 = "";
+    foreach $dis (@dis_presh_left)
+    {
+	$out1 .= &add_disdet ($dis);
+    }
+    $out .= << "ENDDIS1COM";
+// DIS PRESHOWER L-HRS
+
+\#define   DISPSLOFF     $disoff
+\// Number of Preshower on L-HRS
+\#define   DISPSLNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDIS1COM
+
+}
+
+
+sub do_distrig
+{
+    $distrigenoff = $p;
+    $disnum = scalar (@dis_electnar_left);
+    $out1 = "";
+    foreach $distrig (@dis_electnar_left)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS ELECTRON NARROW L-HRS
+
+\#define   DISTRIGENLOFF     $distrigenoff
+\// Number of EN on L-HRS
+\#define   DISTRIGENLNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+   $distrigenoff = $p;
+    $disnum = scalar (@dis_electnar_right);
+    $out1 = "";
+    foreach $distrig (@dis_electnar_right)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS ELECTRON NARROW R-HRS
+
+\#define   DISTRIGENROFF     $distrigenoff
+\// Number of EN on R-HRS
+\#define   DISTRIGENRNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+$distrigewoff = $p;
+    $disnum = scalar (@dis_electwid_left);
+    $out1 = "";
+    foreach $distrig (@dis_electwid_left)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS ELECTRON WIDE L-HRS
+
+\#define   DISTRIGEWLOFF     $distrigewoff
+\// Number of EW on L-HRS
+\#define   DISTRIGEWLNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+   $distrigewoff = $p;
+    $disnum = scalar (@dis_electwid_right);
+    $out1 = "";
+    foreach $distrig (@dis_electwid_right)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS ELECTRON WIDE R-HRS
+
+\#define   DISTRIGEWROFF     $distrigewoff
+\// Number of EW on R-HRS
+\#define   DISTRIGEWRNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+$distrigpwoff = $p;
+    $disnum = scalar (@dis_pionwid_left);
+    $out1 = "";
+    foreach $distrig (@dis_pionwid_left)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS PION WIDE L-HRS
+
+\#define   DISTRIGPWLOFF     $distrigpwoff
+\// Number of PW on L-HRS
+\#define   DISTRIGPWLNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+   $distrigpwoff = $p;
+    $disnum = scalar (@dis_pionwid_right);
+    $out1 = "";
+    foreach $distrig (@dis_pionwid_right)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS PION WIDE R-HRS
+
+\#define   DISTRIGPWROFF     $distrigpwoff
+\// Number of PW on R-HRS
+\#define   DISTRIGPWRNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+    
+
+ $distrigpnoff = $p;
+    $disnum = scalar (@dis_pionnar_left);
+    $out1 = "";
+    foreach $distrig (@dis_pionnar_left)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS PION NARROW L-HRS
+
+\#define   DISTRIGPNLOFF     $distrigpnoff
+\// Number of PN on L-HRS
+\#define   DISTRIGPNLNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+   $distrigpnoff = $p;
+    $disnum = scalar (@dis_pionnar_right);
+    $out1 = "";
+    foreach $distrig (@dis_pionnar_right)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS PION NARROW R-HRS
+
+\#define   DISTRIGPNROFF     $distrigpnoff
+\// Number of PN on R-HRS
+\#define   DISTRIGPNRNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+ $distrigtgoff = $p;
+    $disnum = scalar (@dis_tagger_left);
+    $out1 = "";
+    foreach $distrig (@dis_tagger_left)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS TAGGER L-HRS
+
+\#define   DISTRIGTGLOFF     $distrigtgoff
+\// Number of TG on L-HRS
+\#define   DISTRIGTGLNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+   $distrigtgoff = $p;
+    $disnum = scalar (@dis_tagger_right);
+    $out1 = "";
+    foreach $distrig (@dis_tagger_right)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS TAGGER R-HRS
+
+\#define   DISTRIGTGROFF     $distrigtgoff
+\// Number of TG on R-HRS
+\#define   DISTRIGTGRNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+$distrigmxdoff = $p;
+    $disnum = scalar (@dis_mixed_left);
+    $out1 = "";
+    foreach $distrig (@dis_mixed_left)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS MIXED STUFF L-HRS
+
+\#define   DISTRIGMXDLOFF     $distrigmxdoff
+\// Number of MIXD on L-HRS
+\#define   DISTRIGMXDLNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+   $distrigmxdoff = $p;
+    $disnum = scalar (@dis_mixed_right);
+    $out1 = "";
+    foreach $distrig (@dis_mixed_right)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS MIXED STUFF R-HRS
+
+\#define   DISTRIGMXDROFF     $distrigmxdoff
+\// Number of MIXD on R-HRS
+\#define   DISTRIGMXDRNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+
+ $distrigtscoff = $p;
+    $disnum = scalar (@dis_totshC_left);
+    $out1 = "";
+    foreach $distrig (@dis_totshC_left)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS TOTAL SHOWER COPY L-HRS
+
+\#define   DISTRIGTSCLOFF     $distrigtscoff
+\// Number of TSC on L-HRS
+\#define   DISTRIGTSCLNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+  $distrigtscoff = $p;
+    $disnum = scalar (@dis_totshC_right);
+    $out1 = "";
+    foreach $distrig (@dis_totshC_right)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS TOTAL SHOWER COPY R-HRS
+
+\#define   DISTRIGTSCROFF     $distrigtscoff
+\// Number of TSC on R-HRS
+\#define   DISTRIGTSCRNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+
+ $distrigpscoff = $p;
+    $disnum = scalar (@dis_preshC_left);
+    $out1 = "";
+    foreach $distrig (@dis_preshC_left)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS PRESHOWER COPY L-HRS
+
+\#define   DISTRIGPSCLOFF     $distrigpscoff
+\// Number of PSC on L-HRS
+\#define   DISTRIGPSCLNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+  $distrigpscoff = $p;
+    $disnum = scalar (@dis_preshC_right);
+    $out1 = "";
+    foreach $distrig (@dis_preshC_right)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS PRESHOWER COPY R-HRS
+
+\#define   DISTRIGPSCROFF     $distrigpscoff
+\// Number of PSC on R-HRS
+\#define   DISTRIGPSCRNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+
+ $distrigencoff = $p;
+    $disnum = scalar (@dis_electnarC_left);
+    $out1 = "";
+    foreach $distrig (@dis_electnarC_left)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS ELECTRON NARROW COPY L-HRS
+
+\#define   DISTRIGENCLOFF     $distrigencoff
+\// Number of ENC on L-HRS
+\#define   DISTRIGENCLNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+  $distrigencoff = $p;
+    $disnum = scalar (@dis_electnarC_right);
+    $out1 = "";
+    foreach $distrig (@dis_electnarC_right)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS ELECTRON NARROW COPY R-HRS
+
+\#define   DISTRIGENCROFF     $distrigencoff
+\// Number of ENC on R-HRS
+\#define   DISTRIGENCRNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+
+
+ $distrigewcoff = $p;
+    $disnum = scalar (@dis_electwidC_left);
+    $out1 = "";
+    foreach $distrig (@dis_electwidC_left)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS ELECTRON WIDE COPY L-HRS
+
+\#define   DISTRIGEWCLOFF     $distrigewcoff
+\// Number of EWC on L-HRS
+\#define   DISTRIGEWCLNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+  $distrigewcoff = $p;
+    $disnum = scalar (@dis_electwidC_right);
+    $out1 = "";
+    foreach $distrig (@dis_electwidC_right)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS ELECTRON WIDE COPY R-HRS
+
+\#define   DISTRIGEWCROFF     $distrigewcoff
+\// Number of EWC on R-HRS
+\#define   DISTRIGEWCRNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+
+  $distrigpwcoff = $p;
+    $disnum = scalar (@dis_pionwidC_left);
+    $out1 = "";
+    foreach $distrig (@dis_pionwidC_left)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS PION WIDE COPY L-HRS
+
+\#define   DISTRIGPWCLOFF     $distrigpwcoff
+\// Number of PWC on L-HRS
+\#define   DISTRIGPWCLNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+   $distrigpwcoff = $p;
+    $disnum = scalar (@dis_pionwidC_right);
+    $out1 = "";
+    foreach $distrig (@dis_pionwidC_right)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS PION WIDE COPY R-HRS
+
+\#define   DISTRIGPWCROFF     $distrigpwcoff
+\// Number of PWC on R-HRS
+\#define   DISTRIGPWCRNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+    
+
+ $distrigpncoff = $p;
+    $disnum = scalar (@dis_pionnarC_left);
+    $out1 = "";
+    foreach $distrig (@dis_pionnarC_left)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS PION NARROW COPY L-HRS
+
+\#define   DISTRIGPNCLOFF     $distrigpncoff
+\// Number of PNC on L-HRS
+\#define   DISTRIGPNCLNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+   $distrigpncoff = $p;
+    $disnum = scalar (@dis_pionnarC_right);
+    $out1 = "";
+    foreach $distrig (@dis_pionnarC_right)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS PION NARROW COPY R-HRS
+
+\#define   DISTRIGPNCROFF     $distrigpncoff
+\// Number of PNC on R-HRS
+\#define   DISTRIGPNCRNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+$distrigtgcoff = $p;
+    $disnum = scalar (@dis_taggerC_left);
+    $out1 = "";
+    foreach $distrig (@dis_taggerC_left)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS TAGGER COPY L-HRS
+
+\#define   DISTRIGTGCLOFF     $distrigtgcoff
+\// Number of TGC on L-HRS
+\#define   DISTRIGTGCLNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+   $distrigtgcoff = $p;
+    $disnum = scalar (@dis_taggerC_right);
+    $out1 = "";
+    foreach $distrig (@dis_taggerC_right)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS TAGGER COPY R-HRS
+
+\#define   DISTRIGTGCROFF     $distrigtgcoff
+\// Number of TGC on R-HRS
+\#define   DISTRIGTGCRNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+$distrigmxdcoff = $p;
+    $disnum = scalar (@dis_mixedC_left);
+    $out1 = "";
+    foreach $distrig (@dis_mixedC_left)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS MIXED STUFF COPY L-HRS
+
+\#define   DISTRIGMXDCLOFF     $distrigmxdcoff
+\// Number of MIXDC on L-HRS
+\#define   DISTRIGMXDCLNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+   $distrigmxdcoff = $p;
+    $disnum = scalar (@dis_mixedC_right);
+    $out1 = "";
+    foreach $distrig (@dis_mixedC_right)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS MIXED STUFF COPY R-HRS
+
+\#define   DISTRIGMXDCROFF     $distrigmxdcoff
+\// Number of MIXDC on R-HRS
+\#define   DISTRIGMXDCRNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
+
+}
+
+
 sub do_profile
 {
 # UMass profile scanner
@@ -421,6 +1117,30 @@ sub add_bcmcorr
     $ret .= "\n";
     return $ret;
 }
+
+
+sub add_disdet
+{
+    my ($disdet) = @_;
+    my ($ret);
+    $ret = "";
+    $ret .= "\#define   ${disdet}R     $p\n"; $p++;
+    $ret .= "\#define   ${disdet}      $p\n"; $p++;
+    $ret .= "\n";
+    return $ret;
+}
+
+sub add_distrig
+{
+    my ($distrig) = @_;
+    my ($ret);
+    $ret = "";
+    $ret .= "\#define   ${distrig}R     $p\n"; $p++;
+    $ret .= "\#define   ${distrig}      $p\n"; $p++;
+    $ret .= "\n";
+    return $ret;
+}
+
 
 sub do_batts
 {
