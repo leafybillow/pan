@@ -6,6 +6,28 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Michaels and X. Deng on 1 June 2009
+-------------------------------------------------
+
+Added the PVDIS variables.  
+
+  TaDatabase.hh -- increase number of scalers
+  TaDevice (.hh, .cc) -- more scalers and
+       add all the PVDIS variables.
+       Add some methods to get range of keys
+       for PVDIS variable.
+  VaEvent (.hh, .cc) -- add the PVDIS variables
+       and allow for a mechanism to synch the
+       PVDIS-scalers to the rest of the DAQ.
+       (PVDIS scalers are behind one event)
+       Synch is controlled by fPvdisPhaseShift
+  genDevTypes.pl -- add PVDIS vars and more scalers
+  TaStandardAna.cc -- add analysis of PVDIS vars.
+
+A note: I see changes presumably from Kent about
+  VQWK and some UVa stuff.  They were not explained
+  here yet.  Must have happened since 4 Sep 2007.
+
 
 Changes by R. Michaels on 4 Sep 2007
 ------------------------------------
