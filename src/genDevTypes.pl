@@ -117,7 +117,7 @@
 @synclist = qw / IISYNC0 ICHSYNC0 ICHSYNC1 ICHSYNC2 IRSYNC1 IRSYNC2 ILSYNC1 ILSYNC2 /;
 # Number of old ADC modules, new ADC modules, VQWK modules, scaler modules, and crates
 $adcnum = 31;
-$vqwknum = 1;
+$vqwknum = 12;
 $adcxnum = 31;
 $scanum = 12;
 $ncrates = 4;
