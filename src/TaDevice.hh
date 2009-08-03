@@ -72,6 +72,7 @@ class TaDevice {
     Int_t GetMaxPvdisDKey();
     Int_t GetMinPvdisPKey(); 
     Int_t GetMaxPvdisPKey();
+    UInt_t GetVqwkHeader(); // necessary for problematic VQWK and ROC 31
     Bool_t IsUsed(const Int_t& key) const;
     Bool_t IsRotated(const Int_t& key) const;
     Bool_t IsAdc(const Int_t& key) const;
@@ -83,7 +84,7 @@ class TaDevice {
     Bool_t IsDaqFlag(const Int_t& key) const;
     void SetUsed(const Int_t& key) const;
     map<string, Int_t> GetKeyList() const;
-
+  
  protected:
 
     Int_t fNumRaw, fNtied;
@@ -169,6 +170,10 @@ inline Int_t TaDevice::GetDevNum(const Int_t& index) const  {
 
 inline Int_t TaDevice::GetChanNum(const Int_t& index) const  {
   return fChanNum[index];
+};
+
+inline UInt_t TaDevice::GetVqwkHeader()  {
+  return fgVqwkHeader;
 };
 
 inline Bool_t TaDevice::IsUsed(const Int_t& key) const {

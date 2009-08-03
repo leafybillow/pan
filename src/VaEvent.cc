@@ -452,8 +452,8 @@ VaEvent::Decode(TaDevice& devices)
         if (DECODE_DEBUG) cout << endl << "==============="<<endl<< "adcx key = "<<key<<"    data = 0x"<<rawd<<dec<<endl;
 	fData[key] = UnpackAdcx (rawd, key);
       } else if (devices.IsVqwk (key)) {
-        if (DECODE_DEBUG) cout << endl << "==============="<<endl<< "Vqwk key = "<<key<<"    data = 0x"<<rawd<<dec<<endl;
-	fData[key] = UnpackVqwk (rawd, key);
+        if (DECODE_DEBUG) cout << endl << "==============="<<endl<< "Vqwk key = "<<key<<"    data = 0x"<<hex << rawd<<dec<< endl;	
+	fData[key] = UnpackVqwk ((UInt_t) rawd, key);
       } else {
 	fData[key] = rawd;
       }
@@ -1633,6 +1633,7 @@ Int_t VaEvent::DecodeCrates(TaDevice& devices) {
 //    0 = no decoding done (error, or wrong event type)
 //    1 = fine.
   int iroc, lentot, n1, numroc, ipt, istart, istop;
+  uint fFragLength, fSubbankTag, fSubbankType, fSubbankNum;
 // Cannot decode non-physics triggers  
   if(fEvType < 0 || fEvType > 12) return 0; 
   if(DECODE_DEBUG) RawDump();
@@ -1679,12 +1680,71 @@ Int_t VaEvent::DecodeCrates(TaDevice& devices) {
   }
 // Find device headers in each ROC
   for (iroc=0; iroc < numroc; iroc++) {
-   istart = fN1roc[fIrn[iroc]]+1;
-   istop = fN1roc[fIrn[iroc]]+fLenroc[fIrn[iroc]];
-   ipt = istart; 
-   while (ipt++ < istop) {
-       devices.FindHeaders(fIrn[iroc], ipt, fEvBuffer[ipt]);
-   }
+    // MUST use special case for ROC 31 - injector ROC utilizing QWeak readout buffer.
+    if (fIrn[iroc]==31) {
+      istart = fN1roc[fIrn[iroc]];
+      istop = fN1roc[fIrn[iroc]]+fLenroc[fIrn[iroc]];
+
+      //debugging output
+      //       for (ipt = istart; ipt< istop; ipt++) {
+      // 	cout << hex << fEvBuffer[ipt] << endl;
+      //       }
+
+      // 
+      ipt = istart;
+      fFragLength = fEvBuffer[ipt] -1; // This is the number of words in the data block
+                                       // minus the ID word which follows
+      fSubbankTag   = (fEvBuffer[ipt+1]&0xFFFF0000)>>16; // Bits 16-31
+      fSubbankType  = (fEvBuffer[ipt+1]&0xFF00)>>8;      // Bits 8-15
+      fSubbankNum   = (fEvBuffer[ipt+1]&0xFF);           // Bits 0-7
+ 
+      // debugging output
+      //       cout << Form("istop is %x", istop) << endl;
+      //       cout << Form("fFragLength is %x",fFragLength) << endl;
+      //       cout << Form("fSubbankTag is %x",fSubbankTag) << endl;
+      //       cout << Form("fSubbankType is %x",fSubbankType) << endl;
+      //       cout << Form("fSubbankNum is %x",fSubbankNum) << endl;
+
+      if (fSubbankTag<=31){
+	//  Subbank tags between 0 and 31 indicate this is
+	//  a ROC bank.
+	//	fROC        = fSubbankTag;
+	fSubbankTag = 0;
+	ipt = istart+2;	// get pointer to first subblock
+      }
+      
+      while (ipt < istop) {
+
+	fFragLength = fEvBuffer[ipt] -1; // This is the number of words in the data block, 
+                                         // minus the ID word which follows
+	fSubbankTag   = (fEvBuffer[ipt+1]&0xFFFF0000)>>16; // Bits 16-31
+	fSubbankType  = (fEvBuffer[ipt+1]&0xFF00)>>8;      // Bits 8-15
+	fSubbankNum   = (fEvBuffer[ipt+1]&0xFF);           // Bits 0-7
+	// debugging output
+	// 	cout << Form("  fFragLength2 is %x",fFragLength) << endl;
+	// 	cout << Form("  fSubbankTag2 is %x",fSubbankTag) << endl;
+	// 	cout << Form("  fSubbankType2 is %x",fSubbankType) << endl;
+	// 	cout << Form("  fSubbankNum2 is %x",fSubbankNum) << endl;
+
+      // locate subblock tag 3101 - scaler
+      // locate subblock tag 3102 - vqwk
+	if (fSubbankTag == 0x3102 ) {
+	  devices.FindHeaders(fIrn[iroc], ipt+1, devices.GetVqwkHeader() );  // kludge as if VQWK header is here
+	}
+	// locate subblock tag 3103 - fio / non-clearing scalers
+	ipt += fFragLength+2;
+
+      }
+
+    } else {    
+      // loop through every word to identify header start for data types in that ROC
+      istart = fN1roc[fIrn[iroc]]+1;
+      istop = fN1roc[fIrn[iroc]]+fLenroc[fIrn[iroc]];
+      ipt = istart; 
+      while (ipt++ < istop) {
+	devices.FindHeaders(fIrn[iroc], ipt, fEvBuffer[ipt]);
+      }
+    }
   }
   if (DECODE_DEBUG) devices.PrintHeaders();
   return 1;
@@ -1986,7 +2046,7 @@ void VaEvent::RawPrevDump() const {
 // For Previous Buffer.
 
    cout << "\n\n==========  Previous Raw Data Dump  ==========" << hex << endl;
-   Int_t pevlen = fPrevBuffer[0]+1;
+   UInt_t pevlen = fPrevBuffer[0]+1;
    Int_t ptype = fPrevBuffer[1]>>16;
    cout << "Length "<<pevlen<<"   Type "<<ptype<<endl;
    UInt_t ipt = 0;
@@ -2425,7 +2485,7 @@ VaEvent::UnpackAdcx (Int_t rawd, Int_t key)
 
 
 Double_t 
-VaEvent::UnpackVqwk (Int_t rawd, Int_t key)
+VaEvent::UnpackVqwk (UInt_t rawd, Int_t key)
 {
   // Data from Vqwk are unpacked.  
   // The 6th word for each channel requires care.
@@ -2445,9 +2505,11 @@ VaEvent::UnpackVqwk (Int_t rawd, Int_t key)
 
   Int_t keyo;  // key minus offset
   Int_t chwd; // word in channel readout
+  Long_t lrawd;
 //   Int_t vqwk;  // vqwk number
 //   Int_t exp_chan;  // Expected ADC channel number
   Double_t retval; 
+  lrawd = rawd;
   if (key >= VQWKOFF && key < VQWKOFF + 8 * 7 * VQWKNUM) { // vqwk device
     // Raw integrated signal or possibly number of samples
     keyo = key - VQWKOFF;
@@ -2459,17 +2521,17 @@ VaEvent::UnpackVqwk (Int_t rawd, Int_t key)
     //      exp_chan = keyo/6 - 8*vqwk; // for using oversample blocks
     if (chwd==0) {
       // combined word, number of samples
-      Int_t numsamp = (rawd>>16) & 0xFFFF;
+      Int_t numsamp = (lrawd>>16) & 0xFFFF;
       retval = numsamp;
     } else if (chwd==1) {
       // combined word: sequence number
-      retval = (rawd>>8) & 0xFF;
+      retval = (lrawd>>8) & 0xFF;
     } else {
-      retval =  rawd;
+      retval =  Double_t(lrawd);
     }
   } else {  // tied device
     // this should be pointed to integrated data word
-    retval = rawd;
+    retval =  Double_t(lrawd);
   }
         
   return retval;

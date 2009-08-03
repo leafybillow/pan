@@ -127,13 +127,14 @@ private:
   Int_t DecodeCrates( TaDevice& devices );   
   void CalibDecode(TaDevice& devices); // Called if indicated in database
   Double_t UnpackAdcx (Int_t rawd, Int_t key); // Unpack and check ADCX data
-  Double_t UnpackVqwk (Int_t rawd, Int_t key); // Unpack VQWK data
+  Double_t UnpackVqwk (UInt_t rawd, Int_t key); // Unpack VQWK data
   Int_t FindEventPhase(Int_t key, TaDevice &devices) const; // For synching PVDIS and HAPPEX data.
 
   // Constants
   static const UInt_t fgMaxEvLen = 2000;    // Maximum length for event buffer
   static const EventNumber_t fgMaxEvNum = 10000000;  // Maximum event number
-  static const Double_t fgKappa = 18.76;   // stripline BPM calibration
+  //  static const Double_t fgKappa = 18.76;   // stripline BPM calibration
+#define fgKappa 18.76    // stripline BPM calibration
   static const Cut_t fgMaxCuts = 10;    // Length of cut values array   
   static const UInt_t fgEpicsType = 131;  // EPICS event type
 

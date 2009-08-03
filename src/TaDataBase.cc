@@ -1393,7 +1393,7 @@ Double_t TaDataBase::GetVqwkPed(const Int_t& vqwk, const Int_t& chan) const {
      return vqwkped[idx];
   } else {
      cerr << "WARNING: DataBase::GetVqwkPed:";
-     cerr << "  illegal combination of vqwk and channel #"<<endl;
+     cerr << "  illegal combination of vqwk #"<<vqwk << " and channel #"<< chan <<endl;
      return 0;
   }
 };
