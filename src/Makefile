@@ -101,6 +101,28 @@ ifeq ($(OSNAME),Linux)
 
 endif
 
+ifeq ($(OSNAME),Darwin)
+   ROOTLIBS      = $(shell root-config --libs)
+   ROOTGLIBS     = $(shell root-config --glibs)
+   INCLUDES      = -I$(ROOTINC) -I./
+   CXX           = $(GCC)
+   CXXFLAGS      = -Wall -fno-exceptions -fPIC $(INCLUDES) 
+   LD            = $(GLD)
+   LDFLAGS       = 
+   SOFLAGS       = -shared 
+   GLIBS         = $(ROOTGLIBS) -L/usr/X11R6/lib -lXpm -lX11
+   LIBCODACLASS=libcoda.a
+   ET_AC_FLAGS = -D_REENTRANT -D_POSIX_PTHREAD_SEMANTICS
+   ET_CFLAGS = -02 -fPIC -I. $(ET_AC_FLAGS) -DLINUXVERS
+# Typically CODA is an environment variable,e.g.
+#   CODA = /adaqfs/coda/2.2.1
+   LIBET = $(CODA)/Linux/lib/libet.so
+   ONLIBS = $(LIBET) -lieee -lpthread -ldl -lresolv
+   LIBS = $(GLIBS) $(ROOTLIBS) $(ROOTGLIBS)
+
+endif
+
+
 MAKEDEPEND    = $(GCC)
 
 ALL_LIBS = $(LIBS) $(LIBCODACLASS)
@@ -188,7 +210,7 @@ all: $(PROGS) $(PANLIBS) $(PANLIBS_NODICT) libpan.so
 
 $(PROGS): main.o $(OBJS) $(SRC) $(HEAD) 
 	rm -f $@
-	$(LD) $(CXXFLAGS) -o $@ main.o $(OBJS) $(ALL_LIBS)
+	$(LD) $(CXXFLAGS) -o $@ main.o $(OBJS)  $(ALL_LIBS)
 
 $(PANLIBS_NODICT): $(LOBJS_NODICT) $(LSRC) $(LHEAD)
 	rm -f $@
@@ -202,7 +224,9 @@ main.o: main.cc
 	$(CXX) -c $(INCLUDES) $(CXXFLAGS) $<	
 
 libpan.so: $(OBJS) $(HEAD)
-	$(CXX) $(SOFLAGS) -O -o libpan.so $(OBJS) $(ALL_LIBS)
+	$(CXX) $(SOFLAGS) -O -o libpan.so main.o $(OBJS) $(ALL_LIBS)
+#	$(CXX) $(SOFLAGS) -O -o libpan.so $(OBJS) $(ALL_LIBS)
+# is main needed when building the .so?  -kdp (8/3/09)
 
 # Dictionary
 
