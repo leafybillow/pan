@@ -1153,9 +1153,9 @@ VaEvent::Decode(TaDevice& devices)
     // Quadsynch
     // fData[QUDOFF + i] = (Double_t)(((int)GetData(key) & 0x40) >> 6);
     // Helicity
-    //fData[HELOFF + i] = (Double_t)(((int)GetData(key) & 0x10) >> 4);
+    // fData[HELOFF + i] = (Double_t)(((int)GetData(key) & 0x10) >> 4);
     // Pairsynch
-    //fData[PAROFF + i] = (Double_t)(((int)GetData(key) & 0x20) >> 5);
+    // fData[PAROFF + i] = (Double_t)(((int)GetData(key) & 0x20) >> 5);
     //      Standard Configuration
     // Quadsynch
     fData[QUDOFF + i] = (Double_t)(((int)GetData(key) & 0x20) >> 5);
@@ -1727,11 +1727,21 @@ Int_t VaEvent::DecodeCrates(TaDevice& devices) {
 	// 	cout << Form("  fSubbankNum2 is %x",fSubbankNum) << endl;
 
       // locate subblock tag 3101 - scaler
+	if (fSubbankTag == 0x3101 ) {
+	}
       // locate subblock tag 3102 - vqwk
 	if (fSubbankTag == 0x3102 ) {
-	  devices.FindHeaders(fIrn[iroc], ipt+1, devices.GetVqwkHeader() );  // kludge as if VQWK header is here
+	  if ((fFragLength%48)==2) {
+	    // test of frag length, if frag length is 2+(integer*6*8), then we start with a padding word
+	    //  step header by one more word
+	    devices.FindHeaders(fIrn[iroc], ipt+2, devices.GetVqwkHeader() );  // kludge as if VQWK header is here
+	  } else {
+	    devices.FindHeaders(fIrn[iroc], ipt+1, devices.GetVqwkHeader() );  // kludge as if VQWK header is here
+	  }
 	}
 	// locate subblock tag 3103 - fio / non-clearing scalers
+	if (fSubbankTag == 0x3103 ) {
+	}
 	ipt += fFragLength+2;
 
       }
