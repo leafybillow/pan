@@ -75,6 +75,9 @@ UInt_t VaEvent::fgNCuts;
 Bool_t VaEvent::fgCalib;
 UInt_t VaEvent::fgDetKey[DETNUM];
 Double_t VaEvent::fgCombWt[DETCOMBNUM][DETNUM];
+Double_t VaEvent::fQPD1Pars[6];
+Double_t VaEvent::fLINA1pars[10];
+Double_t VaEvent::fCavPars[CAVNUM][2];
 Int_t VaEvent::fgDvalue = -1;
 
 VaEvent::VaEvent(): 
@@ -334,6 +337,16 @@ VaEvent::RunInit(const TaRun& run)
       }
     }
   }
+
+  vector<Double_t> lina1const = run.GetDataBase().GetLina1Const();  
+  ip=0;  
+  for(vector<Double_t>::iterator iconst = lina1const.begin(); 
+      iconst != lina1const.end(); iconst++)  
+    { 
+      fLINA1pars[ip++] = *iconst; 
+      //      cout << "  this one : " << fLINA1pars[ip - 1] << endl;
+    }
+  //  cout << "flina1pars[0] = " <<fLINA1pars[0] << "  " << (int) fLINA1pars[0] << endl;
   
   return fgTAEVT_OK;
 
@@ -392,6 +405,8 @@ VaEvent::Decode(TaDevice& devices)
 
   Int_t i,j,key,idx,ixp,ixm,iyp,iym,ix,iy,icra,jb,ckey;
   Int_t ixpyp,ixpym,ixmyp,ixmym;
+  Int_t ila[8],ilac[8];
+  Int_t npad;
 
   Double_t sum,xval,yval;
   memset(fData, 0, MAXKEYS*sizeof(Double_t));
@@ -619,6 +634,92 @@ VaEvent::Decode(TaDevice& devices)
        fData[iy] = yval;
     }
     if (devices.IsUsed(key)) devices.SetUsed(iy);
+  }
+
+// Linear Array
+//     for (Int_t ip = 0; ip<10; ip++) 
+//       cout << Form("LINA par%d = ",ip) << fLINA1pars[ip]<< endl;
+  for (i = 0; i < LINANUM; i++) {
+    if (i>0) {
+      cout << "VaEvent::WARNING: Invalid number for Linear Array ";
+    }
+    key = LINAOFF + 21*i;  // device key
+    npad = (int) fLINA1pars[0]; // number of pads in use
+    //    cout << "Key is " << key << endl;
+    if (devices.IsUsed(key)) {      // check pad 1 to see if device is used
+      if (npad<2 || npad>8) {
+	cout << "VaEvent::WARNING: Invalid number of pads for linear array "<<npad << endl;
+      }
+      Int_t iErrcd = 0;
+      for (Int_t ip = 0; ip<npad; ip++) {
+	ila[ip] = devices.GetCalIndex(key+ip);  // pointer to calibrated word from each vqwk
+	if (ila[ip]<0) iErrcd =1;
+	//	cout << "calibrate index is " <<ila[ip] << " " << devices.GetCalIndex(key+ip) << endl;
+      }
+      if (iErrcd >0) continue;
+
+      // apply relative gains
+      for (Int_t ip = 0; ip<npad; ip++) {
+	ilac[ip] = key + 8+ip; // key for gain-modified LINA word
+
+	//	cout << "gain modified key is " << ilac[ip] << endl;
+	fData[ ilac[ip] ] = fData[ ila[ip] ]*fLINA1pars[ip+1];  // push gain corrected callibrated data
+	devices.SetUsed(ilac[ip]);
+	//	cout << "              value is " << fData[ilac[ip]] << endl;
+      }
+
+      // Accumulate sum
+      Double_t sum=0;
+
+
+      for (Int_t ip = 0; ip<npad; ip++)
+	sum += fData[ilac[ip]];
+
+      fData[key+16]=sum;
+      Double_t spc = fLINA1pars[9];
+      Double_t xsum=0;
+      Double_t xsum2=0;
+      Double_t x,rms;
+      if (sum>0) {
+	for (Int_t ip = 0; ip<npad; ip++)
+	  xsum += spc*(ip+0.5)*fData[ilac[ip]];
+	x = xsum/sum;
+	for (Int_t ip = 0; ip<npad; ip++)
+	  xsum2 += pow(spc*(ip+0.5)-x,2)*fData[ilac[ip]];
+	rms = sqrt(xsum2/sum);
+      } else {
+	x = -1e6;
+	rms = -1e6;
+      }
+
+      fData[key+17] = x;
+      fData[key+18] = rms;
+
+      // alternative method for x, rms
+      if(npad>4) {
+	Double_t vx[8];
+	Double_t vy[8];
+	for (Int_t ip = 0; ip<npad; ip++) {
+	  vx[ip] = (ip+0.5)*spc;
+	  vy[ip] = fData[ilac[ip]];
+	}
+	TGraph *g1 = new TGraph(npad,vx,vy);
+	g1->Fit("gaus","Q");
+	TF1 *f1 = (TF1*) g1->GetFunction("gaus");
+	x = f1->GetParameter(1);
+	rms = f1->GetParameter(2);
+      }
+
+
+      fData[key+19] = x;
+      fData[key+20] = rms;
+
+      devices.SetUsed(key+16);
+      devices.SetUsed(key+17);
+      devices.SetUsed(key+18);
+      devices.SetUsed(key+19);
+      devices.SetUsed(key+20);
+    }
   }
 
 // Stripline BPMs
@@ -1048,13 +1149,13 @@ VaEvent::Decode(TaDevice& devices)
   for (i = 0; i < TIRNUM; i++) {
     key = TIROFF + i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
-    //      For UVa Lab:
+    //      For UVa Lab26:
     // Quadsynch
-    //    fData[QUDOFF + i] = (Double_t)(((int)GetData(key) & 0x40) >> 6);
+    // fData[QUDOFF + i] = (Double_t)(((int)GetData(key) & 0x40) >> 6);
     // Helicity
-    //    fData[HELOFF + i] = (Double_t)(((int)GetData(key) & 0x10) >> 4);
+    //fData[HELOFF + i] = (Double_t)(((int)GetData(key) & 0x10) >> 4);
     // Pairsynch
-    //    fData[PAROFF + i] = (Double_t)(((int)GetData(key) & 0x20) >> 5);
+    //fData[PAROFF + i] = (Double_t)(((int)GetData(key) & 0x20) >> 5);
     //      Standard Configuration
     // Quadsynch
     fData[QUDOFF + i] = (Double_t)(((int)GetData(key) & 0x20) >> 5);
@@ -1548,8 +1649,7 @@ Int_t VaEvent::DecodeCrates(TaDevice& devices) {
     } else {
        n1 = fN1roc[fIrn[iroc-1]]+fLenroc[fIrn[iroc-1]]+1;
     }
-    if( (unsigned int)(n1+1) >= fEvLen ) break;
-// fIrn = ROC number 
+    if( (unsigned int)(n1+1) >= fEvLen ) break;// fIrn = ROC number 
     fIrn[iroc]=(fEvBuffer[n1+1]&0xff0000)>>16;
 // This error might mean you need a bigger MAXROC parameter,
 // or it might mean corruption of the raw data.

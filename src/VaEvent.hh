@@ -26,6 +26,8 @@
 #define VAEVENT_VERBOSE 1
 #define DECODE_DEBUG 0  // Make this 1 to turn on debugging output
 
+#include "TF1.h"
+#include "TGraph.h"
 #include "Rtypes.h"
 #include "PanTypes.hh"
 #include "DevTypes.hh"
@@ -183,6 +185,10 @@ private:
   static UInt_t fgDetKey[DETNUM];  // index to calibrated detector values, used for det combos
   static Double_t fgCombWt[DETCOMBNUM][DETNUM];  // wts for detector combinations
   static Int_t fgDvalue;       // Previous divider value seen in UnpackAdcx
+  static Double_t fQPD1Pars[6];    // QPD calibration parameters
+  static Double_t fLINA1pars[10];    // LINA calibration parameters
+  static Double_t fCavPars[CAVNUM][2];    // Cavity calibration parameters
+
 
   // Data members
   Int_t *fEvBuffer;            // Raw event data
@@ -202,10 +208,6 @@ private:
                                       // size of event changing.
   static const Int_t fPvdisPhaseShift=0; // To shift(1) or not(0) the phase
                                  // for testing PVDIS event-phase problem
-
-  Double_t fQPD1Pars[6];    // QPD calibration parameters
-  Double_t fCavPars[CAVNUM][2];    // QPD calibration parameters
-
 
 #ifndef NODICT
 ClassDef(VaEvent,0)  // An event

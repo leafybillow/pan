@@ -608,6 +608,13 @@ TaDataBase::Checkout()
     cout << "qpd1 const "<< qval <<endl;
   }
 
+  vector<Double_t> lina1const = GetLina1Const();
+  for(vector<Double_t>::iterator iconst = lina1const.begin();
+      iconst != lina1const.end(); iconst++) {
+    Double_t laval = *iconst;
+    cout << "lina1 const "<< laval <<endl;
+  }
+
   vector<Double_t> cavconst = GetCavConst1();
   vector<Double_t>::iterator iconst = cavconst.begin();
   cout << "Calibration for Cavity 1: " << endl;
@@ -792,6 +799,41 @@ TaDataBase::GetQpd1Const() const
     data.push_back (1.);  // 
     data.push_back (1.);  // distance conversions
     data.push_back (1.);  // 
+  }
+  return data;
+}
+
+vector<Double_t>
+TaDataBase::GetLina1Const() const
+{
+
+  vector<string> keys;
+  keys.clear();
+  keys.push_back ("npad");   
+  keys.push_back ("g1");
+  keys.push_back ("g2");
+  keys.push_back ("g3");
+  keys.push_back ("g4");
+  keys.push_back ("g5");
+  keys.push_back ("g6");
+  keys.push_back ("g7");
+  keys.push_back ("g8");
+  keys.push_back ("spc");
+  
+  vector<Double_t> data = GetData ("lina1const", keys);
+
+  // If parameters missing, push default values.
+  if (data.size() != 10) {
+    data.push_back (4.0);   // number of samples
+    data.push_back (1.);  // relative gains
+    data.push_back (1.);  // 
+    data.push_back (1.);  // 
+    data.push_back (1.);  // 
+    data.push_back (1.);  // 
+    data.push_back (1.);  // 
+    data.push_back (1.);  // 
+    data.push_back (1.);  // 
+    data.push_back (1.);  // distance conversion
   }
   return data;
 }
@@ -1854,7 +1896,7 @@ void TaDataBase::InitDB() {
   didinit = kTRUE;
 
   vector <dtype*> columns;
-  columns.reserve(20);
+  columns.reserve(26);
 
   tables.clear();
   tables.push_back("run");           //   0
@@ -1905,6 +1947,7 @@ void TaDataBase::InitDB() {
   tables.push_back("cav1const");     //  45
   tables.push_back("cav2const");     //  46
   tables.push_back("cav3const");     //  47
+  tables.push_back("lina1const");     //  48
 
   pair<string, int> sipair;
   int k;
@@ -2077,6 +2120,28 @@ void TaDataBase::InitDB() {
       columns.push_back(new dtype("d"));
       columns.push_back(new dtype("s"));
       columns.push_back(new dtype("d"));
+    }
+    if (i == 48) {  // lina1const
+      columns.push_back(new dtype("s"));
+      columns.push_back(new dtype("d")); // number of pads (as a double)
+      columns.push_back(new dtype("s"));
+      columns.push_back(new dtype("d"));// g1
+      columns.push_back(new dtype("s"));
+      columns.push_back(new dtype("d"));// g2
+      columns.push_back(new dtype("s"));
+      columns.push_back(new dtype("d"));// g3
+      columns.push_back(new dtype("s"));
+      columns.push_back(new dtype("d"));// g4
+      columns.push_back(new dtype("s"));
+      columns.push_back(new dtype("d"));// g5
+      columns.push_back(new dtype("s"));
+      columns.push_back(new dtype("d"));// g6
+      columns.push_back(new dtype("s"));
+      columns.push_back(new dtype("d"));// g7
+      columns.push_back(new dtype("s"));
+      columns.push_back(new dtype("d"));// g8
+      columns.push_back(new dtype("s"));
+      columns.push_back(new dtype("d"));// spc
     }
 
     sipair.second = columns.size(); 

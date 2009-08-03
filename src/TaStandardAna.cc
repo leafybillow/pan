@@ -144,12 +144,185 @@ TaStandardAna::InitChanLists ()
   f = ChanListFromName ("bpm4bmx", "",  fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
+//
+  // QWEAK variables
+  f = ChanList ("vqwk", "~_0_b1_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_0_b2_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_0_b3_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_0_b4_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_1_b1_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_1_b2_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_1_b3_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_1_b4_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_2_b1_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_2_b2_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_2_b3_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_2_b4_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_3_b1_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_3_b2_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_3_b3_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_3_b4_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_4_b1_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_4_b2_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_4_b3_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_4_b4_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_5_b1_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_5_b2_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_5_b3_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_5_b4_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_6_b1_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_6_b2_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_6_b3_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_6_b4_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_7_b1_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_7_b2_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_7_b3_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_7_b4_cal", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  //
+  // QPD 
+  f = ChanList ("qpd", "~sum", "chan",  fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("qpd", "~x", "chan",  fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("qpd", "~y", "chan",  fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  //
+  // Linear Array
+  f = ChanList ("lina", "~sum", "chan",  fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~x", "chan",  fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~rms", "chan",  fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~xg", "chan",  fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~rmsg", "chan",  fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~_1", "chan",  fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~_2", "chan",  fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~_3", "chan",  fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~_4", "chan",  fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~_5", "chan",  fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~_6", "chan",  fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~_7", "chan",  fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~_8", "chan",  fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  // 
+  // det ok since not blinding in UValab26 laser room
+  f = ChanList ("det", "~", "chan", fgCOPY);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+
   // PVDIS variables
   f = ChanList ("pvdis", "~", "chan", fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
 
   // Channels for which to store differences
+  f = ChanList ("vqwk", "~_0_b1_cal", "chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_0_b2_cal", "chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_0_b3_cal", "chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_0_b4_cal","chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_1_b1_cal", "chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_1_b2_cal", "chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_1_b3_cal", "chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_1_b4_cal","chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_2_b1_cal", "chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_2_b2_cal", "chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_2_b3_cal", "chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_2_b4_cal","chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_3_b1_cal", "chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_3_b2_cal", "chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_3_b3_cal", "chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_3_b4_cal","chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_4_b1_cal", "chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_4_b2_cal", "chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_4_b3_cal", "chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_4_b4_cal","chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_5_b1_cal", "chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_5_b2_cal", "chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_5_b3_cal", "chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_5_b4_cal","chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_6_b1_cal", "chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_6_b2_cal", "chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_6_b3_cal", "chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_6_b4_cal","chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_7_b1_cal", "chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_7_b2_cal", "chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_7_b3_cal", "chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_7_b4_cal","chan", fgDIFF + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  
+
   f = ChanList ("batt", "~", "mchan", fgDIFF + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("bpm", "~x", "um", fgDIFF + fgBLINDSIGN);
@@ -180,6 +353,16 @@ TaStandardAna::InitChanLists ()
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("qpd", "~y", "um", fgDIFF + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  //
+  // Linear Array
+  f = ChanList ("lina", "~x", "um", fgDIFF);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~rms", "um", fgDIFF);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~xg", "um", fgDIFF);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~rmsg", "um", fgDIFF);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   // PVDIS variables
   f = ChanList ("pvdis", "~", "chan", fgDIFF + fgBLINDSIGN);
@@ -202,7 +385,24 @@ TaStandardAna::InitChanLists ()
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanListFromName ("bmw", "", fgAVG);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());  
-
+  //
+  //QPD
+  f = ChanList ("qpd", "~sum", "", fgAVG);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("qpd", "~sum", "", fgAVGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end()); 
+  //
+  f = ChanList ("lina", "~sum", "", fgAVG);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~x", "", fgAVG);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~rms", "", fgAVG);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~xg", "", fgAVG);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~rmsg", "", fgAVG);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  //
   // PVDIS variables
   f = ChanList ("pvdis", "~", "chan", fgAVG);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
@@ -212,6 +412,25 @@ TaStandardAna::InitChanLists ()
 //    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 //    f = ChanList ("bpm", "~yws", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
 //    fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  // QWEAK
+  f = ChanList ("vqwk", "~_0_b1_cal", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_0_b2_cal", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_0_b3_cal", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_0_b4_cal", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_1_b1_cal", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_1_b2_cal", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_1_b3_cal", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("vqwk", "~_1_b4_cal", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  //
+  //
   f = ChanList ("bpm", "~ws", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("bcm", "~", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
@@ -236,6 +455,14 @@ TaStandardAna::InitChanLists ()
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("pvdis", "~", "chan", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  //
+  // ok since not blinding in UValab26 laser room
+  f = ChanList ("det", "~", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  //
+  f = ChanList ("lina", "~sum", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  //
 
   // Channels for which to store normalized asymmetries
   f = ChanList ("lumi", "~", "ppm", fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN);
@@ -243,7 +470,27 @@ TaStandardAna::InitChanLists ()
 
   f = ChanList ("det", "~", "ppm", fgNO_BEAM_NO_ASY + fgASYN + fgBLIND + fgSTATS);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-
+  //
+  // Linear Array
+  f = ChanList ("lina", "~sum", "ppm", fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN+ fgSTATS);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~_1","ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN+ fgSTATS); 
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~_2","ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN+ fgSTATS);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~_3","ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN+ fgSTATS);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~_4","ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN+ fgSTATS);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~_5","ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN+ fgSTATS);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~_6","ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN+ fgSTATS);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~_7","ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN+ fgSTATS);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  f = ChanList ("lina", "~_8","ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN+ fgSTATS);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  //
   // Below is not the correct way to do this...
 //   f = ChanListFromName ("det_", "ppm",  fgNO_BEAM_NO_ASY + fgASYN + fgBLIND);
 //   fTreeList.insert (fTreeList.end(), f.begin(), f.end());

@@ -115,6 +115,8 @@
 @scanflist = qw / ISCANCLEAN ISCANDATA1 ISCANDATA2 ISCANDATA3 ISCANDATA4 /;
 # SYNC words
 @synclist = qw / IISYNC0 ICHSYNC0 ICHSYNC1 ICHSYNC2 IRSYNC1 IRSYNC2 ILSYNC1 ILSYNC2 /;
+# Linear Array
+@linalist =      qw / ILINA1 / ;
 # Number of old ADC modules, new ADC modules, VQWK modules, scaler modules, and crates
 $adcnum = 31;
 $vqwknum = 12;
@@ -143,6 +145,7 @@ $out = "";   # output being built
 &do_lumis();
 &do_v2fclocks();
 &do_qpds();
+&do_linas();
 &do_bmwwords();
 &do_scanflags();
 &do_syncwords();
@@ -2042,6 +2045,68 @@ sub add_qpdcorr
     return $ret;
 }
 
+# --------------LINA -----------------------
+sub do_linas
+{
+# Linear Arrays
+
+    $linaoff = $p;
+    $linanum = scalar (@linalist);
+    $out1 = "";
+    foreach $lina (@linalist)
+    {
+	$out1 .= &add_lina ($lina);
+    }
+    
+    $out .= << "ENDLINACOM";
+// Linear Arrays
+
+\// Linear Array starts here
+\#define   LINAOFF     $linaoff
+\// number of quad photodiodes defined below
+\#define   LINANUM     $linanum
+
+// 1-8 diode pads.  
+// Sum = 0th moment
+//   x = 1st moment 
+// rms = 2nd moment
+
+$out1
+ENDLINACOM
+
+}
+
+sub add_lina
+{
+    my ($lina) = @_;
+    my ($ret);
+    $ret = "";
+    $ret .= "\#define   ${lina}_1R   $p\n"; $p++;
+    $ret .= "\#define   ${lina}_2R   $p\n"; $p++;
+    $ret .= "\#define   ${lina}_3R   $p\n"; $p++;
+    $ret .= "\#define   ${lina}_4R   $p\n"; $p++;
+    $ret .= "\#define   ${lina}_5R   $p\n"; $p++;
+    $ret .= "\#define   ${lina}_6R   $p\n"; $p++;
+    $ret .= "\#define   ${lina}_7R   $p\n"; $p++;
+    $ret .= "\#define   ${lina}_8R   $p\n"; $p++;
+    $ret .= "\#define   ${lina}_1   $p\n"; $p++;
+    $ret .= "\#define   ${lina}_2   $p\n"; $p++;
+    $ret .= "\#define   ${lina}_3   $p\n"; $p++;
+    $ret .= "\#define   ${lina}_4   $p\n"; $p++;
+    $ret .= "\#define   ${lina}_5   $p\n"; $p++;
+    $ret .= "\#define   ${lina}_6   $p\n"; $p++;
+    $ret .= "\#define   ${lina}_7   $p\n"; $p++;
+    $ret .= "\#define   ${lina}_8   $p\n"; $p++;
+    $ret .= "\#define   ${lina}SUM  $p\n"; $p++;
+    $ret .= "\#define   ${lina}X    $p\n"; $p++;
+    $ret .= "\#define   ${lina}RMS  $p\n"; $p++;
+    $ret .= "\#define   ${lina}XG    $p\n"; $p++;
+    $ret .= "\#define   ${lina}RMSG  $p\n"; $p++;
+    $ret .= "\n";
+    return $ret;
+}
+
+#----------End LINA---------------
 
 sub do_bmwwords
 {

@@ -439,6 +439,8 @@ public:
   UInt_t GetCksum () const { return fCksum; }
 // Get the Qpd1 constants (pp, pm, mp, mm, x-const, y-const)
   vector<Double_t> GetQpd1Const() const;
+// Get the LINA constants (npad g1 g2 g3 g4 g5 g6 g7 g8 spc)
+  vector<Double_t> GetLina1Const() const;
 // Get list of strings from 'table'
   vector<TaString> GetStringVect(const string& table) const;
 // List of EPICS variables to put into output
