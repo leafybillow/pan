@@ -19,6 +19,9 @@
 
 //#define NOISY
 //#define DEBUG
+//#define QWKINJHEL
+//#define UVAHEL
+
 #define SANE_DECODE 1
 
 #include "VaEvent.hh"
@@ -656,13 +659,16 @@ VaEvent::Decode(TaDevice& devices)
 	if (ila[ip]<0) iErrcd =1;
 	//	cout << "calibrate index is " <<ila[ip] << " " << devices.GetCalIndex(key+ip) << endl;
       }
-      if (iErrcd >0) continue;
+      if (iErrcd >0) {
+	cout << "LINEAR ARRAY ANALYSIS ERROR " << endl;
+	continue;
+      }
 
       // apply relative gains
       for (Int_t ip = 0; ip<npad; ip++) {
 	ilac[ip] = key + 8+ip; // key for gain-modified LINA word
 
-	//	cout << "gain modified key is " << ilac[ip] << endl;
+	//       	cout << "gain modified key is " << ilac[ip] << endl;
 	fData[ ilac[ip] ] = fData[ ila[ip] ]*fLINA1pars[ip+1];  // push gain corrected callibrated data
 	devices.SetUsed(ilac[ip]);
 	//	cout << "              value is " << fData[ilac[ip]] << endl;
@@ -670,7 +676,6 @@ VaEvent::Decode(TaDevice& devices)
 
       // Accumulate sum
       Double_t sum=0;
-
 
       for (Int_t ip = 0; ip<npad; ip++)
 	sum += fData[ilac[ip]];
@@ -686,7 +691,11 @@ VaEvent::Decode(TaDevice& devices)
 	x = xsum/sum;
 	for (Int_t ip = 0; ip<npad; ip++)
 	  xsum2 += pow(spc*(ip+0.5)-x,2)*fData[ilac[ip]];
-	rms = sqrt(xsum2/sum);
+	if (xsum2>0) {
+	  rms = sqrt(xsum2/sum);
+	} else {
+	  rms = -1e6;
+	}
       } else {
 	x = -1e6;
 	rms = -1e6;
@@ -709,7 +718,6 @@ VaEvent::Decode(TaDevice& devices)
 	x = f1->GetParameter(1);
 	rms = f1->GetParameter(2);
       }
-
 
       fData[key+19] = x;
       fData[key+20] = rms;
@@ -1149,13 +1157,7 @@ VaEvent::Decode(TaDevice& devices)
   for (i = 0; i < TIRNUM; i++) {
     key = TIROFF + i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
-    //      For UVa Lab26:
-    // Quadsynch
-    // fData[QUDOFF + i] = (Double_t)(((int)GetData(key) & 0x40) >> 6);
-    // Helicity
-    // fData[HELOFF + i] = (Double_t)(((int)GetData(key) & 0x10) >> 4);
-    // Pairsynch
-    // fData[PAROFF + i] = (Double_t)(((int)GetData(key) & 0x20) >> 5);
+
     //      Standard Configuration
     // Quadsynch
     fData[QUDOFF + i] = (Double_t)(((int)GetData(key) & 0x20) >> 5);
@@ -1163,6 +1165,24 @@ VaEvent::Decode(TaDevice& devices)
     fData[HELOFF + i] = (Double_t)(((int)GetData(key) & 0x40) >> 6);
     // Pairsynch
     fData[PAROFF + i] = (Double_t)(((int)GetData(key) & 0x80) >> 7);
+#ifdef UVAHEL
+    //      For UVa Lab26:
+    // Quadsynch
+    fData[QUDOFF + i] = (Double_t)(((int)GetData(key) & 0x40) >> 6);
+    // Helicity
+    fData[HELOFF + i] = (Double_t)(((int)GetData(key) & 0x10) >> 4);
+    // Pairsynch
+    fData[PAROFF + i] = (Double_t)(((int)GetData(key) & 0x20) >> 5);
+#endif
+#ifdef QWKINJHEL
+    //      For injector ROC31 helicity decoding:
+    // Quadsynch
+    fData[QUDOFF + i] = (Double_t)(((int)GetData(key) & 0x04) >> 2);
+    // Helicity
+    fData[HELOFF + i] = (Double_t)(((int)GetData(key) & 0x01));
+    // Pairsynch
+    fData[PAROFF + i] = (Double_t)(((int)GetData(key) & 0x10) >> 4);
+#endif
     if (devices.IsUsed(key)) {
       devices.SetUsed(QUDOFF + i);
       devices.SetUsed(HELOFF + i);
@@ -1478,7 +1498,6 @@ VaEvent::CheckEvent(TaRun& run)
   if ( fgLastEv.GetEvNumber() == 0 )
     {
       // First event, cut it (startup cut)
-
       startupval = 1;
     }
   else
@@ -1686,8 +1705,8 @@ Int_t VaEvent::DecodeCrates(TaDevice& devices) {
       istop = fN1roc[fIrn[iroc]]+fLenroc[fIrn[iroc]];
 
       //debugging output
-      //       for (ipt = istart; ipt< istop; ipt++) {
-      // 	cout << hex << fEvBuffer[ipt] << endl;
+      //       for (ipt = istart; ipt< 30; ipt++) {
+      //        	cout << hex << fEvBuffer[ipt] << endl;
       //       }
 
       // 
@@ -1724,9 +1743,9 @@ Int_t VaEvent::DecodeCrates(TaDevice& devices) {
 	// 	cout << Form("  fFragLength2 is %x",fFragLength) << endl;
 	// 	cout << Form("  fSubbankTag2 is %x",fSubbankTag) << endl;
 	// 	cout << Form("  fSubbankType2 is %x",fSubbankType) << endl;
-	// 	cout << Form("  fSubbankNum2 is %x",fSubbankNum) << endl;
+	// 	cout << Form("  fSubbankNum2 is %x",fSubbankNum) << endl;	
 
-      // locate subblock tag 3101 - scaler
+      // locate subblock tag 3101 - scalers
 	if (fSubbankTag == 0x3101 ) {
 	}
       // locate subblock tag 3102 - vqwk
@@ -1739,8 +1758,11 @@ Int_t VaEvent::DecodeCrates(TaDevice& devices) {
 	    devices.FindHeaders(fIrn[iroc], ipt+1, devices.GetVqwkHeader() );  // kludge as if VQWK header is here
 	  }
 	}
-	// locate subblock tag 3103 - fio / non-clearing scalers
+	// locate subblock tag 3103 - fio + other stuff
 	if (fSubbankTag == 0x3103 ) {
+	  devices.FindHeaders(fIrn[iroc], ipt+1, devices.GetTirHeader() ); // kludge to point to data w/o header
+	  //	  cout << Form("  tirdata is %x",fEvBuffer[ipt+2]) << endl;	
+	  // handles first word of 3103 subblock only.
 	}
 	ipt += fFragLength+2;
 

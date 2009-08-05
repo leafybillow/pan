@@ -73,6 +73,7 @@ class TaDevice {
     Int_t GetMinPvdisPKey(); 
     Int_t GetMaxPvdisPKey();
     UInt_t GetVqwkHeader(); // necessary for problematic VQWK and ROC 31
+    UInt_t GetTirHeader(); // necessary for problematic ROC 31
     Bool_t IsUsed(const Int_t& key) const;
     Bool_t IsRotated(const Int_t& key) const;
     Bool_t IsAdc(const Int_t& key) const;
@@ -174,6 +175,10 @@ inline Int_t TaDevice::GetChanNum(const Int_t& index) const  {
 
 inline UInt_t TaDevice::GetVqwkHeader()  {
   return fgVqwkHeader;
+};
+
+inline UInt_t TaDevice::GetTirHeader()  {
+  return fgTirHeader;
 };
 
 inline Bool_t TaDevice::IsUsed(const Int_t& key) const {

@@ -131,7 +131,7 @@ private:
   Int_t FindEventPhase(Int_t key, TaDevice &devices) const; // For synching PVDIS and HAPPEX data.
 
   // Constants
-  static const UInt_t fgMaxEvLen = 2000;    // Maximum length for event buffer
+  static const UInt_t fgMaxEvLen = 4000;    // Maximum length for event buffer
   static const EventNumber_t fgMaxEvNum = 10000000;  // Maximum event number
   //  static const Double_t fgKappa = 18.76;   // stripline BPM calibration
 #define fgKappa 18.76    // stripline BPM calibration
