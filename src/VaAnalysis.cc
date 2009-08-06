@@ -220,8 +220,9 @@ VaAnalysis::RunIni(TaRun& run)
   else if (type == "quad")
     {
       fPairType = FromQuad;
-      fDoMultiplet = true;
-      fNMultiplet = 2;
+      fDoMultiplet = false;
+//       fDoMultiplet = true;
+//       fNMultiplet = 2;
     }
   else if (type == "pair")
     {
