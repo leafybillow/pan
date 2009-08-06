@@ -5957,10 +5957,10 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"pairsynch2",IPAIRSYNCH2));
   fKeyToIdx.insert(make_pair((string)"pairsynch3",IPAIRSYNCH3));
 
-  fKeyToIdx.insert(make_pair((string)"quadsynch",IQUADSYNCH));
-  fKeyToIdx.insert(make_pair((string)"quadsynch1",IQUADSYNCH1));
-  fKeyToIdx.insert(make_pair((string)"quadsynch2",IQUADSYNCH2));
-  fKeyToIdx.insert(make_pair((string)"quadsynch3",IQUADSYNCH3));
+  fKeyToIdx.insert(make_pair((string)"multipletsynch",IMULTIPLETSYNCH));
+  fKeyToIdx.insert(make_pair((string)"multipletsynch1",IMULTIPLETSYNCH1));
+  fKeyToIdx.insert(make_pair((string)"multipletsynch2",IMULTIPLETSYNCH2));
+  fKeyToIdx.insert(make_pair((string)"multipletsynch3",IMULTIPLETSYNCH3));
 
   fKeyToIdx.insert(make_pair((string)"rampdelay",IRAMPDELAY));
   fKeyToIdx.insert(make_pair((string)"rampdelay1",IRAMPDELAY1));

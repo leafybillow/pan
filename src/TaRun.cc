@@ -47,6 +47,7 @@
 #include "TaDevice.hh"
 #include "TaEpics.hh"
 #include "TaLabelledQuantity.hh"
+#include "TaMultiplet.hh"
 #include "TaOResultsFile.hh"
 #include "TaStatistics.hh"
 #include "TaString.hh"
@@ -510,7 +511,7 @@ TaRun::AccumPair(const VaPair& pr, const Bool_t doSlice, const Bool_t doRun)
 	}
     }
 
-  if ( fCutList->OK(pr.GetRight()) && fCutList->OK(pr.GetLeft()) )
+  if (pr.PassedCutsInt (*fCutList))
     {
       // Both events pass cuts...
       // Update statistics
@@ -551,6 +552,74 @@ TaRun::AccumPair(const VaPair& pr, const Bool_t doSlice, const Bool_t doRun)
   else
     clog << "Pair " << pr.GetRight().GetEvNumber() 
 	 << "/" <<  pr.GetLeft().GetEvNumber() 
+	 << " is in cut interval" << endl;
+#endif
+
+}
+
+
+void 
+TaRun::AccumMultiplet (const TaMultiplet& mp, const Bool_t doSlice, const Bool_t doRun) 
+{ 
+  // Update multiplet statistics with the results in this multiplet, if its
+  // events pass cuts.  Periodically print incremental statistics and
+  // cumulative cut tally.
+
+  vector<TaLabelledQuantity> lqres = mp.GetResults();
+  if ((doSlice || doRun) && fMSliceStats == 0 && lqres.size() > 0)
+    {
+      // Set up statistics
+      for (vector<TaLabelledQuantity>::const_iterator i = lqres.begin();
+	   i != lqres.end();
+	   ++i )
+	{
+	  if (i->TestFlags (VaAnalysis::fgSTATS))
+	    {
+	      fMStatsNames.push_back (i->GetName());
+	      fMStatsUnits.push_back (i->GetUnits());
+	    }
+	}
+#ifdef NOISY
+      clog << "Setting up multiplet stats - " << fMStatsNames.size() << endl;
+#endif
+      if (doSlice)
+	{
+	  fMSliceStats = new TaStatistics (fMStatsNames.size(), false);
+	}
+      if (doRun)
+	{
+	  fMRunStats = new TaStatistics (fMStatsNames.size(), false);
+	}
+    }
+
+  if (mp.PassedCutsInt (*fCutList))
+    {
+      // All events pass cuts...
+      // Update statistics
+      vector<Double_t> vres;
+      for (vector<TaLabelledQuantity>::const_iterator i = lqres.begin();
+	   i != lqres.end();
+	   ++i )
+	{
+	  if (i->TestFlags(VaAnalysis::fgSTATS))
+	    {
+	      vres.push_back (i->GetVal());
+	    }
+	}
+
+      if (doSlice)
+	{
+	  fMSliceStats->Update (vres);
+	}
+      if (doRun)
+	{
+	  fMRunStats->Update (vres);
+	}
+    }
+#ifdef NOISY
+  else
+    clog << "Multiplet " << mp.GetPair (0).GetEvNumber() 
+	 << "-" <<  mp.GetPair (mp.GetN()-1).GetEvNumber() 
 	 << " is in cut interval" << endl;
 #endif
 

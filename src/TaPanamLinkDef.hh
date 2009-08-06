@@ -44,6 +44,7 @@
 #pragma link C++ class TaFileName;
 #pragma link C++ class TaLabelledQuantity;
 #pragma link C++ class TaOResultsFile;
+#pragma link C++ class TaPairFromOctet;
 #pragma link C++ class TaPairFromPair;
 #pragma link C++ class TaPairFromQuad;
 #pragma link C++ class TaRootRep;

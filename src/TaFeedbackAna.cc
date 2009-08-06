@@ -75,7 +75,7 @@ TaFeedbackAna::InitChanLists ()
 
   // Channels for which to store left and right values
   fTreeList = ChanListFromName ("helicity", "", fgCOPY);
-//   f = ChanListFromName ("quadsynch", "", fgCOPY);
+//   f = ChanListFromName ("multipletsynch", "", fgCOPY);
 //   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 //   f = ChanListFromName ("pairsynch", "", fgCOPY);
 //   fTreeList.insert (fTreeList.end(), f.begin(), f.end());

@@ -164,7 +164,7 @@ TaPanamAna::InitMonitorDevices()
                                       ci++)
      {
 //       if (!strncmp((*ci).c_str(),"heli",4) || !strncmp((*ci).c_str(),"pair",4)  || 
-//           !strncmp((*ci).c_str(),"quad",4) || !strncmp((*ci).c_str(),"times",5)) 
+//           !strncmp((*ci).c_str(),"mult",4) || !strncmp((*ci).c_str(),"times",5)) 
 //         {
 //          TaPanamDevice* md = new TaPanamDevice((char*)(*ci).c_str(),fRun->GetKey((char*)(*ci).c_str()),
 //                                                striptime,60,100,0.,(Float_t) striptime,-2,2,0);

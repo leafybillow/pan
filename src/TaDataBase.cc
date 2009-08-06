@@ -23,7 +23,7 @@
 //      1. run  (the CODA run number)
 //      2. analysis type
 //      3. maxevents (the number of events to analyze)
-//      4. pair type ('pair' or 'quad')
+//      4. pair type ('pair' or 'quad' or 'octet')
 //      5. window delay
 //      6. oversampling factor
 //      7. dac noise parameters
@@ -536,7 +536,7 @@ TaDataBase::Checkout()
 
   cout << "window delay = " << GetDelay() << endl;
   cout << "oversampling factor = " << GetOverSamp() << endl;
-  cout << "pair type (i.e. pair or quad) =  " << GetPairType() << endl;
+  cout << "pair type (i.e. pair or quad or octet) =  " << GetPairType() << endl;
   cout << "\n\nPedestal and Dac noise parameters by ADC# and channel# : " << endl;
   for (int adc = 0; adc < 10 ; adc++) {
     cout << "\n\n-----  For ADC " << adc << endl;
@@ -905,7 +905,7 @@ TaDataBase::GetCavConst3() const
 }
 
 string TaDataBase::GetSimulationType()  const {
-// returns pair type (pair or quad) for this run.
+// returns pair type (pair or quad or octet) for this run.
   string stest = GetString("simtype");
   if (strlen(stest.c_str())-1 <= 0) return "none";
   return stest;
@@ -1576,7 +1576,7 @@ Int_t TaDataBase::GetOverSamp() const {
 };
  
 string TaDataBase::GetPairType()  const {
-// returns pair type (pair or quad) for this run.
+// returns pair type (pair or quad or octet) for this run.
    return GetString("pairtype");
 };
 

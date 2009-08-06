@@ -61,8 +61,8 @@ void TaPairFromQuad::CheckSequence( VaEvent& ThisEv, TaRun& run )
   // Errors include:
   //
   // Pairsynch unchanged from previous window
-  // quadsync == FirstQS when OtherQS expected
-  // quadsync == OtherQS when FirstQS expected
+  // multipletsync == FirstMS when OtherMS expected
+  // multipletsync == OtherMS when FirstMS expected
   // In first window of quad, helicity does not match expected value
   // In second window of quad, helicity unchanged from first window
   // In third window of quad, helicity changed from second window
@@ -70,7 +70,7 @@ void TaPairFromQuad::CheckSequence( VaEvent& ThisEv, TaRun& run )
   // In first or third window of quad, pairsynch is FirstPS
   // In second or fourth window of quad, pairsynch is SecondPS
   // In second and later events of window, pairsynch changed from first event
-  // In second and later events of window, quadsynch changed from first event
+  // In second and later events of window, multipletsynch changed from first event
   // In second and later events of window, helicity changed from first event
 
   const Int_t EPSCHANGE  = 0x1;
@@ -79,10 +79,10 @@ void TaPairFromQuad::CheckSequence( VaEvent& ThisEv, TaRun& run )
   const Int_t WHELSAME   = 0x4;
   const Int_t WHELWRONG  = 0x5;
   const Int_t WHELCHANGE = 0x6;
-  const Int_t WQSFIRST   = 0x7;
-  const Int_t WQSOTHER   = 0x8;
-  const Int_t EQSCHANGE  = 0x9;
-  const Int_t WQSPSWRONG = 0x10;
+  const Int_t WMSFIRST   = 0x7;
+  const Int_t WMSOTHER   = 0x8;
+  const Int_t EMSCHANGE  = 0x9;
+  const Int_t WMSPSWRONG = 0x10;
 
   Int_t val = 0;
 
@@ -92,12 +92,12 @@ void TaPairFromQuad::CheckSequence( VaEvent& ThisEv, TaRun& run )
   gLastTimeSlot = ThisEv.GetTimeSlot();
   
   EPairSynch lps = ThisEv.GetPairSynch();
-  EQuadSynch lqs = ThisEv.GetQuadSynch();
+  EMultipletSynch lms = ThisEv.GetMultipletSynch();
   
-  //    clog << "TaPairFromQuad::CheckSequence hel/ps/qs/ts="
+  //    clog << "TaPairFromQuad::CheckSequence hel/ps/ms/ts="
   //         << " " << (ThisEv.GetHelicity() == RightHeli ? "R" : "L")
   //         << " " << (ThisEv.GetPairSynch() == FirstPS ? "F" : "S")
-  //         << " " << (ThisEv.GetQuadSynch() == FirstQS ? "F" : "O")
+  //         << " " << (ThisEv.GetMultipletSynch() == FirstMS ? "F" : "O")
   //         << " " << ThisEv.GetTimeSlot()
   //         << endl;
   
@@ -109,25 +109,25 @@ void TaPairFromQuad::CheckSequence( VaEvent& ThisEv, TaRun& run )
 	  // Store event for comparison to later ones
 	  fgLastWinEv = fgThisWinEv;
 	  fgThisWinEv = ThisEv;
-	  if (lqs == FirstQS && fgQuadCount == 5)
+	  if (lms == FirstMS && fgQuadCount == 5)
 	    fgQuadCount = 0;
 	  else if (fgQuadCount < 5)
 	    {
 	      fgQuadCount = (fgQuadCount + 1) % 4;
-	      if (lqs == FirstQS && fgQuadCount != 0)
+	      if (lms == FirstMS && fgQuadCount != 0)
 		{
 		  cout << "TaPairFromQuad::CheckSequence ERROR: Event " 
 		       << ThisEv.GetEvNumber() 
 		       << " unexpected first window of quad" << endl;
-		  val = WQSFIRST;
+		  val = WMSFIRST;
 		  fgQuadCount = 0;
 		}
-	      else if (lqs == OtherQS && fgQuadCount == 0)
+	      else if (lms == OtherMS && fgQuadCount == 0)
 		{
 		  cout << "TaPairFromQuad::CheckSequence ERROR: Event " 
 		       << ThisEv.GetEvNumber() 
 		       << " unexpected non-first window of quad" << endl;
-		  val = WQSOTHER;
+		  val = WMSOTHER;
 		}
 	    }
 	  
@@ -150,8 +150,8 @@ void TaPairFromQuad::CheckSequence( VaEvent& ThisEv, TaRun& run )
 	    {
 	      cout << "TaPairFromQuad::CheckEvent ERROR: Event " 
 		   << ThisEv.GetEvNumber() 
-		   << " pairsynch/quadsynch mismatch" << endl;
-	      val = WQSPSWRONG;
+		   << " pairsynch/multipletsynch mismatch" << endl;
+	      val = WMSPSWRONG;
 	    } 
 	  
 	  if ( fgLastWinEv.GetEvNumber() > 0 )
@@ -202,13 +202,13 @@ void TaPairFromQuad::CheckSequence( VaEvent& ThisEv, TaRun& run )
 		   << " pairsynch change in mid window\n";
 	      val = EPSCHANGE;
 	    }
-	  // See if quadsynch stayed the same
-	  if ( lqs != fgThisWinEv.GetQuadSynch() )
+	  // See if multipletsynch stayed the same
+	  if ( lms != fgThisWinEv.GetMultipletSynch() )
 	    {
 	      cout << "TaPairFromQuad::CheckSequence ERROR: Event " 
 		   << ThisEv.GetEvNumber()
-		   << " quadsynch change in mid window\n";
-	      val = EQSCHANGE;
+		   << " multipletsynch change in mid window\n";
+	      val = EMSCHANGE;
 	    }
 	  // See if helicity stayed the same
 	  if ( ThisEv.GetHelicity() != fgThisWinEv.GetHelicity() )
@@ -223,20 +223,20 @@ void TaPairFromQuad::CheckSequence( VaEvent& ThisEv, TaRun& run )
 
 #ifdef NOISY
   clog << "This Event  " << ThisEv.GetEvNumber()
-       << " hel/ps/qs/ts " << (UInt_t)ThisEv.GetHelicity() 
+       << " hel/ps/ms/ts " << (UInt_t)ThisEv.GetHelicity() 
        << " " << (UInt_t)ThisEv.GetPairSynch()
-       << " " << (UInt_t)ThisEv.GetQuadSynch()
+       << " " << (UInt_t)ThisEv.GetMultipletSynch()
        << " " << ThisEv.GetTimeSlot() << endl;
   clog << "This Window " << fgThisWinEv.GetEvNumber()
-       << " hel/ps/qs/ts " << (UInt_t)fgThisWinEv.GetHelicity() 
+       << " hel/ps/ms/ts " << (UInt_t)fgThisWinEv.GetHelicity() 
        << " " << (UInt_t)fgThisWinEv.GetPairSynch()
-       << " " << (UInt_t)fgThisWinEv.GetQuadSynch()
+       << " " << (UInt_t)fgThisWinEv.GetMultipletSynch()
        << " " << fgThisWinEv.GetTimeSlot() << endl;
   if(fgLastWinEv.GetEvNumber() != 0){
      clog << "Last Window " << fgLastWinEv.GetEvNumber()
-          << " hel/ps/qs/ts " << (UInt_t)fgLastWinEv.GetHelicity() 
+          << " hel/ps/ms/ts " << (UInt_t)fgLastWinEv.GetHelicity() 
           << " " << (UInt_t)fgLastWinEv.GetPairSynch()
-          << " " << (UInt_t)fgLastWinEv.GetQuadSynch()
+          << " " << (UInt_t)fgLastWinEv.GetMultipletSynch()
           << " " << fgLastWinEv.GetTimeSlot() << endl;
   }
 #endif

@@ -65,6 +65,8 @@ public:
   Bool_t PassedCuts() const; // True if neither event has cut condition
   Bool_t PassedCutsInt(const TaCutList& cl) const; // True if neither event is in cut interval
   Bool_t PassedCCutsInt(const TaCutList& cl) const; // True if neither event is in cut interval (hallC)
+  Bool_t BeamCut () const;
+  Bool_t BeamCCut () const;
   const vector<TaLabelledQuantity>& GetResults() const;
   
 protected:
@@ -80,7 +82,7 @@ protected:
 
   // Static data members  
   static deque< VaEvent > fgEventQueue;  // Events waiting to be paired
-  static Bool_t  fgSkipping;   // true until first event of first full window pair/quad etc.
+  static Bool_t  fgSkipping;   // true until first event of first full window pair/quad/octet etc.
   static VaEvent fgThisWinEv;  // first ev of this window
   static VaEvent fgLastWinEv;  // first ev of last window
   static UInt_t  fgShreg;      // value for sequence algorithm      

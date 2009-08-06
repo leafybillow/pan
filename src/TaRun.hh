@@ -50,6 +50,7 @@ class TaEpics;
 class VaPair;
 class TaDataBase;
 class TaCutList;
+class TaMultiplet;
 class TaOResultsFile;
 class TaStatistics;
 
@@ -72,6 +73,7 @@ public:
   void Decode();
   virtual void AccumEvent(const VaEvent&, const Bool_t doSlice, const Bool_t doRun);
   virtual void AccumPair(const VaPair&, const Bool_t doSlice, const Bool_t doRun);
+  virtual void AccumMultiplet (const TaMultiplet&, const Bool_t doSlice, const Bool_t doRun);
   void PrintSlice (EventNumber_t n);
   void PrintRun();
   void WriteRun ();
@@ -139,15 +141,19 @@ private:
   TaStatistics* fESliceStats;    // Incremental event statistics
   TaStatistics* fPSliceStats;    // Incremental pair statistics
   TaStatistics** fPOrdSliceStats;  // Incremental pair statistics, order cuts
+  TaStatistics* fMSliceStats;    // Incremental multiplet statistics
   TaStatistics* fERunStats;      // Cumulative event statistics
   TaStatistics* fPRunStats;      // Cumulative pair statistics
   TaStatistics** fPOrdRunStats;  // Cumulative pair statistics, order cuts
+  TaStatistics* fMRunStats;      // Cumulative multiplet statistics
   vector<string> fEStatsNames;   // Names of event statistics
   vector<string> fPStatsNames;   // Names of pair statistics
   vector<string> fPOrdStatsNames;  // Names of pair statistics, order cuts
+  vector<string> fMStatsNames;   // Names of multiplet statistics
   vector<string> fEStatsUnits;   // Units of event statistics
   vector<string> fPStatsUnits;   // Units of pair statistics
   vector<string> fPOrdStatsUnits;  // Units of pair statistics, order cuts
+  vector<string> fMStatsUnits;   // Units of multiplet statistics
   Bool_t fFirstPass;             // Pass 1 or 2?
   TaOResultsFile* fResFile;      // Results file
 

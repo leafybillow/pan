@@ -53,6 +53,7 @@ protected:
   // Member functions
   void EventAnalysis ();
   void PairAnalysis ();
+  void MultipletAnalysis ();
   void InitChanLists ();
   
   // Data members

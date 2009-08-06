@@ -1784,17 +1784,17 @@ ENDTIMCOM
 $out1
 ENDPARCOM
     $qudoff = $p;
-    $out1 = &add_tir ("IQUADSYNCH");
-    $out .= << "ENDQUDCOM";
-// Quadsynch info from various crates
+    $out1 = &add_tir ("IMULTIPLETSYNCH");
+    $out .= << "ENDMULCOM";
+// Multipletsynch info from various crates
 
-\// Quadsynchs start here
-\#define   QUDOFF     $qudoff
-\// number of quadsynchs defined below
-\#define   QUDNUM     $ncrates
+\// Multipletsynchs start here
+\#define   MULOFF     $qudoff
+\// number of multipletsynchs defined below
+\#define   MULNUM     $ncrates
 
 $out1
-ENDQUDCOM
+ENDMULCOM
 }
 
 

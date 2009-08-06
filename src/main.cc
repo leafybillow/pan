@@ -17,6 +17,7 @@
 #include "TaAnalysisManager.hh"
 #include "TROOT.h"
 #include "TRint.h"
+#include <cstdlib>
 #include <signal.h>
 
 extern void InitGui();

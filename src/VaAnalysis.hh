@@ -55,6 +55,7 @@
 using namespace std;
 
 class TaCutList;
+class TaMultiplet;
 class TaRun;
 class VaEvent;
 class VaPair;
@@ -212,6 +213,7 @@ protected:
   virtual ErrCode_t ProcessPair();
   virtual void EventAnalysis () = 0;
   virtual void PairAnalysis () = 0;
+  virtual void MultipletAnalysis () {AutoMultipletAna();}
   ErrCode_t NewPrePair();
   virtual void InitChanLists ();
   virtual void InitTree (const TaCutList&);
@@ -223,6 +225,7 @@ protected:
 					    const string& other, 
 					    const UInt_t flags = 0);
   virtual void AutoPairAna();
+  virtual void AutoMultipletAna();
   // virtual void SendVoltagePC();
   virtual void PZTSendEPICS(Int_t fdbkoption);
   virtual void SendVoltagePZT();
@@ -252,13 +255,16 @@ protected:
   deque<VaPair*> fPDeque;       // Cut delay pair deque
   VaEvent* fEvt;                // Event being analyzed
   VaPair* fPair;                // Pair being analyzed
+  TaMultiplet* fMultiplet;      // Multiplet being analyzed
+  Bool_t fDoMultiplet;          // Do multiplet processing?
+  UInt_t fNMultiplet;           // Size of multiplet
   size_t fEHelDequeMax;         // Max size of helicity delay event deque
   size_t fEDequeMax;            // Max size of cut delay event deque
   size_t fPDequeMax;            // Max size of cut delay pair deque
   vector<AnaList> fTreeList;    // Quantities to put in the pair results and pair tree
   TTree* fPairTree;             // Pair tree for Root file
-  Int_t fTreeREvNum;            // Right ev number for tree
-  Int_t fTreeLEvNum;            // Left ev number for tree
+  TTree* fMultipletTree;        // Multiplet tree for Root file
+  Int_t* fTreeEvNums;           // Ev numbers for tree
   Double_t fTreeMEvNum;         // Mean ev number for tree
   Int_t fTreeOKCond;            // Pair passes cut conditions
   Int_t fTreeOKCut;             // Pair not in cut interval
@@ -272,6 +278,7 @@ protected:
   Bool_t fOnlFlag;              // Flag whether data are online or not. 
   UInt_t fEvtProc;              // Number of events processed
   UInt_t fPairProc;             // Number of pairs processed
+  UInt_t fMultipletProc;        // Number of multiplets processed
   EPairType fPairType;          // Type of beam helicity structure
   EventNumber_t fSliceLimit;    // Event number at end of next slice
   Bool_t fDoSlice;              // To control if slice stats are kept

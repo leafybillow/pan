@@ -98,7 +98,7 @@ public:
   EHelicity GetPrevHelicity() const;  // get true helicity of prev evt
 
   EPairSynch GetPairSynch() const;   // pair synch
-  EQuadSynch GetQuadSynch() const;   // quad synch
+  EMultipletSynch GetMultipletSynch() const;   // multiplet synch
   const vector < TaLabelledQuantity > & GetResults() const; // results for event
   void RawDump() const;      // dump raw data for debugging.
   void RawPrevDump() const;  // dump raw data of previous event

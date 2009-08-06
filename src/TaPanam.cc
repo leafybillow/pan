@@ -396,7 +396,7 @@ Int_t TaPanam::HandleCheckButton(Long_t parm1)
    {
   switch(parm1)
     {
-      //     case 10: UpdateDevListWithButton(fTimeCheck[0],string("quadsynch"),1);  break;
+      //     case 10: UpdateDevListWithButton(fTimeCheck[0],string("multipletsynch"),1);  break;
     }
   }
   return 1;
@@ -2604,7 +2604,7 @@ void TaPanam::InitGUIFrames(){
   //  fTab->Associate(this);
 //   fTimeFrame    = new TGCompositeFrame(fHistoFrame, 60, 60, kVerticalFrame);    
 //   fTimegFrame   = new TGGroupFrame(fTimeFrame,new TGString(" Signals "));
-//   fTimeCheck[0] = new TGCheckButton(fTimegFrame, " Quadsynch     ", 10);
+//   fTimeCheck[0] = new TGCheckButton(fTimegFrame, " Multipletsynch ", 10);
 //   fTimeCheck[1] = new TGCheckButton(fTimegFrame, " Pairsynch     ", 11);
 //   fTimeCheck[2] = new TGCheckButton(fTimegFrame, " Helicitity    ", 12);
 //   fTimeCheck[3] = new TGCheckButton(fTimegFrame, " Timeslot      ", 13);

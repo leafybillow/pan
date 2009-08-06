@@ -575,6 +575,22 @@ VaPair::PassedCCutsInt(const TaCutList& cl) const
   return ( cl.OKC(GetLeft()) && cl.OKC(GetRight()) );
 }
 
+Bool_t 
+VaPair::BeamCut () const
+{
+  // True if either event has beam cut
+  return GetRight().BeamCut() || GetLeft().BeamCut();
+}
+
+Bool_t 
+VaPair::BeamCCut () const
+{
+  // True if either event has Hall C beam cut
+  return GetRight().BeamCCut() || GetLeft().BeamCCut();
+}
+
+
+
 const vector<TaLabelledQuantity>& 
 VaPair::GetResults() const
 {

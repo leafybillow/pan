@@ -98,6 +98,14 @@ void TaStandardAna::PairAnalysis()
   AutoPairAna();
 }
 
+void TaStandardAna::MultipletAnalysis()
+{ 
+  // Multiplet analysis
+  // All we have here is a call to AutoMultipletAna.
+
+  AutoMultipletAna();
+}
+
 
 void
 TaStandardAna::InitChanLists ()
@@ -114,7 +122,7 @@ TaStandardAna::InitChanLists ()
   fTreeList = ChanListFromName ("helicity", "", fgCOPY);
   f = ChanListFromName ("pairsynch", "", fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanListFromName ("quadsynch", "", fgCOPY);
+  f = ChanListFromName ("multipletsynch", "", fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanListFromName ("timeslot", "", fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());

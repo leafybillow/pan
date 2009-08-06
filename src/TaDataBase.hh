@@ -26,7 +26,7 @@
 //      1. run  (the CODA run number)
 //      2. analysis type
 //      3. maxevents (the number of events to analyze)
-//      4. pair type ('pair' or 'quad')
+//      4. pair type ('pair' or 'quad' or 'octet')
 //      5. window delay
 //      6. oversampling factor
 //      7. dac noise parameters
@@ -393,8 +393,8 @@ public:
   Int_t GetDelay() const;
 // Get oversample factor
   Int_t GetOverSamp() const;
-// Get pair type (pair or quad) for this run
-  string GetPairType() const;  // returns 'pair' or 'quad', etc.
+// Get pair type (pair or quad or octet) for this run
+  string GetPairType() const;  // returns 'pair' or 'quad' or 'octet', etc.
 // Get current monitor to use for cuts and normalizations for this run
   string GetCurMon() const;   // returns 'bcm1', etc.
 // Get current monitor to use for Hall C cut for this run

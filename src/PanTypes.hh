@@ -19,8 +19,8 @@ typedef Int_t ErrCode_t;
 typedef UInt_t Cut_t;
 enum EHelicity { RightHeli, LeftHeli, UnkHeli };
 enum EPairSynch { FirstPS, SecondPS };
-enum EQuadSynch { FirstQS, OtherQS };
-enum EPairType { FromPair, FromQuad };
+enum EMultipletSynch { FirstMS, OtherMS };
+enum EPairType { FromPair, FromQuad, FromOctet };
 enum EFeedbackType { IA, PZTX, PZTY, PITA, IAHALLC};
 
 #endif

@@ -288,11 +288,11 @@ void TaSimEvent::Decode(TaDevice& devices) {
 #ifdef FAKEHEL
   // overwrite recorded control signals
   fgHelfile >> fData[IHELICITY] >> fData[IPAIRSYNCH]
-	    >> fData[IQUADSYNCH] >> fData[ITIMESLOT];
-//    clog << "TaSimEvent::Load hel/ps/qs/ts: " 
+	    >> fData[IMULTIPLETSYNCH] >> fData[ITIMESLOT];
+//    clog << "TaSimEvent::Load hel/ps/ms/ts: " 
 //         << " " << fData[IHELICITY]
 //         << " " << fData[IPAIRSYNCH]
-//         << " " << fData[IQUADSYNCH]
+//         << " " << fData[IMULTIPLETSYNCH]
 //         << " " << fData[ITIMESLOT] << endl;
 #endif
 

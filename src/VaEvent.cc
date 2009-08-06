@@ -373,7 +373,7 @@ VaEvent::Load (const Int_t* buff)
   Int_t prev_evtype = fEvBuffer[1]>>16;
   if (prev_evtype >= 1 && prev_evtype < 12) {      // Load if physics trig
     memset(fPrevBuffer,0,fgMaxEvLen*sizeof(Int_t));  
-    if (prev_len > 0 && prev_len < fgMaxEvLen) {
+    if (prev_len > 0 && prev_len < (Int_t) fgMaxEvLen) {
       memcpy(fPrevBuffer,fEvBuffer,prev_len*sizeof(Int_t));
     }
   }
@@ -1159,16 +1159,16 @@ VaEvent::Decode(TaDevice& devices)
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
 
     //      Standard Configuration
-    // Quadsynch
-    fData[QUDOFF + i] = (Double_t)(((int)GetData(key) & 0x20) >> 5);
+    // Multipletsynch
+    fData[MULOFF + i] = (Double_t)(((int)GetData(key) & 0x20) >> 5);
     // Helicity
     fData[HELOFF + i] = (Double_t)(((int)GetData(key) & 0x40) >> 6);
     // Pairsynch
     fData[PAROFF + i] = (Double_t)(((int)GetData(key) & 0x80) >> 7);
 #ifdef UVAHEL
     //      For UVa Lab26:
-    // Quadsynch
-    fData[QUDOFF + i] = (Double_t)(((int)GetData(key) & 0x40) >> 6);
+    // Multipletsynch
+    fData[MULOFF + i] = (Double_t)(((int)GetData(key) & 0x40) >> 6);
     // Helicity
     fData[HELOFF + i] = (Double_t)(((int)GetData(key) & 0x10) >> 4);
     // Pairsynch
@@ -1176,24 +1176,19 @@ VaEvent::Decode(TaDevice& devices)
 #endif
 #ifdef QWKINJHEL
     //      For injector ROC31 helicity decoding:
-    // Quadsynch
-    fData[QUDOFF + i] = (Double_t)(((int)GetData(key) & 0x04) >> 2);
+    // Multipletsynch
+    fData[MULOFF + i] = (Double_t)(((int)GetData(key) & 0x04) >> 2);
     // Helicity
     fData[HELOFF + i] = (Double_t)(((int)GetData(key) & 0x01));
     // Pairsynch
     fData[PAROFF + i] = (Double_t)(((int)GetData(key) & 0x10) >> 4);
 #endif
     if (devices.IsUsed(key)) {
-      devices.SetUsed(QUDOFF + i);
+      devices.SetUsed(MULOFF + i);
       devices.SetUsed(HELOFF + i);
       devices.SetUsed(PAROFF + i);
     }
   }
-
-  // Old scheme for getting helicity.  Save it just in case I messed up.
-  //   fData[IQUADSYNCH] = (Double_t)(((int)GetData(ITIRDATA) & 0x20) >> 5);
-  //   fData[IHELICITY] = (Double_t)(((int)GetData(ITIRDATA) & 0x40) >> 6);
-  //   fData[IPAIRSYNCH] = (Double_t)(((int)GetData(ITIRDATA) & 0x80) >> 7);
 
 //  // Correction for inverted Pairsynch polarity
 //    Int_t fakeps = (((int)GetData(ITIRDATA) & 0x80) >> 7);
@@ -1209,19 +1204,12 @@ VaEvent::Decode(TaDevice& devices)
   if (fData[ITIMESLOT]==0) fData[ITIMESLOT] = fgOversample;
 
 
-//    clog << "VaEvent::Load hel/ps/qs/ts: " 
+//    clog << "VaEvent::Load hel/ps/ms/ts: " 
 //         << " " << fData[IHELICITY]
 //         << " " << fData[IPAIRSYNCH]
-//         << " " << fData[IQUADSYNCH]
+//         << " " << fData[IMULTIPLETSYNCH]
 //         << " " << fData[ITIMESLOT] << endl;
 
-  // Old scheme for getting helicity.  Save it just in case I messed up.
-  // Remember to set the "used" flag (to use for root output).
-  //   if (devices.IsUsed(ITIRDATA)) {  
-  //      devices.SetUsed(IHELICITY);
-  //      devices.SetUsed(IPAIRSYNCH); 
-  //      devices.SetUsed(IQUADSYNCH); 
-  //   }
   if (devices.IsUsed(IOVERSAMPLE)) devices.SetUsed(ITIMESLOT);
 
   if(fgCalib) 
@@ -2026,16 +2014,16 @@ EPairSynch VaEvent::GetPairSynch() const {
     return SecondPS;
 };
 
-EQuadSynch VaEvent::GetQuadSynch() const {
-  // Return quadsynch for this event as FirstQS or
-  // OtherQS, tagging this as an event from the first or later
-  // window, repectively, of a helicity window quad.
+EMultipletSynch VaEvent::GetMultipletSynch() const {
+  // Return multipletsynch for this event as FirstMS or
+  // OtherMS, tagging this as an event from the first or later
+  // window, repectively, of a helicity window multiplet.
 
-  Double_t val = GetData(IQUADSYNCH);
+  Double_t val = GetData(IMULTIPLETSYNCH);
   if (val == 1) 
-    return FirstQS;
+    return FirstMS;
   else 
-    return OtherQS;
+    return OtherMS;
 };
 
 const vector < TaLabelledQuantity > & VaEvent::GetResults() const 
@@ -2170,7 +2158,7 @@ VaEvent::MiniDump() const
        << "/" << setw(2) << (Int_t) GetHelicity()
        << "/" << setw(2) << (Int_t) GetData (ITIMESLOT)
        << "/" << setw(2) << (Int_t) GetData (IPAIRSYNCH)
-       << "/" << setw(2) << (Int_t) GetData (IQUADSYNCH)
+       << "/" << setw(2) << (Int_t) GetData (IMULTIPLETSYNCH)
        << " Cuts = " << setw(2) << CutCond(0)
        << setw(2) << CutCond(1)
        << setw(2) << CutCond(2)

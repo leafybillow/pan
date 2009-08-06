@@ -15,6 +15,7 @@
 
 #include "TaFileName.hh"
 #include "TaString.hh"
+#include <cstdlib>
 #include <ctime>
 
 using namespace std;

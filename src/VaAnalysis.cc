@@ -52,6 +52,8 @@
 #include "TaDevice.hh"
 #include "VaEvent.hh"
 #include "TaLabelledQuantity.hh"
+#include "TaMultiplet.hh"
+#include "TaPairFromOctet.hh"
 #include "TaPairFromPair.hh"
 #include "TaPairFromQuad.hh"
 #include "TaRun.hh"
@@ -99,13 +101,14 @@ VaAnalysis::VaAnalysis():
   fMaxNumEv(10000000),
   fPreEvt(0), 
   fPrePair(0), 
-  fPair(0), 
+  fPair(0),
+  fMultiplet(0),
   fEHelDequeMax(0),
   fEDequeMax(0),
   fPDequeMax(0),
   fPairTree(0),
-  fTreeREvNum(0),
-  fTreeLEvNum(0),
+  fMultipletTree(0),
+  fTreeEvNums(0),
   fTreeMEvNum(0),
   fTreeOKCond(0),
   fTreeOKCut(0),
@@ -157,9 +160,15 @@ VaAnalysis::~VaAnalysis()
   delete fEvt;
   delete fPair;
   delete fPairTree;
+  if (fDoMultiplet)
+    {
+      delete fMultiplet;
+      delete fMultipletTree;
+    }
+  delete[] fTreeEvNums;
   delete[] fTreeSpace;
-  delete [] fCutArray;
-  delete [] fCutIntArray;
+  delete[] fCutArray;
+  delete[] fCutIntArray;
   delete[] fPZTMatrix;
 #ifdef LEAKCHECK
   ++fLeakDelEvt;
@@ -176,6 +185,7 @@ VaAnalysis::Init(const Bool_t& onl)
   // To be called at the start of each analysis.
   fEvtProc = 0;
   fPairProc = 0;
+  fMultipletProc = 0;
   fOnlFlag = onl;
 }
 
@@ -201,27 +211,35 @@ VaAnalysis::RunIni(TaRun& run)
 
   string type = fRun->GetDataBase().GetPairType();
 
-  // Remove this ifdef when TaPairFromQuad class exists and FromQuad
-  // added to enum EPairType.
-#define PAIRFROMQUAD
-#ifdef PAIRFROMQUAD
-  if (type == "quad")
-    fPairType = FromQuad;
-  else 
-#endif
+  if (type == "octet")
     {
-      if (type != "pair")
-        {
-          cerr << "VaAnalysis::NewPrePair WARNING: "
-               << "Invalid pair type: " << type << endl;
-          cerr << "Pair pairing chosen" << endl;
-        }
-      fPairType = FromPair;
+      fPairType = FromOctet;
+      fDoMultiplet = true;
+      fNMultiplet = 4;
     }
+  else if (type == "quad")
+    {
+      fPairType = FromQuad;
+      fDoMultiplet = true;
+      fNMultiplet = 2;
+    }
+  else if (type == "pair")
+    {
+      fPairType = FromPair;
+      fDoMultiplet = false;
+    }
+  else
+    {
+      cerr << "VaAnalysis::NewPrePair WARNING: "
+	   << "Invalid pair type: " << type << endl;
+          cerr << "Pair pairing chosen" << endl;
+    }
+
   NewPrePair();
   if (fPrePair->RunInit(run) != 0)
     return fgVAANA_ERROR;
   fPair = 0;
+  fMultiplet = 0;
 
   // Set current monitor for normalizations
 
@@ -287,6 +305,8 @@ VaAnalysis::InitLastPass ()
       fRun->InitRoot();
       fRun->GetDataBase().WriteRoot();
       fPairTree = new TTree("P","Pair data DST");
+      if (fDoMultiplet)
+	fMultipletTree = new TTree("M","Multiplet data DST");
       InitTree(fRun->GetCutList());
     }
   else
@@ -314,11 +334,14 @@ VaAnalysis::RunReIni(TaRun& run)
   if (fPrePair->RunInit(run) != 0)
     return fgVAANA_ERROR;
   fPair = 0;
-
-  //  fQSwitch = kFALSE;
-  //  fZSwitch = kFALSE;
-  //fQNpair=0; fQfeedNum=0;
-  //fZNpair=0; fZfeedNum=0;
+  if (fDoMultiplet)
+    {
+      fMultiplet = new TaMultiplet (fNMultiplet);
+      if (fMultiplet->RunInit(run) != 0)
+	return fgVAANA_ERROR;
+    }
+  else
+    fMultiplet = 0;
 
   return fgVAANA_OK;
 }
@@ -349,6 +372,8 @@ VaAnalysis::ProcessRun()
           if (ProcessPair() != 0)
 	    return fgVAANA_ERROR;
           fRun->AccumPair (*fPair, fDoSlice, fDoRun);
+	  if (fDoMultiplet)
+	    fRun->AccumMultiplet (*fMultiplet, fDoSlice, fDoRun);
         }
 
       // Tell run to print stats occasionally
@@ -359,8 +384,14 @@ VaAnalysis::ProcessRun()
 	  clog << "VaAnalysis::ProcessRun: Read event " 
 	       << fRun->GetEvent().GetEvNumber()
 	       << " of run " << fRun->GetRunNumber()
-	       << " -- processed " << fEvtProc << " (" << fPairProc
-	       << ") events (pairs)" << endl;
+	       << " -- processed " << fEvtProc 
+	       << " (" << fPairProc << ")";
+	  if (fDoMultiplet)
+	    cout << " (" << fMultipletProc << ")";
+	  cout << " events (pairs)";
+	  if (fDoMultiplet)
+	    cout << " (multiplets)";
+	  cout << endl;
 	  if (fFirstPass && fDoSlice)
 	    fRun->PrintSlice(ev);
 #ifdef LEAKCHECK
@@ -408,7 +439,13 @@ VaAnalysis::RunFini()
        << " analysis terminated at event " 
        << fPreEvt->GetEvNumber() << endl;
   clog << "VaAnalysis::RunFini: Processed " << fEvtProc 
-       << " (" << fPairProc << ") events (pairs)" << endl;
+       << " (" << fPairProc << ")";
+  if (fDoMultiplet)
+    cout << " (" << fMultipletProc << ")";
+  cout << " events (pairs)";
+  if (fDoMultiplet)
+    cout << " (multiplets)";
+  cout << endl;
 
   if (fFirstPass && fDoSlice)
     fRun->PrintSlice(fPreEvt->GetEvNumber());
@@ -484,6 +521,12 @@ VaAnalysis::RunFini()
 	  delete fPairTree;
 	  fPairTree = 0;
 	}
+      if (fMultipletTree != 0)
+	{
+	  fMultipletTree->Write();
+	  delete fMultipletTree;
+	  fMultipletTree = 0;
+	}
 
       delete fBlind;
     }
@@ -510,6 +553,11 @@ VaAnalysis::RunFini()
   fPDeque.clear();
   delete fPair;
   fPair = 0;
+  if (fDoMultiplet)
+    {
+      delete fMultiplet;
+      fMultiplet = 0;
+    }
 #ifdef LEAKCHECK
   ++fLeakDelPair;
 #endif
@@ -632,10 +680,13 @@ VaAnalysis::ProcessPair()
 #ifdef NOISY
   clog << "Entering ProcessPair" << endl;
 #endif
-  if ( fPDeque.size() )
+  if (fPDeque.size())
     {
-      if (fPair)
+      if (fPair && !fDoMultiplet)
         { 
+	  // This is where we delete pairs we're done with, if we're
+	  // not doing multiplets.  If we are, we do it after 
+	  // multiplet analysis is done.
           delete fPair;
 #ifdef LEAKCHECK
           ++fLeakDelPair;
@@ -685,10 +736,32 @@ VaAnalysis::ProcessPair()
         if ((Int_t(fTreeMEvNum+0.5)%100==0)||(Int_t(fTreeMEvNum-0.5)%100==0)) {
           cout << "Autosaving PairTree at m_ev_num = " << fTreeMEvNum << endl;
           fPairTree->AutoSave("SaveSelf");
+	  if (fMultipletTree) 
+	    fMultipletTree->AutoSave("SaveSelf");
         }
 #endif
       }
       ++fPairProc;
+
+      if (fDoMultiplet)
+	{
+	  fMultiplet->Fill (*fPair);
+	  if (fMultiplet->Full())
+	    {
+	      MultipletAnalysis();
+	      if (fMultipletTree) 
+		fMultipletTree->Fill();      
+	      ++fMultipletProc;
+	    }
+	  // Delete the pairs in the multiplet, we're through with them
+	  for (UInt_t im = 0; im < fMultiplet->GetSize(); ++im)
+	    {
+	      fMultiplet->DeletePair (im);
+#ifdef LEAKCHECK
+	      ++fLeakDelPair;
+#endif
+	    }
+	}
     }
   else
     {
@@ -721,8 +794,6 @@ VaAnalysis::NewPrePair()
       ++fLeakNewPair;
 #endif
     }
-  // Remove this ifdef when TaPairFromQuad class exists
-#ifdef PAIRFROMQUAD
   else if (fPairType == FromQuad)
     {
       fPrePair = new TaPairFromQuad; 
@@ -730,7 +801,13 @@ VaAnalysis::NewPrePair()
       ++fLeakNewPair;
 #endif
     }
+  else if (fPairType == FromOctet)
+    {
+      fPrePair = new TaPairFromOctet; 
+#ifdef LEAKCHECK
+      ++fLeakNewPair;
 #endif
+    }
   else
     {
       cerr << "VaAnalysis::NewPrePair ERROR "
@@ -754,6 +831,7 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
 {
   // Initialize the pair tree with standard entries plus entries based
   // on the tree list plus entries based on the passed cut list
+  // and the multiplet tree if applicable
 
   Int_t bufsize = 5000;
 
@@ -769,7 +847,12 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
   clog << "prev_readout_hel"   << endl;
 #endif
 
-  fPairTree->Branch ("evt_ev_num",   &fTreeREvNum, "evt_ev_num[2]/I", bufsize); 
+  if (fDoMultiplet)
+    fTreeEvNums = new Int_t[2*fNMultiplet];
+  else
+    fTreeEvNums = new Int_t[2];
+
+  fPairTree->Branch ("evt_ev_num",   &fTreeEvNums, "evt_ev_num[2]/I", bufsize); 
   fPairTree->Branch ("m_ev_num", &fTreeMEvNum, "m_ev_num/D",  bufsize); 
   fPairTree->Branch ("ok_cond",  &fTreeOKCond, "ok_cond/I",   bufsize); 
   fPairTree->Branch ("ok_cut",   &fTreeOKCut,  "ok_cut/I",    bufsize); 
@@ -777,6 +860,18 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
   fPairTree->Branch ("prev_hel", &fTreePrevHel, "prev_hel/I", bufsize); 
   fPairTree->Branch ("prev_readout_hel", &fTreePrevROHel, "prev_readout_hel/I", bufsize); 
   
+  if (fDoMultiplet)
+    {
+      TString desc = "evt_ev_num[";
+      desc += fNMultiplet;
+      desc += "]/I";
+      fMultipletTree->Branch ("evt_ev_num", &fTreeEvNums, desc.Data(), bufsize); 
+      fMultipletTree->Branch ("m_ev_num", &fTreeMEvNum, "m_ev_num/D",  bufsize); 
+      fMultipletTree->Branch ("ok_cond",  &fTreeOKCond, "ok_cond/I",   bufsize); 
+      fMultipletTree->Branch ("ok_cut",   &fTreeOKCut,  "ok_cut/I",    bufsize); 
+      fMultipletTree->Branch ("ok_cutC",  &fTreeOKCCut, "ok_cutC/I",   bufsize); 
+    }
+
   // Add branches corresponding to channels in the channel lists
   
   size_t treeListSize = 0;
@@ -815,9 +910,15 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
 	{
 	  // Channels for which to copy right and left values to tree
 	  fPairTree->Branch ((string("evt_")+alist.fVarStr).c_str(), 
-			     tsptr++, 
+			     tsptr, 
 			     (string("evt_")+alist.fVarStr+string("[2]/D")).c_str(), 
 			     bufsize); 
+	  if (fDoMultiplet)
+	    fMultipletTree->Branch ((string("evt_")+alist.fVarStr).c_str(), 
+			       tsptr, 
+			       (string("evt_")+alist.fVarStr+string("[2]/D")).c_str(), 
+			       bufsize); 
+	  tsptr++;
 	  tsptr++;
 #ifdef TREEPRINT
 	  clog << (alist.fVarStr) << endl;
@@ -828,9 +929,15 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
 	{
 	  // Channels for which to put difference in tree
 	  fPairTree->Branch ((string("diff_")+alist.fVarStr).c_str(), 
-			     tsptr++, 
+			     tsptr, 
 			     (string("diff_")+alist.fVarStr+string("/D")).c_str(), 
 			     bufsize); 
+	  if (fDoMultiplet)
+	    fMultipletTree->Branch ((string("diff_")+alist.fVarStr).c_str(), 
+			       tsptr, 
+			       (string("diff_")+alist.fVarStr+string("/D")).c_str(), 
+			       bufsize); 
+	  tsptr++;
 #ifdef TREEPRINT
 	  clog << (string("diff_")+alist.fVarStr) << endl;
 #endif
@@ -840,9 +947,15 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
 	{
 	  // Channels for which to put asymmetry in tree
 	  fPairTree->Branch ((string("asym_")+alist.fVarStr).c_str(), 
-			     tsptr++, 
+			     tsptr, 
 			     (string("asym_")+alist.fVarStr+string("/D")).c_str(), 
 			     bufsize); 
+	  if (fDoMultiplet)
+	    fMultipletTree->Branch ((string("asym_")+alist.fVarStr).c_str(), 
+			       tsptr, 
+			       (string("asym_")+alist.fVarStr+string("/D")).c_str(), 
+			       bufsize); 
+	  tsptr++;
 #ifdef TREEPRINT
 	  clog << (string("asym_")+alist.fVarStr) << endl;
 #endif
@@ -852,9 +965,15 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
 	{
 	  // Channels for which to put normalized asymmetry in tree
 	  fPairTree->Branch ((string("asym_n_")+alist.fVarStr).c_str(), 
-			     tsptr++, 
+			     tsptr, 
 			     (string("asym_n_")+alist.fVarStr+string("/D")).c_str(), 
 			     bufsize); 
+	  if (fDoMultiplet)
+	    fMultipletTree->Branch ((string("asym_n_")+alist.fVarStr).c_str(), 
+			       tsptr, 
+			       (string("asym_n_")+alist.fVarStr+string("/D")).c_str(), 
+			       bufsize); 
+	  tsptr++;
 #ifdef TREEPRINT
 	  clog << (string("asym_n_")+alist.fVarStr) << endl;
 #endif
@@ -864,9 +983,15 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
 	{
 	  // Channels for which to put average in tree
 	  fPairTree->Branch ((string("avg_")+alist.fVarStr).c_str(), 
-			     tsptr++, 
+			     tsptr, 
 			     (string("avg_")+alist.fVarStr+string("/D")).c_str(), 
 			     bufsize); 
+	  if (fDoMultiplet)
+	    fMultipletTree->Branch ((string("avg_")+alist.fVarStr).c_str(), 
+			       tsptr, 
+			       (string("avg_")+alist.fVarStr+string("/D")).c_str(), 
+			       bufsize); 
+	  tsptr++;
 #ifdef TREEPRINT
 	  clog << (string("avg_")+alist.fVarStr) << endl;
 #endif
@@ -876,9 +1001,15 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
 	{
 	  // Channels for which to put normalized avg in tree
 	  fPairTree->Branch ((string("avg_n_")+alist.fVarStr).c_str(), 
-			     tsptr++, 
+			     tsptr, 
 			     (string("avg_n_")+alist.fVarStr+string("/D")).c_str(), 
 			     bufsize); 
+	  if (fDoMultiplet)
+	    fMultipletTree->Branch ((string("avg_n_")+alist.fVarStr).c_str(), 
+			       tsptr, 
+			       (string("avg_n_")+alist.fVarStr+string("/D")).c_str(), 
+			       bufsize); 
+	  tsptr++;
 #ifdef TREEPRINT
 	  clog << (string("avg_n_")+alist.fVarStr) << endl;
 #endif
@@ -896,12 +1027,22 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
 			&fCutArray[j], 
 			(cutstr + string("[2]/I")).c_str(), 
 			bufsize);
+      if (fDoMultiplet)
+	fMultipletTree->Branch(cutstr.c_str(), 
+			       &fCutArray[j], 
+			       (cutstr + string("[2]/I")).c_str(), 
+			       bufsize);
       cutstr = "cut_" + cutlist.GetName(icut);
       cutstr = cutstr.ToLower();
       fPairTree->Branch(cutstr.c_str(), 
 			&fCutIntArray[j], 
 			(cutstr + string("[2]/I")).c_str(), 
 			bufsize);
+      if (fDoMultiplet)
+	fMultipletTree->Branch(cutstr.c_str(), 
+			       &fCutIntArray[j], 
+			       (cutstr + string("[2]/I")).c_str(), 
+			       bufsize);
       j += 2;
     }	
 }
@@ -1013,8 +1154,8 @@ VaAnalysis::AutoPairAna()
   if (fPairTree != 0)
     {
       // First store values not associated with a channel
-      fTreeREvNum = fPair->GetRight().GetEvNumber();
-      fTreeLEvNum = fPair->GetLeft().GetEvNumber();
+      fTreeEvNums[0] = fPair->GetRight().GetEvNumber();
+      fTreeEvNums[1] = fPair->GetLeft().GetEvNumber();
       fTreeMEvNum = (fPair->GetRight().GetEvNumber()+
 		     fPair->GetLeft().GetEvNumber())*0.5;
       fTreeOKCond = (fPair->PassedCuts() ? 1 : 0);
@@ -1104,13 +1245,9 @@ VaAnalysis::AutoPairAna()
 		unit += " (blinded sign)";
 #endif
 	    }
-	  if ((alist.fFlagInt & fgNO_BEAM_NO_ASY) &&
-	      (fPair->GetRight().BeamCut() ||
-	       fPair->GetLeft().BeamCut())
+	  if (((alist.fFlagInt & fgNO_BEAM_NO_ASY) && fPair->BeamCut())
 	      ||
-	      (alist.fFlagInt & fgNO_BEAM_C_NO_ASY) &&
-	      (fPair->GetRight().BeamCCut() ||
-	       fPair->GetLeft().BeamCCut()))
+	      ((alist.fFlagInt & fgNO_BEAM_C_NO_ASY) && fPair->BeamCCut()))
 	    val = -1.0E6;
 	  else
 	    {
@@ -1153,13 +1290,9 @@ VaAnalysis::AutoPairAna()
 		unit += " (blinded sign)";
 #endif		
 	    }
-	  if ((alist.fFlagInt & fgNO_BEAM_NO_ASY) &&
-	      (fPair->GetRight().BeamCut() ||
-	       fPair->GetLeft().BeamCut())
+	  if (((alist.fFlagInt & fgNO_BEAM_NO_ASY) && fPair->BeamCut())
 	      ||
-	      (alist.fFlagInt & fgNO_BEAM_C_NO_ASY) &&
-	      (fPair->GetRight().BeamCCut() ||
-	       fPair->GetLeft().BeamCCut()))
+	      ((alist.fFlagInt & fgNO_BEAM_C_NO_ASY) && fPair->BeamCCut()))
 	    val = -1.0E6;
 	  else
 	    {
@@ -1226,6 +1359,235 @@ VaAnalysis::AutoPairAna()
 
 
   ProceedFeedback(); 
+}
+
+void
+VaAnalysis::AutoMultipletAna()
+{
+  // Routine a derived class can call to do some of the multiplet analysis
+  // automatically.
+  //
+  // Place into the tree space copies, difference, and/or asymmetries
+  // for channels listed in fTreeList, depending on flags.  Also put
+  // these into the multiplet as labelled quantities.
+  //
+  // These lists are created in InitChanLists; different analyses can
+  // produce different lists, then just call AutoMultipletAna to handle
+  // some if not all of the multiplet analysis.
+
+#ifdef NOISY  
+ clog<<" Entering AutoMultipletAna()"<<endl;
+#endif
+
+  Double_t* tsptr = fTreeSpace;
+
+  if (fMultipletTree != 0)
+    {
+      // First store values not associated with a channel
+      fTreeMEvNum = 0;
+      for (UInt_t i = 0; i < 2*fNMultiplet; ++i)
+	{
+	  fTreeEvNums[2*i] = fMultiplet->GetPair(i).GetRight().GetEvNumber();
+	  fTreeEvNums[2*i+1] = fMultiplet->GetPair(i).GetLeft().GetEvNumber();
+	  fTreeMEvNum += fMultiplet->GetPair(i).GetRight().GetEvNumber()+
+	    fMultiplet->GetPair(i).GetLeft().GetEvNumber();
+	}
+      fTreeMEvNum /= 2 * fNMultiplet;
+      fTreeOKCond = (fMultiplet->PassedCuts() ? 1 : 0);
+      fTreeOKCut  = (fMultiplet->PassedCutsInt(fRun->GetCutList()) ? 1 : 0);
+      fTreeOKCCut = (fMultiplet->PassedCCutsInt(fRun->GetCutList()) ? 1 : 0);
+    }
+
+#ifdef ASYMCHECK
+  clog << " mean ev multiplet " << fTreeMEvNum
+       << " passed Cuts :" << fMultiplet->PassedCuts() << endl;
+#endif
+  Double_t val;
+  string unit;
+
+  for (vector<AnaList>::const_iterator i = fTreeList.begin();
+       i != fTreeList.end();
+       ++i )
+    {
+      AnaList alist = *i;
+      
+      if (alist.fFlagInt & fgCOPY)
+	{
+	  // Channels for which to copy right and left values to tree
+	  
+	  if (alist.fVarInts != 0)
+	    val = fMultiplet->GetRightSumSum(*(alist.fVarInts), *(alist.fVarWts));
+	  else
+	    val = fMultiplet->GetRightSum(alist.fVarInt);
+	  if (fMultipletTree != 0)
+	    *(tsptr++) = val;
+	  fMultiplet->AddResult (TaLabelledQuantity (string("Right ")+(alist.fVarStr), 
+						     val, 
+						     alist.fUniStr,
+						     alist.fFlagInt));
+	  if (alist.fVarInts != 0)
+	    val = fMultiplet->GetLeftSumSum(*(alist.fVarInts), *(alist.fVarWts));
+	  else
+	    val = fMultiplet->GetLeftSum(alist.fVarInt);
+	  if (fMultipletTree != 0)
+	    *(tsptr++) = val;
+	  fMultiplet->AddResult (TaLabelledQuantity (string("Left  ")+(alist.fVarStr), 
+						     val, 
+						     alist.fUniStr,
+						     alist.fFlagInt));
+	}
+
+      if (alist.fFlagInt & fgDIFF)
+	{
+	  // Channels for which to put difference in tree
+
+	  if (alist.fVarInts != 0)
+	    val = fMultiplet->GetDiffSum (*(alist.fVarInts), *(alist.fVarWts)) * 1E3;
+	  else
+	    val = fMultiplet->GetDiff(alist.fVarInt) * 1E3;
+	  unit = alist.fUniStr;
+	  if (fBlind->Blinding())
+	    {
+	      if (alist.fFlagInt & (fgBLIND | fgBLINDSIGN))
+		{
+		  val = fBlind->BlindSignOnly (val);
+#ifdef SIGNFLIP
+		  unit += " (blinded sign)";
+#endif		
+		}
+	    }
+	  if (fMultipletTree != 0)
+	    *(tsptr++) = val;
+	  fMultiplet->AddResult (TaLabelledQuantity (string("Diff ")+(alist.fVarStr), 
+						     val, 
+						     unit,
+						     alist.fFlagInt));
+	}
+      
+      if (alist.fFlagInt & fgASY)
+	{
+	  // Channels for which to put asymmetry in tree
+	  unit = alist.fUniStr;
+	  if (fBlind->Blinding())
+	    {
+	      if (alist.fFlagInt & fgBLIND)
+		unit += " (blinded)";
+#ifdef SIGNFLIP
+	      else if (alist.fFlagInt & fgBLINDSIGN)
+		unit += " (blinded sign)";
+#endif
+	    }
+	  if (((alist.fFlagInt & fgNO_BEAM_NO_ASY) && fMultiplet->BeamCut())
+	      ||
+	      ((alist.fFlagInt & fgNO_BEAM_C_NO_ASY) && fMultiplet->BeamCCut()))
+	    val = -1.0E6;
+	  else
+	    {
+	      if (alist.fVarInts != 0)
+		{
+		  if (alist.fFlagInt & fgAVE)
+		    val = fMultiplet->GetAsyAve (*(alist.fVarInts), *(alist.fVarWts)) * 1E6;
+		  else
+		    val = fMultiplet->GetAsySum (*(alist.fVarInts), *(alist.fVarWts)) * 1E6;
+		}
+	      else
+		val = fMultiplet->GetAsy(alist.fVarInt) * 1E6;
+	      if (fBlind->Blinding())
+		{
+		  if (alist.fFlagInt & fgBLIND)
+		    val = fBlind->Blind (val);
+		  else if (alist.fFlagInt & fgBLINDSIGN)
+		    val = fBlind->BlindSignOnly (val);
+		}
+	    }
+	  if (fMultipletTree != 0)
+	    *(tsptr++) = val;
+	  fMultiplet->AddResult (TaLabelledQuantity (string("Asym ")+(alist.fVarStr), 
+						     val, 
+						     unit,
+						     alist.fFlagInt));
+	}
+
+      if (alist.fFlagInt & fgASYN)
+	{
+	  // Channels for which to put normalized asymmetry in tree
+
+	  unit = alist.fUniStr;
+	  if (fBlind->Blinding())
+	    {
+	      if (alist.fFlagInt & fgBLIND)
+		unit += " (blinded)";
+#ifdef SIGNFLIP
+	      else if (alist.fFlagInt & fgBLINDSIGN)
+		unit += " (blinded sign)";
+#endif		
+	    }
+	  if (((alist.fFlagInt & fgNO_BEAM_NO_ASY) && fMultiplet->BeamCut())
+	      ||
+	      ((alist.fFlagInt & fgNO_BEAM_C_NO_ASY) && fMultiplet->BeamCCut()))
+	    val = -1.0E6;
+	  else
+	    {
+	      if (alist.fVarInts != 0)
+		{
+		  if (alist.fFlagInt & fgAVE) 
+		    val = fMultiplet->GetAsyNAve (*(alist.fVarInts), fCurMon, *(alist.fVarWts)) * 1E6;
+		  else
+		    val = fMultiplet->GetAsyNSum (*(alist.fVarInts), fCurMon, *(alist.fVarWts)) * 1E6;
+		}
+	      else
+		val = fMultiplet->GetAsyN(alist.fVarInt, fCurMon) * 1E6;
+	      if (fBlind->Blinding())
+		{
+		  if (alist.fFlagInt & fgBLIND)
+		    val = fBlind->Blind (val);
+		  else if (alist.fFlagInt & fgBLINDSIGN)
+		    val = fBlind->BlindSignOnly (val);
+		}
+	    }
+	  if (fMultipletTree != 0)
+	    *(tsptr++) = val;
+	  fMultiplet->AddResult (TaLabelledQuantity (string("AsyN ")+(alist.fVarStr), 
+						     val, 
+						     unit,
+						     alist.fFlagInt));
+	}
+
+      if (alist.fFlagInt & fgAVG)
+	{
+	  // Channels for which to put average in tree
+
+	  if (alist.fVarInts != 0)
+	    val = fMultiplet->GetAvgSum (*(alist.fVarInts), *(alist.fVarWts));
+	  else
+	    val = fMultiplet->GetAvg(alist.fVarInt);
+	  unit = alist.fUniStr;
+	  if (fMultipletTree != 0)
+	    *(tsptr++) = val;
+	  fMultiplet->AddResult (TaLabelledQuantity (string("Avg ")+(alist.fVarStr), 
+						     val, 
+						     unit,
+						     alist.fFlagInt));
+	}      
+
+      if (alist.fFlagInt & fgAVGN)
+	{
+	  // Channels for which to put normalized average in tree
+
+	  if (alist.fVarInts != 0)
+	    val = fMultiplet->GetAvgNSum (*(alist.fVarInts), fCurMon, *(alist.fVarWts));
+	  else
+	    val = fMultiplet->GetAvgN(alist.fVarInt, fCurMon);
+	  unit = alist.fUniStr;
+	  if (fMultipletTree != 0)
+	    *(tsptr++) = val;
+	  fMultiplet->AddResult (TaLabelledQuantity (string("AvgN ")+(alist.fVarStr), 
+						     val, 
+						     unit,
+						     alist.fFlagInt));
+	}      
+
+    }
 }
 
 void 
