@@ -91,6 +91,11 @@ TaDataBase::~TaDataBase() {
      delete [] scalped;
      delete AnaTDatime;
      delete rootdb;
+     delete fFirstgdn;
+     delete fFirstAdcPed;
+     delete fFirstAdcxPed;
+     delete fFirstVqwkPed;
+     delete fFirstScalPed;
      tables.clear();
      for (multimap<string, vector<dtype*> >::iterator im = database.begin();
 	  im != database.end();  im++) {
@@ -123,6 +128,8 @@ void TaDataBase::Read(int run, const vector<string>& dbcomm) {
       cerr << "TaDataBase::Load WARNING: run file " << dbFileName.String()
 	   << " does not exist" << endl;
     }
+    else
+      delete dbfile;
     dbFileName = TaFileName ("dbdef");
     fileRead = dbFileName.String();
     dbfile = new ifstream(dbFileName.String().c_str());
@@ -170,6 +177,7 @@ void TaDataBase::Read(int run, const vector<string>& dbcomm) {
     LoadTable(FindTable(strvect[0]), datavect);
   }
   didread = kTRUE;
+  delete dbfile;
 
   LoadCksum (dbFileName.String());
 
@@ -1883,6 +1891,14 @@ void TaDataBase::PutData(string table, vector<dtype *> dvect) {
        if (dbput[table] == kTRUE || table != sname) {
           database.insert(make_pair(sname, vdata));
        }
+       else
+	 {
+	   // This table is being replaced, so must delete old pointers
+	   for (vector<dtype* >::iterator id = vdata.begin(); 
+		id != vdata.end(); 
+		id++)
+	     delete *id;
+	 }
   }
   if (dbput[table] == kFALSE) dbput[table] = kTRUE;
 }
@@ -2166,6 +2182,12 @@ void TaDataBase::LoadTable(string table, vector<dtype*> columns) {
      multimap<string, vector<dtype*> >::iterator dmap = 
           database.find(table);
      if (dmap == database.end()) return;
+
+    // delete old content before writing new
+    vector<dtype *> ddata = dmap->second;
+    for (vector<dtype* >::iterator id = ddata.begin(); id != ddata.end(); id++)
+      delete *id;
+
      map<string, int>::iterator si = colsize.find(table);   
      if (si != colsize.end() && columns.size() > 0) {
        dtype *dt = columns[columns.size()-1];

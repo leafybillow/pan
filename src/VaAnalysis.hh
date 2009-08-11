@@ -319,13 +319,15 @@ protected:
   Double_t fPZTQslopes[2];       // PZT Q coupling slopes
 
   // Define LEAKCHECK to check that new = del
-  //#define LEAKCHECK
+//#define LEAKCHECK
 #ifdef LEAKCHECK
   void LeakCheck();
   static UInt_t fLeakNewEvt;    // count of event allocations
   static UInt_t fLeakDelEvt;    // count of event deallocations
   static UInt_t fLeakNewPair;   // count of pair allocations
   static UInt_t fLeakDelPair;   // count of pair deallocations
+  static UInt_t fLeakNewOther;
+  static UInt_t fLeakDelOther;
 #endif
 
 #ifndef NODICT

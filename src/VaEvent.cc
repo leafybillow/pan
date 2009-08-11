@@ -2291,6 +2291,10 @@ void VaEvent::Create(const VaEvent& rhs)
  fEvBuffer = new Int_t[fgMaxEvLen];
  memset (fEvBuffer, 0, fgMaxEvLen*sizeof(Int_t));
  memcpy(fEvBuffer, rhs.fEvBuffer, fEvLen*sizeof(Int_t));
+ fPrevBuffer = new Int_t[fgMaxEvLen];
+ memset(fPrevBuffer, 0, fgMaxEvLen*sizeof(Int_t));
+ UInt_t pevlen = fPrevBuffer[0]+1;
+ memcpy(fPrevBuffer, rhs.fPrevBuffer, pevlen*sizeof(Int_t));
  fData = new Double_t[MAXKEYS];
  memcpy(fData, rhs.fData, MAXKEYS*sizeof(Double_t));
  // We don't need to copy these pointers because they get
@@ -2312,6 +2316,7 @@ void VaEvent::Uncreate()
   // Utility routine used by destructor and assignment.
 
   delete [] fEvBuffer;
+  delete [] fPrevBuffer;
   delete [] fData;
   delete [] fN1roc;
   delete [] fLenroc;

@@ -158,13 +158,23 @@ VaAnalysis::~VaAnalysis()
       delete *ip;
     }
   delete fEvt;
-  delete fPair;
   delete fPairTree;
   if (fDoMultiplet)
     {
+      for (UInt_t i = 0; i < fNMultiplet; ++i)
+	{
+	  if (fMultiplet->DeletePair (i))
+	    {
+#ifdef LEAKCHECK
+	      ++fLeakDelPair;
+#endif
+	    }
+	}
       delete fMultiplet;
       delete fMultipletTree;
     }
+  else
+    delete fPair;
   delete[] fTreeEvNums;
   delete[] fTreeSpace;
   delete[] fCutArray;
@@ -223,7 +233,7 @@ VaAnalysis::RunIni(TaRun& run)
       fDoMultiplet = false;
 //       fDoMultiplet = true;
 //       fNMultiplet = 2;
-    }
+xs    }
   else if (type == "pair")
     {
       fPairType = FromPair;
@@ -240,7 +250,14 @@ VaAnalysis::RunIni(TaRun& run)
   if (fPrePair->RunInit(run) != 0)
     return fgVAANA_ERROR;
   fPair = 0;
-  fMultiplet = 0;
+  if (fDoMultiplet)
+    {
+      fMultiplet = new TaMultiplet (fNMultiplet);
+      if (fMultiplet->RunInit(run) != 0)
+	return fgVAANA_ERROR;
+    }
+  else
+    fMultiplet = 0;
 
   // Set current monitor for normalizations
 
@@ -307,7 +324,9 @@ VaAnalysis::InitLastPass ()
       fRun->GetDataBase().WriteRoot();
       fPairTree = new TTree("P","Pair data DST");
       if (fDoMultiplet)
-	fMultipletTree = new TTree("M","Multiplet data DST");
+	{
+	  fMultipletTree = new TTree("M","Multiplet data DST");
+	}
       InitTree(fRun->GetCutList());
     }
   else
@@ -335,14 +354,6 @@ VaAnalysis::RunReIni(TaRun& run)
   if (fPrePair->RunInit(run) != 0)
     return fgVAANA_ERROR;
   fPair = 0;
-  if (fDoMultiplet)
-    {
-      fMultiplet = new TaMultiplet (fNMultiplet);
-      if (fMultiplet->RunInit(run) != 0)
-	return fgVAANA_ERROR;
-    }
-  else
-    fMultiplet = 0;
 
   return fgVAANA_OK;
 }
@@ -373,7 +384,7 @@ VaAnalysis::ProcessRun()
           if (ProcessPair() != 0)
 	    return fgVAANA_ERROR;
           fRun->AccumPair (*fPair, fDoSlice, fDoRun);
-	  if (fDoMultiplet)
+	  if (fDoMultiplet && fMultiplet->Full())
 	    fRun->AccumMultiplet (*fMultiplet, fDoSlice, fDoRun);
         }
 
@@ -422,6 +433,8 @@ VaAnalysis::ProcessRun()
       if (ProcessPair() != 0)
 	return fgVAANA_ERROR;
       fRun->AccumPair (*fPair, fDoSlice, fDoRun);
+      if (fDoMultiplet)
+	fRun->AccumMultiplet (*fMultiplet, fDoSlice, fDoRun);
     }
 
   return fgVAANA_OK;
@@ -552,16 +565,26 @@ VaAnalysis::RunFini()
   fEHelDeque.clear();
   fEDeque.clear();
   fPDeque.clear();
-  delete fPair;
-  fPair = 0;
   if (fDoMultiplet)
     {
-      delete fMultiplet;
-      fMultiplet = 0;
-    }
+      for (UInt_t i = 0; i < fNMultiplet; ++i)
+	{
+	  if (fMultiplet->DeletePair (i))
+	    {
 #ifdef LEAKCHECK
-  ++fLeakDelPair;
+	      ++fLeakDelPair;
 #endif
+	    }
+	}
+    }
+  else
+    {
+      delete fPair;
+      fPair = 0;
+#ifdef LEAKCHECK
+      ++fLeakDelPair;
+#endif
+    }
 }
 
 
@@ -746,6 +769,13 @@ VaAnalysis::ProcessPair()
 
       if (fDoMultiplet)
 	{
+	  // Delete old pair in the multiplet, we're through with it
+	  if (fMultiplet->DeletePair ())
+	    {
+#ifdef LEAKCHECK
+	  ++fLeakDelPair;
+#endif
+	    }
 	  fMultiplet->Fill (*fPair);
 	  if (fMultiplet->Full())
 	    {
@@ -753,14 +783,6 @@ VaAnalysis::ProcessPair()
 	      if (fMultipletTree) 
 		fMultipletTree->Fill();      
 	      ++fMultipletProc;
-	    }
-	  // Delete the pairs in the multiplet, we're through with them
-	  for (UInt_t im = 0; im < fMultiplet->GetSize(); ++im)
-	    {
-	      fMultiplet->DeletePair (im);
-#ifdef LEAKCHECK
-	      ++fLeakDelPair;
-#endif
 	    }
 	}
     }
@@ -1386,7 +1408,7 @@ VaAnalysis::AutoMultipletAna()
     {
       // First store values not associated with a channel
       fTreeMEvNum = 0;
-      for (UInt_t i = 0; i < 2*fNMultiplet; ++i)
+      for (UInt_t i = 0; i < fNMultiplet; ++i)
 	{
 	  fTreeEvNums[2*i] = fMultiplet->GetPair(i).GetRight().GetEvNumber();
 	  fTreeEvNums[2*i+1] = fMultiplet->GetPair(i).GetLeft().GetEvNumber();

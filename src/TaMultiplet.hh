@@ -34,9 +34,9 @@ public:
   virtual ErrCode_t RunInit(const TaRun&);
   virtual Bool_t Fill (VaPair&);
   const VaPair& GetPair (const UInt_t n) const;
-  void DeletePair (const UInt_t n);
+  Bool_t DeletePair (const UInt_t n = 999);
   void AddResult (const TaLabelledQuantity&); 
-  Bool_t Full () const {return fPairs.size() == fN;}
+  Bool_t Full () const {return fPairsIndex == fN;}
   UInt_t GetSize () const {return fN;}
 
   Double_t GetRightSum (Int_t) const;
@@ -73,6 +73,7 @@ protected:
   // Data members
   UInt_t   fN;                           // Number in a multiplet
   vector<VaPair*> fPairs;                // The pairs
+  UInt_t   fPairsIndex;                  // Where the next pair will go
   vector<TaLabelledQuantity> fResults;   // Multiplet analysis results
   
 #ifndef NODICT

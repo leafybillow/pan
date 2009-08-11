@@ -34,6 +34,12 @@ const ErrCode_t TaMultiplet::fgTAM_ERROR = -1;
 TaMultiplet::TaMultiplet (const UInt_t n) 
   : fN(n)
 {
+  fPairs.resize (n);
+  for (UInt_t i = 0; i < fN; ++i)
+    {
+      fPairs[i] = NULL;
+    }
+  fPairsIndex = 0;
 }
 
 
@@ -41,6 +47,7 @@ TaMultiplet::TaMultiplet (const TaMultiplet& copy)
 {
   fN = copy.fN;
   fPairs = copy.fPairs;
+  fPairsIndex = copy.fPairsIndex;
   fResults = copy.fResults;
 }
 
@@ -50,8 +57,13 @@ TaMultiplet::operator= (const TaMultiplet &assign)
 {
   if (this != &assign)
     { 
+      for (UInt_t i = 0; i < fN; ++i)
+	{
+	  delete fPairs[i];
+	}
       fN = assign.fN;
       fPairs = assign.fPairs;
+      fPairsIndex = assign.fPairsIndex;
       fResults = assign.fResults;
     } 
   return *this;
@@ -60,6 +72,10 @@ TaMultiplet::operator= (const TaMultiplet &assign)
 
 TaMultiplet::~TaMultiplet()
 {
+  for (UInt_t i = 0; i < fN; ++i)
+    {
+      delete fPairs[i];
+    }
 }
 
 
@@ -77,10 +93,15 @@ TaMultiplet::Fill (VaPair& thisPair)
   // Insert this pair into the list and return true iff this makes a
   // full multiplet.
 
-  if (fPairs.size() == fN)
-    fPairs.clear();
-  fPairs.push_back (&thisPair);
-  return (fPairs.size() == fN);
+  if (fPairsIndex == fN)
+    {
+      fPairsIndex = 0;
+      fResults.clear();
+    }
+  delete fPairs[fPairsIndex];
+  fPairs[fPairsIndex] = &thisPair;
+  fPairsIndex++;
+  return (fPairsIndex == fN);
 }
 
 const VaPair& 
@@ -89,16 +110,24 @@ TaMultiplet::GetPair (const UInt_t n) const
   return n < fN ? *(fPairs[n]) : *(fPairs[0]);
 }
 
-void 
+Bool_t
 TaMultiplet::DeletePair (const UInt_t n)
 {
-  // Delete pair n
+  // Delete pair n, or pair in next slot to be filled (default)
+  // Return true iff a delete was done
 
-  if (n < fPairs.size() && fPairs[n] != NULL)
+  UInt_t nn;
+  if (n == 999)
+    nn = fPairsIndex == fN ? 0 : fPairsIndex;
+  else
+    nn = n;
+  if (nn < fPairs.size() && fPairs[nn] != NULL)
     {
-      delete fPairs[n];
-      fPairs[n] = NULL;
+      delete fPairs[nn];
+      fPairs[nn] = NULL;
+      return true;
     }
+  return false;
 }
 
 void 

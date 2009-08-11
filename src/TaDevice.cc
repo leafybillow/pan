@@ -6285,6 +6285,7 @@ void TaDevice::Uncreate()
    delete [] fDacxSlope;
    delete [] fDevNum;
    delete [] fChanNum;
+   delete [] fScalPed;
    delete [] fAdcptr;
    delete [] fAdcxptr;
    delete [] fVqwkptr;
