@@ -47,7 +47,7 @@ UInt_t VaPair::fgNCuts;
 Cut_t VaPair::fgSequenceNo;
 UInt_t VaPair::fgOldb = 2;
 Bool_t VaPair::fgRandom = 1;
-
+UInt_t VaPair::fgRanType = 1;
 
 VaPair::VaPair() :
   fEvFirst(0),
@@ -152,6 +152,8 @@ VaPair::RunInit(const TaRun& run)
   // If randomheli is "no" in database set fgRandom to 0, else 1.
   TaString sran = run.GetDataBase().GetRandomHeli();
   fgRandom = sran.CmpNoCase ("no") == 0 ? 0 : 1;
+  fgRanType = sran.CmpNoCase ("old") == 0 ? 0 
+    : sran.CmpNoCase ("30bit") == 0 ? 2 : 1;
 
   return fgVAP_OK;
 }
@@ -640,4 +642,98 @@ VaPair::HelSeqOK (EHelicity h)
   // Generate error if expected is known and does not match found
 
   return ( !expectOK || (eb == 2 || eb == hb ));
+}
+
+UInt_t 
+VaPair::RanBit (UInt_t hRead)
+{
+  // Pseudorandom bit generator.  New bit is returned.  This algorithm
+  // mimics the one implemented in hardware in the helicity box and is
+  // used for random helicity mode to set the helicity bit for the
+  // first window of each window pair/quad/octet.
+
+  // Except: if the helicity bit actually read is passed as argument,
+  // it is used to update the shift register, not the generated bit.
+  UInt_t ret = 0;
+  switch (fgRanType)
+    {
+    case 0: 
+      ret = RanBitOld (hRead);
+      break;
+    case 1: 
+      ret = RanBit24 (hRead);
+      break;
+    case 2: 
+      ret = RanBit30 (hRead);
+      break;
+    }
+  return ret;
+}
+
+UInt_t 
+VaPair::RanBitOld (UInt_t hRead)
+{
+  // Pseudorandom bit generator, used for old data, based on 24 bit
+  // shift register.  New bit is XOR of bits 17, 22, 23, 24 of 24 bit
+  // shift register fgShreg.  New fgShreg is old one shifted one bit
+  // left, with new bit injected at bit 1. (bit numbered 1 on right to
+  // 24 on left.)  
+
+  UInt_t bit24  = (fgShreg & 0x800000) != 0;
+  UInt_t bit23  = (fgShreg & 0x400000) != 0;
+  UInt_t bit22  = (fgShreg & 0x200000) != 0;
+  UInt_t bit17  = (fgShreg & 0x010000) != 0;
+  UInt_t newbit = ( bit24 ^ bit23 ^ bit22 ^ bit17 ) & 0x1;
+  fgShreg = ( (hRead == 2 ? newbit : hRead) | (fgShreg << 1 )) & 0xFFFFFF;
+  return newbit; 
+}
+
+UInt_t 
+VaPair::RanBit24 (UInt_t hRead)
+{
+  // Pseudorandom bit generator, used for newer data, based on 24 bit
+  // shift register.  New bit is bit 24 of shift register fgShreg.
+  // New fgShreg is old one XOR bits 1, 3, 4, 24, shifted one bit
+  // left, with new bit injected at bit 1. (bit numbered 1 on right to
+  // 24 on left.)
+
+  const UInt_t IB1 = 0x1;	        // Bit 1 mask
+  const UInt_t IB3 = 0x4;	        // Bit 3 mask
+  const UInt_t IB4 = 0x8;	        // Bit 4 mask
+  const UInt_t IB24 = 0x800000;         // Bit 24 mask
+  const UInt_t MASK = IB1+IB3+IB4+IB24;	// 100000000000000000001101
+ 
+  int hPred = (fgShreg & IB24) ? 1 : 0;
+
+  if ((hRead == 2 ? hPred : hRead) == 1)
+    fgShreg = ((fgShreg ^ MASK) << 1) | IB1;
+  else
+    fgShreg <<= 1;
+
+  return hPred;
+}
+
+UInt_t 
+VaPair::RanBit30 (UInt_t hRead)
+{
+  // Pseudorandom bit generator, used for even newer data, based on 30 bit
+  // shift register.  New bit is bit 30 of shift register fgShreg.
+  // New fgShreg is old one XOR bits 1, 4, 6, 30, shifted one bit
+  // left, with new bit injected at bit 1. (bit numbered 1 on right to
+  // 30 on left.)
+
+  const UInt_t IB1 = 0x1;	        // Bit 1 mask
+  const UInt_t IB4 = 0x8;	        // Bit 4 mask
+  const UInt_t IB6 = 0x20;	        // Bit 6 mask
+  const UInt_t IB30 = 0x20000000;       // Bit 30 mask
+  const UInt_t MASK = IB1+IB4+IB6+IB30;	// 100000000000000000000000101001
+ 
+  int hPred = (fgShreg & IB30) ? 1 : 0;
+
+  if ((hRead == 2 ? hPred : hRead) == 1)
+    fgShreg = ((fgShreg ^ MASK) << 1) | IB1;
+  else
+    fgShreg <<= 1;
+
+  return hPred;
 }

@@ -40,7 +40,6 @@ private:
   
   // Private member functions
   void CheckSequence (VaEvent&, TaRun&); // look for helicity/synch errors
-  UInt_t RanBit (UInt_t hRead = 2);
 
 #ifndef NODICT
   ClassDef(TaPairFromPair, 0)  // Event pair from window pair helicity structure

@@ -77,7 +77,10 @@ protected:
 
   // Private member functions
   virtual void CheckSequence (VaEvent&, TaRun&) = 0; // look for helicity/synch errors
-  virtual UInt_t RanBit (UInt_t hRead = 2) = 0;
+  virtual UInt_t RanBit (UInt_t hRead = 2);
+  virtual UInt_t RanBitOld (UInt_t hRead = 2);
+  virtual UInt_t RanBit24 (UInt_t hRead = 2);
+  virtual UInt_t RanBit30 (UInt_t hRead = 2);
   virtual Bool_t HelSeqOK (EHelicity h);
 
   // Static data members  
@@ -92,6 +95,7 @@ protected:
   static Cut_t   fgSequenceNo; // cut number for sequence
   static UInt_t  fgOldb;       // old bit for non-random seq check
   static Bool_t  fgRandom;     // random helicity sequence?
+  static UInt_t   fgRanType;   // identifies which random bit generator
 
   // Data members
   VaEvent fEvLeft;                       // "Left" helicity event

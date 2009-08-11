@@ -67,8 +67,8 @@ void TaPairFromQuad::CheckSequence( VaEvent& ThisEv, TaRun& run )
   // In second window of quad, helicity unchanged from first window
   // In third window of quad, helicity changed from second window
   // In fourth window of quad, helicity unchanged from third window
-  // In first or third window of quad, pairsynch is FirstPS
-  // In second or fourth window of quad, pairsynch is SecondPS
+  // In first or third window of quad, pairsynch is SecondPS
+  // In second or fourth window of quad, pairsynch is FirstPS
   // In second and later events of window, pairsynch changed from first event
   // In second and later events of window, multipletsynch changed from first event
   // In second and later events of window, helicity changed from first event
@@ -249,29 +249,3 @@ void TaPairFromQuad::CheckSequence( VaEvent& ThisEv, TaRun& run )
 }
 
 
-UInt_t 
-TaPairFromQuad::RanBit (UInt_t hRead)
-{
-  // Pseudorandom bit predictor.  Following algorithm taken from
-  // "Numerical Recipes in C" Press, Flannery, et al., 1988.  New bit
-  // is returned.  This algorithm mimics the one implemented in
-  // hardware in the helicity box and is used for random helicity mode
-  // to set the helicity bit for the first window of each window quad.
-  // Except: if the helicity bit actually read is passed as argument,
-  // it is used to update the shift register, not the generated bit.
-
-  const UInt_t IB1 = 0x1;	        // Bit 1 mask
-  const UInt_t IB3 = 0x4;	        // Bit 3 mask
-  const UInt_t IB4 = 0x8;	        // Bit 4 mask
-  const UInt_t IB24 = 0x800000;         // Bit 24 mask
-  const UInt_t MASK = IB1+IB3+IB4+IB24;	// 100000000000000000001101
- 
-  int hPred = (fgShreg & IB24) ? 1 : 0;
-
-  if ((hRead == 2 ? hPred : hRead) == 1)
-    fgShreg = ((fgShreg ^ MASK) << 1) | IB1;
-  else
-    fgShreg <<= 1;
-
-  return hPred;
-}
