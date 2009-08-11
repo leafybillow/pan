@@ -287,13 +287,26 @@ void TaSimEvent::Decode(TaDevice& devices) {
 
 #ifdef FAKEHEL
   // overwrite recorded control signals
-  fgHelfile >> fData[IHELICITY] >> fData[IPAIRSYNCH]
-	    >> fData[IMULTIPLETSYNCH] >> fData[ITIMESLOT];
-//    clog << "TaSimEvent::Load hel/ps/ms/ts: " 
-//         << " " << fData[IHELICITY]
-//         << " " << fData[IPAIRSYNCH]
-//         << " " << fData[IMULTIPLETSYNCH]
-//         << " " << fData[ITIMESLOT] << endl;
+  while (1)
+    {
+      if (!fgHelfile.is_open())
+	clog << "TaSimEvent::Decode ERROR helicity.data file not open" << endl;
+
+      fgHelfile >> fData[IHELICITY] >> fData[IPAIRSYNCH]
+		>> fData[IMULTIPLETSYNCH] >> fData[ITIMESLOT];
+      if (fgHelfile.eof())
+	{
+	  fgHelfile.close();
+	  fgHelfile.open ("helicity.data");
+	}
+      else
+	break;
+    }
+//   clog << "TaSimEvent::Load hel/ps/ms/ts: " 
+//        << " " << fData[IHELICITY]
+//        << " " << fData[IPAIRSYNCH]
+//        << " " << fData[IMULTIPLETSYNCH]
+//        << " " << fData[ITIMESLOT] << endl;
 #endif
 
 
