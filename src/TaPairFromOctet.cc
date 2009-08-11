@@ -58,17 +58,23 @@ TaPairFromOctet::RunInit(const TaRun& run)
 void TaPairFromOctet::CheckSequence( VaEvent& ThisEv, TaRun& run )
 {
   // Look for sequence errors in the beam's window pair structure.
+
+  // Legal sequences are 
+  //   H  +--+-++- and -++-+--+
+  //   PS +-+-+-+-     +-+-+-+-
+  //   MS +-------     +-------
+
   // Errors include:
   //
   // Pairsynch unchanged from previous window
   // multipletsync == FirstMS when OtherMS expected
   // multipletsync == OtherMS when FirstMS expected
   // In first window of octet, helicity does not match expected value
-  // In second window of octet, helicity unchanged from first window
-  // In third window of octet, helicity changed from second window
-  // In fourth window of octet, helicity unchanged from third window
-  // In first or third window of octet, pairsynch is FirstPS
-  // In second or fourth window of octet, pairsynch is SecondPS
+  // In second, fourth, fifth, sixth, and eighth windows of octet, helicity 
+  // unchanged from previous window
+  // In third and seventh windows, helicity changed from previous window
+  // In first, third, fifth, or seventh window of octet, pairsynch is SecondPS
+  // In second, fourth, sixth, or eighth window of octet, pairsynch is FirstPS
   // In second and later events of window, pairsynch changed from first event
   // In second and later events of window, multipletsynch changed from first event
   // In second and later events of window, helicity changed from first event
@@ -109,11 +115,11 @@ void TaPairFromOctet::CheckSequence( VaEvent& ThisEv, TaRun& run )
 	  // Store event for comparison to later ones
 	  fgLastWinEv = fgThisWinEv;
 	  fgThisWinEv = ThisEv;
-	  if (lms == FirstMS && fgOctetCount == 5)
+	  if (lms == FirstMS && fgOctetCount == 9)
 	    fgOctetCount = 0;
-	  else if (fgOctetCount < 5)
+	  else if (fgOctetCount < 9)
 	    {
-	      fgOctetCount = (fgOctetCount + 1) % 4;
+	      fgOctetCount = (fgOctetCount + 1) % 8;
 	      if (lms == FirstMS && fgOctetCount != 0)
 		{
 		  cout << "TaPairFromOctet::CheckSequence ERROR: Event " 
@@ -143,9 +149,9 @@ void TaPairFromOctet::CheckSequence( VaEvent& ThisEv, TaRun& run )
 		}	      
 	    } 
 	  
-	  if (((fgOctetCount == 0 || fgOctetCount == 2) && lps == SecondPS)
+	  if (((fgOctetCount % 2 == 0) && lps == SecondPS)
 	      ||
-	      ((fgOctetCount == 1 || fgOctetCount == 3) && lps == FirstPS))
+	      ((fgOctetCount % 2 == 1) && lps == FirstPS))
 	    // See if pairsynch is right
 	    {
 	      cout << "TaPairFromOctet::CheckEvent ERROR: Event " 
@@ -166,7 +172,11 @@ void TaPairFromOctet::CheckSequence( VaEvent& ThisEv, TaRun& run )
 		  val = WPSSAME;
 		}
 	      
-	      if (fgOctetCount == 1 || fgOctetCount == 3)
+	      if (fgOctetCount == 1 
+		  || fgOctetCount == 3
+		  || fgOctetCount == 4
+		  || fgOctetCount == 5
+		  || fgOctetCount == 7)
 		// See if helicity changed
 		{
 		  if ( ThisEv.GetHelicity() == fgLastWinEv.GetHelicity() )
@@ -177,7 +187,8 @@ void TaPairFromOctet::CheckSequence( VaEvent& ThisEv, TaRun& run )
 		      val = WHELSAME;
 		    }
 		}
-	      else if (fgOctetCount == 2)
+	      else if (fgOctetCount == 2
+		       || fgOctetCount == 6)
 		// See if helicity unchanged
 		{
 		  if ( ThisEv.GetHelicity() != fgLastWinEv.GetHelicity() )
@@ -246,32 +257,4 @@ void TaPairFromOctet::CheckSequence( VaEvent& ThisEv, TaRun& run )
       ThisEv.AddCut (fgSequenceNo, val);
       run.UpdateCutList (fgSequenceNo, val, ThisEv.GetEvNumber());
     }
-}
-
-
-UInt_t 
-TaPairFromOctet::RanBit (UInt_t hRead)
-{
-  // Pseudorandom bit predictor.  Following algorithm taken from
-  // "Numerical Recipes in C" Press, Flannery, et al., 1988.  New bit
-  // is returned.  This algorithm mimics the one implemented in
-  // hardware in the helicity box and is used for random helicity mode
-  // to set the helicity bit for the first window of each window octet.
-  // Except: if the helicity bit actually read is passed as argument,
-  // it is used to update the shift register, not the generated bit.
-
-  const UInt_t IB1 = 0x1;	        // Bit 1 mask
-  const UInt_t IB3 = 0x4;	        // Bit 3 mask
-  const UInt_t IB4 = 0x8;	        // Bit 4 mask
-  const UInt_t IB24 = 0x800000;         // Bit 24 mask
-  const UInt_t MASK = IB1+IB3+IB4+IB24;	// 100000000000000000001101
- 
-  int hPred = (fgShreg & IB24) ? 1 : 0;
-
-  if ((hRead == 2 ? hPred : hRead) == 1)
-    fgShreg = ((fgShreg ^ MASK) << 1) | IB1;
-  else
-    fgShreg <<= 1;
-
-  return hPred;
 }
