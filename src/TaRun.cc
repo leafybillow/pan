@@ -92,9 +92,11 @@ TaRun::TaRun():
   fESliceStats(0),
   fPSliceStats(0),
   fPOrdSliceStats(0),
+  fMSliceStats(0),
   fERunStats(0),
   fPRunStats(0),
   fPOrdRunStats(0),
+  fMRunStats(0),
   fFirstPass(true)
 {
 #ifdef ONLINE
@@ -123,9 +125,11 @@ TaRun::TaRun(const Int_t& run) :
   fESliceStats(0),
   fPSliceStats(0),
   fPOrdSliceStats(0),
+  fMSliceStats(0),
   fERunStats(0),
   fPRunStats(0),
   fPOrdRunStats(0),
+  fMRunStats(0),
   fFirstPass(true)
 {
   TaFileName::Setup (fRunNumber, "");
@@ -148,9 +152,11 @@ TaRun::TaRun(const string& filename):
   fESliceStats(0),
   fPSliceStats(0),
   fPOrdSliceStats(0),
+  fMSliceStats(0),
   fERunStats(0),
   fPRunStats(0),
   fPOrdRunStats(0),
+  fMRunStats(0),
   fFirstPass(true)
 {
 };
@@ -255,6 +261,7 @@ TaRun::Init(const vector<string>& dbcommand)
     fEvent = new TaEvent();
     fAccumEvent = new TaEvent();
   }
+  delete evtype;
 
   TaFileName::Setup (fRunNumber, TaString (fDataBase->GetAnaType()).ToLower());
 
@@ -328,6 +335,8 @@ TaRun::ReInit()
       (*fPOrdRunStats+2)->SetFirstPass (false);
       (*fPOrdRunStats+3)->SetFirstPass (false);
     }
+  if (fMRunStats != 0)
+    fMRunStats->SetFirstPass (false);
 
   return fgTARUN_OK;
 
@@ -634,13 +643,17 @@ TaRun::PrintSlice (EventNumber_t n)
   size_t nSlice = n - fNLastSlice;
   if (nSlice > 5)
     {
-      if (fESliceStats != 0 || fPSliceStats != 0)
+      if (fESliceStats != 0 || fPSliceStats != 0 || fMSliceStats != 0)
 	cout << "Stats for last " << (n - fNLastSlice) << " events:";
       cout << endl;
-      if (fESliceStats != 0)
-	PrintStats (*fESliceStats, fEStatsNames, fEStatsUnits);
-      if (fPSliceStats != 0)
+      if (fESliceStats != 0 && fESliceStats->Size() > 0)
 	{
+	  cout << "=== Event stats:" << endl;
+	  PrintStats (*fESliceStats, fEStatsNames, fEStatsUnits);
+	}
+      if (fPSliceStats != 0 && fPSliceStats->Size() > 0)
+	{
+	  cout << "=== Pair stats:" << endl;
 	  PrintStats (*fPSliceStats, fPStatsNames, fPStatsUnits);
 	  for (UInt_t io= 0; io< 4; ++io)
 	    {
@@ -650,7 +663,12 @@ TaRun::PrintSlice (EventNumber_t n)
 	      PrintStats (*(fPOrdSliceStats[io]), fPOSN, fPOrdStatsUnits);
 	    }
 	}
-      
+      if (fMSliceStats != 0 && fMSliceStats->Size() > 0)
+	{
+	  cout << "=== Multiplet stats:" << endl;
+	  PrintStats (*fMSliceStats, fMStatsNames, fMStatsUnits);
+	}
+
       cout << endl;
       fCutList->PrintTally(cout);
       cout << endl;
@@ -666,6 +684,8 @@ TaRun::PrintSlice (EventNumber_t n)
       fPOrdSliceStats[2]->Zero();
       fPOrdSliceStats[3]->Zero();
     }
+  if (fMSliceStats != 0)
+    fMSliceStats->Zero();
   fNLastSlice = n;
 }
 
@@ -675,15 +695,19 @@ TaRun::PrintRun ()
 {
   // Print run statistics
 
-  if (fERunStats != 0 || fPRunStats != 0)
+  if (fERunStats != 0 || fPRunStats != 0 || fMRunStats != 0)
     cout << "\nCumulative stats for " << fEventNumber 
 	 << " events: "
 	 << endl;
 
-  if (fERunStats != 0)
-    PrintStats (*fERunStats, fEStatsNames, fEStatsUnits);
-  if (fPRunStats != 0)
+  if (fERunStats != 0 && fESliceStats->Size() > 0)
     {
+      cout << "=== Event stats:" << endl;
+      PrintStats (*fERunStats, fEStatsNames, fEStatsUnits);
+    }
+  if (fPRunStats != 0 && fPSliceStats->Size() > 0)
+    {
+      cout << "=== Pair stats:" << endl;
       PrintStats (*fPRunStats, fPStatsNames, fPStatsUnits);
       for (UInt_t io= 0; io< 4; ++io)
 	{
@@ -692,6 +716,11 @@ TaRun::PrintRun ()
 	    fPOSN[is] = fPOrdStatsNames[is] + " " + fgORDNAME[io];
 	  PrintStats (*(fPOrdRunStats[io]), fPOSN, fPOrdStatsUnits);
 	}
+    }
+  if (fMRunStats != 0 && fMSliceStats->Size() > 0)
+    {
+      cout << "=== Multiplet stats:" << endl;
+      PrintStats (*fMRunStats, fMStatsNames, fMStatsUnits);
     }
 
   cout << endl;
@@ -722,6 +751,11 @@ TaRun::WriteRun ()
 	    fPOSN[is] = fPOrdStatsNames[is] + " " + fgORDNAME[io];
 	  WriteStats (*(fPOrdRunStats[io]), fPOSN, fPOrdStatsUnits, 0, fEventNumber);
 	}
+    }
+  if (fMRunStats != 0)
+    {
+      (*fResFile) << "# Multiplet statistics ===================" << endl;
+      WriteStats (*fMRunStats, fMStatsNames, fMStatsUnits, 0, fEventNumber);
     }
   fCutList->WriteTally (*fResFile, 0, fEventNumber);
 }
@@ -841,7 +875,6 @@ TaRun::Uncreate()
     delete[] fPOrdSliceStats;
   }
   delete fPRunStats;
-  delete fResFile;
   if(fPOrdRunStats!=NULL) {
     delete fPOrdRunStats[0];
     delete fPOrdRunStats[1];
@@ -849,6 +882,9 @@ TaRun::Uncreate()
     delete fPOrdRunStats[3];
     delete[] fPOrdRunStats;
   }
+  delete fMSliceStats;
+  delete fMRunStats;
+  delete fResFile;
   fCutList = 0;
   fCoda = 0;
   fEvent = 0;
