@@ -233,7 +233,7 @@ VaAnalysis::RunIni(TaRun& run)
       fDoMultiplet = false;
 //       fDoMultiplet = true;
 //       fNMultiplet = 2;
-xs    }
+    }
   else if (type == "pair")
     {
       fPairType = FromPair;
