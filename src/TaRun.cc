@@ -101,8 +101,9 @@ TaRun::TaRun():
 {
 #ifdef ONLINE
    mymode        = 1;
+   //   fComputer     = "adaql2";  // DAQ computer
    fComputer     = "adaql1";  // DAQ computer
-   fSession      = "par1";    // CODA $SESSION
+   fSession      = getenv("SESSION");    // CODA $SESSION
    fCoda         = new THaEtClient();
 #else
    cerr << "TaRun:: ERROR: Default c'tor implies online data."<<endl;
@@ -181,6 +182,10 @@ TaRun::Init(const vector<string>& dbcommand)
       cerr << " to  computer "<<fComputer;
       cerr << " and session "<<fSession<<endl;
       return fgTARUN_ERROR;
+    } else {
+      cerr << "TaRun:: Init SUCCESS: Can open ET connection"<<endl;
+      cerr << " to  computer "<<fComputer;
+      cerr << " and session "<<fSession<<endl;
     }
 #else
     cerr << "TaRun:: Init ERROR: Undefined online input."<<endl;
