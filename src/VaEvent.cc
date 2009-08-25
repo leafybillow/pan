@@ -961,8 +961,8 @@ VaEvent::Decode(TaDevice& devices)
     if (devices.IsUsed(key)) devices.SetUsed(key+1);
   }
 
-  for (i = 0; i < DISTRIGTGRNUM; i++) {          //R-HRS TAGGER
-    key = DISTRIGTGROFF + 2*i;
+  for (i = 0; i < DISTRIGPL1RNUM; i++) {          //R-HRS pileup 1
+    key = DISTRIGPL1ROFF + 2*i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
     idx = devices.GetCalIndex(key);
     if (idx < 0) continue;
@@ -970,8 +970,8 @@ VaEvent::Decode(TaDevice& devices)
     if (devices.IsUsed(key)) devices.SetUsed(key+1);
   }
 
-  for (i = 0; i < DISTRIGTGLNUM; i++) {            //L-HRS TAGGER
-    key = DISTRIGTGLOFF + 2*i;
+  for (i = 0; i < DISTRIGPLLNUM; i++) {          //L-HRS pileup
+    key = DISTRIGPLLOFF + 2*i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
     idx = devices.GetCalIndex(key);
     if (idx < 0) continue;
@@ -979,8 +979,8 @@ VaEvent::Decode(TaDevice& devices)
     if (devices.IsUsed(key)) devices.SetUsed(key+1);
   }
 
-  for (i = 0; i < DISTRIGMXDRNUM; i++) {          //R-HRS MIXED STUFF
-    key = DISTRIGMXDROFF + 2*i;
+  for (i = 0; i < DISTRIGMXD1RNUM; i++) {          //R-HRS MIXED 1 STUFF
+    key = DISTRIGMXD1ROFF + 2*i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
     idx = devices.GetCalIndex(key);
     if (idx < 0) continue;
@@ -988,8 +988,67 @@ VaEvent::Decode(TaDevice& devices)
     if (devices.IsUsed(key)) devices.SetUsed(key+1);
   }
 
-  for (i = 0; i < DISTRIGMXDLNUM; i++) {            //L-HRS MIXED STUFF
-    key = DISTRIGMXDLOFF + 2*i;
+  for (i = 0; i < DISTRIGMXD2RNUM; i++) {          //R-HRS MIXED 2 STUFF
+    key = DISTRIGMXD2ROFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+for (i = 0; i < DISTRIGMXD1LNUM; i++) {          //L-HRS MIXED 1 STUFF
+    key = DISTRIGMXD1LOFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+  for (i = 0; i < DISTRIGMXD2LNUM; i++) {          //L-HRS MIXED 2 STUFF
+    key = DISTRIGMXD2LOFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+for (i = 0; i < DISTRIGPL2RNUM; i++) {          //R-HRS pileup 2
+    key = DISTRIGPL2ROFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+  for (i = 0; i < DISTRIGSPRNUM; i++) {          //R-HRS spare channels
+    key = DISTRIGSPROFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+
+for (i = 0; i < DISTRIGSPLNUM; i++) {          //L-HRS spare channels
+    key = DISTRIGSPLOFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+  for (i = 0; i < DISTRIGBCMRNUM; i++) {          //R-HRS bcm
+    key = DISTRIGBCMROFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+  for (i = 0; i < DISTRIGBCMLNUM; i++) {          //L-HRS bcm
+    key = DISTRIGBCMLOFF + 2*i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
     idx = devices.GetCalIndex(key);
     if (idx < 0) continue;
@@ -1033,16 +1092,6 @@ VaEvent::Decode(TaDevice& devices)
     if (devices.IsUsed(key)) devices.SetUsed(key+1);
   }
   
-  
-  for (i = 0; i < DISTRIGENCRNUM; i++) {          //R-HRS ELECTRON NARROW COPY
-    key = DISTRIGENCROFF + 2*i;
-    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
-    idx = devices.GetCalIndex(key);
-    if (idx < 0) continue;
-    fData[key+1] = fData[idx];
-    if (devices.IsUsed(key)) devices.SetUsed(key+1);
-  }
-
   for (i = 0; i < DISTRIGENCLNUM; i++) {            //L-HRS ELECTRON NARROW COPY
     key = DISTRIGENCLOFF + 2*i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
@@ -1052,15 +1101,6 @@ VaEvent::Decode(TaDevice& devices)
     if (devices.IsUsed(key)) devices.SetUsed(key+1);
   }
  
-  for (i = 0; i < DISTRIGEWCRNUM; i++) {          //R-HRS ELECTRON WIDE COPY
-    key = DISTRIGEWCROFF + 2*i;
-    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
-    idx = devices.GetCalIndex(key);
-    if (idx < 0) continue;
-    fData[key+1] = fData[idx];
-    if (devices.IsUsed(key)) devices.SetUsed(key+1);
-  }
-
   for (i = 0; i < DISTRIGEWCLNUM; i++) {            //L-HRS ELECTRON WIDE COPY
     key = DISTRIGEWCLOFF + 2*i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
@@ -1070,15 +1110,6 @@ VaEvent::Decode(TaDevice& devices)
     if (devices.IsUsed(key)) devices.SetUsed(key+1);
   }
  
-  for (i = 0; i < DISTRIGPWCRNUM; i++) {          //R-HRS PION WIDE COPY
-    key = DISTRIGPWCROFF + 2*i;
-    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
-    idx = devices.GetCalIndex(key);
-    if (idx < 0) continue;
-    fData[key+1] = fData[idx];
-    if (devices.IsUsed(key)) devices.SetUsed(key+1);
-  }
-
   for (i = 0; i < DISTRIGPWCLNUM; i++) {            //L-HRS PION WIDE COPY
     key = DISTRIGPWCLOFF + 2*i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
@@ -1088,15 +1119,6 @@ VaEvent::Decode(TaDevice& devices)
     if (devices.IsUsed(key)) devices.SetUsed(key+1);
   }
   
-   for (i = 0; i < DISTRIGPNCRNUM; i++) {          //R-HRS PION NARROW COPY
-    key = DISTRIGPNCROFF + 2*i;
-    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
-    idx = devices.GetCalIndex(key);
-    if (idx < 0) continue;
-    fData[key+1] = fData[idx];
-    if (devices.IsUsed(key)) devices.SetUsed(key+1);
-  }
-
   for (i = 0; i < DISTRIGPNCLNUM; i++) {            //L-HRS PION NARROW COPY
     key = DISTRIGPNCLOFF + 2*i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
@@ -1106,8 +1128,17 @@ VaEvent::Decode(TaDevice& devices)
     if (devices.IsUsed(key)) devices.SetUsed(key+1);
   }
 
-    for (i = 0; i < DISTRIGTGCRNUM; i++) {          //R-HRS TAGGER COPY
-    key = DISTRIGTGCROFF + 2*i;
+    for (i = 0; i < DISTRIGPL1CRNUM; i++) {          //R-HRS pileup 1 copy
+    key = DISTRIGPL1CROFF + 2*i;
+    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+    idx = devices.GetCalIndex(key);
+    if (idx < 0) continue;
+    fData[key+1] = fData[idx];
+    if (devices.IsUsed(key)) devices.SetUsed(key+1);
+  }
+   
+  for (i = 0; i < DISTRIGMXD1CRNUM; i++) {          //R-HRS MIXED 1 STUFF cpoy
+    key = DISTRIGMXD1CROFF + 2*i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
     idx = devices.GetCalIndex(key);
     if (idx < 0) continue;
@@ -1115,34 +1146,23 @@ VaEvent::Decode(TaDevice& devices)
     if (devices.IsUsed(key)) devices.SetUsed(key+1);
   }
 
-  for (i = 0; i < DISTRIGTGCLNUM; i++) {            //L-HRS TAGGER COPY
-    key = DISTRIGTGCLOFF + 2*i;
+    for (i = 0; i < DISTRIGMXD1CLNUM; i++) {          //L-HRS MIXED 1 COPY STUFF
+    key = DISTRIGMXD1CLOFF + 2*i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
     idx = devices.GetCalIndex(key);
     if (idx < 0) continue;
     fData[key+1] = fData[idx];
     if (devices.IsUsed(key)) devices.SetUsed(key+1);
   }
-
-  for (i = 0; i < DISTRIGMXDCRNUM; i++) {          //R-HRS MIXED STUFF COPY
-    key = DISTRIGMXDCROFF + 2*i;
+  for (i = 0; i < DISTRIGMXD2CLNUM; i++) {          //L-HRS MIXED 2 COPY STUFF
+    key = DISTRIGMXD2CLOFF + 2*i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
     idx = devices.GetCalIndex(key);
     if (idx < 0) continue;
     fData[key+1] = fData[idx];
     if (devices.IsUsed(key)) devices.SetUsed(key+1);
   }
-
-  for (i = 0; i < DISTRIGMXDCLNUM; i++) {            //L-HRS MIXED STUFF COPY
-    key = DISTRIGMXDCLOFF + 2*i;
-    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
-    idx = devices.GetCalIndex(key);
-    if (idx < 0) continue;
-    fData[key+1] = fData[idx];
-    if (devices.IsUsed(key)) devices.SetUsed(key+1);
-  }
-
- 
+  
   // UMass Profile scanners
   for (i = 0; i < PROFNUM; i++) {
      key = PROFOFF + 3*i;
