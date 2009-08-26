@@ -6417,6 +6417,14 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"scandata2",ISCANDATA2));
   fKeyToIdx.insert(make_pair((string)"scandata3",ISCANDATA3));
   fKeyToIdx.insert(make_pair((string)"scandata4",ISCANDATA4));
+  fKeyToIdx.insert(make_pair((string)"scandata5",ISCANDATA5));
+  fKeyToIdx.insert(make_pair((string)"scandata6",ISCANDATA6));
+  fKeyToIdx.insert(make_pair((string)"scandata7",ISCANDATA7));
+  fKeyToIdx.insert(make_pair((string)"scandata8",ISCANDATA8));
+  fKeyToIdx.insert(make_pair((string)"scandata9",ISCANDATA9));
+  fKeyToIdx.insert(make_pair((string)"scandata10",ISCANDATA10));
+  fKeyToIdx.insert(make_pair((string)"scandata11",ISCANDATA11));
+  fKeyToIdx.insert(make_pair((string)"scandata12",ISCANDATA12));
 
 // DAQ flags.  
   fKeyToIdx.insert(make_pair((string)"daq1flag",IDAQ1FLAG));
@@ -6435,6 +6443,39 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"daq4flag1",IDAQ4FLAG1));
   fKeyToIdx.insert(make_pair((string)"daq4flag2",IDAQ4FLAG2));
   fKeyToIdx.insert(make_pair((string)"daq4flag3",IDAQ4FLAG3));
+  fKeyToIdx.insert(make_pair((string)"daq5flag",IDAQ5FLAG));
+  fKeyToIdx.insert(make_pair((string)"daq5flag1",IDAQ5FLAG1));
+  fKeyToIdx.insert(make_pair((string)"daq5flag2",IDAQ5FLAG2));
+  fKeyToIdx.insert(make_pair((string)"daq5flag3",IDAQ5FLAG3));
+  fKeyToIdx.insert(make_pair((string)"daq6flag",IDAQ6FLAG));
+  fKeyToIdx.insert(make_pair((string)"daq6flag1",IDAQ6FLAG1));
+  fKeyToIdx.insert(make_pair((string)"daq6flag2",IDAQ6FLAG2));
+  fKeyToIdx.insert(make_pair((string)"daq6flag3",IDAQ6FLAG3));
+  fKeyToIdx.insert(make_pair((string)"daq7flag",IDAQ7FLAG));
+  fKeyToIdx.insert(make_pair((string)"daq7flag1",IDAQ7FLAG1));
+  fKeyToIdx.insert(make_pair((string)"daq7flag2",IDAQ7FLAG2));
+  fKeyToIdx.insert(make_pair((string)"daq7flag3",IDAQ7FLAG3));
+  fKeyToIdx.insert(make_pair((string)"daq8flag",IDAQ8FLAG));
+  fKeyToIdx.insert(make_pair((string)"daq8flag1",IDAQ8FLAG1));
+  fKeyToIdx.insert(make_pair((string)"daq8flag2",IDAQ8FLAG2));
+  fKeyToIdx.insert(make_pair((string)"daq8flag3",IDAQ8FLAG3));
+  fKeyToIdx.insert(make_pair((string)"daq9flag",IDAQ9FLAG));
+  fKeyToIdx.insert(make_pair((string)"daq9flag1",IDAQ9FLAG1));
+  fKeyToIdx.insert(make_pair((string)"daq9flag2",IDAQ9FLAG2));
+  fKeyToIdx.insert(make_pair((string)"daq9flag3",IDAQ9FLAG3));
+  fKeyToIdx.insert(make_pair((string)"daq10flag",IDAQ10FLAG));
+  fKeyToIdx.insert(make_pair((string)"daq10flag1",IDAQ10FLAG1));
+  fKeyToIdx.insert(make_pair((string)"daq10flag2",IDAQ10FLAG2));
+  fKeyToIdx.insert(make_pair((string)"daq10flag3",IDAQ10FLAG3));
+  fKeyToIdx.insert(make_pair((string)"daq11flag",IDAQ11FLAG));
+  fKeyToIdx.insert(make_pair((string)"daq11flag1",IDAQ11FLAG1));
+  fKeyToIdx.insert(make_pair((string)"daq11flag2",IDAQ11FLAG2));
+  fKeyToIdx.insert(make_pair((string)"daq11flag3",IDAQ11FLAG3));
+  fKeyToIdx.insert(make_pair((string)"daq12flag",IDAQ12FLAG));
+  fKeyToIdx.insert(make_pair((string)"daq12flag1",IDAQ12FLAG1));
+  fKeyToIdx.insert(make_pair((string)"daq12flag2",IDAQ12FLAG2));
+  fKeyToIdx.insert(make_pair((string)"daq12flag3",IDAQ12FLAG3));
+
 
 // BMW words BMW words are also devtype = daqflag
   fKeyToIdx.insert(make_pair((string)"bmwcln",IBMWCLN));

@@ -119,7 +119,7 @@ IBPM0L06  IBPM0L07 IBPM0L08 IBPM0L09 IBPM0L10  IBPM0R03  IBPM0R04 IBPM0R05 IBPM0
 # BMW words
 @bmwlist = qw / IBMWCLN IBMWOBJ IBMWVAL IBMWCYC /;
 # scanflags
-@scanflist = qw / ISCANCLEAN ISCANDATA1 ISCANDATA2 ISCANDATA3 ISCANDATA4 /;
+@scanflist = qw / ISCANCLEAN ISCANDATA1 ISCANDATA2 ISCANDATA3 ISCANDATA4 ISCANDATA5 ISCANDATA6 ISCANDATA7 ISCANDATA8 ISCANDATA9 ISCANDATA10 ISCANDATA11 ISCANDATA12 /;
 # SYNC words
 @synclist = qw / IISYNC0 ICHSYNC0 ICHSYNC1 ICHSYNC2 IRSYNC1 IRSYNC2 ILSYNC1 ILSYNC2 /;
 # Linear Array
@@ -1871,6 +1871,22 @@ sub do_daqflag
     $out1 .= &add_tir ("IDAQ3FLAG");
     $out1 .= "\n";
     $out1 .= &add_tir ("IDAQ4FLAG");
+    $out1 .= "\n";
+    $out1 .= &add_tir ("IDAQ5FLAG");
+    $out1 .= "\n";
+    $out1 .= &add_tir ("IDAQ6FLAG");
+    $out1 .= "\n";
+    $out1 .= &add_tir ("IDAQ7FLAG");
+    $out1 .= "\n";
+    $out1 .= &add_tir ("IDAQ8FLAG");
+    $out1 .= "\n";
+    $out1 .= &add_tir ("IDAQ9FLAG");
+    $out1 .= "\n";
+    $out1 .= &add_tir ("IDAQ10FLAG");
+    $out1 .= "\n";
+    $out1 .= &add_tir ("IDAQ11FLAG");
+    $out1 .= "\n";
+    $out1 .= &add_tir ("IDAQ12FLAG");
 
     $out .= << "ENDDAQCOM";
 // DAQ Flag data from various crates
@@ -1880,6 +1896,7 @@ sub do_daqflag
 \#define   DAQOFF     $daqoff
 \// number of DAQ flags defined below
 \#define   DAQNUM     $ncrates
+
 
 $out1
 ENDDAQCOM
