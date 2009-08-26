@@ -163,7 +163,7 @@ public:
    cout << endl << flush;
   }
 private:
-  static const int fgMaxChar = 50000;  //!  This is about 2x normal size
+  static const int fgMaxChar = 150000;  //!  This is about 2x normal size
   int run_num;
   int i,j,jfirst,fptr;   //!
   int fNumchar;    
