@@ -140,8 +140,6 @@ TaStandardAna::InitChanLists ()
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanListFromName ("bmw", "", fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanList ("det", "~s", "chan",  fgCOPY);
-  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanListFromName ("scan", "",  fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
