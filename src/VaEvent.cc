@@ -2118,9 +2118,10 @@ void VaEvent::DeviceDump() const {
   static int bpmraw[] = {  IBPM8XP, IBPM8XM, IBPM8YP, IBPM8YM, 
                            IBPM10XP, IBPM10XM, IBPM10YP, IBPM10YM, 
                            IBPM12XP, IBPM12XM, IBPM12YP, IBPM12YM, 
+			   IBPM14XP, IBPM14XM, IBPM14YP, IBPM14YM, 
                            IBPM4AXP, IBPM4AXM, IBPM4AYP, IBPM4AYM, 
                            IBPM4BXP, IBPM4BXM, IBPM4BYP, IBPM4BYM };
-  static int bpmcalib[] = { IBPM8X, IBPM8Y, IBPM10X, IBPM10Y, 
+  static int bpmcalib[] = { IBPM8X, IBPM8Y, IBPM10X, IBPM10Y, IBPM14X, IBPM14Y, 
                            IBPM4AX, IBPM4AY, IBPM4BX, IBPM4BY };
   static int profile[] = { ILPROF, ILPROFX, ILPROFY,
                            IRPROF, IRPROFX, IRPROFY };

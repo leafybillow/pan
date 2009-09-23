@@ -468,6 +468,7 @@ void TaDevice::BpmDefRotate() {
    fRotateList.push_back("bpm8");
    fRotateList.push_back("bpm10");
    fRotateList.push_back("bpm12");
+   fRotateList.push_back("bpm14");
    fRotateList.push_back("bpm1");
    fRotateList.push_back("bpm4a");
    fRotateList.push_back("bpm4b");
@@ -690,6 +691,22 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"bpm12yws",IBPM12YWS));
   fKeyToIdx.insert(make_pair((string)"bpm12ws", IBPM12WS));
   fKeyToIdx.insert(make_pair((string)"bpm12mx", IBPM12MX));
+
+// BPM 14
+  fKeyToIdx.insert(make_pair((string)"bpm14xp", IBPM14XP));
+  fKeyToIdx.insert(make_pair((string)"bpm14xm", IBPM14XM));
+  fKeyToIdx.insert(make_pair((string)"bpm14yp", IBPM14YP));
+  fKeyToIdx.insert(make_pair((string)"bpm14ym", IBPM14YM));
+  fKeyToIdx.insert(make_pair((string)"bpm14xpc",IBPM14XPC));
+  fKeyToIdx.insert(make_pair((string)"bpm14xmc",IBPM14XMC));
+  fKeyToIdx.insert(make_pair((string)"bpm14ypc",IBPM14YPC));
+  fKeyToIdx.insert(make_pair((string)"bpm14ymc",IBPM14YMC));
+  fKeyToIdx.insert(make_pair((string)"bpm14x",  IBPM14X));
+  fKeyToIdx.insert(make_pair((string)"bpm14y",  IBPM14Y));
+  fKeyToIdx.insert(make_pair((string)"bpm14xws",IBPM14XWS));
+  fKeyToIdx.insert(make_pair((string)"bpm14yws",IBPM14YWS));
+  fKeyToIdx.insert(make_pair((string)"bpm14ws", IBPM14WS));
+  fKeyToIdx.insert(make_pair((string)"bpm14mx", IBPM14MX));
 
 // BPM 1
   fKeyToIdx.insert(make_pair((string)"bpm1xp", IBPM1XP));
@@ -1618,7 +1635,7 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"disrps7c",IDISRPS7C));
   fKeyToIdx.insert(make_pair((string)"disrps8cr",IDISRPS8CR));
   fKeyToIdx.insert(make_pair((string)"disrps8c",IDISRPS8C));
-  //preshower COPY L-HRS
+  // preshower COPY L-HRS
    fKeyToIdx.insert(make_pair((string)"dislps1cr",IDISLPS1CR));
   fKeyToIdx.insert(make_pair((string)"dislps1c",IDISLPS1C));
   fKeyToIdx.insert(make_pair((string)"dislps2cr",IDISLPS2CR));
@@ -6352,7 +6369,6 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"scaler14_30_cal",ISCALER14_30_CAL));
   fKeyToIdx.insert(make_pair((string)"scaler14_31_cal",ISCALER14_31_CAL));
 
-
 // TIR data from various crates
   fKeyToIdx.insert(make_pair((string)"tirdata", ITIRDATA));   // 1st crate
   fKeyToIdx.insert(make_pair((string)"tirdata1",ITIRDATA1));
@@ -6411,8 +6427,13 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"pitadac2",IPITADAC2));
   fKeyToIdx.insert(make_pair((string)"pitadac3",IPITADAC3));
 
-// Scan data
+// Scanclean
   fKeyToIdx.insert(make_pair((string)"scanclean",ISCANCLEAN));
+  fKeyToIdx.insert(make_pair((string)"scanclean1",ISCANCLEAN1));
+  fKeyToIdx.insert(make_pair((string)"scanclean2",ISCANCLEAN2));
+  fKeyToIdx.insert(make_pair((string)"scanclean3",ISCANCLEAN3));
+
+// Scandata
   fKeyToIdx.insert(make_pair((string)"scandata1",ISCANDATA1));
   fKeyToIdx.insert(make_pair((string)"scandata2",ISCANDATA2));
   fKeyToIdx.insert(make_pair((string)"scandata3",ISCANDATA3));
