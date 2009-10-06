@@ -781,7 +781,10 @@ VaEvent::Decode(TaDevice& devices)
        if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
        idx = devices.GetCalIndex(key);
        if (idx < 0) continue;
-       fData[key+2] = fData[idx];
+       //       fData[key+2] = fData[idx];
+       Double_t calpar = 1.0;
+       if (fCavPars[i][j] != 0.0) calpar = fCavPars[i][j];
+       fData[key+2] = fData[idx]*calpar;
        if (devices.IsUsed(key)) devices.SetUsed(key+2);
     }
   }
