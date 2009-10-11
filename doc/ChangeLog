@@ -29,6 +29,8 @@ the last two items in cutnames):
   extlo 10   10 25 25 0 30   10  10  10 10
   exthi 1200 40 25 25 0 30 1200  40  10 10
 
+  adcxdacburpcut 1000
+
 
 
 Changes by R. Michaels and X. Deng on 1 June 2009
