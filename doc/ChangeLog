@@ -6,6 +6,31 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Michaels on 11 Oct 2009
+--------------------------------------
+
+BTW, I think people are making changes to Pan without
+documenting there here (or anywhere ?).
+
+Today's change: Added cuts on ADCX electronics problems.
+Two cuts are "adcx bad" and "adcx dac burp".  The former
+occurs when the buffer has >1 hit in an event, presumably
+caused by system-wide deadtime.  The latter occurs every
+256K events and is a large glitch in the DAC in the base
+signal.  Both of these cause double-diffs in BCM2, and
+the "adcx bad" can cause problems in the peak which are
+very dangerous.  These cuts appear to eliminate all glitches.
+
+In the database file, one may add items like this (notice
+the last two items in cutnames):
+
+  ncuts 10
+  cutnames Low_beam Beam_burp Evt_seq Pair_seq Startup Mon_Saturate Low_beam_c C_burp  Adcx_DAC_burp Adcx_Bad
+  extlo 10   10 25 25 0 30   10  10  10 10
+  exthi 1200 40 25 25 0 30 1200  40  10 10
+
+
+
 Changes by R. Michaels and X. Deng on 1 June 2009
 -------------------------------------------------
 
