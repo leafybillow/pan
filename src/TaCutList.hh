@@ -91,6 +91,8 @@ private:
   Cut_t fPosBurpNo;                  // cut number for pos. burp cut
   Cut_t fPosBurpENo;                 // cut number for energy burp cut
   Cut_t fCBurpNo;                    // cut number for C-beam-burp cut
+  Cut_t fAdcxDacBurpNo;              // cut number for 18-bit DAC burp cut
+  Cut_t fAdcxBadNo;                  // cut number for 18-bit bad cut
 
 #ifndef NODICT
   ClassDef(TaCutList, 0)   // List of cuts

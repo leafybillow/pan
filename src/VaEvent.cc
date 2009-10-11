@@ -54,6 +54,7 @@ Double_t VaEvent::fgMonSatCut;
 Double_t VaEvent::fgPosBurp[fgMaxNumPosMon];
 Double_t VaEvent::fgPosBurpE[fgMaxNumPosMonE];
 Double_t VaEvent::fgCBurpCut;
+Double_t VaEvent::fgAdcxDacBurpCut;
 Cut_t VaEvent::fgLoBeamNo;
 Cut_t VaEvent::fgLoBeamCNo;
 Cut_t VaEvent::fgBurpNo;  
@@ -64,6 +65,8 @@ Cut_t VaEvent::fgStartupNo;
 Cut_t VaEvent::fgPosBurpNo;
 Cut_t VaEvent::fgPosBurpENo;
 Cut_t VaEvent::fgCBurpNo;  
+Cut_t VaEvent::fgAdcxDacBurpNo;
+Cut_t VaEvent::fgAdcxBadNo;
 UInt_t VaEvent::fgOversample;
 UInt_t VaEvent::fgCurMon;
 UInt_t VaEvent::fgCurMonC;
@@ -97,6 +100,8 @@ VaEvent::VaEvent():
   memset(fEvBuffer, 0, fgMaxEvLen*sizeof(Int_t));
   fPrevBuffer = new Int_t[fgMaxEvLen];
   memset(fPrevBuffer, 0, fgMaxEvLen*sizeof(Int_t));
+  fPrevAdcxBase = new Double_t[16*ADCXNUM];
+  memset(fPrevAdcxBase, 0, 16*ADCXNUM*sizeof(Double_t));
   fData = new Double_t[MAXKEYS];
   memset(fData, 0, MAXKEYS*sizeof(Double_t));
   fN1roc = new Int_t[MAXROC];
@@ -155,6 +160,7 @@ VaEvent::CopyInPlace (const VaEvent& rhs)
       fPrevHel = rhs.fPrevHel;
       memcpy(fEvBuffer, rhs.fEvBuffer, fEvLen*sizeof(Int_t));
       memcpy(fPrevBuffer, rhs.fPrevBuffer, fEvLen*sizeof(Int_t));
+      memcpy(fPrevAdcxBase, rhs.fPrevAdcxBase, 16*ADCXNUM*sizeof(Double_t));
       memcpy(fData, rhs.fData, MAXKEYS*sizeof(Double_t));
       if (rhs.fCutArray != 0 && fgNCuts > 0)
 	memcpy(fCutArray, rhs.fCutArray, fgNCuts*sizeof(Int_t));
@@ -183,6 +189,7 @@ VaEvent::RunInit(const TaRun& run)
   fgSatCut = run.GetDataBase().GetCutValue("satcut");
   fgCBurpCut = run.GetDataBase().GetCutValue("cburpcut");
   fgMonSatCut = run.GetDataBase().GetCutValue("monsatcut");
+  fgAdcxDacBurpCut = run.GetDataBase().GetCutValue("adcxdacburpcut");
 
   vector<TaString> vposmon = run.GetDataBase().GetStringVect("posmon");
   Int_t npm = vposmon.size();
@@ -240,6 +247,8 @@ VaEvent::RunInit(const TaRun& run)
   fgCBurpNo = run.GetDataBase().GetCutNumber ("C_burp");
   fgPosBurpNo = run.GetDataBase().GetCutNumber ("Pos_burp");
   fgPosBurpENo = run.GetDataBase().GetCutNumber ("Pos_burp_E");
+  fgAdcxDacBurpNo = run.GetDataBase().GetCutNumber ("Adcx_DAC_burp");
+  fgAdcxBadNo = run.GetDataBase().GetCutNumber ("Adcx_Bad");
   if (fgEvtSeqNo == fgNCuts)
     fgEvtSeqNo = run.GetDataBase().GetCutNumber ("Oversample"); // backward compat
   if (fgLoBeamNo == fgNCuts ||
@@ -259,7 +268,9 @@ VaEvent::RunInit(const TaRun& run)
       fgStartupNo == fgNCuts ||
       fgCBurpNo == fgNCuts ||
       fgPosBurpENo == fgNCuts ||
-      fgPosBurpNo == fgNCuts )
+      fgPosBurpNo == fgNCuts ||
+      fgAdcxDacBurpNo == fgNCuts ||
+      fgAdcxBadNo == fgNCuts )
     {
       cerr << "VaEvent::RunInit WARNING: Following cut(s) are not defined "
 	   << "in database and will not be imposed:";
@@ -271,6 +282,8 @@ VaEvent::RunInit(const TaRun& run)
       if (fgPosBurpNo == fgNCuts) cerr << " Pos_burp";
       if (fgPosBurpENo == fgNCuts) cerr << " Pos_burp_E";
       if (fgCBurpNo == fgNCuts) cerr << " C_burp";
+      if (fgAdcxDacBurpNo == fgNCuts) cerr << " Adcx_DAC_burp";
+      if (fgAdcxBadNo == fgNCuts) cerr << " Adcx_Bad";
       cerr << endl;
     }
 
@@ -413,6 +426,8 @@ VaEvent::Decode(TaDevice& devices)
 
   Double_t sum,xval,yval;
   memset(fData, 0, MAXKEYS*sizeof(Double_t));
+  adcxbad = 0;
+  adcxglitch = 0;
   if ( IsPhysicsEvent() )  {
     if (fgFirstDecode) {
         fgSizeConst = GetEvLength();
@@ -1238,6 +1253,8 @@ for (i = 0; i < DISTRIGSPLNUM; i++) {          //L-HRS spare channels
   if(fgCalib) 
     CalibDecode(devices);
 
+  if ( IsPhysicsEvent() ) CheckAdcxDacBurp();
+
 };
 
 void
@@ -1501,6 +1518,38 @@ VaEvent::CheckEvent(TaRun& run)
 	}
       AddCut (fgMonSatNo, thisval);
       run.UpdateCutList (fgMonSatNo, thisval, fEvNum);
+    }
+
+
+  if ( fgAdcxDacBurpNo < fgNCuts)
+    {
+      Int_t thisval = 0;
+      
+      if (adcxglitch != 0)
+	{
+#ifdef NOISY
+	  clog << "Event " << fEvNum << " failed ADCX burp cut" << endl;
+#endif
+	  thisval = 1;
+	}
+      AddCut (fgAdcxDacBurpNo, thisval);
+      run.UpdateCutList (fgAdcxDacBurpNo, thisval, fEvNum);
+    }
+
+
+  if ( fgAdcxBadNo < fgNCuts)
+    {
+      Int_t thisval = 0;
+      
+      if (adcxbad != 0)
+	{
+#ifdef NOISY
+	  clog << "Event " << fEvNum << " failed ADCX bad cut " << endl;
+#endif
+	  thisval = 1;
+	}
+      AddCut (fgAdcxBadNo, thisval);
+      run.UpdateCutList (fgAdcxBadNo, thisval, fEvNum);
     }
 
 
@@ -2321,6 +2370,9 @@ void VaEvent::Create(const VaEvent& rhs)
  memcpy(fPrevBuffer, rhs.fPrevBuffer, pevlen*sizeof(Int_t));
  fData = new Double_t[MAXKEYS];
  memcpy(fData, rhs.fData, MAXKEYS*sizeof(Double_t));
+ fPrevAdcxBase = new Double_t[16*ADCXNUM];
+ memset(fPrevAdcxBase, 0, 16*ADCXNUM*sizeof(Double_t));
+ memcpy(fPrevAdcxBase, rhs.fPrevAdcxBase, 16*ADCXNUM*sizeof(Double_t));
  // We don't need to copy these pointers because they get
  // filled and used only in decoding.
  fN1roc = new Int_t[MAXROC];
@@ -2341,6 +2393,7 @@ void VaEvent::Uncreate()
 
   delete [] fEvBuffer;
   delete [] fPrevBuffer;
+  delete [] fPrevAdcxBase;
   delete [] fData;
   delete [] fN1roc;
   delete [] fLenroc;
@@ -2358,6 +2411,8 @@ VaEvent::UnpackAdcx (Int_t rawd, Int_t key)
   // data.  If not (presumably meaning it's a device tied to an ADCX)
   // we do no checking.  If there's a problem it should be caught in
   // checking the ADC signal.
+
+  Int_t lprint=0;
 
   Int_t mask31x   = 0x80000000;   // Header bit mask
   Int_t mask3029x = 0x60000000;   // Channel number mask
@@ -2433,11 +2488,24 @@ VaEvent::UnpackAdcx (Int_t rawd, Int_t key)
 
   // Here are checks common to all (or almost all) data types
 
+  if (lprint) {
+   // RawDump();
+    cout << "Ev num "<<fEvNum<<endl;
+    cout << "ADCX  "<<key<<"   "<<(key-ADCXOFF)/4<<endl;
+    cout << "Raw Data:  0x"<<hex<<rawd<<"   dvalue = "<<dec<<act_dvalue<<endl;
+    cout << "Seen :     type "<<dec<<act_dtype<<"   chan "<<act_chan;
+    cout << endl << "sample  "<<act_snum<<endl;
+    cout << "Expected : type "<<dec<<exp_dtype<<"   chan "<<exp_chan;
+    cout << endl << "sample  "<<exp_snum<<endl;
+  }
+
+
   if (checking)
     {
       // If this is a header word we're doomed already
       if ((rawd & mask31x) != 0)
 	{
+          adcxbad |= 0x1;
 	  cout << "VaEvent::UnpackAdcx: ERROR -- Header found where data expected for ADCX"
 	       << adcx;
 	  if (exp_dtype != 4) cout << " channel " << exp_chan;
@@ -2450,6 +2518,7 @@ VaEvent::UnpackAdcx (Int_t rawd, Int_t key)
 	  // Check channel number
 	  if (act_chan != exp_chan)
 	    {
+              adcxbad |= 0x2;
 	      cout << "VaEvent::UnpackAdcx: ERROR -- Unexpected channel number " 
 		   << act_chan << " for ADCX"
 		   << adcx << " channel = " << exp_chan << endl;
@@ -2460,6 +2529,7 @@ VaEvent::UnpackAdcx (Int_t rawd, Int_t key)
       // Check the data type
       if (act_dtype != exp_dtype )
 	{
+          adcxbad |= 0x4;
 	  cout << " VaEvent::UnpackAdcx:  ERROR -- Unexpected data type, expected " 
 	       << exp_dtype << ", got " << act_dtype
 	       << " for ADCX" << adcx;
@@ -2480,6 +2550,7 @@ VaEvent::UnpackAdcx (Int_t rawd, Int_t key)
 	  // act_dvalue = log_2 (number of samples)
 	  if (fgDvalue != -1 && fgDvalue != act_dvalue)
 	    {
+              adcxbad |= 0x8;
 	      cout << "VaEvent::UnpackAdcx:  ERROR -- Number of ADCX samples changes during the run from " 
 		   << fgDvalue << " to " << act_dvalue 
 		   << "  for ADCX" << adcx << " channel " << exp_chan << endl; 
@@ -2501,6 +2572,7 @@ VaEvent::UnpackAdcx (Int_t rawd, Int_t key)
 	  // Check sample number (sample number is not the "number of samples") to see if it is as expected
 	  if (act_snum != exp_snum)
 	    {
+              adcxbad |= 0x10;
 	      cout <<  "VaEvent::UnpackAdcx:  ERROR -- unexpected sample value " 
 		   << act_snum		
 		   << " expected value " << exp_snum << " for ADCX" << adcx << " channel "
@@ -2509,6 +2581,7 @@ VaEvent::UnpackAdcx (Int_t rawd, Int_t key)
 	    }
 	  if (act_dvalue != 0)
 	    {
+              adcxbad |= 0x20;
 	      cout <<  "VaEvent::UnpackAdcx:  ERROR --  dvalue != 0 for data type 1 or 2 for ADCX"
 		   << adcx << " channel " << exp_chan << endl;
 	      //	      exit (0);
@@ -2522,6 +2595,7 @@ VaEvent::UnpackAdcx (Int_t rawd, Int_t key)
     {
       if (act_dvalue != 0)
 	{
+          adcxbad |= 0x40;
 	  cout <<  "VaEvent::UnpackAdcx:  ERROR --  dvalue != 0 for data type 4 for ADCX" << adcx
 	       << " channel " << exp_chan << endl;
 	  //	  exit (0);
@@ -2585,3 +2659,48 @@ VaEvent::UnpackVqwk (UInt_t rawd, Int_t key)
         
   return retval;
 }
+
+
+void
+VaEvent::CheckAdcxDacBurp () {
+// Purpose: To check if any ADCX base signal had a glitch due to the DAC.
+
+  static Int_t first_time = 1;
+  Int_t ldebug = 0;
+
+  if (ldebug) {
+    cout << "CheckAdcxDacBurp "<<fgAdcxDacBurpCut;
+    cout << "   evnum "<<GetEvNumber()<<endl;
+  }
+
+  if (fgAdcxDacBurpCut <= 0) return;  // do nothing b/c don't care.
+  
+  Int_t idx;
+  Double_t diff;
+
+  for (Int_t key = ADCXBSOFF; key < ADCXBSOFF + 16 * ADCXNUM; key++) {
+ 
+    idx = key-ADCXBSOFF;
+
+    if (!first_time) {
+       diff = fData[key] - fPrevAdcxBase[idx];
+       if (diff < 0) diff = -1.*diff;
+       if (diff > fgAdcxDacBurpCut) {
+	  adcxglitch = 1;
+       }
+       if (ldebug && (fData[key] != 0 || fPrevAdcxBase[idx] != 0) ) {
+	 cout << "glitch ? "<<idx << "   "<<fData[key]<<"  "<<fPrevAdcxBase[idx];
+         cout << "  "<<diff<<"  "<<fgAdcxDacBurpCut;
+         if (diff > fgAdcxDacBurpCut) cout << "   DAC GLITCH ! "<<endl;
+	 cout << endl;
+       }
+    }
+
+    fPrevAdcxBase[idx] = fData[key];
+
+  }
+
+  if (first_time) first_time = 0;
+
+}
+

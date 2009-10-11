@@ -351,6 +351,7 @@ void TaDataBase::Print() {
   clog << "   Det saturation cut :  " << GetCutValue("satcut") << endl;
   clog << "   Mon saturation cut :  " << GetCutValue("monsatcut") << endl;
   clog << "   Hall C Burp cut :  " << GetCutValue("cburpcut") << endl;
+  clog << "   ADCX DAC Burp cut : " << GetCutValue("adcxdacburpcut") << endl;
 
   vector<TaString> vposmon = GetStringVect("posmon");
   UInt_t npm = vposmon.size();
@@ -1953,17 +1954,18 @@ void TaDataBase::InitDB() {
   tables.push_back("blumiwts");      //  35
   tables.push_back("flumiwts");      //  36
   tables.push_back("satcut");        //  37
-  tables.push_back("posmon");        //  38
-  tables.push_back("posburp");       //  39
-  tables.push_back("posmone");       //  40
-  tables.push_back("posburpe");      //  41
-  tables.push_back("cburpcut");      //  42
-  tables.push_back("monsatcut");     //  43
-  tables.push_back("PITAparam");     //  44
-  tables.push_back("cav1const");     //  45
-  tables.push_back("cav2const");     //  46
-  tables.push_back("cav3const");     //  47
-  tables.push_back("lina1const");     //  48
+  tables.push_back("adcxdacburpcut");//  38
+  tables.push_back("posmon");        //  39
+  tables.push_back("posburp");       //  40
+  tables.push_back("posmone");       //  41
+  tables.push_back("posburpe");      //  42
+  tables.push_back("cburpcut");      //  43
+  tables.push_back("monsatcut");     //  44
+  tables.push_back("PITAparam");     //  45
+  tables.push_back("cav1const");     //  46
+  tables.push_back("cav2const");     //  47
+  tables.push_back("cav3const");     //  48
+  tables.push_back("lina1const");    //  49
 
   pair<string, int> sipair;
   int k;
@@ -2101,43 +2103,44 @@ void TaDataBase::InitDB() {
     if (i == 36)    // flumiwts
       for (k = 0; k < 2; k++) columns.push_back(new dtype("d"));
     if (i == 37) columns.push_back(new dtype("d"));  // satcut
-    if (i == 38) {   // position monitors for the posburp cut
+    if (i == 38) columns.push_back(new dtype("d"));  // adcxdacburpcut
+    if (i == 39) {   // position monitors for the posburp cut
       for (k = 0; k < 40; k++) columns.push_back(new dtype("s"));
     }
-    if (i == 39) {   // thresholds for the posburp cut
+    if (i == 40) {   // thresholds for the posburp cut
       for (k = 0; k < 40; k++) columns.push_back(new dtype("d"));
     }
-    if (i == 40) {   // position monitors for the posburpE cut
+    if (i == 41) {   // position monitors for the posburpE cut
       for (k = 0; k < 40; k++) columns.push_back(new dtype("s"));
     }
-    if (i == 41) {   // thresholds for the posburpE cut
+    if (i == 42) {   // thresholds for the posburpE cut
       for (k = 0; k < 40; k++) columns.push_back(new dtype("d"));
     }
-    if (i == 42) columns.push_back(new dtype("d")); // cburpcut
-    if (i == 43) columns.push_back(new dtype("d"));  // monsatcut
-    if (i == 44) {   // PITA slope 
+    if (i == 43) columns.push_back(new dtype("d")); // cburpcut
+    if (i == 44) columns.push_back(new dtype("d"));  // monsatcut
+    if (i == 45) {   // PITA slope 
        columns.push_back(new dtype("s"));
        columns.push_back(new dtype("d"));
     }
-    if (i == 45) {  // cav1const
+    if (i == 46) {  // cav1const
       columns.push_back(new dtype("s"));
       columns.push_back(new dtype("d"));
       columns.push_back(new dtype("s"));
       columns.push_back(new dtype("d"));
     }
-    if (i == 46) {  // cav2const
+    if (i == 47) {  // cav2const
       columns.push_back(new dtype("s"));
       columns.push_back(new dtype("d"));
       columns.push_back(new dtype("s"));
       columns.push_back(new dtype("d"));
     }
-    if (i == 47) {  // cav3const
+    if (i == 48) {  // cav3const
       columns.push_back(new dtype("s"));
       columns.push_back(new dtype("d"));
       columns.push_back(new dtype("s"));
       columns.push_back(new dtype("d"));
     }
-    if (i == 48) {  // lina1const
+    if (i == 49) {  // lina1const
       columns.push_back(new dtype("s"));
       columns.push_back(new dtype("d")); // number of pads (as a double)
       columns.push_back(new dtype("s"));

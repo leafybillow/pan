@@ -147,6 +147,8 @@ TaCutList::Init(const TaDataBase& db)
   fPosBurpNo = db.GetCutNumber (TaString ("Pos_burp"));
   fPosBurpENo= db.GetCutNumber (TaString ("Pos_burp_E"));
   fCBurpNo   = db.GetCutNumber (TaString ("C_burp"));
+  fAdcxDacBurpNo = db.GetCutNumber (TaString ("Adcx_DAC_burp"));
+  fAdcxBadNo = db.GetCutNumber (TaString ("Adcx_Bad"));
 
 }
 
@@ -187,6 +189,8 @@ TaCutList::OKC (const VaEvent& ev) const
 	  c->GetCut() != fMonSatNo &&
 	  c->GetCut() != fPosBurpNo &&
 	  c->GetCut() != fPosBurpENo &&
+	  c->GetCut() != fAdcxDacBurpNo &&
+	  c->GetCut() != fAdcxBadNo &&
 	  c->Inside(ev, fLowExtension[c->GetCut()], 
 		    fHighExtension[c->GetCut()]) && 
 	  c->GetVal() != 0)

@@ -129,6 +129,7 @@ private:
   Double_t UnpackAdcx (Int_t rawd, Int_t key); // Unpack and check ADCX data
   Double_t UnpackVqwk (UInt_t rawd, Int_t key); // Unpack VQWK data
   Int_t FindEventPhase(Int_t key, TaDevice &devices) const; // For synching PVDIS and HAPPEX data.
+  void CheckAdcxDacBurp();  // To check if any ADCX base had a burp in its DAC.
 
   // Constants
   static const UInt_t fgMaxEvLen = 4000;    // Maximum length for event buffer
@@ -153,6 +154,7 @@ private:
   static Double_t fgBurpCut;   // cut threshold from database
   static Double_t fgSatCut;    // cut threshold from database
   static Double_t fgMonSatCut; // cut threshold from database
+  static Double_t fgAdcxDacBurpCut;  // cut threshold from database
   static Double_t fgPosBurp[fgMaxNumPosMon]; 
                                // cut thresholds from database
   static Double_t fgPosBurpE[fgMaxNumPosMonE]; 
@@ -168,6 +170,8 @@ private:
   static Cut_t fgPosBurpNo;    // cut number for pos. burp cut
   static Cut_t fgPosBurpENo;    // cut number for energy burp cut
   static Cut_t fgCBurpNo;      // cut number for C-beam-burp cut
+  static Cut_t fgAdcxDacBurpNo;// cut number for 18-bit DAC burp cut
+  static Cut_t fgAdcxBadNo;    // cut number for 18-bit bad cut
   static UInt_t fgOversample;  // oversample factor
   static UInt_t fgCurMon;      // index to current monitor for cuts
   static UInt_t fgCurMonC;     // index to current monitor for cuts
@@ -189,11 +193,11 @@ private:
   static Double_t fQPD1Pars[6];    // QPD calibration parameters
   static Double_t fLINA1pars[10];    // LINA calibration parameters
   static Double_t fCavPars[CAVNUM][2];    // Cavity calibration parameters
-
-
+ 
   // Data members
   Int_t *fEvBuffer;            // Raw event data
   Int_t *fPrevBuffer;          // Previous event data
+  Double_t *fPrevAdcxBase;        // Previous base values, ADCX.
   UInt_t fEvType;              // Event type: 17 = prestart, 1-11 = physics
   EventNumber_t fEvNum;        // Event number from data stream
   Int_t fLastPhyEv;            // Last physics event number.
@@ -205,6 +209,8 @@ private:
   EHelicity fHel;              // True helicity filled from later event
   EHelicity fPrevROHel;        // Readout helicity for previous event
   EHelicity fPrevHel;          // True helicity for previous event
+  Int_t adcxbad;               // Flag for whether any ADCX is bad (1) or not (0)
+  Int_t adcxglitch;            // Flag for whether any ADCX has a DAC glitch (1) or not (0)
   static const Int_t fgCareSize = 0;  // if we care(1) or not(0) about
                                       // size of event changing.
   static const Int_t fPvdisPhaseShift=0; // To shift(1) or not(0) the phase
