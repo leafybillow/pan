@@ -130,6 +130,7 @@ private:
   Double_t UnpackVqwk (UInt_t rawd, Int_t key); // Unpack VQWK data
   Int_t FindEventPhase(Int_t key, TaDevice &devices) const; // For synching PVDIS and HAPPEX data.
   void CheckAdcxDacBurp();  // To check if any ADCX base had a burp in its DAC.
+  void CheckAdcxBad();      // To check for ADCX bad flags
 
   // Constants
   static const UInt_t fgMaxEvLen = 4000;    // Maximum length for event buffer
@@ -211,6 +212,7 @@ private:
   EHelicity fPrevHel;          // True helicity for previous event
   Int_t adcxbad;               // Flag for whether any ADCX is bad (1) or not (0)
   Int_t adcxglitch;            // Flag for whether any ADCX has a DAC glitch (1) or not (0)
+  Int_t adcxcrlist;
   static const Int_t fgCareSize = 0;  // if we care(1) or not(0) about
                                       // size of event changing.
   static const Int_t fPvdisPhaseShift=0; // To shift(1) or not(0) the phase

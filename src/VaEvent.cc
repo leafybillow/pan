@@ -428,6 +428,7 @@ VaEvent::Decode(TaDevice& devices)
   memset(fData, 0, MAXKEYS*sizeof(Double_t));
   adcxbad = 0;
   adcxglitch = 0;
+  adcxcrlist = 0;
   if ( IsPhysicsEvent() )  {
     if (fgFirstDecode) {
         fgSizeConst = GetEvLength();
@@ -469,6 +470,7 @@ VaEvent::Decode(TaDevice& devices)
       if (devices.IsAdcx (key)) {
         if (DECODE_DEBUG) cout << endl << "==============="<<endl<< "adcx key = "<<key<<"    data = 0x"<<rawd<<dec<<endl;
 	fData[key] = UnpackAdcx (rawd, key);
+        adcxcrlist |= (1 << icra);
       } else if (devices.IsVqwk (key)) {
         if (DECODE_DEBUG) cout << endl << "==============="<<endl<< "Vqwk key = "<<key<<"    data = 0x"<<hex << rawd<<dec<< endl;	
 	fData[key] = UnpackVqwk ((UInt_t) rawd, key);
@@ -1253,7 +1255,10 @@ for (i = 0; i < DISTRIGSPLNUM; i++) {          //L-HRS spare channels
   if(fgCalib) 
     CalibDecode(devices);
 
-  if ( IsPhysicsEvent() ) CheckAdcxDacBurp();
+  if ( IsPhysicsEvent() ) {
+     CheckAdcxDacBurp();
+     CheckAdcxBad();
+  }
 
 };
 
@@ -2499,7 +2504,6 @@ VaEvent::UnpackAdcx (Int_t rawd, Int_t key)
     cout << endl << "sample  "<<exp_snum<<endl;
   }
 
-
   if (checking)
     {
       // If this is a header word we're doomed already
@@ -2669,7 +2673,7 @@ VaEvent::CheckAdcxDacBurp () {
   Int_t ldebug = 0;
 
   if (ldebug) {
-    cout << "CheckAdcxDacBurp "<<fgAdcxDacBurpCut;
+    cout << "CheckAdcxDacBurp "<<dec<<fgAdcxDacBurpCut;
     cout << "   evnum "<<GetEvNumber()<<endl;
   }
 
@@ -2704,3 +2708,57 @@ VaEvent::CheckAdcxDacBurp () {
 
 }
 
+void 
+VaEvent::CheckAdcxBad() {
+// To look explicitly for the "bad" flags for 18-bit ADC.
+// This does overlap mostly with the other sources 
+// of adcxbad in UnpackAdcx.
+
+  static int ldebug=0;
+
+  if (ldebug) {
+    cout << "CheckAdcxBad ";
+    cout << "   evnum "<<GetEvNumber()<<endl;
+    cout << "crateslist 0x"<<hex<<adcxcrlist<<dec<<endl;
+  }
+
+  if (adcxcrlist == 0) return;   // no crates with ADCX
+
+  Int_t nroc=31;
+  if (nroc > MAXROC) nroc = MAXROC;
+
+  Int_t bad0, bad1;
+
+  bad0 = 0;  bad1 = 0;
+
+  for (Int_t iroc = 1; iroc<nroc; iroc++) {
+
+    int btst = (1 << iroc);
+    if ((adcxcrlist & btst)>>iroc) {  // crate with ADCX in it
+
+      for (Int_t j = fN1roc[iroc]; j < fN1roc[iroc]+fLenroc[iroc]; j++) {
+        UInt_t rawd1 = GetRawData(j);
+        UInt_t rawd2 = GetRawData(j+8);
+        UInt_t rawd3 = GetRawData(j+24);
+
+        if ( ((rawd1 & 0xfb0b4000) == 0xfb0b4000) &&
+             ((rawd2 & 0xfa180bad) == 0xfa180bad) ) bad0 = 1;
+        if ( ((rawd1 & 0xfb0b4000) == 0xfb0b4000) &&
+             ((rawd3 & 0xfa18bad1) == 0xfa18bad1) ) bad1 = 1;
+
+        if (ldebug) {
+             cout << "chk ADCX bad "<<dec<<iroc<<"  rawd ";
+             cout << hex << rawd1 << "  "<<rawd2<<"  "<<rawd3<<dec<<endl;
+	}
+
+        if (bad0 || bad1) {
+          adcxbad |= 0x80;
+          if (ldebug) cout << "Found bad flag !! "<<endl;
+          if (!ldebug) return;   // for efficiency, return immediately
+	}
+
+      }
+    }
+  }
+
+}
