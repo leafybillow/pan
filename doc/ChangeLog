@@ -6,6 +6,14 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Michaels on 12 Oct 2009
+--------------------------------------
+
+Added the routine VaEvent::CheckAdcxBad to check
+explicitly for the bad flags.  It's another way
+that adcxbad can become nonzero.
+
+
 Changes by R. Michaels on 11 Oct 2009
 --------------------------------------
 
