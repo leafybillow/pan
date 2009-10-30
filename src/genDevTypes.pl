@@ -61,46 +61,43 @@ IBPM0L06  IBPM0L07 IBPM0L08 IBPM0L09 IBPM0L10  IBPM0R03  IBPM0R04 IBPM0R05 IBPM0
 # DIS pileup on left HRS
 @dis_pileup_left = qw / IDISLPLN1 IDISLPLW1 IDISLPLN2 IDISLPLW2 IDISLPLN3 IDISLPLW3 IDISLPLN4 IDISLPLW4 IDISLPLN5 IDISLPLW5 IDISLPLN6 IDISLPLW6 /;
 # DIS mixed1 stuff on Right HRS
-@dis_mixed1_right = qw / IDISRENAR IDISREWID IDISRPNAR IDISRPWID IDISRT1 IDISRBCM IDISRCLK1 IDISRCLK2 /;
+@dis_mixed1_right = qw / IDISRENAR IDISREWID IDISRPNAR IDISRPWID IDISRT1 IDISRTAG /;
 # DIS mixed2 stuff on Right HRS
 @dis_mixed2_right = qw / IDISRSGTAG IDISRSNGTAG IDISRGCTAG IDISRSCTAG IDISRT1ONLY IDISRSP1 IDISRSP2 IDISRSP3 /;
 # DIS mixed1 stuff on Left HRS
-@dis_mixed1_left = qw / IDISLGCTAG IDISLT1TAG IDISLSGTAG IDISLSNGTAG IDISLENAR IDISLEWID IDISLPNAR IDISLPWID  /;
+@dis_mixed1_left = qw / IDISLGCTAG IDISLT1TAG IDISLSGTAG IDISLSNGTAG IDISLENAR IDISLEWID IDISLPNAR IDISLPWID IDISLDELTAG IDISLT2/;
 # DIS mixed2 stuff on Left HRS
-@dis_mixed2_left = qw / IDISLGC IDISLT1 IDISLSP1 IDISLSP2 IDISLSP3 IDISLSP4 IDISLCLK1 IDISLCLK2  /;
+@dis_mixed2_left = qw / IDISLGC IDISLT1 IDISLMPS IDISLCLK IDISLCLK1 IDISLTAG  /;
 # DIS spare channels on Right HRS
-@dis_spare_right = qw / IDISRSP5 IDISRSP6 IDISRSP7 IDISRSP8 IDISRSP9 IDISRSP10 IDISRSP11 IDISRSP12  /;
+@dis_spare_right = qw / IDISRSYNCG1 IDISRSYNCG2 IDISRSYNCG3 IDISRSYNCUG1 IDISRSYNCUG2 IDISRSYNCUG3 IDISRLNE IDISRMPS IDISRT2 IDISRCLK  /;
 # DIS spare channels on left HRS
-@dis_spare_left = qw / IDISLSP6 IDISLSP7 IDISLSP8 IDISLSP9 IDISLSP10 IDISLSP11 IDISLSP12 IDISLSP13  /;
+@dis_spare_left = qw / IDISLSYNCG1 IDISLSYNCG2 IDISLSYNCG3 IDISLSYNCUG1 IDISLSYNCUG2 IDISLSYNCUG3 IDISLSP10 IDISLSP11 IDISLSP12 IDISLSP13  /;
 # DIS BCM ON RIGHT HRS
-@dis_bcm_right = qw / IDISRBCMU1 IDISRBCMU3 IDISRBCMU10 IDISRBCMD1 IDISRBCMD3 IDISRBCMD10 IDISRUNSER IDISRSP4 /;
+@dis_bcm_right = qw / IDISRBCMU1 IDISRBCMU3 IDISRBCMU10 IDISRBCMD1 IDISRBCMD3 IDISRBCMD10 IDISRUNSER IDISRPLN4C /;
 # DIS BCM ON LEFT HRS
-@dis_bcm_left = qw / IDISLBCMU1 IDISLBCMU3 IDISLBCMU10 IDISLBCMD1 IDISLBCMD3 IDISLBCMD10 IDISLUNSER IDISLSP5 /;
+@dis_bcm_left = qw / IDISLBCMU1 IDISLBCMU3 IDISLBCMU10 IDISLBCMD1 IDISLBCMD3 IDISLBCMD10 IDISLUNSER /;
 # DIS total shower copy on Left HRS
 @dis_totshC_left = qw / IDISLTS1C IDISLTS2C IDISLTS3C IDISLTS4C IDISLTS5C IDISLTS6C /;
-# DIS total shower copy on Right HRS
-@dis_totshC_right = qw / IDISRTS1C IDISRTS2C IDISRTS3C IDISRTS4C IDISRTS5C IDISRTS6C IDISRTS7C IDISRTS8C /;
+# DIS electron narrow copy on Right HRS
+@dis_electnarC_right = qw / IDISREN1C IDISREN2C IDISREN3C IDISREN4C IDISREN5C IDISREN6C IDISREN7C IDISREN8C /;
 # DIS preshower copy on Left HRS
 @dis_preshC_left = qw / IDISLPS1C IDISLPS2C IDISLPS3C IDISLPS4C IDISLPS5C IDISLPS6C /;
 # DIS preshower copy on Right HRS
-@dis_preshC_right = qw / IDISRPS1C IDISRPS2C IDISRPS3C IDISRPS4C IDISRPS5C IDISRPS6C IDISRPS7C IDISRPS8C /;
+@dis_electwidC_right = qw / IDISREW1C IDISREW2C IDISREW3C IDISREW4C IDISREW5C IDISREW6C IDISREW7C IDISREW8C /;
 # DIS electron narrow copy on Left HRS
 @dis_electnarC_left = qw / IDISLEN1C IDISLEN2C IDISLEN3C IDISLEN4C IDISLEN5C IDISLEN6C /;
 # DIS electron wide copy on Left HRS
 @dis_electwidC_left = qw / IDISLEW1C IDISLEW2C IDISLEW3C IDISLEW4C IDISLEW5C IDISLEW6C /;
-
-# DIS pion wide copy on Left HRS
-@dis_pionwidC_left = qw / IDISLPW1C IDISLPW2C IDISLPW3C IDISLPW4C IDISLPW5C IDISLPW6C /;
-# DIS pion narrow copy on Left HRS
-@dis_pionnarC_left = qw / IDISLPN1C IDISLPN2C IDISLPN3C IDISLPN4C IDISLPN5C IDISLPN6C /;
 # DIS pileup1 copy on Right HRS
 @dis_pileup1C_right = qw / IDISRPLN5C IDISRPLW5C IDISRPLN6C IDISRPLW6C IDISRPLN7C IDISRPLW7C IDISRPLN8C IDISRPLW8C /;
+# DIS pileup COPY on left HRS
+@dis_pileupC_left = qw / IDISLPLN1C IDISLPLW1C IDISLPLN2C IDISLPLW2C IDISLPLN3C IDISLPLW3C IDISLPLN4C IDISLPLW4C IDISLPLN5C IDISLPLW5C IDISLPLN6C IDISLPLW6C /;
 # DIS mixed1 stuff copy on Right HRS
-@dis_mixed1C_right = qw / IDISRENARC IDISREWIDC IDISRPNARC IDISRPWIDC IDISRT1C IDISRBCMC IDISRCLK1C IDISRCLK2C /;
+@dis_mixed1C_right = qw / IDISRENARC IDISREWIDC IDISRPNARC IDISRPWIDC IDISRT1C IDISRSYNCG2C IDISRTAGC IDISRSYNCUG2C /;
 # DIS mixed1 stuff copy on Left HRS
 @dis_mixed1C_left = qw / IDISLGCTAGC IDISLT1TAGC IDISLSGTAGC IDISLSNGTAGC IDISLENARC IDISLEWIDC IDISLPNARC IDISLPWIDC  /;
 # DIS mixed2 stuff copy on Left HRS
-@dis_mixed2C_left = qw / IDISLGCC IDISLT1C IDISLSP1C IDISLSP2C  /;
+@dis_mixed2C_left = qw / IDISLSYNCG2C IDISLSYNCG1C IDISLSYNCUG1C IDISLCLKC IDISLCLK1C IDISLTAGC  /;
 
 # UMass profile scanner
 @prof_list =    qw / IRPROF IRPROFX IRPROFY IRPROFV1 IRPROFV2 IRPROFV3 ILPROF ILPROFX ILPROFY ILPROFV1 ILPROFV2 ILPROFV3 /;
@@ -821,19 +818,19 @@ ENDDISTRIG1COM
 $out1
 ENDDISTRIG1COM
 
-  $distrigtscoff = $p;
-    $disnum = scalar (@dis_totshC_right);
+  $distrigencoff = $p;
+    $disnum = scalar (@dis_electnarC_right);
     $out1 = "";
-    foreach $distrig (@dis_totshC_right)
+    foreach $distrig (@dis_electnarC_right)
     {
 	$out1 .= &add_distrig ($distrig);
     }
     $out .= << "ENDDISTRIG1COM";
-// DIS TOTAL SHOWER COPY R-HRS
+// DIS ELECTRON NARROW COPY R-HRS
 
-\#define   DISTRIGTSCROFF     $distrigtscoff
-\// Number of TSC on R-HRS
-\#define   DISTRIGTSCRNUM     $disnum
+\#define   DISTRIGENCROFF     $distrigencoff
+\// Number of ENC on R-HRS
+\#define   DISTRIGENCRNUM     $disnum
 
 // R = raw data; "" = calibrated data
 
@@ -860,19 +857,19 @@ ENDDISTRIG1COM
 $out1
 ENDDISTRIG1COM
 
-  $distrigpscoff = $p;
-    $disnum = scalar (@dis_preshC_right);
+  $distrigewcoff = $p;
+    $disnum = scalar (@dis_electwidC_right);
     $out1 = "";
-    foreach $distrig (@dis_preshC_right)
+    foreach $distrig (@dis_electwidC_right)
     {
 	$out1 .= &add_distrig ($distrig);
     }
     $out .= << "ENDDISTRIG1COM";
-// DIS PRESHOWER COPY R-HRS
+// DIS ELECTWID COPY R-HRS
 
-\#define   DISTRIGPSCROFF     $distrigpscoff
-\// Number of PSC on R-HRS
-\#define   DISTRIGPSCRNUM     $disnum
+\#define   DISTRIGEWCROFF     $distrigewcoff
+\// Number of EWC on R-HRS
+\#define   DISTRIGEWCRNUM     $disnum
 
 // R = raw data; "" = calibrated data
 
@@ -918,44 +915,6 @@ ENDDISTRIG1COM
 $out1
 ENDDISTRIG1COM
 
-  $distrigpwcoff = $p;
-    $disnum = scalar (@dis_pionwidC_left);
-    $out1 = "";
-    foreach $distrig (@dis_pionwidC_left)
-    {
-	$out1 .= &add_distrig ($distrig);
-    }
-    $out .= << "ENDDISTRIG1COM";
-// DIS PION WIDE COPY L-HRS
-
-\#define   DISTRIGPWCLOFF     $distrigpwcoff
-\// Number of PWC on L-HRS
-\#define   DISTRIGPWCLNUM     $disnum
-
-// R = raw data; "" = calibrated data
-
-$out1
-ENDDISTRIG1COM
-
- $distrigpncoff = $p;
-    $disnum = scalar (@dis_pionnarC_left);
-    $out1 = "";
-    foreach $distrig (@dis_pionnarC_left)
-    {
-	$out1 .= &add_distrig ($distrig);
-    }
-    $out .= << "ENDDISTRIG1COM";
-// DIS PION NARROW COPY L-HRS
-
-\#define   DISTRIGPNCLOFF     $distrigpncoff
-\// Number of PNC on L-HRS
-\#define   DISTRIGPNCLNUM     $disnum
-
-// R = raw data; "" = calibrated data
-
-$out1
-ENDDISTRIG1COM
-
   $distrigplcroff = $p;
     $disnum = scalar (@dis_pileup1C_right);
     $out1 = "";
@@ -975,6 +934,24 @@ ENDDISTRIG1COM
 $out1
 ENDDISTRIG1COM
 
+ $distrigplcloff = $p;
+    $disnum = scalar (@dis_pileupC_left);
+    $out1 = "";
+    foreach $distrig (@dis_pileupC_left)
+    {
+	$out1 .= &add_distrig ($distrig);
+    }
+    $out .= << "ENDDISTRIG1COM";
+// DIS pileup  COPY L-HRS
+
+\#define   DISTRIGPLCLOFF     $distrigplcloff
+\// Number of plC on L-HRS
+\#define   DISTRIGPLCLNUM     $disnum
+
+// R = raw data; "" = calibrated data
+
+$out1
+ENDDISTRIG1COM
 
  $distrigmxd1croff = $p;
     $disnum = scalar (@dis_mixed1C_right);

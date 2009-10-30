@@ -1427,23 +1427,23 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"dislpnar",IDISLPNAR));
   fKeyToIdx.insert(make_pair((string)"dislpwidr",IDISLPWIDR));
   fKeyToIdx.insert(make_pair((string)"dislpwid",IDISLPWID));
+  fKeyToIdx.insert(make_pair((string)"disldeltagr",IDISLDELTAGR));
+  fKeyToIdx.insert(make_pair((string)"disldeltag",IDISLDELTAG));
+  fKeyToIdx.insert(make_pair((string)"dislt2r",IDISLT2R));
+  fKeyToIdx.insert(make_pair((string)"dislt2",IDISLT2));
   //MIXED2 STUFF L-HRS
   fKeyToIdx.insert(make_pair((string)"dislgcr",IDISLGCR));
   fKeyToIdx.insert(make_pair((string)"dislgc",IDISLGC));
   fKeyToIdx.insert(make_pair((string)"dislt1r",IDISLT1R));
   fKeyToIdx.insert(make_pair((string)"dislt1",IDISLT1));
-  fKeyToIdx.insert(make_pair((string)"dislsp1r",IDISLSP1R));
-  fKeyToIdx.insert(make_pair((string)"dislsp1",IDISLSP1));
-  fKeyToIdx.insert(make_pair((string)"dislsp2r",IDISLSP2R));
-  fKeyToIdx.insert(make_pair((string)"dislsp2",IDISLSP2));
-  fKeyToIdx.insert(make_pair((string)"dislsp3r",IDISLSP3R));
-  fKeyToIdx.insert(make_pair((string)"dislsp3",IDISLSP3));
-  fKeyToIdx.insert(make_pair((string)"dislsp4r",IDISLSP4R));
-  fKeyToIdx.insert(make_pair((string)"dislsp4",IDISLSP4));
+  fKeyToIdx.insert(make_pair((string)"dislmpsr",IDISLMPSR));
+  fKeyToIdx.insert(make_pair((string)"dislmps",IDISLMPS));
+  fKeyToIdx.insert(make_pair((string)"dislclkr",IDISLCLKR));
+  fKeyToIdx.insert(make_pair((string)"dislclk",IDISLCLK));
   fKeyToIdx.insert(make_pair((string)"dislclk1r",IDISLCLK1R));
   fKeyToIdx.insert(make_pair((string)"dislclk1",IDISLCLK1));
-  fKeyToIdx.insert(make_pair((string)"dislclk2r",IDISLCLK2R));
-  fKeyToIdx.insert(make_pair((string)"dislclk2",IDISLCLK2));
+  fKeyToIdx.insert(make_pair((string)"disltagr",IDISLTAGR));
+  fKeyToIdx.insert(make_pair((string)"disltag",IDISLTAG));
   //MIXED1 STUFF R-HRS
   fKeyToIdx.insert(make_pair((string)"disrenarr",IDISRENARR));
   fKeyToIdx.insert(make_pair((string)"disrenar",IDISRENAR));
@@ -1455,12 +1455,8 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"disrpwid",IDISRPWID));
   fKeyToIdx.insert(make_pair((string)"disrt1r",IDISRT1R));
   fKeyToIdx.insert(make_pair((string)"disrt1",IDISRT1));
-  fKeyToIdx.insert(make_pair((string)"disrbcmr",IDISRBCMR));
-  fKeyToIdx.insert(make_pair((string)"disrbcm",IDISRBCM));
-  fKeyToIdx.insert(make_pair((string)"disrclk1r",IDISRCLK1R));
-  fKeyToIdx.insert(make_pair((string)"disrclk1",IDISRCLK1));
-  fKeyToIdx.insert(make_pair((string)"disrclk2r",IDISRCLK2R));
-  fKeyToIdx.insert(make_pair((string)"disrclk2",IDISRCLK2));
+  fKeyToIdx.insert(make_pair((string)"disrtagr",IDISRTAGR));
+  fKeyToIdx.insert(make_pair((string)"disrtag",IDISRTAG)); 
  //MIXED2 STUFF R-HRS
   fKeyToIdx.insert(make_pair((string)"disrsgtagr",IDISRSGTAGR));
   fKeyToIdx.insert(make_pair((string)"disrsgtag",IDISRSGTAG));
@@ -1521,14 +1517,18 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"dislplw6r",IDISLPLW6R));
   fKeyToIdx.insert(make_pair((string)"dislplw6",IDISLPLW6));
   //spare channels L-HRS 
-  fKeyToIdx.insert(make_pair((string)"dislsp6r",IDISLSP6R));
-  fKeyToIdx.insert(make_pair((string)"dislsp6",IDISLSP6));
-  fKeyToIdx.insert(make_pair((string)"dislsp7r",IDISLSP7R));
-  fKeyToIdx.insert(make_pair((string)"dislsp7",IDISLSP7));
-  fKeyToIdx.insert(make_pair((string)"dislsp8r",IDISLSP8R));
-  fKeyToIdx.insert(make_pair((string)"dislsp8",IDISLSP8));
-  fKeyToIdx.insert(make_pair((string)"dislsp9r",IDISLSP9R));
-  fKeyToIdx.insert(make_pair((string)"dislsp9",IDISLSP9));
+  fKeyToIdx.insert(make_pair((string)"dislsyncg1r",IDISLSYNCG1R));
+  fKeyToIdx.insert(make_pair((string)"dislsyncg1",IDISLSYNCG1));
+  fKeyToIdx.insert(make_pair((string)"dislsyncg2r",IDISLSYNCG2R));
+  fKeyToIdx.insert(make_pair((string)"dislsyncg2",IDISLSYNCG2));
+  fKeyToIdx.insert(make_pair((string)"dislsyncg3r",IDISLSYNCG3R));
+  fKeyToIdx.insert(make_pair((string)"dislsyncg3",IDISLSYNCG3));
+  fKeyToIdx.insert(make_pair((string)"dislsyncug1r",IDISLSYNCUG1R));
+  fKeyToIdx.insert(make_pair((string)"dislsyncug1",IDISLSYNCUG1));
+  fKeyToIdx.insert(make_pair((string)"dislsyncug2r",IDISLSYNCUG2R));
+  fKeyToIdx.insert(make_pair((string)"dislsyncug2",IDISLSYNCUG2));
+  fKeyToIdx.insert(make_pair((string)"dislsyncug3r",IDISLSYNCUG3R));
+  fKeyToIdx.insert(make_pair((string)"dislsyncug3",IDISLSYNCUG3));
   fKeyToIdx.insert(make_pair((string)"dislsp10r",IDISLSP10R));
   fKeyToIdx.insert(make_pair((string)"dislsp10",IDISLSP10));
   fKeyToIdx.insert(make_pair((string)"dislsp11r",IDISLSP11R));
@@ -1538,22 +1538,26 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"dislsp13r",IDISLSP13R));
   fKeyToIdx.insert(make_pair((string)"dislsp13",IDISLSP13));
   //spare channels R-HRS
-  fKeyToIdx.insert(make_pair((string)"disrsp5r",IDISRSP5R));
-  fKeyToIdx.insert(make_pair((string)"disrsp5",IDISRSP5));
-  fKeyToIdx.insert(make_pair((string)"disrsp6r",IDISRSP6R));
-  fKeyToIdx.insert(make_pair((string)"disrsp6",IDISRSP6));
-  fKeyToIdx.insert(make_pair((string)"disrsp7r",IDISRSP7R));
-  fKeyToIdx.insert(make_pair((string)"disrsp7",IDISRSP7));
-  fKeyToIdx.insert(make_pair((string)"disrsp8r",IDISRSP8R));
-  fKeyToIdx.insert(make_pair((string)"disrsp8",IDISRSP8));
-  fKeyToIdx.insert(make_pair((string)"disrsp9r",IDISRSP9R));
-  fKeyToIdx.insert(make_pair((string)"disrsp9",IDISRSP9));
-  fKeyToIdx.insert(make_pair((string)"disrsp10r",IDISRSP10R));
-  fKeyToIdx.insert(make_pair((string)"disrsp10",IDISRSP10));
-  fKeyToIdx.insert(make_pair((string)"disrsp11r",IDISRSP11R));
-  fKeyToIdx.insert(make_pair((string)"disrsp11",IDISRSP11));
-  fKeyToIdx.insert(make_pair((string)"disrsp12r",IDISRSP12R));
-  fKeyToIdx.insert(make_pair((string)"disrsp12",IDISRSP12));
+  fKeyToIdx.insert(make_pair((string)"disrsyncg1r",IDISRSYNCG1R));
+  fKeyToIdx.insert(make_pair((string)"disrsyncg1",IDISRSYNCG1));
+  fKeyToIdx.insert(make_pair((string)"disrsyncg2r",IDISRSYNCG2R));
+  fKeyToIdx.insert(make_pair((string)"disrsyncg2",IDISRSYNCG2));
+  fKeyToIdx.insert(make_pair((string)"disrsyncg3r",IDISRSYNCG3R));
+  fKeyToIdx.insert(make_pair((string)"disrsyncg3",IDISRSYNCG3));
+  fKeyToIdx.insert(make_pair((string)"disrsyncug1r",IDISRSYNCUG1R));
+  fKeyToIdx.insert(make_pair((string)"disrsyncug1",IDISRSYNCUG1));
+  fKeyToIdx.insert(make_pair((string)"disrsyncug2r",IDISRSYNCUG2R));
+  fKeyToIdx.insert(make_pair((string)"disrsyncug2",IDISRSYNCUG2));
+  fKeyToIdx.insert(make_pair((string)"disrsyncug3r",IDISRSYNCUG3R));
+  fKeyToIdx.insert(make_pair((string)"disrsyncug3",IDISRSYNCUG3));
+  fKeyToIdx.insert(make_pair((string)"disrlner",IDISRLNER));
+  fKeyToIdx.insert(make_pair((string)"disrlne",IDISRLNE));
+  fKeyToIdx.insert(make_pair((string)"disrmpsr",IDISRMPSR));
+  fKeyToIdx.insert(make_pair((string)"disrmps",IDISRMPS));
+  fKeyToIdx.insert(make_pair((string)"disrt2r",IDISRT2R));
+  fKeyToIdx.insert(make_pair((string)"disrt2",IDISRT2));
+  fKeyToIdx.insert(make_pair((string)"disrclkr",IDISRCLKR));
+  fKeyToIdx.insert(make_pair((string)"disrclk",IDISRCLK));
   //bcm L-HRS
   fKeyToIdx.insert(make_pair((string)"dislbcmu1r",IDISLBCMU1R));
   fKeyToIdx.insert(make_pair((string)"dislbcmu1",IDISLBCMU1));
@@ -1569,8 +1573,6 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"dislbcmd10",IDISLBCMD10));
   fKeyToIdx.insert(make_pair((string)"dislunserr",IDISLUNSERR));
   fKeyToIdx.insert(make_pair((string)"dislunser",IDISLUNSER));
-  fKeyToIdx.insert(make_pair((string)"dislsp5r",IDISLSP5R));
-  fKeyToIdx.insert(make_pair((string)"dislsp5",IDISLSP5));
   //bcm R-HRS
   fKeyToIdx.insert(make_pair((string)"disrbcmu1r",IDISRBCMU1R));
   fKeyToIdx.insert(make_pair((string)"disrbcmu1",IDISRBCMU1));
@@ -1586,25 +1588,25 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"disrbcmd10",IDISRBCMD10));
   fKeyToIdx.insert(make_pair((string)"disrunserr",IDISRUNSERR));
   fKeyToIdx.insert(make_pair((string)"disrunser",IDISRUNSER));
-  fKeyToIdx.insert(make_pair((string)"disrsp4r",IDISRSP4R));
-  fKeyToIdx.insert(make_pair((string)"disrsp4",IDISRSP4));
-//total shower COPY R-HRS
-  fKeyToIdx.insert(make_pair((string)"disrts1cr",IDISRTS1CR));
-  fKeyToIdx.insert(make_pair((string)"disrts1c",IDISRTS1C));
-  fKeyToIdx.insert(make_pair((string)"disrts2cr",IDISRTS2CR));
-  fKeyToIdx.insert(make_pair((string)"disrts2c",IDISRTS2C));
-  fKeyToIdx.insert(make_pair((string)"disrts3cr",IDISRTS3CR));
-  fKeyToIdx.insert(make_pair((string)"disrts3c",IDISRTS3C));
-  fKeyToIdx.insert(make_pair((string)"disrts4cr",IDISRTS4CR));
-  fKeyToIdx.insert(make_pair((string)"disrts4c",IDISRTS4C));
-  fKeyToIdx.insert(make_pair((string)"disrts5cr",IDISRTS5CR));
-  fKeyToIdx.insert(make_pair((string)"disrts5c",IDISRTS5C));
-  fKeyToIdx.insert(make_pair((string)"disrts6cr",IDISRTS6CR));
-  fKeyToIdx.insert(make_pair((string)"disrts6c",IDISRTS6C));
-  fKeyToIdx.insert(make_pair((string)"disrts7cr",IDISRTS7CR));
-  fKeyToIdx.insert(make_pair((string)"disrts7c",IDISRTS7C));
-  fKeyToIdx.insert(make_pair((string)"disrts8cr",IDISRTS8CR));
-  fKeyToIdx.insert(make_pair((string)"disrts8c",IDISRTS8C));
+  fKeyToIdx.insert(make_pair((string)"disrpln4cr",IDISRPLN4CR));
+  fKeyToIdx.insert(make_pair((string)"disrpln4c",IDISRPLN4C));
+//total electnar COPY R-HRS
+  fKeyToIdx.insert(make_pair((string)"disren1cr",IDISREN1CR));
+  fKeyToIdx.insert(make_pair((string)"disren1c",IDISREN1C));
+  fKeyToIdx.insert(make_pair((string)"disren2cr",IDISREN2CR));
+  fKeyToIdx.insert(make_pair((string)"disren2c",IDISREN2C));
+  fKeyToIdx.insert(make_pair((string)"disren3cr",IDISREN3CR));
+  fKeyToIdx.insert(make_pair((string)"disren3c",IDISREN3C));
+  fKeyToIdx.insert(make_pair((string)"disren4cr",IDISREN4CR));
+  fKeyToIdx.insert(make_pair((string)"disren4c",IDISREN4C));
+  fKeyToIdx.insert(make_pair((string)"disren5cr",IDISREN5CR));
+  fKeyToIdx.insert(make_pair((string)"disren5c",IDISREN5C));
+  fKeyToIdx.insert(make_pair((string)"disren6cr",IDISREN6CR));
+  fKeyToIdx.insert(make_pair((string)"disren6c",IDISREN6C));
+  fKeyToIdx.insert(make_pair((string)"disren7cr",IDISREN7CR));
+  fKeyToIdx.insert(make_pair((string)"disren7c",IDISREN7C));
+  fKeyToIdx.insert(make_pair((string)"disren8cr",IDISREN8CR));
+  fKeyToIdx.insert(make_pair((string)"disren8c",IDISREN8C));
   //total shower COPY L-HRS
   fKeyToIdx.insert(make_pair((string)"dislts1cr",IDISLTS1CR));
   fKeyToIdx.insert(make_pair((string)"dislts1c",IDISLTS1C));
@@ -1618,25 +1620,25 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"dislts5c",IDISLTS5C));
   fKeyToIdx.insert(make_pair((string)"dislts6cr",IDISLTS6CR));
   fKeyToIdx.insert(make_pair((string)"dislts6c",IDISLTS6C));
-  //preshower COPY R-HRS
-  fKeyToIdx.insert(make_pair((string)"disrps1cr",IDISRPS1CR));
-  fKeyToIdx.insert(make_pair((string)"disrps1c",IDISRPS1C));
-  fKeyToIdx.insert(make_pair((string)"disrps2cr",IDISRPS2CR));
-  fKeyToIdx.insert(make_pair((string)"disrps2c",IDISRPS2C));
-  fKeyToIdx.insert(make_pair((string)"disrps3cr",IDISRPS3CR));
-  fKeyToIdx.insert(make_pair((string)"disrps3c",IDISRPS3C));
-  fKeyToIdx.insert(make_pair((string)"disrps4cr",IDISRPS4CR));
-  fKeyToIdx.insert(make_pair((string)"disrps4c",IDISRPS4C));
-  fKeyToIdx.insert(make_pair((string)"disrps5cr",IDISRPS5CR));
-  fKeyToIdx.insert(make_pair((string)"disrps5c",IDISRPS5C));
-  fKeyToIdx.insert(make_pair((string)"disrps6cr",IDISRPS6CR));
-  fKeyToIdx.insert(make_pair((string)"disrps6c",IDISRPS6C));
-  fKeyToIdx.insert(make_pair((string)"disrps7cr",IDISRPS7CR));
-  fKeyToIdx.insert(make_pair((string)"disrps7c",IDISRPS7C));
-  fKeyToIdx.insert(make_pair((string)"disrps8cr",IDISRPS8CR));
-  fKeyToIdx.insert(make_pair((string)"disrps8c",IDISRPS8C));
-  // preshower COPY L-HRS
-   fKeyToIdx.insert(make_pair((string)"dislps1cr",IDISLPS1CR));
+  //electwid COPY R-HRS
+  fKeyToIdx.insert(make_pair((string)"disrew1cr",IDISREW1CR));
+  fKeyToIdx.insert(make_pair((string)"disrew1c",IDISREW1C));
+  fKeyToIdx.insert(make_pair((string)"disrew2cr",IDISREW2CR));
+  fKeyToIdx.insert(make_pair((string)"disrew2c",IDISREW2C));
+  fKeyToIdx.insert(make_pair((string)"disrew3cr",IDISREW3CR));
+  fKeyToIdx.insert(make_pair((string)"disrew3c",IDISREW3C));
+  fKeyToIdx.insert(make_pair((string)"disrew4cr",IDISREW4CR));
+  fKeyToIdx.insert(make_pair((string)"disrew4c",IDISREW4C));
+  fKeyToIdx.insert(make_pair((string)"disrew5cr",IDISREW5CR));
+  fKeyToIdx.insert(make_pair((string)"disrew5c",IDISREW5C));
+  fKeyToIdx.insert(make_pair((string)"disrew6cr",IDISREW6CR));
+  fKeyToIdx.insert(make_pair((string)"disrew6c",IDISREW6C));
+  fKeyToIdx.insert(make_pair((string)"disrew7cr",IDISREW7CR));
+  fKeyToIdx.insert(make_pair((string)"disrew7c",IDISREW7C));
+  fKeyToIdx.insert(make_pair((string)"disrew8cr",IDISREW8CR));
+  fKeyToIdx.insert(make_pair((string)"disrew8c",IDISREW8C));
+  //preshower COPY L-HRS
+  fKeyToIdx.insert(make_pair((string)"dislps1cr",IDISLPS1CR));
   fKeyToIdx.insert(make_pair((string)"dislps1c",IDISLPS1C));
   fKeyToIdx.insert(make_pair((string)"dislps2cr",IDISLPS2CR));
   fKeyToIdx.insert(make_pair((string)"dislps2c",IDISLPS2C));
@@ -1674,32 +1676,6 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"dislew5c",IDISLEW5C));
   fKeyToIdx.insert(make_pair((string)"dislew6cr",IDISLEW6CR));
   fKeyToIdx.insert(make_pair((string)"dislew6c",IDISLEW6C));
-  //PION WIDE COPY L-HRS
- fKeyToIdx.insert(make_pair((string)"dislpw1cr",IDISLPW1CR));
-  fKeyToIdx.insert(make_pair((string)"dislpw1c",IDISLPW1C));
-  fKeyToIdx.insert(make_pair((string)"dislpw2cr",IDISLPW2CR));
-  fKeyToIdx.insert(make_pair((string)"dislpw2c",IDISLPW2C));
-  fKeyToIdx.insert(make_pair((string)"dislpw3cr",IDISLPW3CR));
-  fKeyToIdx.insert(make_pair((string)"dislpw3c",IDISLPW3C));
-  fKeyToIdx.insert(make_pair((string)"dislpw4cr",IDISLPW4CR));
-  fKeyToIdx.insert(make_pair((string)"dislpw4c",IDISLPW4C));
-  fKeyToIdx.insert(make_pair((string)"dislpw5cr",IDISLPW5CR));
-  fKeyToIdx.insert(make_pair((string)"dislpw5c",IDISLPW5C));
-  fKeyToIdx.insert(make_pair((string)"dislpw6cr",IDISLPW6CR));
-  fKeyToIdx.insert(make_pair((string)"dislpw6c",IDISLPW6C));
-  //PION NARROW COPY L-HRS
-  fKeyToIdx.insert(make_pair((string)"dislpn1cr",IDISLPN1CR));
-  fKeyToIdx.insert(make_pair((string)"dislpn1c",IDISLPN1C));
-  fKeyToIdx.insert(make_pair((string)"dislpn2cr",IDISLPN2CR));
-  fKeyToIdx.insert(make_pair((string)"dislpn2c",IDISLPN2C));
-  fKeyToIdx.insert(make_pair((string)"dislpn3cr",IDISLPN3CR));
-  fKeyToIdx.insert(make_pair((string)"dislpn3c",IDISLPN3C));
-  fKeyToIdx.insert(make_pair((string)"dislpn4cr",IDISLPN4CR));
-  fKeyToIdx.insert(make_pair((string)"dislpn4c",IDISLPN4C));
-  fKeyToIdx.insert(make_pair((string)"dislpn5cr",IDISLPN5CR));
-  fKeyToIdx.insert(make_pair((string)"dislpn5c",IDISLPN5C));
-  fKeyToIdx.insert(make_pair((string)"dislpn6cr",IDISLPN6CR));
-  fKeyToIdx.insert(make_pair((string)"dislpn6c",IDISLPN6C));
  //pileup1 COPY R-HRS
   fKeyToIdx.insert(make_pair((string)"disrpln5cr",IDISRPLN5CR));
   fKeyToIdx.insert(make_pair((string)"disrpln5c",IDISRPLN5C));
@@ -1717,6 +1693,31 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"disrpln8c",IDISRPLN8C));
   fKeyToIdx.insert(make_pair((string)"disrplw8cr",IDISRPLW8CR));
   fKeyToIdx.insert(make_pair((string)"disrplw8c",IDISRPLW8C));
+  //pileup L-HRS COPY
+  fKeyToIdx.insert(make_pair((string)"dislpln1cr",IDISLPLN1CR));
+  fKeyToIdx.insert(make_pair((string)"dislpln1c",IDISLPLN1C));
+  fKeyToIdx.insert(make_pair((string)"dislplw1cr",IDISLPLW1CR));
+  fKeyToIdx.insert(make_pair((string)"dislplw1c",IDISLPLW1C));
+  fKeyToIdx.insert(make_pair((string)"dislpln2cr",IDISLPLN2CR));
+  fKeyToIdx.insert(make_pair((string)"dislpln2c",IDISLPLN2C));
+  fKeyToIdx.insert(make_pair((string)"dislplw2cr",IDISLPLW2CR));
+  fKeyToIdx.insert(make_pair((string)"dislplw2c",IDISLPLW2C));
+  fKeyToIdx.insert(make_pair((string)"dislpln3cr",IDISLPLN3CR));
+  fKeyToIdx.insert(make_pair((string)"dislpln3c",IDISLPLN3C));
+  fKeyToIdx.insert(make_pair((string)"dislplw3cr",IDISLPLW3CR));
+  fKeyToIdx.insert(make_pair((string)"dislplw3c",IDISLPLW3C));
+  fKeyToIdx.insert(make_pair((string)"dislpln4cr",IDISLPLN4CR));
+  fKeyToIdx.insert(make_pair((string)"dislpln4c",IDISLPLN4C));
+  fKeyToIdx.insert(make_pair((string)"dislplw4cr",IDISLPLW4CR));
+  fKeyToIdx.insert(make_pair((string)"dislplw4c",IDISLPLW4C));
+  fKeyToIdx.insert(make_pair((string)"dislpln5cr",IDISLPLN5CR));
+  fKeyToIdx.insert(make_pair((string)"dislpln5c",IDISLPLN5C));
+  fKeyToIdx.insert(make_pair((string)"dislplw5cr",IDISLPLW5CR));
+  fKeyToIdx.insert(make_pair((string)"dislplw5c",IDISLPLW5C));
+  fKeyToIdx.insert(make_pair((string)"dislpln6cr",IDISLPLN6CR));
+  fKeyToIdx.insert(make_pair((string)"dislpln6c",IDISLPLN6C));
+  fKeyToIdx.insert(make_pair((string)"dislplw6cr",IDISLPLW6CR));
+  fKeyToIdx.insert(make_pair((string)"dislplw6c",IDISLPLW6C));
 //MIXED1 COPY STUFF L-HRS
   fKeyToIdx.insert(make_pair((string)"dislgctagcr",IDISLGCTAGCR));
   fKeyToIdx.insert(make_pair((string)"dislgctagc",IDISLGCTAGC));
@@ -1736,14 +1737,18 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"dislpwidc",IDISLPWIDC));
   
   //MIXED2 COPY STUFF L-HRS
-  fKeyToIdx.insert(make_pair((string)"dislgccr",IDISLGCCR));
-  fKeyToIdx.insert(make_pair((string)"dislgcc",IDISLGCC));
-  fKeyToIdx.insert(make_pair((string)"dislt1cr",IDISLT1CR));
-  fKeyToIdx.insert(make_pair((string)"dislt1c",IDISLT1C));
-  fKeyToIdx.insert(make_pair((string)"dislsp1cr",IDISLSP1CR));
-  fKeyToIdx.insert(make_pair((string)"dislsp1c",IDISLSP1C));
-  fKeyToIdx.insert(make_pair((string)"dislsp2cr",IDISLSP2CR));
-  fKeyToIdx.insert(make_pair((string)"dislsp2c",IDISLSP2C));
+  fKeyToIdx.insert(make_pair((string)"dislsyncg2cr",IDISLSYNCG2CR));
+  fKeyToIdx.insert(make_pair((string)"dislsyncg2c",IDISLSYNCG2C));
+  fKeyToIdx.insert(make_pair((string)"dislsyncg1cr",IDISLSYNCG1CR));
+  fKeyToIdx.insert(make_pair((string)"dislsyncg1c",IDISLSYNCG1C));
+  fKeyToIdx.insert(make_pair((string)"dislsyncug1cr",IDISLSYNCUG1CR));
+  fKeyToIdx.insert(make_pair((string)"dislsyncug1c",IDISLSYNCUG1C));
+  fKeyToIdx.insert(make_pair((string)"dislclkcr",IDISLCLKCR));
+  fKeyToIdx.insert(make_pair((string)"dislclkc",IDISLCLKC));
+  fKeyToIdx.insert(make_pair((string)"dislclk1cr",IDISLCLK1CR));
+  fKeyToIdx.insert(make_pair((string)"dislclk1c",IDISLCLK1C));
+  fKeyToIdx.insert(make_pair((string)"disltagcr",IDISLTAGCR));
+  fKeyToIdx.insert(make_pair((string)"disltagc",IDISLTAGC));
 
   //MIXED1 COPY STUFF R-HRS
   fKeyToIdx.insert(make_pair((string)"disrenarcr",IDISRENARCR));
@@ -1756,12 +1761,12 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"disrpwidc",IDISRPWIDC));
   fKeyToIdx.insert(make_pair((string)"disrt1cr",IDISRT1CR));
   fKeyToIdx.insert(make_pair((string)"disrt1c",IDISRT1C));
-  fKeyToIdx.insert(make_pair((string)"disrbcmcr",IDISRBCMCR));
-  fKeyToIdx.insert(make_pair((string)"disrbcmc",IDISRBCMC));
-  fKeyToIdx.insert(make_pair((string)"disrclk1cr",IDISRCLK1CR));
-  fKeyToIdx.insert(make_pair((string)"disrclk1c",IDISRCLK1C));
-  fKeyToIdx.insert(make_pair((string)"disrclk2cr",IDISRCLK2CR));
-  fKeyToIdx.insert(make_pair((string)"disrclk2c",IDISRCLK2C));
+  fKeyToIdx.insert(make_pair((string)"disrsyncg2cr",IDISRSYNCG2CR));
+  fKeyToIdx.insert(make_pair((string)"disrsyncg2c",IDISRSYNCG2C));
+  fKeyToIdx.insert(make_pair((string)"disrtagcr",IDISRTAGCR));
+  fKeyToIdx.insert(make_pair((string)"disrtagc",IDISRTAGC));
+  fKeyToIdx.insert(make_pair((string)"disrsyncug2cr",IDISRSYNCUG2CR));
+  fKeyToIdx.insert(make_pair((string)"disrsyncug2c",IDISRSYNCUG2C));
  
   
   
