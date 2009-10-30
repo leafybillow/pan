@@ -129,6 +129,7 @@ private:
   Double_t UnpackAdcx (Int_t rawd, Int_t key); // Unpack and check ADCX data
   Double_t UnpackVqwk (UInt_t rawd, Int_t key); // Unpack VQWK data
   Int_t FindEventPhase(Int_t key, TaDevice &devices) const; // For synching PVDIS and HAPPEX data.
+  Int_t CheckPvdisCrates(); //to check PVDIS crates.
   void CheckAdcxDacBurp();  // To check if any ADCX base had a burp in its DAC.
   void CheckAdcxBad();      // To check for ADCX bad flags
 
@@ -203,6 +204,7 @@ private:
   EventNumber_t fEvNum;        // Event number from data stream
   Int_t fLastPhyEv;            // Last physics event number.
   UInt_t fEvLen;               // Length of event data
+  Int_t numroc;                // Number of ROCs
   Int_t *fN1roc, *fLenroc, *fIrn; // Crate pointers
   Int_t* fCutArray;            // Array of cut values
   Bool_t fFailedACut;          // True iff a cut failed
@@ -215,8 +217,11 @@ private:
   Int_t adcxcrlist;
   static const Int_t fgCareSize = 0;  // if we care(1) or not(0) about
                                       // size of event changing.
+  // The following two flags set to zero for HAPPEX or PREX.
   static const Int_t fPvdisPhaseShift=0; // To shift(1) or not(0) the phase
                                  // for testing PVDIS event-phase problem
+  static const Int_t fPvdisCheckCrate=1; // To check if crate exists and if
+                                     // data are in synch (ERRSTAT)
 
 #ifndef NODICT
 ClassDef(VaEvent,0)  // An event

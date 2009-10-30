@@ -443,6 +443,8 @@ VaEvent::Decode(TaDevice& devices)
   }
 
   if (DecodeCrates(devices) == 1) {
+
+    if (fPvdisCheckCrate) CheckPvdisCrates();
     for (i = 0; i < devices.GetNumRaw(); i++) {
       key = devices.GetRawKey(i);
       icra = devices.GetCrate(key);     
@@ -1076,8 +1078,8 @@ for (i = 0; i < DISTRIGSPLNUM; i++) {          //L-HRS spare channels
     if (devices.IsUsed(key)) devices.SetUsed(key+1);
   }
 
-  for (i = 0; i < DISTRIGTSCRNUM; i++) {          //R-HRS TOTAL SHOWER COPY
-    key = DISTRIGTSCROFF + 2*i;
+ for (i = 0; i < DISTRIGENCRNUM; i++) {          //R-HRS ELECTRON NARROW COPY
+    key = DISTRIGENCROFF + 2*i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
     idx = devices.GetCalIndex(key);
     if (idx < 0) continue;
@@ -1094,8 +1096,8 @@ for (i = 0; i < DISTRIGSPLNUM; i++) {          //L-HRS spare channels
     if (devices.IsUsed(key)) devices.SetUsed(key+1);
   }
 
-  for (i = 0; i < DISTRIGPSCRNUM; i++) {          //R-HRS PRESHOWER COPY
-    key = DISTRIGPSCROFF + 2*i;
+  for (i = 0; i < DISTRIGEWCRNUM; i++) {          //R-HRS ELECTRON WIDE COPY
+    key = DISTRIGEWCROFF + 2*i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
     idx = devices.GetCalIndex(key);
     if (idx < 0) continue;
@@ -1130,17 +1132,10 @@ for (i = 0; i < DISTRIGSPLNUM; i++) {          //L-HRS spare channels
     if (devices.IsUsed(key)) devices.SetUsed(key+1);
   }
  
-  for (i = 0; i < DISTRIGPWCLNUM; i++) {            //L-HRS PION WIDE COPY
-    key = DISTRIGPWCLOFF + 2*i;
-    if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
-    idx = devices.GetCalIndex(key);
-    if (idx < 0) continue;
-    fData[key+1] = fData[idx];
-    if (devices.IsUsed(key)) devices.SetUsed(key+1);
-  }
+
   
-  for (i = 0; i < DISTRIGPNCLNUM; i++) {            //L-HRS PION NARROW COPY
-    key = DISTRIGPNCLOFF + 2*i;
+    for (i = 0; i < DISTRIGPL1CRNUM; i++) {          //R-HRS pileup 1 copy
+    key = DISTRIGPL1CROFF + 2*i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
     idx = devices.GetCalIndex(key);
     if (idx < 0) continue;
@@ -1148,8 +1143,8 @@ for (i = 0; i < DISTRIGSPLNUM; i++) {          //L-HRS spare channels
     if (devices.IsUsed(key)) devices.SetUsed(key+1);
   }
 
-    for (i = 0; i < DISTRIGPL1CRNUM; i++) {          //R-HRS pileup 1 copy
-    key = DISTRIGPL1CROFF + 2*i;
+   for (i = 0; i < DISTRIGPLCLNUM; i++) {          //L-HRS pileup copy
+    key = DISTRIGPLCLOFF + 2*i;
     if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
     idx = devices.GetCalIndex(key);
     if (idx < 0) continue;
@@ -1716,7 +1711,7 @@ Int_t VaEvent::DecodeCrates(TaDevice& devices) {
 // return code:
 //    0 = no decoding done (error, or wrong event type)
 //    1 = fine.
-  int iroc, lentot, n1, numroc, ipt, istart, istop;
+  int iroc, lentot, n1, ipt, istart, istop;
   uint fFragLength, fSubbankTag, fSubbankType, fSubbankNum;
 // Cannot decode non-physics triggers  
   if(fEvType < 0 || fEvType > 12) return 0; 
@@ -2760,5 +2755,117 @@ VaEvent::CheckAdcxBad() {
       }
     }
   }
+
+}
+
+Int_t
+VaEvent::CheckPvdisCrates()
+{
+  Int_t fL,fR,found;
+
+  static Int_t first_time=1;
+  static Int_t badL, badR;
+  Int_t crate_left = 29;
+  Int_t crate_right = 28;
+  Int_t badL_tolerance = 20;
+  Int_t badR_tolerance = 20;
+
+  fL=0;   fR=0;  found=0;
+
+  static int dodump  = 0;  // dump the raw fEvBuffer
+  static int debug   = 0;  // debug the decoding
+  static int verbose = 1;  // to warn verbosely
+
+  if (first_time) {
+    first_time = 0;
+    badL = 0;  badR = 0;
+  }
+
+  if (dodump) { // Event dump
+    cout << "\n Private check for PVDIS ---- "<<endl<<endl;
+    cout << "\n\n Event number " << dec << fEvNum;
+    cout << " length " << fEvLen << " type " << fEvType << endl;
+    int ipt = 0;
+    for (int j = 0; j < (Int_t)(fEvLen/5); j++) {
+      cout << dec << "\n evbuffer[" << ipt << "] = ";
+      for (int k=j; k<j+5; k++) {
+    	 cout << hex << fEvBuffer[ipt++] << " ";
+      }
+      cout << endl;
+    }
+    if (ipt < (Int_t)fEvLen) {
+        cout << dec << "\n evbuffer[" << ipt << "] = ";
+        for (int k=ipt; k<(Int_t)fEvLen; k++) {
+	   cout << hex << fEvBuffer[ipt++] << " ";
+        }
+        cout << endl;
+    }
+  }
+
+  if (fEvType == 1) {
+
+    for (Int_t iroc = 0; iroc < numroc; iroc++) {
+      if(debug) {
+        cout << "Roc ptr " <<dec<<iroc;
+        cout << "  "<<fIrn[iroc]<<"  "<<fN1roc[fIrn[iroc]];
+        cout << "  "<<fLenroc[fIrn[iroc]]<<endl;
+      }
+      if (fIrn[iroc] == crate_left) fL=1;
+      if (fIrn[iroc] == crate_right) fR=1;
+    }
+
+    found = 0;
+    if ( (fL==1) && (fR==1) ) found=1;
+
+    if (found == 1) {
+      if (debug) cout << "\nFOUND the PVDIS crates !\n"<<endl;
+    } else {
+      if (verbose && ((fEvNum%100)==0)) 
+         cout << "WARNING: No PVDIS crates "<<endl<<endl;
+      return -1;
+    }
+
+
+  }
+
+  Int_t crate;
+
+  for (Int_t icra=0; icra<2; icra++) {  // loop over PVDIS crates
+
+    crate = crate_left;
+    if (icra == 1) crate = crate_right;
+
+    if (debug) cout << "Crate "<<dec<<crate<<endl;
+
+    for (int j = fN1roc[crate]; j < fN1roc[crate]+fLenroc[crate]; j++) {
+
+    if (debug) printf("fEvBuffer[%d] = 0x%x = (dec) %d \n",j,fEvBuffer[j],fEvBuffer[j]);
+ 
+      if ((fEvBuffer[j] & 0xff380100) == 0xff380100) {
+          
+	if (debug) cout << "Found header = 0x"<<hex<<fEvBuffer[j]<<dec<<endl;
+
+        if ((fEvBuffer[j] & 0x10) != 0) {
+          if (crate==crate_left) badL++;
+          if (crate==crate_right) badR++;
+	}
+
+      }
+    }
+  }
+
+  if(debug) cout << "Num bad scalers "<<badL<<"   "<<badR<<endl;
+
+  if ( (badL > badL_tolerance) || (badR > badR_tolerance) ) {
+
+    cout << "\n\nERROR :  PVDIS :  Scaler data are out of synch !!"<<endl;
+    cout << "  Fatal.  Cannot run this way."<<endl;
+    cout << "  Exiting.  Call expert. "<<endl;
+    exit(0);
+
+  }
+
+
+  return 0;
 
 }
