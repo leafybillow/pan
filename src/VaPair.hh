@@ -82,6 +82,7 @@ protected:
   virtual UInt_t RanBit24 (UInt_t hRead = 2);
   virtual UInt_t RanBit30 (UInt_t hRead = 2);
   virtual Bool_t HelSeqOK (EHelicity h);
+  virtual UInt_t RanBitNew30 (UInt_t hRead = 2);
 
   // Static data members  
   static deque< VaEvent > fgEventQueue;  // Events waiting to be paired
@@ -103,6 +104,8 @@ protected:
   vector<TaLabelledQuantity> fResults;   // Pair analysis results
   VaEvent* fEvFirst;                     // (pointer to) first event
   VaEvent* fEvSecond;                    // (pointer to) second event
+  static const Int_t fUseRanBitNew30=0;  // use new helicity board (30 bit)
+                                         // or not.
   
 #ifndef NODICT
   ClassDef( VaPair, 0 )  // Base class for helicity pairs

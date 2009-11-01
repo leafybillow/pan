@@ -152,7 +152,11 @@ VaPair::RunInit(const TaRun& run)
   // If randomheli is "no" in database set fgRandom to 0, else 1.
   TaString sran = run.GetDataBase().GetRandomHeli();
   fgRandom = sran.CmpNoCase ("no") == 0 ? 0 : 1;
-  fgRanType = sran.CmpNoCase ("old") == 0 ? 0 
+  
+  if (fUseRanBitNew30) 
+    fgRanType = 3;
+  else
+    fgRanType = sran.CmpNoCase ("old") == 0 ? 0 
     : sran.CmpNoCase ("30bit") == 0 ? 2 : 1;
 
   return fgVAP_OK;
@@ -666,6 +670,9 @@ VaPair::RanBit (UInt_t hRead)
     case 2: 
       ret = RanBit30 (hRead);
       break;
+    case 3:
+      ret = RanBitNew30 (hRead);
+      break;
     }
   return ret;
 }
@@ -736,4 +743,20 @@ VaPair::RanBit30 (UInt_t hRead)
     fgShreg <<= 1;
 
   return hPred;
+}
+
+
+UInt_t
+VaPair::RanBitNew30 (UInt_t hRead)
+{
+  
+  UInt_t bit7    = (fgShreg & 0x00000040) != 0;
+  UInt_t bit28   = (fgShreg & 0x08000000) != 0;
+  UInt_t bit29   = (fgShreg & 0x10000000) != 0;
+  UInt_t bit30   = (fgShreg & 0x20000000) != 0;
+
+  UInt_t newbit = (bit30 ^ bit29 ^ bit28 ^ bit7) & 0x1;
+  fgShreg = ( (hRead == 2 ? newbit : hRead) | (fgShreg << 1 )) & 0x3FFFFFFF;
+  return newbit; 
+
 }
