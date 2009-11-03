@@ -625,7 +625,7 @@ VaPair::HelSeqOK (EHelicity h)
       fgOldb = hb;
     }
 
-  Bool_t expectOK = (fgNShreg++ > 24);
+  Bool_t expectOK = (fgNShreg++ > 30);
 
   if ( expectOK && hb != 2 && hb != eb )
     {

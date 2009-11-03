@@ -104,7 +104,7 @@ protected:
   vector<TaLabelledQuantity> fResults;   // Pair analysis results
   VaEvent* fEvFirst;                     // (pointer to) first event
   VaEvent* fEvSecond;                    // (pointer to) second event
-  static const Int_t fUseRanBitNew30=0;  // use new helicity board (30 bit)
+  static const Int_t fUseRanBitNew30=1;  // use new helicity board (30 bit)
                                          // or not.
   
 #ifndef NODICT
