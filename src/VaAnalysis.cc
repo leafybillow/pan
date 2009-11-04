@@ -68,6 +68,8 @@
 #ifndef NODICT
 ClassImp(VaAnalysis)
 #endif
+// for selectively adding pvdis varibles to the pair tree
+const UInt_t VaAnalysis::fgNONE          = 0x0;
 
 const UInt_t VaAnalysis::fgSTATS          = 0x1;
 const UInt_t VaAnalysis::fgNO_BEAM_NO_ASY = 0x2;
@@ -928,6 +930,8 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
 
       if (alist.fVarStr.substr (0, 8) == "helicity")
 	alist.fVarStr.replace (0, 8, "readout_helicity");  // to reduce human confusion
+      if (alist.fFlagInt & fgNONE) {} // dont put any variables in the pair tree
+
 
       if (alist.fFlagInt & fgCOPY)
 	{

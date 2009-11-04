@@ -172,6 +172,7 @@ public:
   // Constants
 
   // Flags for results
+  static const UInt_t fgNONE;            // dont add anything to the pair tree
   static const UInt_t fgSTATS;           // Print statistics
   static const UInt_t fgNO_BEAM_NO_ASY;  // Do not compute asym if lobeam cut fails
   static const UInt_t fgCOPY;            // Store right and left values as results
