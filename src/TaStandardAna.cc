@@ -450,7 +450,7 @@ TaStandardAna::InitChanLists ()
 	  i_f->fVarStr == "disrpnar" || i_f->fVarStr == "disrpnarc" ||
 	  i_f->fVarStr == "disrpwid" || i_f->fVarStr == "disrpwidc" )
 
-	i_f->fFlagInt += fgAVG;
+	i_f->fFlagInt += fgAVG + fgBLINDSIGN;
     }
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
@@ -465,15 +465,15 @@ TaStandardAna::InitChanLists ()
 	  i_f->fVarStr == "dislen5" || i_f->fVarStr == "dislen6" ||
 	  i_f->fVarStr == "dislen1c" || i_f->fVarStr == "dislen2c" ||
 	  i_f->fVarStr == "dislen3c" || i_f->fVarStr == "dislen4c" ||
-	  i_f->fVarStr == "dislen5c" || i_f->fVarStr == "dislen6c" ||
+	  i_f->fVarStr == "dislen5c" || i_f->fVarStr == "dislen6c" || 
 	  i_f->fVarStr == "dislew1" || i_f->fVarStr == "dislew2" ||
 	  i_f->fVarStr == "dislew3" || i_f->fVarStr == "dislew4" ||
 	  i_f->fVarStr == "dislew5" || i_f->fVarStr == "dislew6" ||
 	  i_f->fVarStr == "dislew1c" || i_f->fVarStr == "dislew2c" ||
 	  i_f->fVarStr == "dislew3c" || i_f->fVarStr == "dislew4c" ||
 	  i_f->fVarStr == "dislew5c" || i_f->fVarStr == "dislew6c" ||
-	//   i_f->fVarStr == "dislenar" || i_f->fVarStr == "dislenarc" ||
-// 	  i_f->fVarStr == "dislewid" || i_f->fVarStr == "dislewidc" ||
+          i_f->fVarStr == "dislenar" || i_f->fVarStr == "dislenarc" ||
+	  i_f->fVarStr == "dislewid" || i_f->fVarStr == "dislewidc" ||
 	  i_f->fVarStr == "disren1" || i_f->fVarStr == "disren2" ||
 	  i_f->fVarStr == "disren3" || i_f->fVarStr == "disren4" ||
 	  i_f->fVarStr == "disren5" || i_f->fVarStr == "disren6" ||
@@ -489,22 +489,14 @@ TaStandardAna::InitChanLists ()
 	  i_f->fVarStr == "disrps1c" || i_f->fVarStr == "disrps2c" ||
 	  i_f->fVarStr == "disrps3c" || i_f->fVarStr == "disrps4c" ||
 	  i_f->fVarStr == "disrps5c" || i_f->fVarStr == "disrps6c" ||
-	  i_f->fVarStr == "disrps7c" || i_f->fVarStr == "disrps8c" //||
-	  // i_f->fVarStr == "disrenar" || i_f->fVarStr == "disrenarc" ||
-// 	  i_f->fVarStr == "disrewid" || i_f->fVarStr == "disrewidc" ||
-// 	  i_f->fVarStr == "disrpnar" || i_f->fVarStr == "disrpnarc" ||
-// 	  i_f->fVarStr == "disrpwid" || i_f->fVarStr == "disrpwidc"
+	  i_f->fVarStr == "disrps7c" || i_f->fVarStr == "disrps8c" ||
+	  i_f->fVarStr == "disrenar" || i_f->fVarStr == "disrenarc" ||
+	  i_f->fVarStr == "disrewid" || i_f->fVarStr == "disrewidc" ||
+	  i_f->fVarStr == "disrpnar" || i_f->fVarStr == "disrpnarc" ||
+	  i_f->fVarStr == "disrpwid" || i_f->fVarStr == "disrpwidc"
 	  )
 	i_f->fFlagInt += fgASY + fgBLINDSIGN;
-      else//  if	(
-// 	  i_f->fVarStr == "disrenar" || i_f->fVarStr == "disrenarc" ||
-// 	  i_f->fVarStr == "disrewid" || i_f->fVarStr == "disrewidc" ||
-// 	  i_f->fVarStr == "disrpnar" || i_f->fVarStr == "disrpnarc" ||
-// 	  i_f->fVarStr == "disrpwid" || i_f->fVarStr == "disrpwidc" ||
-//           i_f->fVarStr == "dislenar" || i_f->fVarStr == "dislenarc" ||
-// 	  i_f->fVarStr == "dislewid" || i_f->fVarStr == "dislewidc" ||
-// 	  i_f->fVarStr == "dislpnar" || i_f->fVarStr == "dislpnarc" ||
-// 	  i_f->fVarStr == "dislpwid" || i_f->fVarStr == "dislpwidc") 
+      else
       i_f->fFlagInt += fgASY;
     }
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
@@ -553,8 +545,8 @@ TaStandardAna::InitChanLists ()
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanList ("qpd", "~sum", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
-  f = ChanList ("pvdis", "~", "chan", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
-  fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+  //f = ChanList ("pvdis", "~", "chan", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
+  //fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   //
   // ok since not blinding in UValab26 laser room
   f = ChanList ("det", "~", "ppm", fgNO_BEAM_NO_ASY + fgASY + fgBLINDSIGN);
@@ -596,7 +588,52 @@ TaStandardAna::InitChanLists ()
 //   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   // for pvdis
-  f = ChanList ("pvdis", "~", "chan", fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN);
+ //  f = ChanList ("pvdis", "~", "chan", fgNO_BEAM_NO_ASY + fgASYN + fgBLINDSIGN);
+//   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+ f = ChanList ("pvdis", "~", "chan", fgNONE);
+  for (vector<AnaList>::iterator i_f = f.begin();
+       i_f < f.end();
+       ++i_f)
+    {
+      if (i_f->fVarStr == "dislen1" || i_f->fVarStr == "dislen2" ||
+	  i_f->fVarStr == "dislen3" || i_f->fVarStr == "dislen4" ||
+	  i_f->fVarStr == "dislen5" || i_f->fVarStr == "dislen6" ||
+	  i_f->fVarStr == "dislen1c" || i_f->fVarStr == "dislen2c" ||
+	  i_f->fVarStr == "dislen3c" || i_f->fVarStr == "dislen4c" ||
+	  i_f->fVarStr == "dislen5c" || i_f->fVarStr == "dislen6c" || 
+	  i_f->fVarStr == "dislew1" || i_f->fVarStr == "dislew2" ||
+	  i_f->fVarStr == "dislew3" || i_f->fVarStr == "dislew4" ||
+	  i_f->fVarStr == "dislew5" || i_f->fVarStr == "dislew6" ||
+	  i_f->fVarStr == "dislew1c" || i_f->fVarStr == "dislew2c" ||
+	  i_f->fVarStr == "dislew3c" || i_f->fVarStr == "dislew4c" ||
+	  i_f->fVarStr == "dislew5c" || i_f->fVarStr == "dislew6c" ||
+          i_f->fVarStr == "dislenar" || i_f->fVarStr == "dislenarc" ||
+	  i_f->fVarStr == "dislewid" || i_f->fVarStr == "dislewidc" ||
+	  i_f->fVarStr == "disren1" || i_f->fVarStr == "disren2" ||
+	  i_f->fVarStr == "disren3" || i_f->fVarStr == "disren4" ||
+	  i_f->fVarStr == "disren5" || i_f->fVarStr == "disren6" ||
+	  i_f->fVarStr == "disren7" || i_f->fVarStr == "disren8" ||
+	  i_f->fVarStr == "disrew1" || i_f->fVarStr == "disrew2" ||
+	  i_f->fVarStr == "disrew3" || i_f->fVarStr == "disrew4" ||
+	  i_f->fVarStr == "disrew5" || i_f->fVarStr == "disrew6" ||
+	  i_f->fVarStr == "disrew7" || i_f->fVarStr == "disrew8" ||
+	  i_f->fVarStr == "disrts1c" || i_f->fVarStr == "disrts2c" ||
+	  i_f->fVarStr == "disrts3c" || i_f->fVarStr == "disrts4c" ||
+	  i_f->fVarStr == "disrts5c" || i_f->fVarStr == "disrts6c" ||
+	  i_f->fVarStr == "disrts7c" || i_f->fVarStr == "disrts8c" ||
+	  i_f->fVarStr == "disrps1c" || i_f->fVarStr == "disrps2c" ||
+	  i_f->fVarStr == "disrps3c" || i_f->fVarStr == "disrps4c" ||
+	  i_f->fVarStr == "disrps5c" || i_f->fVarStr == "disrps6c" ||
+	  i_f->fVarStr == "disrps7c" || i_f->fVarStr == "disrps8c" ||
+	  i_f->fVarStr == "disrenar" || i_f->fVarStr == "disrenarc" ||
+	  i_f->fVarStr == "disrewid" || i_f->fVarStr == "disrewidc" ||
+	  i_f->fVarStr == "disrpnar" || i_f->fVarStr == "disrpnarc" ||
+	  i_f->fVarStr == "disrpwid" || i_f->fVarStr == "disrpwidc"
+	  )
+	i_f->fFlagInt += fgASYN + fgBLINDSIGN;
+   //    else
+//       i_f->fFlagInt += fgASY;
+    }
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
 
   // multi-detector asymmetries - 
