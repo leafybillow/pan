@@ -53,6 +53,7 @@
 #include "VaEvent.hh"
 #include "TaLabelledQuantity.hh"
 #include "TaMultiplet.hh"
+// #include "TaPairFromMultiplet.hh"
 #include "TaPairFromOctet.hh"
 #include "TaPairFromPair.hh"
 #include "TaPairFromQuad.hh"
@@ -232,15 +233,23 @@ VaAnalysis::RunIni(TaRun& run)
   else if (type == "quad")
     {
       fPairType = FromQuad;
-      fDoMultiplet = false;
-//       fDoMultiplet = true;
-//       fNMultiplet = 2;
+//       fDoMultiplet = false;
+      fDoMultiplet = true;
+      fNMultiplet = 2;
     }
   else if (type == "pair")
     {
       fPairType = FromPair;
       fDoMultiplet = false;
     }
+//   else if (type[0] == '+')
+//     {
+//       // (assuming if the first character is +, the rest are + or-!)
+//       fPairType = FromMultiplet;
+//       TaPairFromMultiplet::SetPattern (type);
+//       fDoMultiplet = true;
+//       fNMultiplet = type.size();
+//     }
   else
     {
       cerr << "VaAnalysis::NewPrePair WARNING: "
@@ -449,7 +458,6 @@ VaAnalysis::RunFini()
   // is that each analysis handles only one run, so this is somewhat
   // redundant with Finish.)  Clear out the queues, get rid of all
   // pairs, and get rid of the pair tree.  But write it out first...
-
 
   clog << "VaAnalysis::RunFini: Run " << fRun->GetRunNumber()
        << " analysis terminated at event " 
@@ -833,6 +841,13 @@ VaAnalysis::NewPrePair()
       ++fLeakNewPair;
 #endif
     }
+//   else if (fPairType == FromMultiplet)
+//     {
+//       fPrePair = new TaPairFromMultiplet; 
+// #ifdef LEAKCHECK
+//       ++fLeakNewPair;
+// #endif
+//     }
   else
     {
       cerr << "VaAnalysis::NewPrePair ERROR "

@@ -20,7 +20,7 @@ typedef UInt_t Cut_t;
 enum EHelicity { RightHeli, LeftHeli, UnkHeli };
 enum EPairSynch { FirstPS, SecondPS };
 enum EMultipletSynch { FirstMS, OtherMS };
-enum EPairType { FromPair, FromQuad, FromOctet };
+enum EPairType { FromPair, FromQuad, FromOctet, FromMultiplet };
 enum EFeedbackType { IA, PZTX, PZTY, PITA, IAHALLC};
 
 #endif

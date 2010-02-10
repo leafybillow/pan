@@ -29,7 +29,10 @@
 #include <utility>
 #include "TRandom.h"
 
-//#define FAKEHEL
+//#define FAKEHEL   // Uncomment to write in helicities (and pair/mult/timeslot) from file
+#define FAKEHELNOFILE // Uncomment to write in helicities (and pair/mult/timeslot) without file
+//#define FAKEDITHER // Uncomment to fake dithering
+
 #ifdef FAKEHEL
 #include <iostream>
 #include <fstream>
@@ -59,21 +62,34 @@ public:
   ErrCode_t RunInit(const TaRun& run);    // initialization at start of run
   void Decode( TaDevice& devices );             // decode the event 
 
- // Data access functions
-
 private:
 
   // Private methods
   void Create(const TaSimEvent&);
   void SetSimConstants();
 
+  // Copies of the VaPair functions -- this is a kludge, we should 
+  // have a single copy that can be called in multiple instances
+  UInt_t RanBit (UInt_t hRead = 2);
+  UInt_t RanBitOld (UInt_t hRead = 2);
+  UInt_t RanBit24 (UInt_t hRead = 2);
+  UInt_t RanBit30 (UInt_t hRead = 2);
+
   // Static members
 #ifdef FAKEHEL
   static ifstream fgHelfile;   // fake helicity data file
 #endif
-
+#ifdef FAKEHELNOFILE
+  static Int_t* fgPattern;
+  static Int_t  fgNMultiplet;
+  static Int_t  fgOversample;
+  static Bool_t fgRandom;
+  static UInt_t  fgShreg;      // value for sequence algorithm      
+  static UInt_t  fgRanType;   // identifies which random bit generator
+#endif
 
   TRandom fgR;      // Random number object
+#ifdef FAKEDITHER
   Double_t fDetVsBcm[4];
   Double_t fDetNoiseR[4];
   // modify position by dithering slope for 12x, 4a x,y and 4b x,y given value
@@ -88,6 +104,7 @@ private:
   Double_t fDet12Xoff;  
   Double_t fDet4AXoff; Double_t fDet4BXoff;
   Double_t fDet4AYoff; Double_t fDet4BYoff;
+#endif
 
   // Data members
   
@@ -98,5 +115,3 @@ ClassDef(TaSimEvent,0)  // An event containing simulated data
 };
 
 #endif
-
-
