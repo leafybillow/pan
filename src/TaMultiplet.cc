@@ -211,7 +211,7 @@ Double_t
 TaMultiplet::GetAvg (Int_t key) const
 {
   // Get average quantity indexed by key for this multiplet.
-  return (GetRightSum (key) + GetLeftSum (key)) / 2.0;
+  return (GetRightSum (key) + GetLeftSum (key)) / 2.0 / fN;
 }
 
 
@@ -222,7 +222,7 @@ TaMultiplet::GetAvgSum (vector<Int_t> keys, vector<Double_t> wts) const
   // this multiplet.
 
   return (GetRightSumSum (keys, wts) + 
-	  GetLeftSumSum (keys, wts)) / 2.0;
+	  GetLeftSumSum (keys, wts)) / 2.0 / fN;
 }
 
 Double_t 
@@ -231,7 +231,7 @@ TaMultiplet::GetAvgN (Int_t key, Int_t curmonkey) const
   // Get normalized average in quantity indexed by key for this multiplet.
 
   return ((GetRightSum (key) / GetRightSum (curmonkey))
-	  + (GetLeftSum (key) / GetLeftSum (curmonkey))) / 2.0;
+	  + (GetLeftSum (key) / GetLeftSum (curmonkey))) / 2.0 / fN;
 }
 
 
@@ -242,7 +242,7 @@ TaMultiplet::GetAvgNSum (vector<Int_t> keys, Int_t curmonkey, vector<Double_t> w
   // this multiplet.
 
   return (((GetRightSumSum (keys, wts)) / GetRightSum (curmonkey)) 
-	  + ((GetLeftSumSum (keys, wts)) / GetLeftSum (curmonkey))) / 2.0;
+	  + ((GetLeftSumSum (keys, wts)) / GetLeftSum (curmonkey))) / 2.0 / fN;
 }
 
 
