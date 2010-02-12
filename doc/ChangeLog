@@ -6,6 +6,34 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Holmes on 12 Feb 2010
+-----------------------------------
+
+Pan now has the following capabilities:
+
+1. If there is a line of the form
+
+  trees list of trees
+
+in the database, only the specified trees will be filled and written.
+For example
+
+  trees P M
+
+causes only the pair (P) and multiplet (M) trees to be written.  If
+the trees line is absent, default behavior is to write E (EPICS), R
+(events), P, and M.
+
+2. If there is a line of the form
+
+  fillditheronly true
+
+in the database, only events with dithering on will be filled to trees
+and written. In the case of tree P(M), only pairs(multiplets) in which
+both(all) events are dither events will be written.  Dither events are
+ones in which bmwobj > -1.
+
+
 Changes by R. Michaels on 12 Oct 2009
 --------------------------------------
 
