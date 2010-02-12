@@ -131,7 +131,8 @@ VaAnalysis::VaAnalysis():
   fFirstPass(true),
   fLastPass(false),
   fIAslope(0),fPITAslope(0),
-  fCurMon(0)
+  fCurMon(0),
+  fFillDitherOnly (false)
 { 
   fEHelDeque.clear(); 
   fEDeque.clear(); 
@@ -318,6 +319,8 @@ VaAnalysis::RunIni(TaRun& run)
   fBlind  = new TaBlind (bs, bp[0], bp[1], bp[2]);
   InitChanLists();
   InitFeedback();
+
+  fFillDitherOnly = fRun->GetDataBase().GetFillDitherOnly ();
   
   return fgVAANA_OK;
 }
@@ -333,8 +336,9 @@ VaAnalysis::InitLastPass ()
     {
       fRun->InitRoot();
       fRun->GetDataBase().WriteRoot();
-      fPairTree = new TTree("P","Pair data DST");
-      if (fDoMultiplet)
+      if (fRun->GetDataBase().GetTreeUsed ("P"))
+	fPairTree = new TTree("P","Pair data DST");
+      if (fDoMultiplet && fRun->GetDataBase().GetTreeUsed ("M"))
 	{
 	  fMultipletTree = new TTree("M","Multiplet data DST");
 	}
@@ -763,7 +767,12 @@ VaAnalysis::ProcessPair()
 #endif
       PairAnalysis();
       if (fPairTree) {
-	fPairTree->Fill();      
+	// Fill tree only if fFillDitherOnly is off, or if dither
+	// object is > -1 for both events.
+	if (!fFillDitherOnly 
+	    || (fPair->GetLeft().GetData (IBMWOBJ) > -1
+		&& fPair->GetRight().GetData (IBMWOBJ) > -1))
+	  fPairTree->Fill();      
 #ifdef PANGUIN
     // Autosave the Pair Tree and Rootfile every 100 events (if
     // compiled with PANGUIN)
@@ -790,9 +799,26 @@ VaAnalysis::ProcessPair()
 	  if (fMultiplet->Full())
 	    {
 	      MultipletAnalysis();
-	      if (fMultipletTree) 
-		fMultipletTree->Fill();      
-	      ++fMultipletProc;
+	      // Fill tree only if fFillDitherOnly is off, or if dither
+	      // object is > -1 for all events.
+	      if (fMultipletTree != NULL)
+		{
+		  Bool_t dowrite = true;
+		  if (fFillDitherOnly)
+		    {
+		      for (UInt_t ip = 0; 
+			   dowrite && (ip < fMultiplet->GetSize()); 
+			   ++ip)
+			{
+			  dowrite = dowrite
+			    && fMultiplet->GetPair (ip).GetLeft().GetData (IBMWOBJ) > -1
+			    && fMultiplet->GetPair (ip).GetRight().GetData (IBMWOBJ) > -1;
+			}
+		    }
+		  if (dowrite)
+		    fMultipletTree->Fill();      
+		  ++fMultipletProc;
+		}
 	    }
 	}
     }
@@ -892,15 +918,18 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
   else
     fTreeEvNums = new Int_t[2];
 
-  fPairTree->Branch ("evt_ev_num",   &fTreeEvNums, "evt_ev_num[2]/I", bufsize); 
-  fPairTree->Branch ("m_ev_num", &fTreeMEvNum, "m_ev_num/D",  bufsize); 
-  fPairTree->Branch ("ok_cond",  &fTreeOKCond, "ok_cond/I",   bufsize); 
-  fPairTree->Branch ("ok_cut",   &fTreeOKCut,  "ok_cut/I",    bufsize); 
-  fPairTree->Branch ("ok_cutC",  &fTreeOKCCut, "ok_cutC/I",   bufsize); 
-  fPairTree->Branch ("prev_hel", &fTreePrevHel, "prev_hel/I", bufsize); 
-  fPairTree->Branch ("prev_readout_hel", &fTreePrevROHel, "prev_readout_hel/I", bufsize); 
-  
-  if (fDoMultiplet)
+  if (fPairTree != NULL)
+    {
+      fPairTree->Branch ("evt_ev_num",   &fTreeEvNums, "evt_ev_num[2]/I", bufsize); 
+      fPairTree->Branch ("m_ev_num", &fTreeMEvNum, "m_ev_num/D",  bufsize); 
+      fPairTree->Branch ("ok_cond",  &fTreeOKCond, "ok_cond/I",   bufsize); 
+      fPairTree->Branch ("ok_cut",   &fTreeOKCut,  "ok_cut/I",    bufsize); 
+      fPairTree->Branch ("ok_cutC",  &fTreeOKCCut, "ok_cutC/I",   bufsize); 
+      fPairTree->Branch ("prev_hel", &fTreePrevHel, "prev_hel/I", bufsize); 
+      fPairTree->Branch ("prev_readout_hel", &fTreePrevROHel, "prev_readout_hel/I", bufsize); 
+    }
+
+  if (fMultipletTree != NULL)
     {
       TString desc = "evt_ev_num[";
       desc += fNMultiplet;
@@ -951,11 +980,12 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
       if (alist.fFlagInt & fgCOPY)
 	{
 	  // Channels for which to copy right and left values to tree
-	  fPairTree->Branch ((string("evt_")+alist.fVarStr).c_str(), 
-			     tsptr, 
-			     (string("evt_")+alist.fVarStr+string("[2]/D")).c_str(), 
-			     bufsize); 
-	  if (fDoMultiplet)
+	  if (fPairTree != NULL)
+	    fPairTree->Branch ((string("evt_")+alist.fVarStr).c_str(), 
+			       tsptr, 
+			       (string("evt_")+alist.fVarStr+string("[2]/D")).c_str(), 
+			       bufsize); 
+	  if (fMultipletTree != NULL)
 	    fMultipletTree->Branch ((string("evt_")+alist.fVarStr).c_str(), 
 			       tsptr, 
 			       (string("evt_")+alist.fVarStr+string("[2]/D")).c_str(), 
@@ -970,11 +1000,12 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
       if (alist.fFlagInt & fgDIFF)
 	{
 	  // Channels for which to put difference in tree
-	  fPairTree->Branch ((string("diff_")+alist.fVarStr).c_str(), 
-			     tsptr, 
-			     (string("diff_")+alist.fVarStr+string("/D")).c_str(), 
-			     bufsize); 
-	  if (fDoMultiplet)
+	  if (fPairTree != NULL)
+	    fPairTree->Branch ((string("diff_")+alist.fVarStr).c_str(), 
+			       tsptr, 
+			       (string("diff_")+alist.fVarStr+string("/D")).c_str(), 
+			       bufsize); 
+	  if (fMultipletTree != NULL)
 	    fMultipletTree->Branch ((string("diff_")+alist.fVarStr).c_str(), 
 			       tsptr, 
 			       (string("diff_")+alist.fVarStr+string("/D")).c_str(), 
@@ -988,11 +1019,12 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
       if (alist.fFlagInt & fgASY)
 	{
 	  // Channels for which to put asymmetry in tree
-	  fPairTree->Branch ((string("asym_")+alist.fVarStr).c_str(), 
-			     tsptr, 
-			     (string("asym_")+alist.fVarStr+string("/D")).c_str(), 
-			     bufsize); 
-	  if (fDoMultiplet)
+	  if (fPairTree != NULL)
+	    fPairTree->Branch ((string("asym_")+alist.fVarStr).c_str(), 
+			       tsptr, 
+			       (string("asym_")+alist.fVarStr+string("/D")).c_str(), 
+			       bufsize); 
+	  if (fMultipletTree != NULL)
 	    fMultipletTree->Branch ((string("asym_")+alist.fVarStr).c_str(), 
 			       tsptr, 
 			       (string("asym_")+alist.fVarStr+string("/D")).c_str(), 
@@ -1006,11 +1038,12 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
       if (alist.fFlagInt & fgASYN)
 	{
 	  // Channels for which to put normalized asymmetry in tree
-	  fPairTree->Branch ((string("asym_n_")+alist.fVarStr).c_str(), 
-			     tsptr, 
-			     (string("asym_n_")+alist.fVarStr+string("/D")).c_str(), 
-			     bufsize); 
-	  if (fDoMultiplet)
+	  if (fPairTree != NULL)
+	    fPairTree->Branch ((string("asym_n_")+alist.fVarStr).c_str(), 
+			       tsptr, 
+			       (string("asym_n_")+alist.fVarStr+string("/D")).c_str(), 
+			       bufsize); 
+	  if (fMultipletTree != NULL)
 	    fMultipletTree->Branch ((string("asym_n_")+alist.fVarStr).c_str(), 
 			       tsptr, 
 			       (string("asym_n_")+alist.fVarStr+string("/D")).c_str(), 
@@ -1024,11 +1057,12 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
       if (alist.fFlagInt & fgAVG)
 	{
 	  // Channels for which to put average in tree
-	  fPairTree->Branch ((string("avg_")+alist.fVarStr).c_str(), 
-			     tsptr, 
-			     (string("avg_")+alist.fVarStr+string("/D")).c_str(), 
-			     bufsize); 
-	  if (fDoMultiplet)
+	  if (fPairTree != NULL)
+	    fPairTree->Branch ((string("avg_")+alist.fVarStr).c_str(), 
+			       tsptr, 
+			       (string("avg_")+alist.fVarStr+string("/D")).c_str(), 
+			       bufsize); 
+	  if (fMultipletTree != NULL)
 	    fMultipletTree->Branch ((string("avg_")+alist.fVarStr).c_str(), 
 			       tsptr, 
 			       (string("avg_")+alist.fVarStr+string("/D")).c_str(), 
@@ -1042,11 +1076,12 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
       if (alist.fFlagInt & fgAVGN)
 	{
 	  // Channels for which to put normalized avg in tree
-	  fPairTree->Branch ((string("avg_n_")+alist.fVarStr).c_str(), 
-			     tsptr, 
-			     (string("avg_n_")+alist.fVarStr+string("/D")).c_str(), 
-			     bufsize); 
-	  if (fDoMultiplet)
+	  if (fPairTree != NULL)
+	    fPairTree->Branch ((string("avg_n_")+alist.fVarStr).c_str(), 
+			       tsptr, 
+			       (string("avg_n_")+alist.fVarStr+string("/D")).c_str(), 
+			       bufsize); 
+	  if (fMultipletTree != NULL)
 	    fMultipletTree->Branch ((string("avg_n_")+alist.fVarStr).c_str(), 
 			       tsptr, 
 			       (string("avg_n_")+alist.fVarStr+string("/D")).c_str(), 
@@ -1065,22 +1100,24 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
     {
       TaString cutstr = "cond_" + cutlist.GetName(icut);
       cutstr = cutstr.ToLower();
-      fPairTree->Branch(cutstr.c_str(), 
-			&fCutArray[j], 
-			(cutstr + string("[2]/I")).c_str(), 
-			bufsize);
-      if (fDoMultiplet)
+      if (fPairTree != NULL)
+	fPairTree->Branch(cutstr.c_str(), 
+			  &fCutArray[j], 
+			  (cutstr + string("[2]/I")).c_str(), 
+			  bufsize);
+      if (fMultipletTree != NULL)
 	fMultipletTree->Branch(cutstr.c_str(), 
 			       &fCutArray[j], 
 			       (cutstr + string("[2]/I")).c_str(), 
 			       bufsize);
       cutstr = "cut_" + cutlist.GetName(icut);
       cutstr = cutstr.ToLower();
-      fPairTree->Branch(cutstr.c_str(), 
-			&fCutIntArray[j], 
-			(cutstr + string("[2]/I")).c_str(), 
-			bufsize);
-      if (fDoMultiplet)
+      if (fPairTree != NULL)
+	fPairTree->Branch(cutstr.c_str(), 
+			  &fCutIntArray[j], 
+			  (cutstr + string("[2]/I")).c_str(), 
+			  bufsize);
+      if (fMultipletTree != NULL)
 	fMultipletTree->Branch(cutstr.c_str(), 
 			       &fCutIntArray[j], 
 			       (cutstr + string("[2]/I")).c_str(), 

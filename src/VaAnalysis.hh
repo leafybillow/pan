@@ -314,10 +314,11 @@ protected:
   Double_t fIAHallCslope;        // IA feedback calibration slope for Hall-C
   Double_t fPITAslope;           // PITA feedback calibration slope
   Double_t *fPZTMatrix;          // PZT matrix
-  Double_t fLast[5];              // Last value of the voltage for feeback i  
+  Double_t fLast[5];             // Last value of the voltage for feeback i  
   UInt_t fCurMon;                // Index for current monitor for normalization
   Bool_t fPZTQcoupling;          // Enable correction for PZT Q coupling
   Double_t fPZTQslopes[2];       // PZT Q coupling slopes
+  Bool_t fFillDitherOnly;        // Fill only dither events to trees?
 
   // Define LEAKCHECK to check that new = del
 //#define LEAKCHECK

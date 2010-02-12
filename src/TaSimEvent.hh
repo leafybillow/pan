@@ -30,8 +30,8 @@
 #include "TRandom.h"
 
 //#define FAKEHEL   // Uncomment to write in helicities (and pair/mult/timeslot) from file
-#define FAKEHELNOFILE // Uncomment to write in helicities (and pair/mult/timeslot) without file
-//#define FAKEDITHER // Uncomment to fake dithering
+//#define FAKEHELNOFILE // Uncomment to write in helicities (and pair/mult/timeslot) without file
+#define FAKEDITHER // Uncomment to fake dithering
 
 #ifdef FAKEHEL
 #include <iostream>

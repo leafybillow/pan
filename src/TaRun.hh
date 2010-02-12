@@ -156,6 +156,7 @@ private:
   vector<string> fMStatsUnits;   // Units of multiplet statistics
   Bool_t fFirstPass;             // Pass 1 or 2?
   TaOResultsFile* fResFile;      // Results file
+  Bool_t fFillDitherOnly;        // Fill only dither events to trees?
 
 #ifndef NODICT
 ClassDef (TaRun, 0)      //  One run of CODA data

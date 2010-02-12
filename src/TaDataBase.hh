@@ -408,6 +408,10 @@ public:
   Int_t GetNumCuts() const;
 // Get names of cuts
   vector<string> GetCutNames () const;
+// Get names of trees
+  vector<string> GetTrees () const;
+// Get whether to fill only dither-on events to trees
+  Bool_t GetFillDitherOnly () const;
 // Get cut extensions, low and high 
   vector<Int_t> GetExtLo() const;
   vector<Int_t> GetExtHi() const;
@@ -434,7 +438,9 @@ public:
 // Get string from 'table'
   string GetString(const string& table) const;
 // Return cut number for name
-  Cut_t GetCutNumber (TaString s) const;  
+  Cut_t GetCutNumber (TaString s) const;
+// Return whether tree is used
+  Bool_t GetTreeUsed (TaString s) const;
 // Return value of checksum
   UInt_t GetCksum () const { return fCksum; }
 // Get the Qpd1 constants (pp, pm, mp, mm, x-const, y-const)

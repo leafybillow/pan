@@ -97,7 +97,8 @@ TaRun::TaRun():
   fPRunStats(0),
   fPOrdRunStats(0),
   fMRunStats(0),
-  fFirstPass(true)
+  fFirstPass(true),
+  fFillDitherOnly (false)
 {
 #ifdef ONLINE
    mymode        = 1;
@@ -131,7 +132,8 @@ TaRun::TaRun(const Int_t& run) :
   fPRunStats(0),
   fPOrdRunStats(0),
   fMRunStats(0),
-  fFirstPass(true)
+  fFirstPass(true),
+  fFillDitherOnly (false)
 {
   TaFileName::Setup (fRunNumber, "");
   fCodaFileName = TaFileName ("coda").String();
@@ -158,7 +160,8 @@ TaRun::TaRun(const string& filename):
   fPRunStats(0),
   fPOrdRunStats(0),
   fMRunStats(0),
-  fFirstPass(true)
+  fFirstPass(true),
+  fFillDitherOnly (false)
 {
 };
 
@@ -273,9 +276,11 @@ TaRun::Init(const vector<string>& dbcommand)
   // EPICS data. TaEpics::Init returns kTRUE if there
   // was a valid list defined in the database.
   fEpics = new TaEpics;
-  if (fEpics->Init(*fDataBase)) {
-     fEpicsTree = new TTree("E","EPICS Data (only)");
-  }
+  if (fEpics->Init(*fDataBase)) 
+    {
+      if (fDataBase->GetTreeUsed ("E"))
+	fEpicsTree = new TTree("E","EPICS Data (only)");
+    }
 
   // Results file
 
@@ -289,6 +294,8 @@ TaRun::Init(const vector<string>& dbcommand)
   fgORDNAME.push_back ("LRRL");
   fgORDNAME.push_back ("LRLR");
   fgORDNAME.push_back ("RLLR");
+
+  fFillDitherOnly = fDataBase->GetFillDitherOnly ();
 
   return fgTARUN_OK;
 
@@ -461,7 +468,10 @@ TaRun::AccumEvent(const VaEvent& ev, const Bool_t doSlice, const Bool_t doRun)
   else
     clog << "Event " << ev.GetEvNumber() << " is in cut interval" << endl;
 #endif
-  if (fFirstPass && fEvtree != 0) {
+  // Fill tree only if fFillDitherOnly is off, or if dither
+  // object is > -1.
+  if (fFirstPass && fEvtree != 0
+      && (!fFillDitherOnly || ev.GetData (IBMWOBJ) > -1)) {
     fEvtree->Fill();
 #ifdef PANGUIN
     // Autosave the Event Tree and Rootfile every 100 events (if
@@ -785,8 +795,9 @@ TaRun::Finish()
     {
       // Why did we not do this ?
       //      if (fEvtree) fEvtree->Write();
-      if (fEpicsTree) fEpicsTree->Write();
-      if(fEvtree->GetFileNumber() !=0) {
+      if (fEpicsTree) fEpicsTree->Write();      
+      if(fEvtree != NULL &&
+	 fEvtree->GetFileNumber() !=0) {
 	cout << "****** ROOT file has split. " <<
 	  fEvtree->GetFileNumber()+1 <<
 	  " Total ROOT files for this run. ******" << endl;
@@ -830,8 +841,11 @@ TaRun::InitRoot()
   fRootFile = new TFile(rootFileName.String().c_str(),"RECREATE");
   fCompress = fDataBase->GetCompress();
   fRootFile->SetCompressionLevel(fCompress);
-  fEvtree = new TTree("R","Event data DST");
-  fEvtree->Branch ("ev_num", &fAccumEventNumber, "ev_num/I", 5000); // event number
+  if (fDataBase->GetTreeUsed ("R"))
+    {
+      fEvtree = new TTree("R","Event data DST");
+      fEvtree->Branch ("ev_num", &fAccumEventNumber, "ev_num/I", 5000); // event number
+    }
 
   if ( !fDevices ) {
     cout << "TaRun::InitTree:: ERROR:  You must create and initialize";
@@ -843,11 +857,15 @@ TaRun::InitRoot()
     cout << " fCutList before adding to tree"<<endl;
     return;
   }
-  fAccumEvent->AddToTree(*fDevices, *fCutList, *fEvtree);
-  if (fEpics) {
-     fEpics->AddToTree(*fEvtree);
-     fEpics->AddToTree(*fEpicsTree);
-  }
+  if (fEvtree != NULL)
+    fAccumEvent->AddToTree(*fDevices, *fCutList, *fEvtree);
+  if (fEpics) 
+    {
+      if (fEvtree != NULL)
+	fEpics->AddToTree(*fEvtree);
+      if (fEpicsTree != NULL)
+	fEpics->AddToTree(*fEpicsTree);
+    }
 };
 
 

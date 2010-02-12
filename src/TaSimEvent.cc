@@ -339,6 +339,27 @@ void TaSimEvent::Decode(TaDevice& devices) {
 
   // modify position by dithering slope for 12x, 4a x,y and 4b x,y given value
   //  and ident of dithering object
+   static Int_t fakeit;
+   static Int_t fakecyc;
+   fakeit++;
+   if (fakeit == 2000)
+     {
+       fakecyc++;
+       fakeit = 0;
+     }
+   if (fakeit < 100)
+     {
+       fData[IBMWOBJ] = fakeit / 15;
+       fData[IBMWCLN] = 1;
+       fData[IBMWCYC] = fakecyc;
+     }
+   else
+     {
+       fData[IBMWOBJ] = -1;
+       fData[IBMWCLN] = 0;
+       fData[IBMWCYC] = 0;
+     }
+
   if (fData[IBMWOBJ]<7 && fData[IBMWOBJ]>-1 && 
       fData[IBMWCYC]>0 && fData[IBMWCLN]>0    ) {
     Int_t icoil = (int) fData[IBMWOBJ];

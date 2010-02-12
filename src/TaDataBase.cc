@@ -342,9 +342,16 @@ void TaDataBase::Print() {
   clog << "   Pair type :  " << GetPairType() << endl;
   vector<string> cutnames = GetCutNames();
   clog << "   Number of cuts used :  " << GetNumCuts()<<endl;
-  for (i = 0; i < GetNumCuts(); i++) {
+  for (UInt_t i = 0; i < GetNumCuts(); i++) {
    clog << "     Cut name  " << cutnames[i] <<endl;
   }
+  vector<string> trees = GetTrees();
+  clog << "   Trees used :  ";
+  for (i = 0; i < trees.size(); i++) 
+    {
+      clog << " " << trees[i];
+    }
+  clog << endl;
   clog << "   Low beam cut :  " << GetCutValue("lobeam") << endl;
   clog << "   Low beam C cut :  " << GetCutValue("lobeamc") << endl;
   clog << "   Burp cut :  " << GetCutValue("burpcut") << endl;
@@ -1104,6 +1111,18 @@ TaDataBase::GetCutNumber (TaString s) const
   return i;
 }
 
+Bool_t
+TaDataBase::GetTreeUsed (TaString s) const
+{
+  // Return whether the given string is in the list of trees used
+
+  vector<string> trees = GetTrees();
+  UInt_t i;
+  for (i = 0; i < trees.size() && s.CmpNoCase (trees[i]) != 0; ++i)
+    {} // null loop body
+  return i < trees.size();
+}
+
 Double_t TaDataBase::GetData(const string& table) const {
 // Return single value from table "table".  This assumes the data
 // are in a pair  "table   value" where table is a unique string and
@@ -1499,6 +1518,47 @@ TaDataBase::GetCutNames () const
   }
   return result;
 };
+
+vector<string> 
+TaDataBase::GetTrees () const 
+{
+  vector<string> result;
+  result.clear();
+  multimap<string, vector<dtype*> >::const_iterator lb =
+    database.lower_bound(TaString("trees").ToLower());
+  multimap<string, vector<dtype*> >::const_iterator ub = 
+    database.upper_bound(TaString("trees").ToLower());
+  for (multimap<string, vector<dtype*> >::const_iterator dmap = lb;
+       dmap != ub; dmap++) {
+    vector<dtype*> datav = dmap->second;
+    for (vector<dtype*>::const_iterator idat = datav.begin();
+	 idat != datav.end(); idat++) {
+      if ((*idat)->GetType() == "s") 
+	{
+	  string ts = (*idat)->GetS();
+	  if (ts != "" && ts != " ")
+	    result.push_back(ts);
+	}
+    }
+  }
+  if (result.size() == 0)
+    {
+      // Not specified, return default
+      result.push_back ("R");
+      result.push_back ("P");
+      result.push_back ("M");
+      result.push_back ("E");
+    }
+  return result;
+};
+
+Bool_t TaDataBase::GetFillDitherOnly () const
+{
+// Return true if only dither-on events are to be included in the
+// trees (default=false)
+  TaString cv = GetString ("fillditheronly");
+  return cv.CmpNoCase ("true") == 0;
+}
 
 vector<Int_t> TaDataBase::GetExtLo() const {
 // Get cut extensions, low and high 
@@ -1966,6 +2026,8 @@ void TaDataBase::InitDB() {
   tables.push_back("cav2const");     //  47
   tables.push_back("cav3const");     //  48
   tables.push_back("lina1const");    //  49
+  tables.push_back("trees");         //  50
+  tables.push_back("fillditheronly"); //  51
 
   pair<string, int> sipair;
   int k;
@@ -2162,6 +2224,14 @@ void TaDataBase::InitDB() {
       columns.push_back(new dtype("s"));
       columns.push_back(new dtype("d"));// spc
     }
+    if (i == 50) 
+      {
+	// trees
+	for (k = 0; k < 10; k++) 
+	  columns.push_back(new dtype("s"));
+      }
+    if (i == 51)    // fillditheronly
+      columns.push_back(new dtype("s"));
 
     sipair.second = columns.size(); 
     colsize.insert(sipair);
