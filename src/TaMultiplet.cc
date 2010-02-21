@@ -93,11 +93,25 @@ TaMultiplet::Fill (VaPair& thisPair)
   // Insert this pair into the list and return true iff this makes a
   // full multiplet.
 
-  if (fPairsIndex == fN)
+  EMultipletSynch ms = (thisPair.GetFirst().GetMultipletSynch());
+
+  if (fPairsIndex == fN || fPairsIndex == 0)
     {
       fPairsIndex = 0;
       fResults.clear();
+      if (ms != FirstMS)
+	{
+	  cerr << "TaMultiplet::Fill ERROR: Multiplet empty and MultipletSynch != first (ignore at start of run)" << endl;
+	  return false;
+	}
     }
+  else
+    if (ms == FirstMS)
+	{
+	  cerr << "TaMultiplet::Fill ERROR: Multiplet nonempty and MultipletSynch == first" << endl;
+	  return false;
+	}
+
   delete fPairs[fPairsIndex];
   fPairs[fPairsIndex] = &thisPair;
   fPairsIndex++;
