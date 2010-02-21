@@ -448,7 +448,7 @@ VaAnalysis::ProcessRun()
       if (ProcessPair() != 0)
 	return fgVAANA_ERROR;
       fRun->AccumPair (*fPair, fDoSlice, fDoRun);
-      if (fDoMultiplet)
+      if (fDoMultiplet && fMultiplet->Full())
 	fRun->AccumMultiplet (*fMultiplet, fDoSlice, fDoRun);
     }
 
