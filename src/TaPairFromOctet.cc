@@ -177,7 +177,15 @@ void TaPairFromOctet::CheckSequence( VaEvent& ThisEv, TaRun& run )
 		  || fgOctetCount == 4
 		  || fgOctetCount == 5
 		  || fgOctetCount == 7)
-		// See if helicity changed
+
+// 	      if (fgOctetCount == 1
+// 		  || fgOctetCount == 2
+// 		  || fgOctetCount == 3
+// 		  || fgOctetCount == 4
+// 		  || fgOctetCount == 5
+// 		  || fgOctetCount == 7)
+
+ 		// See if helicity changed (which would be an error)
 		{
 		  if ( ThisEv.GetHelicity() == fgLastWinEv.GetHelicity() )
 		    {
@@ -187,9 +195,9 @@ void TaPairFromOctet::CheckSequence( VaEvent& ThisEv, TaRun& run )
 		      val = WHELSAME;
 		    }
 		}
-	      else if (fgOctetCount == 2
-		       || fgOctetCount == 6)
-		// See if helicity unchanged
+ 	      else if (fgOctetCount == 2
+ 		       || fgOctetCount == 6)
+		// See if helicity unchanged (which would be an error)
 		{
 		  if ( ThisEv.GetHelicity() != fgLastWinEv.GetHelicity() )
 		    {
