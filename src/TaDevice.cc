@@ -464,7 +464,14 @@ void TaDevice::BpmDefRotate() {
    fRotateList.push_back("bpm0L04");  
    fRotateList.push_back("bpm0L05");  
    fRotateList.push_back("bpm0L06");  
+   fRotateList.push_back("bpm0L07");  
+   fRotateList.push_back("bpm0L08");  
+   fRotateList.push_back("bpm0L09");  
+   fRotateList.push_back("bpm0L10");  
+   fRotateList.push_back("bpm0R03");  
+   fRotateList.push_back("bpm0R04");  
    fRotateList.push_back("bpm0R05");  
+   fRotateList.push_back("bpm0R06");  
    fRotateList.push_back("bpm8");
    fRotateList.push_back("bpm10");
    fRotateList.push_back("bpm12");
@@ -802,6 +809,36 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"bpm1I06yws",IBPM1I06YWS));
   fKeyToIdx.insert(make_pair((string)"bpm1I06ws", IBPM1I06WS));
   fKeyToIdx.insert(make_pair((string)"bpm1I06mx", IBPM1I06MX));
+
+  fKeyToIdx.insert(make_pair((string)"bpm0I01xp", IBPM0I01XP));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01xm", IBPM0I01XM));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01yp", IBPM0I01YP));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01ym", IBPM0I01YM));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01xpc",IBPM0I01XPC));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01xmc",IBPM0I01XMC));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01ypc",IBPM0I01YPC));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01ymc",IBPM0I01YMC));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01x",  IBPM0I01X));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01y",  IBPM0I01Y));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01xws",IBPM0I01XWS));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01yws",IBPM0I01YWS));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01ws", IBPM0I01WS));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01mx", IBPM0I01MX));
+
+  fKeyToIdx.insert(make_pair((string)"bpm0I01Axp", IBPM0I01AXP));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01Axm", IBPM0I01AXM));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01Ayp", IBPM0I01AYP));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01Aym", IBPM0I01AYM));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01Axpc",IBPM0I01AXPC));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01Axmc",IBPM0I01AXMC));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01Aypc",IBPM0I01AYPC));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01Aymc",IBPM0I01AYMC));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01Ax",  IBPM0I01AX));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01Ay",  IBPM0I01AY));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01Axws",IBPM0I01AXWS));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01Ayws",IBPM0I01AYWS));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01Aws", IBPM0I01AWS));
+  fKeyToIdx.insert(make_pair((string)"bpm0I01Amx", IBPM0I01AMX));
 
   fKeyToIdx.insert(make_pair((string)"bpm0I02xp", IBPM0I02XP));
   fKeyToIdx.insert(make_pair((string)"bpm0I02xm", IBPM0I02XM));
