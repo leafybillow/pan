@@ -724,7 +724,7 @@ VaEvent::Decode(TaDevice& devices)
       fData[key+18] = rms;
 
       // alternative method for x, rms
-      if(npad>4) {
+      if(npad>4 && sum>0) {
 	Double_t vx[8];
 	Double_t vy[8];
 	for (Int_t ip = 0; ip<npad; ip++) {

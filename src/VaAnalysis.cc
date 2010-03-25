@@ -225,7 +225,7 @@ VaAnalysis::RunIni(TaRun& run)
 
   string type = fRun->GetDataBase().GetPairType();
 
-  if (type == "octet")
+  if (type == "octet" || type == "oct")
     {
       fPairType = FromOctet;
       fDoMultiplet = true;

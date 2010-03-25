@@ -220,7 +220,7 @@ private:
   // The following two flags set to zero for HAPPEX or PREX.
   static const Int_t fPvdisPhaseShift=0; // To shift(1) or not(0) the phase
                                  // for testing PVDIS event-phase problem
-  static const Int_t fPvdisCheckCrate=1; // To check if crate exists and if
+  static const Int_t fPvdisCheckCrate=0; // To check if crate exists and if
                                      // data are in synch (ERRSTAT)
 
 #ifndef NODICT
