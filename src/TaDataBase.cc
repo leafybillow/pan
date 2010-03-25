@@ -482,10 +482,10 @@ Bool_t TaDataBase::SelfCheck() {
       allok = kFALSE;
    }
    itest = GetDelay();
-   if (itest != 0 && itest != 8 ) {
+   if (itest != 0 && itest != 16 && itest != 8 ) {
      cerr << "DataBase:: WARNING:  windelay = "<<itest<<" seems wrong."<<endl;
    }
-   if (itest < 0 || itest > 12 ) {
+   if (itest < 0 || itest > 24 ) {
      cerr << "DataBase:: SelfCheck ERROR:  'windelay' = " << itest << " outside range 0-12" <<endl;
      allok = kFALSE;
    }
