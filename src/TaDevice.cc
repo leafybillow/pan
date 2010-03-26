@@ -6543,8 +6543,18 @@ void TaDevice::InitKeyList() {
 // BMW words BMW words are also devtype = daqflag
   fKeyToIdx.insert(make_pair((string)"bmwcln",IBMWCLN));
   fKeyToIdx.insert(make_pair((string)"bmwobj",IBMWOBJ ));
-  fKeyToIdx.insert(make_pair((string)"bmwval",IBMWVAL));
+  fKeyToIdx.insert(make_pair((string)"bmwfreq",IBMWFREQ));
+  fKeyToIdx.insert(make_pair((string)"bmwamp",IBMWAMP));
   fKeyToIdx.insert(make_pair((string)"bmwcyc",IBMWCYC));
+  fKeyToIdx.insert(make_pair((string)"bmwval",IBMWVAL));
+  fKeyToIdx.insert(make_pair((string)"bmwcoil1",IBMWCOIL1));
+  fKeyToIdx.insert(make_pair((string)"bmwcoil2",IBMWCOIL2));
+  fKeyToIdx.insert(make_pair((string)"bmwcoil3",IBMWCOIL3));
+  fKeyToIdx.insert(make_pair((string)"bmwcoil4",IBMWCOIL4));
+  fKeyToIdx.insert(make_pair((string)"bmwcoil5",IBMWCOIL5));
+  fKeyToIdx.insert(make_pair((string)"bmwcoil6",IBMWCOIL6));
+  fKeyToIdx.insert(make_pair((string)"bmwcoil7",IBMWCOIL7));
+  fKeyToIdx.insert(make_pair((string)"bmwcoil8",IBMWCOIL8));
 
 // Luminosity Monitors, raw data ("r") and calibrated data
 // "c" = data before pedestal subtracted
