@@ -207,7 +207,7 @@ Double_t
 TaMultiplet::GetDiff (Int_t key) const
 {
   // Get difference in quantity indexed by key for this multiplet.
-  return GetRightSum(key) - GetLeftSum(key);
+  return (GetRightSum(key) - GetLeftSum(key)) / fN;
 }
 
 
@@ -217,7 +217,7 @@ TaMultiplet::GetDiffSum (vector<Int_t> keys, vector<Double_t> wts) const
   // Get difference in weighted sum of quantities indexed by keys for
   // this multiplet.
 
-  return GetRightSumSum (keys, wts) - GetLeftSumSum (keys, wts);
+  return (GetRightSumSum (keys, wts) - GetLeftSumSum (keys, wts)) / fN;
 }
 
 
