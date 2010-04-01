@@ -24,7 +24,7 @@
 # Cavity BPMs
 @cavlist =       qw / IBPMCAV1 IBPMCAV2 IBPMCAV3 IBPMCAV4 /;
 # Old (HAPPEX-I era) current monitors
-@old_bcmlist =   qw / IBCM1 IBCM2 IBCM3 IBCM4 IBCM5 IBCM6 IBCM7 IBCM8 IBCM9 IBCM10 /;
+@old_bcmlist =   qw / IBCM1 IBCM2 IBCM3 IBCM4 IBCM5 IBCM6 IBCM7 IBCM8 IBCM9 IBCM10 IBCM11 IBCM12 IBCM13 /;
 # G0 current monitors
 @g0_bcmlist =    qw / IBCMCAV1 IBCMCAV2 IBCMCAV3 IBCMCAV4 /;
 
