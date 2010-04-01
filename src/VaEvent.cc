@@ -336,10 +336,16 @@ VaEvent::RunInit(const TaRun& run)
   fgDetKey[3] = run.GetKey (string ("det4"));
 
 
-  UInt_t combo[DETCOMBNUM][DETNUM] = { { 1, 1, 0, 0 },
+  /*UInt_t combo[DETCOMBNUM][DETNUM] = { { 1, 1, 0, 0 },
 				       { 0, 0, 1, 1 },
-				       { 1, 0, 1, 0 },
-				       { 0, 1, 0, 1 },
+ 				       { 1, 0, 1, 0 },
+ 				       { 0, 1, 0, 1 },
+				       { 1, 1, 1, 1 } };*/
+  // Changed by LRM for PREX 4/1/10
+  UInt_t combo[DETCOMBNUM][DETNUM] = { { 0, 0, 1, 1 },
+				       { 1, 1, 0, 0 },
+ 				       { 1, 0, 1, 0 },
+ 				       { 0, 1, 0, 1 },
 				       { 1, 1, 1, 1 } };
   // Weight detector combos with decimal values from det wts database line
   vector<Double_t> wtsa(0);      
