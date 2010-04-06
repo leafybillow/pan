@@ -24,8 +24,10 @@ using namespace std;
 ClassImp(TaFileName)
 #endif
 
-string TaFileName::fgAnaStr = "";
-string TaFileName::fgBaseName = "";
+// Former static members are now global, because otherwise interactive
+// sections crashed mysteriously
+string globalAnaStr = "";
+string globalBaseName = "";
 
 // Constructors/destructors/operators
 
@@ -134,14 +136,14 @@ TaFileName::TaFileName (const string s,
 			const string com , 
 			const string suf )
 {
-  Create (fgBaseName, fgAnaStr, s, com, suf);
+  Create (globalBaseName, globalAnaStr, s, com, suf);
 }
 
 TaFileName::TaFileName (const char* s, 
 			const char* com , 
 			const char* suf )
 {
-  Create (fgBaseName, fgAnaStr, string (s), string (com), string (suf));
+  Create (globalBaseName, globalAnaStr, string (s), string (com), string (suf));
 }
 
 TaFileName::TaFileName (const TaFileName& fn)
@@ -170,8 +172,8 @@ TaFileName::Setup (const RunNumber_t r, const string a)
   // are constructed, perhaps repeatedly as the run number and
   // analysis type become known.
 
-  fgBaseName = Basename (r);
-  fgAnaStr = a;
+  globalBaseName = Basename (r);
+  globalAnaStr = a;
 }
 
 void 

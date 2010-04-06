@@ -67,9 +67,6 @@ private:
   
   // static data members
 
-  static string fgAnaStr;      // name of analysis type
-  static string fgBaseName;    // base name: "prefix_runnumber"
-
   // private methods
 
   void Create (const string b,
