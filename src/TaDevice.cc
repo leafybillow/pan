@@ -6556,6 +6556,8 @@ void TaDevice::InitKeyList() {
   fKeyToIdx.insert(make_pair((string)"bmwcln",IBMWCLN));
   fKeyToIdx.insert(make_pair((string)"bmwobj",IBMWOBJ ));
   fKeyToIdx.insert(make_pair((string)"bmwfreq",IBMWFREQ));
+  fKeyToIdx.insert(make_pair((string)"bmwphase",IBMWPHASE));
+  fKeyToIdx.insert(make_pair((string)"bmwperiod",IBMWPERIOD));
   fKeyToIdx.insert(make_pair((string)"bmwamp",IBMWAMP));
   fKeyToIdx.insert(make_pair((string)"bmwcyc",IBMWCYC));
   fKeyToIdx.insert(make_pair((string)"bmwval",IBMWVAL));
