@@ -1455,109 +1455,6 @@ VaEvent::CheckEvent(TaRun& run)
   fFailedACut = false;
   Int_t valLowBeam =0;
 
-  if ( fgLoBeamNo < fgNCuts)
-    {
-      Int_t thisval = 0;
-      if (current < fgLoBeam )
-	{
-#ifdef NOISY
-	  clog << "Event " << fEvNum << " failed lobeam cut, "
-	       << current << " < " << fgLoBeam << endl;
-#endif
-	  thisval = 1;
-	}
-      valLowBeam=thisval; // flag for later cuts, if needed.
-      AddCut (fgLoBeamNo, thisval);
-      run.UpdateCutList (fgLoBeamNo, thisval, fEvNum);
-    }
-
-  if ( fgLoBeamCNo < fgNCuts)
-    {
-      Int_t thisval = 0;
-      if (currentc < fgLoBeamC )
-	{
-#ifdef NOISY
-	  clog << "Event " << fEvNum << " failed lobeamc cut, "
-	       << currentc << " < " << fgLoBeamC << endl;
-#endif
-	  thisval = 1;
-	}
-      AddCut (fgLoBeamCNo, thisval);
-      run.UpdateCutList (fgLoBeamCNo, thisval, fEvNum);
-    }
-
-  if ( fgSatNo < fgNCuts)
-    {
-      Int_t thisval = 0;
-      Bool_t saturated = false;
-      UInt_t i;
-      for (i = 0; i < DETNUM && !saturated; i++) 
-	saturated = GetData (fgDetRaw[i]) >= fgSatCut;
-      
-      if (saturated)
-	{
-#ifdef NOISY
-	  clog << "Event " << fEvNum << " failed saturation cut, det"
-	       << i << " raw = " << GetData (fgDetRaw[i-1]) << " > " << fgSatCut << endl;
-#endif
-	  thisval = 1;
-	}
-      AddCut (fgSatNo, thisval);
-      run.UpdateCutList (fgSatNo, thisval, fEvNum);
-    }
-
-  if ( fgMonSatNo < fgNCuts)
-    {
-      Int_t thisval = 0;
-      Bool_t saturated = false;
-      UInt_t i;
-      for (i = 0; i < MONNUM && !saturated; i++) 
-	saturated = GetData (fgMonRaw[i]) >= fgMonSatCut;
-      
-      if (saturated)
-	{
-#ifdef NOISY
-	  clog << "Event " << fEvNum << " failed saturation cut, mon"
-	       << i << " raw = " << GetData (fgMonRaw[i-1]) << " > " << fgMonSatCut << endl;
-#endif
-	  thisval = 1;
-	}
-      AddCut (fgMonSatNo, thisval);
-      run.UpdateCutList (fgMonSatNo, thisval, fEvNum);
-    }
-
-
-  if ( fgAdcxDacBurpNo < fgNCuts)
-    {
-      Int_t thisval = 0;
-      
-      if (adcxglitch != 0)
-	{
-#ifdef NOISY
-	  clog << "Event " << fEvNum << " failed ADCX burp cut" << endl;
-#endif
-	  thisval = 1;
-	}
-      AddCut (fgAdcxDacBurpNo, thisval);
-      run.UpdateCutList (fgAdcxDacBurpNo, thisval, fEvNum);
-    }
-
-
-  if ( fgAdcxBadNo < fgNCuts)
-    {
-      Int_t thisval = 0;
-      
-      if (adcxbad != 0)
-	{
-#ifdef NOISY
-	  clog << "Event " << fEvNum << " failed ADCX bad cut " << endl;
-#endif
-	  thisval = 1;
-	}
-      AddCut (fgAdcxBadNo, thisval);
-      run.UpdateCutList (fgAdcxBadNo, thisval, fEvNum);
-    }
-
 
 
   Int_t startupval = 0;
@@ -1570,6 +1467,111 @@ VaEvent::CheckEvent(TaRun& run)
     {
       // Not the first event, so check event-to-event differences
       
+      if ( fgLoBeamNo < fgNCuts)
+	{
+	  Int_t thisval = 0;
+	  if (current < fgLoBeam )
+	    {
+#ifdef NOISY
+	      clog << "Event " << fEvNum << " failed lobeam cut, "
+		   << current << " < " << fgLoBeam << endl;
+#endif
+	      thisval = 1;
+	    }
+	  valLowBeam=thisval; // flag for later cuts, if needed.
+	  AddCut (fgLoBeamNo, thisval);
+	  run.UpdateCutList (fgLoBeamNo, thisval, fEvNum);
+	}
+      
+      if ( fgLoBeamCNo < fgNCuts)
+	{
+	  Int_t thisval = 0;
+	  if (currentc < fgLoBeamC )
+	    {
+#ifdef NOISY
+	      clog << "Event " << fEvNum << " failed lobeamc cut, "
+		   << currentc << " < " << fgLoBeamC << endl;
+#endif
+	      thisval = 1;
+	    }
+	  AddCut (fgLoBeamCNo, thisval);
+	  run.UpdateCutList (fgLoBeamCNo, thisval, fEvNum);
+	}
+      
+      if ( fgSatNo < fgNCuts)
+	{
+	  Int_t thisval = 0;
+	  Bool_t saturated = false;
+	  UInt_t i;
+	  for (i = 0; i < DETNUM && !saturated; i++) 
+	    saturated = GetData (fgDetRaw[i]) >= fgSatCut;
+	  
+	  if (saturated)
+	    {
+#ifdef NOISY
+	      clog << "Event " << fEvNum << " failed saturation cut, det"
+		   << i << " raw = " << GetData (fgDetRaw[i-1]) << " > " << fgSatCut << endl;
+#endif
+	      thisval = 1;
+	    }
+	  AddCut (fgSatNo, thisval);
+	  run.UpdateCutList (fgSatNo, thisval, fEvNum);
+	}
+      
+      if ( fgMonSatNo < fgNCuts)
+	{
+	  Int_t thisval = 0;
+	  Bool_t saturated = false;
+	  UInt_t i;
+	  for (i = 0; i < MONNUM && !saturated; i++) 
+	    saturated = GetData (fgMonRaw[i]) >= fgMonSatCut;
+	  
+	  if (saturated)
+	    {
+#ifdef NOISY
+	      clog << "Event " << fEvNum << " failed saturation cut, mon"
+		   << i << " raw = " << GetData (fgMonRaw[i-1]) << " > " << fgMonSatCut << endl;
+#endif
+	      thisval = 1;
+	    }
+	  AddCut (fgMonSatNo, thisval);
+	  run.UpdateCutList (fgMonSatNo, thisval, fEvNum);
+    }
+      
+      
+      if ( fgAdcxDacBurpNo < fgNCuts)
+	{
+	  Int_t thisval = 0;
+	  
+	  if (adcxglitch != 0)
+	    {
+#ifdef NOISY
+	      clog << "Event " << fEvNum << " failed ADCX burp cut" << endl;
+#endif
+	      thisval = 1;
+	    }
+	  AddCut (fgAdcxDacBurpNo, thisval);
+	  run.UpdateCutList (fgAdcxDacBurpNo, thisval, fEvNum);
+	}
+      
+      
+      if ( fgAdcxBadNo < fgNCuts)
+	{
+	  Int_t thisval = 0;
+	  
+	  if (adcxbad != 0)
+	    {
+#ifdef NOISY
+	      clog << "Event " << fEvNum << " failed ADCX bad cut " << endl;
+#endif
+	      thisval = 1;
+	    }
+	  AddCut (fgAdcxBadNo, thisval);
+	  run.UpdateCutList (fgAdcxBadNo, thisval, fEvNum);
+	}
+      
+      
+
       // Beam burp -- current change greater than limit?
       if (fgBurpNo < fgNCuts)
 	{
