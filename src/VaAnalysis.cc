@@ -769,9 +769,10 @@ VaAnalysis::ProcessPair()
       if (fPairTree) {
 	// Fill tree only if fFillDitherOnly is off, or if dither
 	// object is > -1 for both events.
-	if (!fFillDitherOnly 
-	    || (fPair->GetLeft().GetData (IBMWOBJ) > -1
-		&& fPair->GetRight().GetData (IBMWOBJ) > -1))
+	// blanked out 16April10, rupesh
+// 	if (!fFillDitherOnly 
+// 	    || (fPair->GetLeft().GetData (IBMWOBJ) > -1
+// 		&& fPair->GetRight().GetData (IBMWOBJ) > -1))
 	  fPairTree->Fill();      
 #ifdef PANGUIN
     // Autosave the Pair Tree and Rootfile every 100 events (if
@@ -803,19 +804,20 @@ VaAnalysis::ProcessPair()
 	      // object is > -1 for all events.
 	      if (fMultipletTree != NULL)
 		{
-		  Bool_t dowrite = true;
-		  if (fFillDitherOnly)
-		    {
-		      for (UInt_t ip = 0; 
-			   dowrite && (ip < fMultiplet->GetSize()); 
-			   ++ip)
-			{
-			  dowrite = dowrite
-			    && fMultiplet->GetPair (ip).GetLeft().GetData (IBMWOBJ) > -1
-			    && fMultiplet->GetPair (ip).GetRight().GetData (IBMWOBJ) > -1;
-			}
-		    }
-		  if (dowrite)
+	// blanked out 16April10, rupesh
+// 		  Bool_t dowrite = true;
+// 		  if (fFillDitherOnly)
+// 		    {
+// 		      for (UInt_t ip = 0; 
+// 			   dowrite && (ip < fMultiplet->GetSize()); 
+// 			   ++ip)
+// 			{
+// 			  dowrite = dowrite
+// 			    && fMultiplet->GetPair (ip).GetLeft().GetData (IBMWOBJ) > -1
+// 			    && fMultiplet->GetPair (ip).GetRight().GetData (IBMWOBJ) > -1;
+// 			}
+// 		    }
+// 		  if (dowrite)
 		    fMultipletTree->Fill();      
 		  ++fMultipletProc;
 		}
