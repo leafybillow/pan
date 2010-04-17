@@ -117,7 +117,8 @@ void OnlineConfig::ParseFile()
     sConfFile.push_back(strvect);
   }
 
-#ifdef DEBUG  
+#ifdef DEBUG
+  cout << "OnlineConfig::ParseFile()\n";
   for(UInt_t ii=0; ii<sConfFile.size(); ii++) {
     cout << "Line " << ii << endl << "  ";
     for(UInt_t jj=0; jj<sConfFile[ii].size(); jj++) 
@@ -248,6 +249,7 @@ Bool_t OnlineConfig::ParseConfig()
   }
 
 #ifdef NOISY
+  cout << "OnlineConfig::ParseConfig()\n";
   for(UInt_t i=0; i<GetPageCount(); i++) {
     cout << "Page " << i << " (" << GetPageTitle(i) << ")"
 	 << " will draw " << GetDrawCount(i) 
@@ -296,11 +298,22 @@ vector <TString> OnlineConfig::GetCutIdent() {
 Bool_t OnlineConfig::IsLogy(UInt_t page) {
 // Check if last word on line is "logy"
 
+
   UInt_t page_index = pageInfo[page].first;
   Int_t word_index = sConfFile[page_index].size()-1;
   if (word_index <= 0) return kFALSE;
   TString option = sConfFile[page_index][word_index];  
-  if(option == "logy") return kTRUE;
+  if(option == "logy") {
+    printf("\nFound a logy!!!\n\n");
+    return kTRUE;
+  }
+#ifdef DEBUG
+  cout << "OnlineConfig::IsLogy()     " << option << " " << page_index << " " << word_index 
+       << " " << sConfFile[page_index].size() << endl;
+  for (Int_t i= 0; i < sConfFile[page_index].size(); i++) {
+    cout << sConfFile[page_index][i] << " ";
+  }
+#endif
   return kFALSE;
 
 }
@@ -521,9 +534,13 @@ void OnlineConfig::OverrideRootFile(UInt_t runnumber)
   // uses a helper macro "GetRootFileName.C(UInt_t runnumber)
 
   if(!protorootfile.IsNull()) {
-    TString rn = "";
-    rn += runnumber;
-    protorootfile.ReplaceAll("XXXXX",rn.Data());
+//     Made more robust for slug number changing length Dalton 2009-09-21
+//     TString rn = "";
+//     rn += runnumber;
+//     protorootfile.ReplaceAll("XXXXX",rn.Data());
+    char runnostr[10];
+    sprintf(runnostr,"%04i",runnumber);
+    protorootfile.ReplaceAll("XXXXX",runnostr);
     rootfilename = protorootfile;
   } else {
     rootfilename = GetRootFileName(runnumber);
@@ -775,8 +792,12 @@ void OnlineGUI::DoDraw()
   } else {
     gStyle->SetOptLogy(0);
   }
+//   gStyle->SetTitleH(0.10);
+//   gStyle->SetTitleW(0.40);
   gStyle->SetTitleH(0.10);
-  gStyle->SetTitleW(0.40);
+  gStyle->SetTitleW(0.60);
+  gStyle->SetStatH(0.70);
+  gStyle->SetStatW(0.35);
 //   gStyle->SetLabelSize(0.10,"X");
 //   gStyle->SetLabelSize(0.10,"Y");
   gStyle->SetLabelSize(0.05,"X");
@@ -1019,7 +1040,26 @@ UInt_t OnlineGUI::GetTreeIndex(TString var) {
     TString first_var = fConfig->SplitString(var,":")[0];
     var = first_var;
   }
-
+  if(var.Contains("-")) {
+    TString first_var = fConfig->SplitString(var,"-")[0];
+    var = first_var;
+  }
+  if(var.Contains("/")) {
+    TString first_var = fConfig->SplitString(var,"/")[0];
+    var = first_var;
+  }
+  if(var.Contains("*")) {
+    TString first_var = fConfig->SplitString(var,"*")[0];
+    var = first_var;
+  }
+  if(var.Contains("+")) {
+    TString first_var = fConfig->SplitString(var,"+")[0];
+    var = first_var;
+  }
+  if(var.Contains("(")) {
+    TString first_var = fConfig->SplitString(var,"(")[0];
+    var = first_var;
+  }
   //  This is for variables with multiple dimensions.
   if(var.Contains("[")) {
     TString first_var = fConfig->SplitString(var,"[")[0];
@@ -1254,6 +1294,7 @@ void OnlineGUI::HistDraw(vector <TString> command) {
     if(command[1]=="noshowgolden") {
       showGolden = kFALSE;
     }
+  cout<<"showGolden= "<<showGolden<<endl;
 
   // Determine dimensionality of histogram
   for(UInt_t i=0; i<fileObjects.size(); i++) {
@@ -1273,6 +1314,7 @@ void OnlineGUI::HistDraw(vector <TString> command) {
 	    if(fPrintOnly) fillstyle=3010;
 	    mytemp1d_golden->SetFillStyle(fillstyle);
 	    mytemp1d_golden->Draw();
+	    cout<<"one golden histo drawn"<<endl;
 	    mytemp1d->Draw("sames");
 	  } else {
 	    mytemp1d->Draw();
@@ -1460,24 +1502,32 @@ void OnlineGUI::PrintPages() {
     fGoldenFile=NULL;
   }
 
-  // I'm not sure exactly how this works.  But it does.
-  fCanvas = new TCanvas("fCanvas","trythis",850,1100);
+  // Added this decision to make reasonable aspect ration for web content
+  //  if (confFileName) {
+    fCanvas = new TCanvas("fCanvas","trythis",1000,800);
+    //  } else {
+    // I'm not sure exactly how this works.  But it does.
+    //    fCanvas = new TCanvas("fCanvas","trythis",850,1100);
+    //  }
 //   TCanvas *maincanvas = new TCanvas("maincanvas","whatever",850,1100);
 //   maincanvas->SetCanvas(fCanvas);
   TLatex *lt = new TLatex();
 
   TString plotsdir = fConfig->GetPlotsDir();
-  Bool_t useJPG = kFALSE;
-  if(!plotsdir.IsNull()) useJPG = kTRUE;
+  Bool_t useGIF = kFALSE;
+  if(!plotsdir.IsNull()) useGIF = kTRUE;
 
   TString filename = "summaryplots";
   if(runNumber!=0) {
     filename += "_";
     filename += runNumber;
+  } else {
+    printf(" Warning for pretty plots: runNumber = %i\n",runNumber);
   }
-  if(useJPG) {
+
+  if(useGIF) {
     filename.Prepend(plotsdir+"/");
-    filename += "_pageXXXX.jpg";
+    filename += "_pageXXXX.gif";
   }
   else filename += ".ps";
 
@@ -1487,7 +1537,7 @@ void OnlineGUI::PrintPages() {
     pagehead += runNumber;
     pagehead += ")";
   }
-  pagehead += ": ";
+  //  pagehead += ": ";
 
   gStyle->SetPalette(1);
   gStyle->SetTitleX(0.15);
@@ -1495,23 +1545,27 @@ void OnlineGUI::PrintPages() {
   gStyle->SetPadBorderMode(0);
   gStyle->SetHistLineColor(1);
   gStyle->SetHistFillColor(1);
-  if(!useJPG) fCanvas->Print(filename+"[");
+  if(!useGIF) fCanvas->Print(filename+"[");
   TString origFilename = filename;
   for(UInt_t i=0; i<fConfig->GetPageCount(); i++) {
     current_page=i;
     DoDraw();
-    TString pagename = pagehead + fConfig->GetPageTitle(current_page);
+    TString pagename = pagehead;
+    pagename += " ";   
+    pagename += i;
+    pagename += ": ";
+    pagename += fConfig->GetPageTitle(current_page);
     lt->SetTextSize(0.025);
     lt->DrawLatex(0.05,0.98,pagename);
-    if(useJPG) {
+    if(useGIF) {
       filename = origFilename;
-      filename.ReplaceAll("XXXX",Form("%d",current_page));
+      filename.ReplaceAll("XXXX",Form("%02d",current_page));
       cout << "Printing page " << current_page 
 	   << " to file = " << filename << endl;
     }
     fCanvas->Print(filename);
   }
-  if(!useJPG) fCanvas->Print(filename+"]");
+  if(!useGIF) fCanvas->Print(filename+"]");
   
 #ifdef STANDALONE
   gApplication->Terminate();
@@ -1663,6 +1717,7 @@ int main(int argc, char **argv)
 
   online(type,run,printonly);
   theApp.Run();
+
 
   return 0;
 }

@@ -17,7 +17,8 @@
 
 int obtainBMslopes(TString type="dither",
 		   TString runlistStr="runlist.txt",
-		   TString exp="helium")
+		   TString exp="hydrogen",
+		   TString comment="")
 {
   if(exp=="helium") 
     {
@@ -26,16 +27,17 @@ int obtainBMslopes(TString type="dither",
 			    "det_lo",
 			    "blumi1","blumi2","blumi3","blumi4",
 			    "blumi5","blumi6","blumi7","blumi8"};
-      return getslopes(type,runlistStr,exp,nDet,sDet);
+      return getslopes(type,runlistStr,exp,comment,nDet,sDet);
     }
   if(exp=="hydrogen")
     {
       const UInt_t nDet=17;
       TString sDet[nDet] = {"det1","det2","det3","det4",
-			    "det_l","det_r","det_lo","det_hi","det_all",
+			    "flumi1","flumi2","det_lo","det_hi",
+			    "det_all",
 			    "blumi1","blumi2","blumi3","blumi4",
 			    "blumi5","blumi6","blumi7","blumi8"};
-      return getslopes(type,runlistStr,exp,nDet,sDet);
+      return getslopes(type,runlistStr,exp,comment,nDet,sDet);
     }
   
   return 1;
@@ -44,6 +46,7 @@ int obtainBMslopes(TString type="dither",
 int getslopes(TString type,
 	      TString runlistStr,
 	      TString exp,
+	      TString comment,
 	      const UInt_t nDet,
 	      TString *sDet) 
 {
@@ -52,13 +55,13 @@ int getslopes(TString type,
   //  gROOT->LoadMacro("multirun/TaRunlist.C+");
 
   const UInt_t nMon = 5;
-  TString sMon[nMon] = {"bpm4bx", "bpm4by", 
-		     "bpm4ax", "bpm4ay",
-		     "bpm12x"};
+  TString sMon[nMon] = {"bpm10x", "bpm10y", 
+			"bpm4ax", "bpm4bx",
+			"bpm12x"};
   // I need a way to kludge in a new energy monitor for Helium slugs 39-41
-  TString sMon2[nMon] = {"bpm4bx", "bpm4by", 
-		     "bpm4ax", "bpm4ay",
-		     "bpm10x"};
+  TString sMon2[nMon] = {"bpm10x", "bpm10y", 
+			 "bpm4ax", "bpm4bx",
+			 "bpm10x"};
 
   // Array containing run numbers and slug identifiers
   UInt_t runlist[MAXRUNS];
@@ -83,7 +86,7 @@ int getslopes(TString type,
   cout << "largest run number = " << runlist[nruns-1] << endl;
 
   // Create the output rootfile and tree.
-  TFile slope_summary_file(type+"_"+exp+".root","RECREATE");
+  TFile slope_summary_file(type+"_"+exp+comment+".root","RECREATE");
   TTree slopes("slopes",type+" slopes for "+exp);
   slopes.SetMarkerStyle(22);
 
@@ -129,9 +132,12 @@ int getslopes(TString type,
 
   TCanvas *c1; // This is for the root bug
   for(UInt_t irun=0; irun<nruns; irun++) {
-
+    
     TaFileName::Setup(runlist[irun],type.Data());
-    TString file = (TaFileName ("root")).Tstring();
+    TString file = (TaFileName ("root",comment)).Tstring();
+#ifdef NOISY
+    cout << "Opening " << file << endl;
+#endif
     TFile anaFile(file,"READ");
     if(anaFile.IsZombie() || !anaFile.IsOpen()) {
       // Something wrong with this file... skip it.

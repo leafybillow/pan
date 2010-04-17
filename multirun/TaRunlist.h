@@ -16,6 +16,7 @@
 
 #include <vector>
 #include <map>
+#include "TString.h"
 
 using namespace std;
 
@@ -23,6 +24,7 @@ struct Run {
   Int_t runnumber;
   Int_t slug;
   Int_t slowsign;
+  Int_t curmon;
   Int_t LeftDetLo;
   Int_t LeftDetHi;
   Int_t RightDetLo;
@@ -38,6 +40,7 @@ class TaRunlist {
   Int_t GetRunnumber(Int_t run) {return mapRunlist[run].runnumber;};
   Int_t GetSlug(Int_t run) {return mapRunlist[run].slug;};
   Int_t GetSlowSign(Int_t run) {return mapRunlist[run].slowsign;};
+  Int_t GetCurmon(Int_t run) {return mapRunlist[run].curmon;};
   Int_t GetLeftDetLo(Int_t run) {return mapRunlist[run].LeftDetLo;};
   Int_t GetLeftDetHi(Int_t run) {return mapRunlist[run].LeftDetHi;};
   Int_t GetRightDetLo(Int_t run) {return mapRunlist[run].RightDetLo;};

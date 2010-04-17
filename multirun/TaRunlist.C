@@ -43,7 +43,8 @@ Bool_t TaRunlist::Load()
   
   while(ifile.good()) {
     Run thisrun;
-    ifile >> thisrun.runnumber >> thisrun.slug >> thisrun.slowsign;
+    ifile >> thisrun.runnumber >> thisrun.slug; 
+    ifile >> thisrun.slowsign;//  >> thisrun.curmon;
     ifile >> thisrun.LeftDetLo >> thisrun.LeftDetHi;
     ifile >> thisrun.RightDetLo >> thisrun.RightDetHi;
     mapRunlist[thisrun.runnumber] = thisrun;

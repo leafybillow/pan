@@ -63,7 +63,9 @@ void TaPairSelector::Init(TTree *tree,
 
    TString treename = tree->GetName();
 
-   if(treename == "P") isPanTree=kTRUE;
+   printf("TaPairSelector::Init  found %s tree\n",treename.Data());
+
+   if(treename == "P" || treename == "M") isPanTree=kTRUE;
    else isPanTree=kFALSE;
 
    if(doublevars.size()>MAXDOUBLEDATA) {
@@ -173,7 +175,7 @@ Bool_t TaPairSelector::ProcessLoad(Long64_t entry)
   // Check the leafs for this event.
 
   fChain->GetEntry(entry);
-
+  //cout << entry << " ";
   return kTRUE;
 }
 

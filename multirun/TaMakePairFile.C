@@ -40,6 +40,8 @@ TaMakePairFile::TaMakePairFile(TString rootfilename,
   // Constructor.  Create the output rootfile and tree.  
   //  Use the info in the TaVarChooser to make tree branches .
 
+  printf("TaMakePairFile(%s,%s,%i)\n",rootfilename.Data(), chooserfilename.Data(), ditherSwitch);
+
   fRootFile = new TFile(rootfilename,"RECREATE");
   fRootFile->SetCompressionLevel(5);
   cout << "Output ROOTfile compression level "
@@ -102,7 +104,7 @@ void TaMakePairFile::RunLoop()
 
     TaFileName panFN(runnumber,"standard","root");
     TFile panFile(panFN.Tstring());
-    TTree *asy = (TTree*)panFile.Get("P");
+    TTree *asy = (TTree*)panFile.Get("M");
     if(!panFile.IsOpen()) {
       delete asy;
       cerr << "*** Warning: unable to open PAN rootfile for run " 
@@ -110,7 +112,7 @@ void TaMakePairFile::RunLoop()
       continue;
     }
 
-    TaFileName regFN(runnumber,"regress","root");
+    TaFileName regFN(runnumber,"regress","root","M");
     TFile regFile(regFN.Tstring());
     TTree *reg = (TTree*)regFile.Get("reg");
     if(!regFile.IsOpen()) {
@@ -155,6 +157,9 @@ void TaMakePairFile::EventLoop(Long64_t nevents)
     maxL = (Double_t)fDBRunlist->GetLeftDetHi(runnumber);
     minR = (Double_t)fDBRunlist->GetRightDetLo(runnumber);
     maxR = (Double_t)fDBRunlist->GetRightDetHi(runnumber);
+  }
+  if (minL!=0 || maxL!=0 || minR!=0 || maxR!=0) {
+    printf("Using events from %.0f to %.0f left arm and %.0f to %.0f right arm.",minL, maxL, minR, maxR);
   }
 
   for(UInt_t ient=0; ient<nevents; ient++){
@@ -244,6 +249,9 @@ void TaMakePairFile::EventLoop(Long64_t nevents)
 
     fTree->Fill();
   }
+  printf("Total good pairs in slug: %i\n", pair_num);
+  //  Int_t returnval = pair_num;
+  //  return returnval;
 
 }
 
@@ -255,7 +263,10 @@ void TaMakePairFile::Finish()
 
   cout << "Finished" << endl;
 
-  if(!isConfigured()) return;
+  if(!isConfigured()) {
+    cerr << "Not configured so not writing tree.\n";
+    return;
+  }
 
 
   fRootFile->cd();
