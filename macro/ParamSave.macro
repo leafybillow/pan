@@ -15,7 +15,7 @@
 #include "RedCoefs.macro"
 
 // Uncomment to load fake correction coefficients
-//#define FAKETYFAKE 1
+// #define FAKETYFAKE 0
 // Uncomment to use regressed quantities from regress rootfile, otherwise
 //   correct quantities using regression slopes from results file
 #define USEREGROOTFILE
@@ -176,8 +176,8 @@ ParamSave::LoadCorrs (const char *ditresfile)
   fCorrMonTag[0].push_back ("bpm1y");
   fCorrMonTag[0].push_back ("bpm12x");
   fCorrMonTag[0].push_back ("bpm12y");
-  fCorrMonTag[0].push_back ("bpm10x");
-  fCorrMonTag[0].push_back ("bpm10y");
+  fCorrMonTag[0].push_back ("bpm14x");
+  fCorrMonTag[0].push_back ("bpm14y");
   fCorrMonTag[0].push_back ("bpm8x");
   fCorrMonTag[0].push_back ("bpm8y");
 
@@ -186,7 +186,14 @@ ParamSave::LoadCorrs (const char *ditresfile)
   fCorrMonTag[1].push_back ("bpm4bx");
   fCorrMonTag[1].push_back ("bpm4ay");
   fCorrMonTag[1].push_back ("bpm4by");
+  fCorrMonTag[1].push_back ("bpm1x");
+  fCorrMonTag[1].push_back ("bpm1y");
   fCorrMonTag[1].push_back ("bpm12x");
+  fCorrMonTag[1].push_back ("bpm12y");
+  fCorrMonTag[1].push_back ("bpm14x");
+  fCorrMonTag[1].push_back ("bpm14y");
+  fCorrMonTag[1].push_back ("bpm8x");
+  fCorrMonTag[1].push_back ("bpm8y");
 
   v.clear();
   v.push_back (0.1);
@@ -379,7 +386,7 @@ ParamSave::PutDet (const string dt, const string naora, TTree& t, const string s
   
   Double_t m = 1e99;
   Double_t me = 1e99;
-  Double_t w = 1e99;
+ Double_t w = 1e99;
   Double_t n;
   string adetstring = (naora + "_" + dt);
   
@@ -434,7 +441,7 @@ void
 ParamSave::PutCut(const string sel, TTree& t)
 {
   Stat_t n = 0;
-
+  //  printf("%s %s \n",sel.c_str(),sel.c_str());
   if(sel != "") 
     {
       t.Draw(sel.c_str(),sel.c_str(),"goff");
@@ -445,7 +452,20 @@ ParamSave::PutCut(const string sel, TTree& t)
 	}
       fCutTag.push_back (sel);
       fCutM.push_back (n);
+    } 
+  // This is to show the number of pairs before any cuts are made - Dalton 
+  else 
+    {
+      t.Draw("ok_cut","","goff");
+      TH1* htemp = (TH1*)gROOT->FindObject("htemp");
+      if (htemp) 
+	{
+	  n = htemp->GetEntries();
+	}
+      fCutTag.push_back ("no cuts");
+      fCutM.push_back (n);
     }
+  // End mod
 }
 
 void
@@ -547,10 +567,15 @@ ParamSave::Print()
     }
   
   ofile.close();
+  // This horrible kludge added by dalton 2009-09-05 to copy the output to the web.
+  char systemcom[256];
+  sprintf(systemcom,"cp %s /u/home/adaq/public_html/prex/prompt_output\n",fn.String().c_str());
+  printf("ParamSave::Print()   %s\n",systemcom);
+  system(systemcom);
+  // enf of kludge
 }
 
-string 
-ParamSave::AsyCorr (string det, Bool_t modulation)
+string ParamSave::AsyCorr (string det, Bool_t modulation)
 {
   TString ret("");
   UInt_t imr = modulation ? 1 : 0;

@@ -15,13 +15,15 @@ use strict;
 my $type;
 my $id;
 my $runrange;
-my $slugnumber;
+my $slugnumber=-1;
 
 GetOptions('type=s'  => \$type,     # summary type (daily/slug)
 	   'id=i'    => \$id,       # identifier (slug1,0727)
 	   'range=s' => \$runrange,
 	   'slug=i'  => \$slugnumber #slugnumber
 	  );
+
+#print "$type, $id, $runrange,$slugnumber\n";
 
 print "\n";
 print "------------------------------------------------------------\n";
@@ -48,13 +50,13 @@ unless ($type eq "daily" || $type eq "slug") {
   exit;
 }
 
-unless($id || $slugnumber) {
+unless($id || $slugnumber>=0) {
   print "\n Need a summary ID (-i <ID> or --id <ID>)\n\n";
   &PrintUsage;
   exit;
 }
 
-unless ($slugnumber) {
+unless ($slugnumber>=0) {
   unless(@ARGV||$runrange) {
     print "\nNeed a list of runnumbers!\n\n";
     &PrintUsage;
@@ -136,6 +138,7 @@ if($type eq "slug") {
 }
 
 system $sys_command;
+#print "$sys_command\n";
 
 exit;
 

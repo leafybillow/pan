@@ -155,8 +155,10 @@ foreach my $run (@runs)
 	      }
 	    else
 	      {
-		system "echo './pan -r $run'";
-		system "./pan -r $run" if !$DEBUG;
+		#system "echo './pan -fillditonly -r  $run -d trees R P M E'";
+		#system "./pan -fillditonly -r $run -d trees R P M E" if !$DEBUG;
+		system "echo './pan -r $run '";
+		system "./pan -r $run " if !$DEBUG;
 	      }
 	  }
 	else
@@ -194,7 +196,9 @@ foreach my $run (@runs)
 		warn "Regression ROOT file $rrootfn already exists, regression analysis not done\n";
 	      }
 	  }
-      }
+    } else {
+	warn "Regression chosen as disabled.\n";
+    }
 
     # Dithering analysis =======================
 
@@ -231,8 +235,11 @@ foreach my $run (@runs)
 
     if (!$nomacro)
       {
-	system "echo \"root $opts 'prompt.macro($run, $batch)'\"";
-	system "root $opts 'macro/prompt.macro($run, $batch)'" if !$DEBUG;
+	system "echo \"root $opts 'prompt.macro($run, $batch,\"M\")'\"";
+	system "root $opts 'macro/prompt.macro($run, $batch,\"M\")'" if !$DEBUG;
+
+#	system "echo \"root $opts 'prompt.macro($run, $batch)'\"";
+#	system "root $opts 'macro/prompt.macro($run, $batch)'" if !$DEBUG;
       }
   }
 

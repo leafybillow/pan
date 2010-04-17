@@ -49,7 +49,7 @@ unless($id || $slugnumber) {
   exit;
 }
 
-my $WACdir = "~/HAPPEX05/WAC/";
+my $WACdir = "/adaqfs/home/apar/PREX/wac/";
 my $plots_dir=$WACdir;
 my $PSfilename;
 if($type eq "slug") {
