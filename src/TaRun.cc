@@ -98,7 +98,7 @@ TaRun::TaRun():
   fPOrdRunStats(0),
   fMRunStats(0),
   fFirstPass(true),
-  fFillDitherOnly (false)
+  fFillDitherOnly(false)
 {
 #ifdef ONLINE
    mymode        = 1;
@@ -133,7 +133,7 @@ TaRun::TaRun(const Int_t& run) :
   fPOrdRunStats(0),
   fMRunStats(0),
   fFirstPass(true),
-  fFillDitherOnly (false)
+  fFillDitherOnly(false)
 {
   TaFileName::Setup (fRunNumber, "");
   fCodaFileName = TaFileName ("coda").String();
@@ -161,7 +161,7 @@ TaRun::TaRun(const string& filename):
   fPOrdRunStats(0),
   fMRunStats(0),
   fFirstPass(true),
-  fFillDitherOnly (false)
+  fFillDitherOnly(false)
 {
 };
 
@@ -295,7 +295,7 @@ TaRun::Init(const vector<string>& dbcommand)
   fgORDNAME.push_back ("LRLR");
   fgORDNAME.push_back ("RLLR");
 
-  fFillDitherOnly = fDataBase->GetFillDitherOnly ();
+  fFillDitherOnly = fDataBase->GetFillDitherOnly();
 
   return fgTARUN_OK;
 
@@ -471,7 +471,7 @@ TaRun::AccumEvent(const VaEvent& ev, const Bool_t doSlice, const Bool_t doRun)
   // Fill tree only if fFillDitherOnly is off, or if dither
   // object is > -1.
   if (fFirstPass && fEvtree != 0
-      && (!fFillDitherOnly || ev.GetData (IBMWOBJ) > -1)) {
+      && (!fFillDitherOnly || ev.GetData(IBMWOBJ) > -1)) {
     fEvtree->Fill();
 #ifdef PANGUIN
     // Autosave the Event Tree and Rootfile every 100 events (if
@@ -845,6 +845,9 @@ TaRun::InitRoot()
     {
       fEvtree = new TTree("R","Event data DST");
       fEvtree->Branch ("ev_num", &fAccumEventNumber, "ev_num/I", 5000); // event number
+      // Added by Paul King and Mark Dalton  2010-04-16
+      Long64_t kMAXTREESIZE = 10000000000LL;
+      fEvtree->SetMaxTreeSize(kMAXTREESIZE);
     }
 
   if ( !fDevices ) {

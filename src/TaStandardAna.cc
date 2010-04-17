@@ -18,8 +18,7 @@
 
 #define PVDIS
 
-#include "TaStandardAna.hh"
-#include "VaEvent.hh"
+#include "TaStandardAna.hh"e "VaEvent.hh"
 #include "TaRun.hh"
 #include "TaLabelledQuantity.hh"
 #include "TaDevice.hh"
@@ -151,6 +150,30 @@ TaStandardAna::InitChanLists ()
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
   f = ChanListFromName ("bpm4bmx", "",  fgCOPY);
   fTreeList.insert (fTreeList.end(), f.begin(), f.end());
+
+  // Other Useful Stuff - Paul King and Mark Dalton  2010-04-16
+  f = ChanListFromName ("integtime", "", fgAVG);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());  
+  f = ChanListFromName ("v2f_clk0", "", fgAVG);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());  
+
+  f = ChanListFromName ("bpm12xp", "", fgAVG);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());  
+  f = ChanListFromName ("bpm12xm", "", fgAVG);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());  
+  f = ChanListFromName ("bpm12yp", "", fgAVG);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());  
+  f = ChanListFromName ("bpm12ym", "", fgAVG);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());  
+
+  f = ChanListFromName ("bpm10xp", "", fgAVG);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());  
+  f = ChanListFromName ("bpm10xm", "", fgAVG);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());  
+  f = ChanListFromName ("bpm10yp", "", fgAVG);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());  
+  f = ChanListFromName ("bpm10ym", "", fgAVG);
+  fTreeList.insert (fTreeList.end(), f.begin(), f.end());  
 
 //
   // QWEAK variables

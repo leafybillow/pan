@@ -336,12 +336,17 @@ VaAnalysis::InitLastPass ()
     {
       fRun->InitRoot();
       fRun->GetDataBase().WriteRoot();
-      if (fRun->GetDataBase().GetTreeUsed ("P"))
+      if (fRun->GetDataBase().GetTreeUsed ("P")) 
 	fPairTree = new TTree("P","Pair data DST");
       if (fDoMultiplet && fRun->GetDataBase().GetTreeUsed ("M"))
 	{
 	  fMultipletTree = new TTree("M","Multiplet data DST");
 	}
+      // Added by Paul King and Mark Dalton  2010-04-16
+      Long64_t kMAXTREESIZE = 10000000000LL;
+      fPairTree->SetMaxTreeSize(kMAXTREESIZE);
+      fMultipletTree->SetMaxTreeSize(kMAXTREESIZE);
+
       InitTree(fRun->GetCutList());
     }
   else
@@ -767,6 +772,7 @@ VaAnalysis::ProcessPair()
 #endif
       PairAnalysis();
       if (fPairTree) {
+	// blanked out below, 16April10, rupesh
 	// Fill tree only if fFillDitherOnly is off, or if dither
 	// object is > -1 for both events.
 	// blanked out 16April10, rupesh
