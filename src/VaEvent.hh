@@ -174,6 +174,7 @@ private:
   static Cut_t fgCBurpNo;      // cut number for C-beam-burp cut
   static Cut_t fgAdcxDacBurpNo;// cut number for 18-bit DAC burp cut
   static Cut_t fgAdcxBadNo;    // cut number for 18-bit bad cut
+  static Cut_t fgScalerBadNo;    // cut number for scaler bad cut
   static UInt_t fgOversample;  // oversample factor
   static UInt_t fgCurMon;      // index to current monitor for cuts
   static UInt_t fgCurMonC;     // index to current monitor for cuts
@@ -215,6 +216,7 @@ private:
   Int_t adcxbad;               // Flag for whether any ADCX is bad (1) or not (0)
   Int_t adcxglitch;            // Flag for whether any ADCX has a DAC glitch (1) or not (0)
   Int_t adcxcrlist;
+  Int_t scalerbad;               // Flag for whether any Scaler is bad (1) or not (0)
   static const Int_t fgCareSize = 0;  // if we care(1) or not(0) about
                                       // size of event changing.
   // The following two flags set to zero for HAPPEX or PREX.

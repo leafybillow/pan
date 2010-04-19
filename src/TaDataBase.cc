@@ -1552,12 +1552,12 @@ TaDataBase::GetTrees () const
   return result;
 };
 
-Bool_t TaDataBase::GetFillDitherOnly () const
+Bool_t TaDataBase::GetFillDitherOnly() const
 {
 // Return true if only dither-on events are to be included in the
 // trees (default=false)
   TaString cv = GetString ("fillditheronly");
-  return cv.CmpNoCase ("true") == 0;
+  return cv.CmpNoCase("true") == 0;
 }
 
 vector<Int_t> TaDataBase::GetExtLo() const {

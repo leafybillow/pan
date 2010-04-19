@@ -149,6 +149,7 @@ TaCutList::Init(const TaDataBase& db)
   fCBurpNo   = db.GetCutNumber (TaString ("C_burp"));
   fAdcxDacBurpNo = db.GetCutNumber (TaString ("Adcx_DAC_burp"));
   fAdcxBadNo = db.GetCutNumber (TaString ("Adcx_Bad"));
+  fScalerBadNo = db.GetCutNumber (TaString ("Scaler_Bad"));
 
 }
 
@@ -191,6 +192,7 @@ TaCutList::OKC (const VaEvent& ev) const
 	  c->GetCut() != fPosBurpENo &&
 	  c->GetCut() != fAdcxDacBurpNo &&
 	  c->GetCut() != fAdcxBadNo &&
+	  c->GetCut() != fScalerBadNo &&
 	  c->Inside(ev, fLowExtension[c->GetCut()], 
 		    fHighExtension[c->GetCut()]) && 
 	  c->GetVal() != 0)

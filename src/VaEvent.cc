@@ -67,6 +67,7 @@ Cut_t VaEvent::fgPosBurpENo;
 Cut_t VaEvent::fgCBurpNo;  
 Cut_t VaEvent::fgAdcxDacBurpNo;
 Cut_t VaEvent::fgAdcxBadNo;
+Cut_t VaEvent::fgScalerBadNo;
 UInt_t VaEvent::fgOversample;
 UInt_t VaEvent::fgCurMon;
 UInt_t VaEvent::fgCurMonC;
@@ -249,6 +250,7 @@ VaEvent::RunInit(const TaRun& run)
   fgPosBurpENo = run.GetDataBase().GetCutNumber ("Pos_burp_E");
   fgAdcxDacBurpNo = run.GetDataBase().GetCutNumber ("Adcx_DAC_burp");
   fgAdcxBadNo = run.GetDataBase().GetCutNumber ("Adcx_Bad");
+  fgScalerBadNo = run.GetDataBase().GetCutNumber ("Scaler_Bad");
   if (fgEvtSeqNo == fgNCuts)
     fgEvtSeqNo = run.GetDataBase().GetCutNumber ("Oversample"); // backward compat
   if (fgLoBeamNo == fgNCuts ||
@@ -270,7 +272,8 @@ VaEvent::RunInit(const TaRun& run)
       fgPosBurpENo == fgNCuts ||
       fgPosBurpNo == fgNCuts ||
       fgAdcxDacBurpNo == fgNCuts ||
-      fgAdcxBadNo == fgNCuts )
+      fgAdcxBadNo == fgNCuts ||
+      fgScalerBadNo == fgNCuts )
     {
       cerr << "VaEvent::RunInit WARNING: Following cut(s) are not defined "
 	   << "in database and will not be imposed:";
@@ -284,6 +287,7 @@ VaEvent::RunInit(const TaRun& run)
       if (fgCBurpNo == fgNCuts) cerr << " C_burp";
       if (fgAdcxDacBurpNo == fgNCuts) cerr << " Adcx_DAC_burp";
       if (fgAdcxBadNo == fgNCuts) cerr << " Adcx_Bad";
+      if (fgScalerBadNo == fgNCuts) cerr << " Scaler_Bad";
       cerr << endl;
     }
 
@@ -568,6 +572,18 @@ VaEvent::Decode(TaDevice& devices)
   // Calibrate Scalers for use with v2fs
   // Only one V2F is allowed per scaler.  Sorry.
   Int_t clockkey;
+
+  scalerbad = 0;
+  //***************************
+  // added to clean data from CH scaler, 18Apr10, rupesh
+  // v2f clock is 4Mhz
+  // expected_v2f = IT*2.5*4.0
+  Int_t expected_v2f = fData[TBDOFF + 8]*2.5*4.0;
+  // add +/- 10% of its own value to give us plenty of wiggle room for imprecision
+  expected_v2f = expected_v2f + 0.1*expected_v2f;
+  //    cout << "VaEvent:: expected_v2f:: " << expected_v2f << endl;
+  // **************************
+
   for (i = 0; i < V2FCLKNUM; i++) {
     clockkey = i + V2FCLKOFF;
     Double_t clockval;
@@ -599,6 +615,18 @@ VaEvent::Decode(TaDevice& devices)
       // HA! There IS a clockval!
       for (j = 0; j < 32; j++) {
 	key = j + i*32;
+	//*******************
+	// maxcount for any scaler channel is v2f_clk val
+	if(fData[SCAOFF + key]>expected_v2f || clockval>expected_v2f) scalerbad=1;
+#ifdef NOISY
+	if(scalerbad){
+	  if(j==0) cout << "VaEvent:: evnum ::  " << fEvNum << endl;  
+	  cout << "VaEvent:: "<< j <<" clockval:: " << clockval << endl;
+	  cout << "VaEvent:: "<< j <<" scalerval:: " << fData[SCAOFF + key] << endl;
+	  cout << "VaEvent:: "<< j <<" scalerbad:: " << scalerbad << endl;
+	}
+#endif
+	//***************
 	fData[SCCOFF + key] = 
 	  (fData[SCAOFF + key])/clockval - devices.GetPedestal(SCAOFF + key);
         if (devices.IsUsed(SCAOFF+key)) devices.SetUsed(SCCOFF+key);
@@ -1298,6 +1326,18 @@ VaEvent::CalibDecode(TaDevice& devices)
   // Calibrate Scalers for use with v2fs (no pedestal subtraction here!)
   // Only one V2F is allowed per scaler.  Sorry.
   Int_t clockkey;
+
+  scalerbad = 0;
+  //***************************
+  // added to clean data from CH scaler, 18Apr10, rupesh
+  // v2f clock is 4Mhz
+  // expected_v2f = IT*2.5*4.0
+  Int_t expected_v2f = fData[TBDOFF + 8]*2.5*4.0;
+  // add +/- 10% of its own value to give us plenty of wiggle room for imprecision
+  expected_v2f = expected_v2f + 0.1*expected_v2f;
+  //    cout << "VaEvent:: expected_v2f:: " << expected_v2f << endl;
+  // **************************
+
   for (i = 0; i < V2FCLKNUM; i++) {
     clockkey = i + V2FCLKOFF;
     Double_t clockval;
@@ -1329,6 +1369,10 @@ VaEvent::CalibDecode(TaDevice& devices)
       // HA! There IS a clockval!
       for (j = 0; j < 32; j++) {
 	key = j + i*32;
+	//*******************
+	// maxcount for any scaler channel is v2f_clk val
+	if(fData[SCAOFF + key]>expected_v2f || clockval>expected_v2f) scalerbad=1; 
+	//***************
 	corrkey = SCACLKDIVOFF + key;
 	fData[corrkey] = (fData[SCAOFF + key])/clockval;
         if (devices.IsUsed(SCAOFF+key)) devices.SetUsed(corrkey);
@@ -1580,8 +1624,22 @@ VaEvent::CheckEvent(TaRun& run)
 	  run.UpdateCutList (fgAdcxBadNo, thisval, fEvNum);
 	}
       
+      // cut out bad scaler events, added 18Apr10, rupesh
+  if ( fgScalerBadNo < fgNCuts)
+    {
+      Int_t thisval = 0;
       
-
+      if (scalerbad != 0)
+	{
+#ifdef NOISY
+	  clog << "Event " << fEvNum << " failed Scaler bad cut " << endl;
+#endif
+	  thisval = 1;
+	}
+      AddCut (fgScalerBadNo, thisval);
+      run.UpdateCutList (fgScalerBadNo, thisval, fEvNum);
+    }
+  
       // Beam burp -- current change greater than limit?
       if (fgBurpNo < fgNCuts)
 	{
