@@ -616,6 +616,16 @@ VaEvent::Decode(TaDevice& devices)
     if (devices.IsUsed(key)) devices.SetUsed(key);
   }
 
+// bmw coil
+  for (i = 0; i < BMWCOILNUM; i++) {
+      key = BMWCOILOFF + i;
+      if (devices.GetDevNum(key) < 0 || devices.GetChanNum(key) < 0) continue;
+      idx = devices.GetCalIndex(key);
+      if (idx < 0) continue;
+      fData[key] = fData[idx];
+      if (devices.IsUsed(key)) devices.SetUsed(key);
+  }
+  
 // Quad photodiode
   for (i = 0; i < QPDNUM; i++) {
     key = QPDOFF + 9*i;

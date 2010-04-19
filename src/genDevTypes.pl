@@ -113,7 +113,8 @@
 # quad photodiode
 @qpdlist = qw / IQPD1 /;
 # BMW words
-@bmwlist = qw / IBMWCLN IBMWOBJ IBMWFREQ IBMWPHASE IBMWPERIOD IBMWAMP IBMWVAL IBMWCYC IBMWCOIL1 IBMWCOIL2 IBMWCOIL3 IBMWCOIL4 IBMWCOIL5 IBMWCOIL6 IBMWCOIL7 IBMWCOIL8/;
+@bmwlist = qw / IBMWCLN IBMWOBJ IBMWFREQ IBMWPHASE IBMWPERIOD IBMWAMP IBMWVAL IBMWCYC/;
+@bmwcoillist = qw / IBMWCOIL1 IBMWCOIL2 IBMWCOIL3 IBMWCOIL4 IBMWCOIL5 IBMWCOIL6 IBMWCOIL7 IBMWCOIL8/;
 # scanflags
 @scanflist = qw / ISCANCLEAN ISCANCLEAN1 ISCANCLEAN2 ISCANCLEAN3 ISCANDATA1 ISCANDATA2 ISCANDATA3 ISCANDATA4 ISCANDATA5 ISCANDATA6 ISCANDATA7 ISCANDATA8 ISCANDATA9 ISCANDATA10 ISCANDATA11 ISCANDATA12 /;
 # SYNC words
@@ -2182,6 +2183,25 @@ sub do_bmwwords
 
 $out1
 ENDBMWWORDCOM
+
+    $bmwcoiloff = $p;
+    $bmwcoilnum = scalar (@bmwcoillist);
+    $out1 = "";
+    foreach $bmwcoilword (@bmwcoillist)
+    {
+	$out1 .= &add_bmwword ($bmwcoilword);
+    }
+    $out .= << "ENDBMWCOILWORDCOM";
+// bmwcoil words
+
+\// bmwcoil words start here
+\#define   BMWCOILOFF     $bmwcoiloff
+\// number of bmwcoil words defined below
+\#define   BMWCOILNUM     $bmwcoilnum
+
+$out1
+ENDBMWCOILWORDCOM
+
 }
 
 sub add_bmwword
