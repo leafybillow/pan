@@ -14,6 +14,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 
+#include "TaCutList.hh"
 #include "VaPair.hh"
 #include "TaLabelledQuantity.hh"
 #include "TaMultiplet.hh" 
@@ -30,41 +31,38 @@ ClassImp(TaMultiplet)
 // Static members
 const ErrCode_t TaMultiplet::fgTAM_OK = 0;
 const ErrCode_t TaMultiplet::fgTAM_ERROR = -1;
+vector < deque< VaPair > > TaMultiplet::fgPairQueue;
+Bool_t TaMultiplet::fgSkipping = true;
+VaPair TaMultiplet::fgThisWinPair;
+VaPair TaMultiplet::fgLastWinPair;
+Bool_t TaMultiplet::fgMultipletMade = false;
+UInt_t TaMultiplet::fgNCuts;
 
-TaMultiplet::TaMultiplet (const UInt_t n) 
-  : fN(n)
+TaMultiplet::TaMultiplet (const UInt_t n)
+  : fN (n),
+    fFull (false)
 {
-  fPairs.resize (n);
-  for (UInt_t i = 0; i < fN; ++i)
-    {
-      fPairs[i] = NULL;
-    }
-  fPairsIndex = 0;
 }
 
 
-TaMultiplet::TaMultiplet (const TaMultiplet& copy)
+TaMultiplet::TaMultiplet(const TaMultiplet& copy)
 {
   fN = copy.fN;
-  fPairs = copy.fPairs;
-  fPairsIndex = copy.fPairsIndex;
+  fFull = copy.fFull;
   fResults = copy.fResults;
+  fPairs = copy.fPairs;
 }
 
 
 TaMultiplet &
-TaMultiplet::operator= (const TaMultiplet &assign)
+TaMultiplet::operator=(const TaMultiplet &assign)
 {
   if (this != &assign)
     { 
-      for (UInt_t i = 0; i < fN; ++i)
-	{
-	  delete fPairs[i];
-	}
       fN = assign.fN;
-      fPairs = assign.fPairs;
-      fPairsIndex = assign.fPairsIndex;
+      fFull = assign.fFull;
       fResults = assign.fResults;
+      fPairs = assign.fPairs;
     } 
   return *this;
 }
@@ -72,76 +70,150 @@ TaMultiplet::operator= (const TaMultiplet &assign)
 
 TaMultiplet::~TaMultiplet()
 {
-  for (UInt_t i = 0; i < fN; ++i)
-    {
-      delete fPairs[i];
-    }
 }
 
 
 ErrCode_t
-TaMultiplet::RunInit (const TaRun& run)
+TaMultiplet::RunInit(const TaRun& run)
 {
-  // Initialization at start of run
+  // Initialization at start of run -- clear pair queue (so we don't
+  // multiplet pairs from two different runs, for instance)
+  fgPairQueue.clear();
+  fgPairQueue.resize (fN-1);
+  fgSkipping = true;
+  fgThisWinPair = VaPair();
+  fgLastWinPair = VaPair();
+  fgMultipletMade = false;
+
+  fgNCuts = (UInt_t) run.GetDataBase().GetNumCuts();
+
   return fgTAM_OK;
 }
 
 
 Bool_t 
-TaMultiplet::Fill (VaPair& thisPair) 
+TaMultiplet::Fill( VaPair& ThisPair)
 {
-  // Insert this pair into the list and return true iff this makes a
-  // full multiplet.
+  // If this pair completes a multiplet with stored ones, put the pairs
+  // into this multiplet and return true.  Otherwise store this pair and
+  // return false.
 
-  EMultipletSynch ms = (thisPair.GetFirst().GetMultipletSynch());
+  Bool_t MultipletMade = false;
 
-  if (fPairsIndex == fN || fPairsIndex == 0)
+  EMultipletSynch thisms = ThisPair.GetFirst().GetMultipletSynch();
+  static UInt_t multn = 0;  // position within multiplet
+
+  // Skip pairs until the first pair of a new window multiplet
+  if ( thisms == FirstMS &&
+       ThisPair.GetFirst().GetTimeSlot() == 1 )
+    fgSkipping = false;
+
+  if ( !fgSkipping )
     {
-      fPairsIndex = 0;
-      fResults.clear();
-      if (ms != FirstMS)
+#ifdef NOISY
+    clog << "Multipleting pair "  << ThisPair.GetFirst().GetEvNumber() << ", " << ThisPair.GetSecond().GetEvNumber() << ": ";
+#endif
+      // If first of a multiplet, store it
+      if (thisms == FirstMS)
 	{
-	  cerr << "TaMultiplet::Fill ERROR: Multiplet empty and MultipletSynch != first (ignore at start of run)" << endl;
-	  return false;
+	  multn = 0;
+	  Bool_t bad = false;
+	  for (UInt_t i = 0; i < fN-1; ++i)
+	    {
+	      if (fgMultipletMade && fgPairQueue[i].size() > 0)
+		{
+		  // If pair queue isn't empty, something is wrong: we
+		  // didn't multiplet off all non-last pairs with last pairs
+		  // before another first pair came along.
+		  cerr << "TaMultiplet::Fill ERROR: Nothing to multiplet pair "
+		       << fgPairQueue[i][0].GetFirst().GetEvNumber() << ", "
+		       << fgPairQueue[i][0].GetSecond().GetEvNumber() << " with\n";
+		  bad = true;
+		}
+	    }
+	  if (bad)
+	    {
+	      fgPairQueue.clear();
+	      fgPairQueue.resize (fN-1);
+	      if (ThisPair.GetFirst().GetTimeSlot() == 1)
+		fgPairQueue[0].push_back(ThisPair);
+	      else
+		fgSkipping = true;
+	    }
+	  else
+	    {
+	      fgPairQueue[0].push_back(ThisPair);
+#ifdef NOISY
+	      clog << " storing" << endl;
+#endif
+	    }
+	}
+      else 
+	{
+	  if (multn < fN-1)
+	    {
+	      // If non last of a multiplet, store it
+	      if (fgPairQueue[multn].size() >= fgPairQueue[0].size())
+		++ multn;
+	    }
+	  if (multn < fN-1)
+	    {
+	      fgPairQueue[multn].push_back(ThisPair);
+#ifdef NOISY
+	      clog << " storing" << endl;
+#endif
+	    }
+	  else
+	    {
+	      // If last of a multiplet, get its partners and build the multiplet
+	      Bool_t bad = false;
+	      for (UInt_t i = 0; i < fN-1; ++i)
+		{
+		  if (fgMultipletMade && fgPairQueue[i].size() == 0)
+		    bad = true;
+		}
+	      if (!bad)
+		{
+		  fPairs.clear();
+		  fResults.clear();
+		  for (UInt_t i = 0; i < fN-1; ++i)
+		    {
+#ifdef NOISY
+		      clog << "multipleting with pair " << fgPairQueue[i].GetFirst().GetEvNumber()
+			   << ", " << fgPairQueue[i].GetSecond().GetEvNumber() << endl;
+#endif
+		      fPairs.push_back (fgPairQueue[i][0]);
+		      fgPairQueue[i].pop_front();
+		    }
+		  fPairs.push_back (ThisPair);
+		  MultipletMade = true;
+		}
+	      else
+		{
+		  // Something's wrong.  This is a last pair but one of the
+		  // queues of non last pairs is empty.
+		  cerr << "TaMultiplet::Fill ERROR: Nothing to multiplet last pair "
+		       << ThisPair.GetFirst().GetEvNumber() << ", " << ThisPair.GetSecond().GetEvNumber() << " with\n";
+		  fgSkipping = true;
+		}
+	    }
 	}
     }
+#ifdef NOISY
   else
-    if (ms == FirstMS)
-	{
-	  cerr << "TaMultiplet::Fill ERROR: Multiplet nonempty and MultipletSynch == first" << endl;
-	  return false;
-	}
+    clog << "Skipping pair " << ThisPair.GetFirst().GetEvNumber() << ", " << ThisPair.GetSecond().GetEvNumber() << endl;
+#endif
 
-  delete fPairs[fPairsIndex];
-  fPairs[fPairsIndex] = &thisPair;
-  fPairsIndex++;
-  return (fPairsIndex == fN);
+  fgMultipletMade = MultipletMade;
+  fFull = MultipletMade;
+  return MultipletMade;
 }
+
 
 const VaPair& 
 TaMultiplet::GetPair (const UInt_t n) const
 {
-  return n < fN ? *(fPairs[n]) : *(fPairs[0]);
-}
-
-Bool_t
-TaMultiplet::DeletePair (const UInt_t n)
-{
-  // Delete pair n, or pair in next slot to be filled (default)
-  // Return true iff a delete was done
-
-  UInt_t nn;
-  if (n == 999)
-    nn = fPairsIndex == fN ? 0 : fPairsIndex;
-  else
-    nn = n;
-  if (nn < fPairs.size() && fPairs[nn] != NULL)
-    {
-      delete fPairs[nn];
-      fPairs[nn] = NULL;
-      return true;
-    }
-  return false;
+  return n < fN ? fPairs[n] : fPairs[0];
 }
 
 void 
@@ -157,10 +229,10 @@ TaMultiplet::GetRightSum (Int_t key) const
   // Get sum over pairs of quantity indexed by key for right events in
   // this multiplet.
   Double_t sum = 0;
-  for (vector<VaPair*>::const_iterator pairItr  = fPairs.begin(); 
+  for (vector<VaPair>::const_iterator pairItr  = fPairs.begin(); 
        pairItr != fPairs.end(); 
        pairItr++)
-    sum += (*pairItr)->GetRight().GetData (key);
+    sum += pairItr->GetRight().GetData (key);
   return sum;
 }
 
@@ -170,10 +242,10 @@ TaMultiplet::GetLeftSum (Int_t key) const
   // Get sum over pairs of quantity indexed by key for left events in
   // this multiplet.
   Double_t sum = 0;
-  for (vector<VaPair*>::const_iterator pairItr  = fPairs.begin(); 
+  for (vector<VaPair>::const_iterator pairItr  = fPairs.begin(); 
        pairItr != fPairs.end(); 
        pairItr++)
-    sum += (*pairItr)->GetLeft().GetData (key);
+    sum += pairItr->GetLeft().GetData (key);
   return sum;
 }
 
@@ -183,10 +255,10 @@ TaMultiplet::GetRightSumSum (vector<Int_t> keys, vector<Double_t> wts) const
   // Get sum over pairs of weighted sum of quantities indexed by keys
   // for right events in this multiplet.
   Double_t sum = 0;
-  for (vector<VaPair*>::const_iterator pairItr  = fPairs.begin(); 
+  for (vector<VaPair>::const_iterator pairItr  = fPairs.begin(); 
        pairItr != fPairs.end(); 
        pairItr++)
-    sum += (*pairItr)->GetRight().GetDataSum (keys, wts);
+    sum += pairItr->GetRight().GetDataSum (keys, wts);
   return sum;
 }
 
@@ -196,10 +268,10 @@ TaMultiplet::GetLeftSumSum (vector<Int_t> keys, vector<Double_t> wts) const
   // Get sum over pairs of weighted sum of quantities indexed by keys
   // for left events in this multiplet.
   Double_t sum = 0;
-  for (vector<VaPair*>::const_iterator pairItr  = fPairs.begin(); 
+  for (vector<VaPair>::const_iterator pairItr  = fPairs.begin(); 
        pairItr != fPairs.end(); 
        pairItr++)
-    sum += (*pairItr)->GetLeft().GetDataSum (keys, wts);
+    sum += pairItr->GetLeft().GetDataSum (keys, wts);
   return sum;
 }
 
@@ -390,9 +462,9 @@ TaMultiplet::PassedCuts() const
 {
   // True if no event has cut condition
 
-  vector<VaPair*>::const_iterator pairItr;
+  vector<VaPair>::const_iterator pairItr;
   for (pairItr  = fPairs.begin(); 
-       pairItr != fPairs.end() && (*pairItr)->PassedCuts(); 
+       pairItr != fPairs.end() && pairItr->PassedCuts(); 
        pairItr++)
     {} // empty loop body
 
@@ -404,9 +476,9 @@ TaMultiplet::PassedCutsInt (const TaCutList& cl) const
 {
   // True if no event is in cut interval
 
-  vector<VaPair*>::const_iterator pairItr;
+  vector<VaPair>::const_iterator pairItr;
   for (pairItr  = fPairs.begin(); 
-       pairItr != fPairs.end() && (*pairItr)->PassedCutsInt (cl); 
+       pairItr != fPairs.end() && pairItr->PassedCutsInt (cl); 
        pairItr++)
     {} // empty loop body
 
@@ -418,9 +490,9 @@ TaMultiplet::PassedCCutsInt (const TaCutList& cl) const
 {
   // True if no event is in cut interval (for hall C)
 
-  vector<VaPair*>::const_iterator pairItr;
+  vector<VaPair>::const_iterator pairItr;
   for (pairItr  = fPairs.begin(); 
-       pairItr != fPairs.end() && (*pairItr)->PassedCCutsInt (cl); 
+       pairItr != fPairs.end() && pairItr->PassedCCutsInt (cl); 
        pairItr++)
     {} // empty loop body
 
@@ -431,9 +503,9 @@ Bool_t
 TaMultiplet::BeamCut () const
 {
   // True if any event has beam cut
-  vector<VaPair*>::const_iterator pairItr;
+  vector<VaPair>::const_iterator pairItr;
   for (pairItr  = fPairs.begin(); 
-       pairItr != fPairs.end() && !((*pairItr)->BeamCut());
+       pairItr != fPairs.end() && !(pairItr->BeamCut());
        pairItr++)
     {} // empty loop body
 
@@ -444,9 +516,9 @@ Bool_t
 TaMultiplet::BeamCCut () const
 {
   // True if any event has Hall C beam cut
-  vector<VaPair*>::const_iterator pairItr;
+  vector<VaPair>::const_iterator pairItr;
   for (pairItr  = fPairs.begin(); 
-       pairItr != fPairs.end() && !((*pairItr)->BeamCCut());
+       pairItr != fPairs.end() && !(pairItr->BeamCCut());
        pairItr++)
     {} // empty loop body
 
@@ -463,4 +535,5 @@ TaMultiplet::GetResults() const
 
 
 // Private member functions
+
 

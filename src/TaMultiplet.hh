@@ -16,29 +16,34 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "Rtypes.h"
+#include <deque>
+#include <string>
+#include <vector>
+#include <iostream>
 #include "VaPair.hh"
 using namespace std;
 
+class TaCutList;
+class TaRun;
+//class VaPair;
 class TaLabelledQuantity;
 
 class TaMultiplet {
   
 public:
   
-  TaMultiplet (const UInt_t n = 4);
+  TaMultiplet(const UInt_t n = 4);
   TaMultiplet(const TaMultiplet& copy);
   TaMultiplet& operator=( const TaMultiplet& assign);  
   
   virtual ~TaMultiplet();
   
   virtual ErrCode_t RunInit(const TaRun&);
-  virtual Bool_t Fill (VaPair&);
+  virtual Bool_t Fill (VaPair&);  // check for multiplet and fill
   const VaPair& GetPair (const UInt_t n) const;
-  Bool_t DeletePair (const UInt_t n = 999);
   void AddResult (const TaLabelledQuantity&); 
-  Bool_t Full () const {return fPairsIndex == fN;}
+  Bool_t Full () const {return fFull;}
   UInt_t GetSize () const {return fN;}
-
   Double_t GetRightSum (Int_t) const;
   Double_t GetLeftSum (Int_t) const;
   Double_t GetRightSumSum (vector<Int_t>, vector<Double_t>) const;
@@ -55,9 +60,9 @@ public:
   Double_t GetAsyNSum (vector<Int_t>, Int_t, vector<Double_t> = vector<Double_t>(0)) const;
   Double_t GetAsyAve (vector<Int_t>, vector<Double_t> = vector<Double_t>(0)) const;
   Double_t GetAsyNAve (vector<Int_t>, Int_t, vector<Double_t> = vector<Double_t>(0)) const;
-  Bool_t PassedCuts() const; // True if no event has cut condition
-  Bool_t PassedCutsInt (const TaCutList& cl) const; // True if no event is in cut interval
-  Bool_t PassedCCutsInt (const TaCutList& cl) const; // True if no event is in cut interval (hallC)
+  Bool_t PassedCuts() const; // True if neither pair has cut condition
+  Bool_t PassedCutsInt(const TaCutList& cl) const; // True if neither pair is in cut interval
+  Bool_t PassedCCutsInt(const TaCutList& cl) const; // True if neither pair is in cut interval (hallC)
   Bool_t BeamCut () const;
   Bool_t BeamCCut () const;
   const vector<TaLabelledQuantity>& GetResults() const;
@@ -70,14 +75,22 @@ protected:
 
   // Private member functions
 
+  // Static data members  
+  static vector< deque< VaPair > > fgPairQueue;  // Pairs waiting to be multipleted (1 deque per multiplet member, minus one)
+  static Bool_t  fgSkipping;   // true until first pair of first full window multiplet/quad/octet etc.
+  static VaPair fgThisWinPair;  // first pair of this window
+  static VaPair fgLastWinPair;  // first pair of last window
+  static Bool_t  fgMultipletMade;   // set in Fill to true if multiplet made, else false
+  static UInt_t  fgNCuts;      // number of cuts defined
+
   // Data members
   UInt_t   fN;                           // Number in a multiplet
-  vector<VaPair*> fPairs;                // The pairs
-  UInt_t   fPairsIndex;                  // Where the next pair will go
+  Bool_t   fFull;                        // True iff we've filled this multiplet
+  vector<VaPair> fPairs;                 // the helicity pairs
   vector<TaLabelledQuantity> fResults;   // Multiplet analysis results
   
 #ifndef NODICT
-  ClassDef( TaMultiplet, 0 )  // Class for pair multiplets
+  ClassDef( TaMultiplet, 0 )  // Base class for helicity multiplets
 #endif
 };
 
