@@ -165,15 +165,6 @@ VaAnalysis::~VaAnalysis()
   delete fPairTree;
   if (fDoMultiplet)
     {
-      for (UInt_t i = 0; i < fNMultiplet; ++i)
-	{
-	  if (fMultiplet->DeletePair (i))
-	    {
-#ifdef LEAKCHECK
-	      ++fLeakDelPair;
-#endif
-	    }
-	}
       delete fMultiplet;
       delete fMultipletTree;
     }
@@ -584,26 +575,11 @@ VaAnalysis::RunFini()
   fEHelDeque.clear();
   fEDeque.clear();
   fPDeque.clear();
-  if (fDoMultiplet)
-    {
-      for (UInt_t i = 0; i < fNMultiplet; ++i)
-	{
-	  if (fMultiplet->DeletePair (i))
-	    {
+  delete fPair;
+  fPair = 0;
 #ifdef LEAKCHECK
-	      ++fLeakDelPair;
+  ++fLeakDelPair;
 #endif
-	    }
-	}
-    }
-  else
-    {
-      delete fPair;
-      fPair = 0;
-#ifdef LEAKCHECK
-      ++fLeakDelPair;
-#endif
-    }
 }
 
 
@@ -725,11 +701,8 @@ VaAnalysis::ProcessPair()
 #endif
   if (fPDeque.size())
     {
-      if (fPair && !fDoMultiplet)
+      if (fPair)
         { 
-	  // This is where we delete pairs we're done with, if we're
-	  // not doing multiplets.  If we are, we do it after 
-	  // multiplet analysis is done.
           delete fPair;
 #ifdef LEAKCHECK
           ++fLeakDelPair;
@@ -772,13 +745,6 @@ VaAnalysis::ProcessPair()
 #endif
       PairAnalysis();
       if (fPairTree) {
-	// blanked out below, 16April10, rupesh
-	// Fill tree only if fFillDitherOnly is off, or if dither
-	// object is > -1 for both events.
-	// blanked out 16April10, rupesh
-// 	if (!fFillDitherOnly 
-// 	    || (fPair->GetLeft().GetData (IBMWOBJ) > -1
-// 		&& fPair->GetRight().GetData (IBMWOBJ) > -1))
 	  fPairTree->Fill();      
 #ifdef PANGUIN
     // Autosave the Pair Tree and Rootfile every 100 events (if
@@ -795,38 +761,12 @@ VaAnalysis::ProcessPair()
 
       if (fDoMultiplet)
 	{
-	  // Delete old pair in the multiplet, we're through with it
-	  if (fMultiplet->DeletePair ())
-	    {
-#ifdef LEAKCHECK
-	  ++fLeakDelPair;
-#endif
-	    }
-	  fMultiplet->Fill (*fPair);
-	  if (fMultiplet->Full())
+	  if (fMultiplet->Fill (*fPair))
 	    {
 	      MultipletAnalysis();
-	      // Fill tree only if fFillDitherOnly is off, or if dither
-	      // object is > -1 for all events.
 	      if (fMultipletTree != NULL)
-		{
-	// blanked out 16April10, rupesh
-// 		  Bool_t dowrite = true;
-// 		  if (fFillDitherOnly)
-// 		    {
-// 		      for (UInt_t ip = 0; 
-// 			   dowrite && (ip < fMultiplet->GetSize()); 
-// 			   ++ip)
-// 			{
-// 			  dowrite = dowrite
-// 			    && fMultiplet->GetPair (ip).GetLeft().GetData (IBMWOBJ) > -1
-// 			    && fMultiplet->GetPair (ip).GetRight().GetData (IBMWOBJ) > -1;
-// 			}
-// 		    }
-// 		  if (dowrite)
-		    fMultipletTree->Fill();      
-		  ++fMultipletProc;
-		}
+		fMultipletTree->Fill();      
+	      ++fMultipletProc;
 	    }
 	}
     }
