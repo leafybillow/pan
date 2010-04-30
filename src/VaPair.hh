@@ -76,7 +76,7 @@ protected:
   static const ErrCode_t fgVAP_OK;     // returned on success
 
   // Private member functions
-  virtual void CheckSequence (VaEvent&, TaRun&) = 0; // look for helicity/synch errors
+  virtual void CheckSequence (VaEvent&, TaRun&) {}; // look for helicity/synch errors
   virtual UInt_t RanBit (UInt_t hRead = 2);
   virtual UInt_t RanBitOld (UInt_t hRead = 2);
   virtual UInt_t RanBit24 (UInt_t hRead = 2);
