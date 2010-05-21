@@ -6,6 +6,15 @@
 This is a detailed list of ongoing changes.  Add changes to 
 the top of this file.
 
+Changes by R. Michaels on May 21, 2010
+--------------------------------------
+
+Fixed VaEvent::CheckAdcxBad() which was erroneously finding
+bad ADCX data when a spurious data 0xffffffff appeared.
+The spurious data came from the CH scaler.  A simple fix
+of the logic got rid of this.
+
+
 Changes by R. Holmes on 12 Feb 2010
 -----------------------------------
 
