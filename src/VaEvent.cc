@@ -2809,13 +2809,13 @@ VaEvent::CheckAdcxBad() {
 
       for (Int_t j = fN1roc[iroc]; j < fN1roc[iroc]+fLenroc[iroc]; j++) {
         UInt_t rawd1 = GetRawData(j);
-        UInt_t rawd2 = GetRawData(j+8);
+        UInt_t rawd2 = GetRawData(j+9);
         UInt_t rawd3 = GetRawData(j+24);
 
-        if ( ((rawd1 & 0xfb0b4000) == 0xfb0b4000) &&
-             ((rawd2 & 0xfa180bad) == 0xfa180bad) ) bad0 = 1;
-        if ( ((rawd1 & 0xfb0b4000) == 0xfb0b4000) &&
-             ((rawd3 & 0xfa18bad1) == 0xfa18bad1) ) bad1 = 1;
+        if ( (rawd1 == 0xfb0b4000) &&
+             (rawd2 == 0xfa180bad) ) bad0 = 1;
+        if ( (rawd1 == 0xfb0b4000) &&
+             (rawd3 == 0xfa18bad1) ) bad1 = 1;
 
         if (ldebug) {
              cout << "chk ADCX bad "<<dec<<iroc<<"  rawd ";
