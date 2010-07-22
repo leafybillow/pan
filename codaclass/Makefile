@@ -138,6 +138,62 @@ ifeq ($(OSNAME),Linux)
 
 endif
 
+ifeq ($(OSNAME),Darwin)
+
+   ifdef OLDROOT
+     ROOTLIBS      = -L$(ROOTLIBDIR) -lNew -lBase -lCint -lClib -lCont -lFunc \
+                    -lGraf -lGraf3d -lHist -lHtml -lMatrix -lMeta -lMinuit -lNet \
+                    -lPhysics -lPostscript -lProof -lRint -lTree -lUnix -lZip
+     ROOTGLIBS     = -lGpad -lGui -lGX11 -lX3d
+   else
+     ROOTLIBS      = $(shell root-config --libs)
+     ROOTGLIBS     = $(shell root-config --glibs)
+   endif
+
+   CXX           = g++
+   CXXFLAGS      = -Wall -fno-rtti -fno-exceptions -fPIC \
+                   -DLINUXVERS -I$(ROOTINC) -O
+
+# Linux with egcs
+   INCLUDES      = -I$(ROOTINC)
+   CXX           = g++
+   CXXFLAGS      = -O -Wall -fno-rtti -fno-exceptions -fPIC $(INCLUDES)
+   LD            = g++
+   LDFLAGS       = 
+   SOFLAGS       = -shared
+
+   ifdef OLDROOT
+      LIBS          = $(ROOTLIBS) -lm -ldl -rdynamic
+      GLIBS         = $(ROOTLIBS) $(ROOTGLIBS) -L/usr/X11R6/lib \
+                      -lXpm -lX11 -lm -ldl -rdynamic
+      CXXFLAGS     += -DOLDROOT
+   else
+      LIBS          = $(ROOTLIBS)
+      GLIBS         = $(ROOTGLIBS) -L/usr/X11R6/lib -lXpm -lX11
+   endif
+
+   EVIO_LIB=libevio.a
+   ALL_LIBS = $(EVIO_LIB) $(GLIBS) $(ROOTLIBS) 
+
+# ONLIBS is needed for ET
+  ET_AC_FLAGS = -D_REENTRANT -D_POSIX_PTHREAD_SEMANTICS
+  ET_CFLAGS = -02 -fPIC $(ET_AC_FLAGS) -DLINUXVERS
+# CODA may be an environment variable.  Typical examples
+#  CODA = /adaqfs/coda/2.2
+#  CODA = /data7/user/coda/2.2
+  LIBET = $(CODA)/Linux/lib/libet.so
+  ONLIBS = $(LIBET) -lieee -lpthread -ldl -lresolv
+
+  ifdef ONLINE
+     ALL_LIBS += $(ONLIBS)
+  endif
+
+  ifdef PROFILE
+     CXXFLAGS += -pg
+  endif
+
+endif
+
 SRC = THaEtClient.C THaCodaFile.C THaCodaData.C 
 HEAD = $(SRC:.C=.h)
 DEPS = $(SRC:.C=.d)
