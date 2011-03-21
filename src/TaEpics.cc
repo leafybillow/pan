@@ -198,7 +198,7 @@ int TaEpics::Process(const VaEvent& event) {
 int TaEpics::LoadData(const int* evbuffer, int evnum)
 { // load data from the event buffer 'evbuffer' 
   // for event nearest 'evnum'.
-     static const size_t DEBUGL = 0, MAX  = 5000, MAXEPV = 100;
+     static const Int_t DEBUGL = 0, MAX  = 10000, MAXEPV = 200;
      char *line, *date;
      const char* cbuff = (const char*)evbuffer;
      char wtag[MAXEPV+1],wval[MAXEPV+1],sunit[MAXEPV+1];
@@ -207,12 +207,12 @@ int TaEpics::LoadData(const int* evbuffer, int evnum)
      static bool first = true;
      if( first ) 
          { sprintf(fmt,"%%%ds %%n",MAXEPV); first = false; }
-     size_t len = sizeof(int)*(evbuffer[0]+1);  
-     size_t nlen = TMath::Min(len,MAX);
+     Int_t len = sizeof(int)*(evbuffer[0]+1);  
+     Int_t nlen = TMath::Min(len,MAX);
      // Nothing to do?
      if( nlen<16 ) return 0;
      // Set up buffer for parsing
-     size_t dlen = nlen-16;
+     Int_t dlen = nlen-16;
      char* buf = new char[ dlen+1 ];
      strncpy( buf, cbuff+16, dlen );
      buf[dlen] = 0;
@@ -225,7 +225,7 @@ int TaEpics::LoadData(const int* evbuffer, int evnum)
        // Here we parse the line
        if(DEBUGL) cout << "epics line : "<<line<<endl;
        wtag[0] = 0; wval[0] = 0;
-       size_t n, m, slen = strlen(line);
+       Int_t n, m, slen = strlen(line);
        if( sscanf(line,fmt,wtag,&n) < 1 ) continue;
        // Get the value string _including_ spaces and 
        // excluding the trailing newline
@@ -255,6 +255,7 @@ int TaEpics::LoadData(const int* evbuffer, int evnum)
          isnew = kFALSE;
        } 
        EpicsChan ec;
+       if (DEBUGL) cout << "wtag " << wtag << " date " << date << " evnum " << evnum << " wval " << wval << " sunit " << sunit << " dval " << dval << endl;
        ec.Load(wtag, date, evnum, wval, sunit, dval);
        vepics.push_back(ec);
        if (isnew == kTRUE) {
