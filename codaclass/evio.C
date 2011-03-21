@@ -16,14 +16,47 @@
  *
  * Revision History:
  *   $Log$
- *   Revision 1.1  2002/02/05 23:26:44  rom
- *   Initial revision
+ *   Revision 1.2  2011/03/21 16:29:11  rsholmes
+ *   64 bit compatible version based on hana
  *
- *   Revision 1.2  2001/10/16 19:53:19  rom
- *   new evio library
+ *   Revision 1.9  2009/01/06 20:12:19  ole
+ *   Add support for large input files (>2GB).
  *
- *   Revision 1.4  1999/10/14 18:04:55  rwm
- *   Now compiles with CC for Bob Micheals. Other cleanups.
+ *   Without additional modifications, the evio code now supports files up
+ *   to blocksize * 2GB in size. The default CODA blocksize is 16k, but may
+ *   be different depending on how the file was written. This should be
+ *   tested further. Also, how does this mesh with newer CODA?
+ *
+ *   Revision 1.8  2005/10/24 15:00:31  feuerbac
+ *   Modified evio routines to pass pointers (void*) instead of int's casted
+ *   between pointers. The problem was noticed on 64-bit Linux AMD machines
+ *   under gcc4, where int's are 4-bytes but the pointers are 8-bytes.
+ *
+ *   Revision 1.7  2004/05/09 21:43:28  ole
+ *   Remove non-standard malloc.h include.
+ *   Change C includes to C++ naming (stdlib.h -> cstdlib etc.)
+ *
+ *   Revision 1.6  2004/03/26 16:11:33  ole
+ *   Make buffer argument for CODA write functions const since the buffer
+ *   is never modified, just written out.
+ *
+ *   Revision 1.5  2002/09/13 18:59:36  rom
+ *   fix bug (apparently recent) in malloc for fn in evOpen
+ *
+ *   Revision 1.4  2002/09/09 18:11:02  ole
+ *   Trim whitespace from beginning and end of filename in evOpen routine.
+ *
+ *   Revision 1.3  2002/08/30 15:02:44  ole
+ *   Remove leading spaces from file name in evOpen
+ *
+ *   Revision 1.2  2002/03/26 22:36:30  ole
+ *   Fix compliation warnings about signed/unsigned comparisons.
+ *
+ *   Revision 1.1.1.1  2001/11/14 21:02:51  ole
+ *   Initial import Release 0.61
+ *
+ *   Revision 1.1.1.1  2001/09/14 19:31:49  rom
+ *   initial import of hana decoder (v 1.6)
  *
  *   Revision 1.3  1998/09/21 15:06:39  abbottd
  *   Changes for compile for vxWorks
@@ -73,11 +106,11 @@
  * Routines
  * --------
  *
- *	evOpen(char *filename,char *flags,int *descriptor)
- *	evWrite(int descriptor,int *data,int datalen)
- *	evRead(int descriptor,int *data,int *datalen)
- *	evClose(int descriptor)
- *	evIoctl(int descriptor,char *request, void *argp)
+ *	evOpen(const char *filename,const char *flags,void* *descriptor)
+ *	evWrite(void* descriptor,int *data,int datalen)
+ *	evRead(void* descriptor,int *data,int *datalen)
+ *	evClose(void* descriptor)
+ *	evIoctl(void* descriptor,char *request, void *argp)
  *
  * Modifications
  * -------------
@@ -86,14 +119,13 @@
 
 #ifdef VXWORKS
 #include <vxWorks.h>
-#include <stdlib.h>
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <string.h>
-#include <ctype.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cerrno>
+#include <cstring>
+#include <cctype>
 
 #include "evio.h"
 
@@ -142,7 +174,7 @@ typedef struct evBinarySearch{
 #define EV_HD_RESVD  6		/* (reserved) */
 #define EV_HD_MAGIC  7		/* magic number for error detection */
 
-#define evGetStructure() (EVFILE *) malloc(sizeof(EVFILE))
+#define evGetStructure() (EVFILE *)malloc(sizeof(EVFILE))
 
 static  int  findLastEventWithinBlock(EVFILE *);
 static  int  copySingleEvent(EVFILE *, int *, int, int);
@@ -154,13 +186,13 @@ static  int  isRealEventsInsideBlock(EVFILE *, int, int);
 static  int  physicsEventsInsideBlock(EVFILE *);
 
 extern  int  int_swap_byte (int input);
-extern  void onmemory_swap (int* buffer);
+extern  void onmemory_swap (char* buffer);
 extern  int  swapped_fread (int *ptr,int size,int n_items,FILE *stream);
-extern  void swapped_intcpy(int* des, char* source, int nbytes);
+extern "C" void swapped_intcpy(char* des, char* source, int nbytes);
 extern  void swapped_memcpy(char *buffer,char *source,int size);
 
 #ifndef VXWORKS
-int evopen_(char *filename,char *flags,int *handle,int fnlen,int flen)
+int evopen_(const char *filename,const char *flags,void** handle,int fnlen,int flen)
 {
   char *fn, *fl;
   int status;
@@ -177,63 +209,52 @@ int evopen_(char *filename,char *flags,int *handle,int fnlen,int flen)
 }
 #endif
 
-int evOpen(char *filename,char *flags,int *handle)
+int evOpen(const char *filename,const char *flags,void* *handle)
 {
-  EVFILE *a;
-  char *cp;
+  EVFILE* a = evGetStructure(); /* allocate control structure or quit */
+  if (!a) return(S_EVFILE_ALLOCFAIL);
   int header[EV_HDSIZ];
   int temp, blk_size = 0;
-
-
-  a = evGetStructure();		/* allocate control structure or quit */
-
-  if (!a) {
-    return(S_EVFILE_ALLOCFAIL);
-  }
-  while (*filename==' ') {
-    filename++; /* remove leading spaces */
-  }
-
-//  for (cp=filename;*cp!=NULL;cp++) {
-//    if ((*cp==' ') || !(isprint((int) *cp))) {
-//     *cp='\0';
-//   }
-// }
-
+  char* fn = (char*)malloc(strlen(filename)+1);
+  strcpy(fn,filename);
+  /* remove leading whitespace */
+  while(isspace(*fn)) fn++; 
+  /* remove trailing whitespace */
+  for(char* cp=fn; *cp!='\0'; cp++)
+    if(isspace(*cp)||!isprint(*cp)) *cp='\0';
   switch (*flags)
-  case 'r': case 'R': {
-    a->file = fopen(filename,"r");
+  case '\0': case 'r': case 'R': {
+    a->file = fopen(fn,"r"); free(fn);
     a->rw = EV_READ;
     if (a->file) {
       fread(header,sizeof(header),1,a->file); /* update: check nbytes return */
-      if (header[EV_HD_MAGIC] != EV_MAGIC) {
+      if (header[EV_HD_MAGIC] != (int)EV_MAGIC) {
 	temp = int_swap_byte(header[EV_HD_MAGIC]);
-	if(temp == EV_MAGIC) {
+	if(temp == (int)EV_MAGIC)
 	  a->byte_swapped = 1;
-	} else {
+	else{ /* close file and free memory */
 	  fclose(a->file);
 	  free (a);
 	  return(S_EVFILE_BADFILE); 
 	}
-      } else {
-	a->byte_swapped = 0;
       }
+      else
+	a->byte_swapped = 0;
 
-      if (a->byte_swapped) {
+      if(a->byte_swapped){
 	blk_size = int_swap_byte(header[EV_HD_BLKSIZ]);
-	a->buf = (int *) malloc(blk_size*4);
-      } else {
+	a->buf = (int *)malloc(blk_size*4);
+      }
+      else {
 	a->buf = (int *) malloc(header[EV_HD_BLKSIZ]*4);
       }
 
       if (!(a->buf)) {
-	/* Can't allocate buffer, give up */
-	free(a);
+	free(a);		/* if can't allocate buffer, give up */
 	return(S_EVFILE_ALLOCFAIL);
       }
-
       if(a->byte_swapped){
-	swapped_intcpy(a->buf,(char *)header,EV_HDSIZ*4);
+	swapped_intcpy((char*)a->buf,(char *)header,EV_HDSIZ*4);
 	fread(&(a->buf[EV_HDSIZ]),4,blk_size-EV_HDSIZ,a->file);
       } else {
 	memcpy(a->buf,header,EV_HDSIZ*4);
@@ -241,13 +262,12 @@ int evOpen(char *filename,char *flags,int *handle)
 	      header[EV_HD_BLKSIZ]-EV_HDSIZ,
 	      a->file);		/* read rest of block */
       }
-
       a->next = a->buf + (a->buf)[EV_HD_START];
       a->left = (a->buf)[EV_HD_USED] - (a->buf)[EV_HD_START];
     }
     break;
   case 'w': case 'W':
-    a->file = fopen(filename,"w");
+    a->file = fopen(fn,"w"); free(fn);
     a->rw = EV_WRITE;
     if (a->file) {
       a->buf = (int *) malloc(EVBLOCKSIZE*4);
@@ -270,13 +290,14 @@ int evOpen(char *filename,char *flags,int *handle)
     break;
   default:
     free(a);
+    free(fn);
     return(S_EVFILE_UNKOPTION);
   }
   if (a->file) {
     a->magic = EV_MAGIC;
     a->blksiz = a->buf[EV_HD_BLKSIZ];
     a->blknum = a->buf[EV_HD_BLKNUM];
-    *handle = (int) a;
+    *handle = (void*) a;
     return(S_SUCCESS);
   } else {
     free(a);
@@ -291,13 +312,13 @@ int evOpen(char *filename,char *flags,int *handle)
 }
 
 #ifndef VXWORKS
-int evread_(int *handle,int *buffer,int *buflen)
+int evread_(void* *handle,int *buffer,int *buflen)
 {
   return(evRead(*handle,buffer,*buflen));
 }
 #endif
 
-int evRead(int handle,int *buffer,int buflen)
+int evRead(void* handle,int *buffer,int buflen)
 {
   EVFILE *a;
   int nleft,ncopy,error,status;
@@ -305,18 +326,16 @@ int evRead(int handle,int *buffer,int buflen)
   int *temp_ptr = (int *) NULL;
 
   a = (EVFILE *)handle;
-  if (a->byte_swapped){
-    temp_buffer = (int *)malloc(buflen*sizeof(int));
-    temp_ptr = temp_buffer;
-  }
-  if (a->magic != EV_MAGIC) return(S_EVFILE_BADHANDLE);
+  if (a->magic != (int)EV_MAGIC) return(S_EVFILE_BADHANDLE);
   if (a->left<=0) {
     error = evGetNewBuffer(a);
     if (error) return(error);
   }
-  if (a->byte_swapped)
+  if (a->byte_swapped) {
+    temp_buffer = (int *)malloc(buflen*sizeof(int));
+    temp_ptr = temp_buffer;
     nleft = int_swap_byte(*(a->next)) + 1;
-  else
+  } else
     nleft = *(a->next) + 1;	/* inclusive size */
   if (nleft < buflen) {
     status = S_SUCCESS;
@@ -327,7 +346,10 @@ int evRead(int handle,int *buffer,int buflen)
   while (nleft>0) {
     if (a->left<=0) {
       error = evGetNewBuffer(a);
-      if (error) return(error);
+      if (error) {
+	free(temp_ptr);
+	return(error);
+      }
     }
     ncopy = (nleft <= a->left) ? nleft : a->left;
     if (a->byte_swapped){
@@ -358,12 +380,12 @@ int evGetNewBuffer(EVFILE *a) {
   nread = fread(a->buf,4,a->blksiz,a->file);
   if (a->byte_swapped){
     for(i=0;i<EV_HDSIZ;i++)
-      onmemory_swap(&(a->buf[i]));
+      onmemory_swap((char*)&(a->buf[i]));
   }
   if (feof(a->file)) return(EOF);
   if (ferror(a->file)) return(ferror(a->file));
   if (nread != a->blksiz) return(errno);
-  if (a->buf[EV_HD_MAGIC] != EV_MAGIC) {
+  if (a->buf[EV_HD_MAGIC] != (int)EV_MAGIC) {
     /* fprintf(stderr,"evRead: bad header\n"); */
     return(S_EVFILE_BADFILE);
   }
@@ -382,18 +404,18 @@ int evGetNewBuffer(EVFILE *a) {
 }
 
 #ifndef VXWORKS
-int evwrite_(int *handle,int *buffer)
+int evwrite_(void* *handle,const int *buffer)
 {
   return(evWrite(*handle,buffer));
 }
 #endif
 
-int evWrite(int handle,int *buffer)
+int evWrite(void* handle,const int *buffer)
 {
   EVFILE *a;
   int nleft,ncopy,error;
   a = (EVFILE *)handle;
-  if (a->magic != EV_MAGIC) {
+  if (a->magic != (int)EV_MAGIC) {
     return(S_EVFILE_BADHANDLE);
   }
 
@@ -442,7 +464,7 @@ int evFlush(EVFILE *a)
 }
 
 #ifndef VXWORKS
-int evioctl_(int *handle,char *request,void *argp,int reqlen)
+int evioctl_(void* *handle,char *request,void *argp,int reqlen)
 {
   char *req;
   int status;
@@ -455,11 +477,11 @@ int evioctl_(int *handle,char *request,void *argp,int reqlen)
 }
 #endif
 
-int evIoctl(int handle,char *request,void *argp)
+int evIoctl(void* handle,char *request,void *argp)
 {
   EVFILE *a;
   a = (EVFILE *)handle;
-  if (a->magic != EV_MAGIC) return(S_EVFILE_BADHANDLE);
+  if (a->magic != (int)EV_MAGIC) return(S_EVFILE_BADHANDLE);
   switch (*request) {
   case 'b': case 'B':
     if (a->rw != EV_WRITE) return(S_EVFILE_BADSIZEREQ);
@@ -490,36 +512,36 @@ int evIoctl(int handle,char *request,void *argp)
 }
 
 #ifndef VXWORKS
-int evclose_(int *handle)
+int evclose_(long int *handle)
 {
-  return(evClose(*handle));
+  return(evClose((void*)*handle));
 }
 #endif
 
-int evClose(int handle)
+int evClose(void* handle)
 {
   EVFILE *a;
   int status = 0, status2;
   a = (EVFILE *)handle;
-  if (a->magic != EV_MAGIC) return(S_EVFILE_BADHANDLE);
+  if (a->magic != (int)EV_MAGIC) return(S_EVFILE_BADHANDLE);
   if(a->rw == EV_WRITE) {
     status = evFlush(a);
   }
   status2 = fclose(a->file);
-  free((char *)(a->buf));
-  free((char *)a);
+  free(a->buf);
+  free(a);
   if (status==0) status = status2;
   return(status);
 }
 
 
 /******************************************************************
- *         int evOpenSearch(int, int *)                           *
+ *         int evOpenSearch(void*, void* *)                       *
  * Description:                                                   *
  *     Open for binary search on data blocks                      *
  *     return last physics event number                           *
  *****************************************************************/
-int evOpenSearch(int handle, int *b_handle)
+int evOpenSearch(void* handle, void* *b_handle)
 {
   EVFILE *a;
   EVBSEARCH *b;
@@ -533,7 +555,7 @@ int evOpenSearch(int handle, int *b_handle)
     fprintf(stderr,"Cannot allocate memory for EVBSEARCH structure!\n");
     exit(1);
   }
-  fseek(a->file, 0L, SEEK_SET);
+  fseeko(a->file, 0L, SEEK_SET);
   fread(header, sizeof(header), 1, a->file);
   if(a->byte_swapped)
     temp = int_swap_byte(header[EV_HD_BLKNUM]);
@@ -541,10 +563,10 @@ int evOpenSearch(int handle, int *b_handle)
     temp = header[EV_HD_BLKNUM];
   b->sbk = temp;
   /* jump to the end of file */
-  fseek(a->file, 0L, SEEK_END);
+  fseeko(a->file, 0L, SEEK_END);
   while(!found){
     /* jump back to the beginning of the block */
-    fseek(a->file, (-1)*a->blksiz*4*i, SEEK_END);
+    fseeko(a->file, (-1)*a->blksiz*4*i, SEEK_END);
     if((bknum = physicsEventsInsideBlock(a)) >= 0){
       b->ebk = bknum;
       break;
@@ -557,7 +579,7 @@ int evOpenSearch(int handle, int *b_handle)
   b->found_bk = -1;
   b->found_evn = -1;
   b->last_evn = last_evn;
-  *b_handle = (int)b;
+  *b_handle = (void*)b;
   return last_evn;
 }
   
@@ -588,7 +610,7 @@ static int findLastEventWithinBlock(EVFILE *a)
     if(a->left <= 0){ /* no need to distinguish the special event */
       if(ev_type < 16){ /* physics event */
 	first_time++;
-	fseek(a->file, 3*4, SEEK_CUR);
+	fseeko(a->file, 3*4, SEEK_CUR);
 	fread(&header, sizeof(int), 1, a->file);
 	if(a->byte_swapped)
 	  evn = int_swap_byte(header);
@@ -610,17 +632,17 @@ static int findLastEventWithinBlock(EVFILE *a)
     else{
       if(ev_type < 16){
 	first_time++;
-	fseek(a->file, 3*4, SEEK_CUR);
+	fseeko(a->file, 3*4, SEEK_CUR);
 	fread(&header, sizeof(int), 1, a->file);
 	if(a->byte_swapped)
 	  evn = int_swap_byte(header);
 	else
 	  evn = header;
 	last_evn = evn;
-	fseek(a->file,(ev_size - 5)*4, SEEK_CUR);
+	fseeko(a->file,(ev_size - 5)*4, SEEK_CUR);
       }
       else{
-	fseek(a->file, (ev_size - 1)*4, SEEK_CUR);
+	fseeko(a->file, (ev_size - 1)*4, SEEK_CUR);
       }
     }
   }
@@ -628,7 +650,7 @@ static int findLastEventWithinBlock(EVFILE *a)
 }
 
 /********************************************************************
- *      int evSearch(int, int, int, int *, int, int *)              *
+ *      int evSearch(void*, void*, int, int *, int, int *)          *
  * Description:                                                     *
  *    Doing binary search for event number evn, -1 failure          *
  *    Copy event to buffer with buffer length buflen                *
@@ -637,7 +659,7 @@ static int findLastEventWithinBlock(EVFILE *a)
  *    return -1: the event number bigger than largest ev number     *
  *    return 1:  cannot find the event number                       *
  *******************************************************************/
-int evSearch(int handle, int b_handle, int evn, int *buffer, int buflen, int *size)
+int evSearch(void* handle, void* b_handle, int evn, int *buffer, int buflen, int *size)
 {
   EVFILE    *a;
   EVBSEARCH *b;
@@ -731,7 +753,7 @@ static int evSearchWithinBlock(EVFILE *a, EVBSEARCH *b, int *bknum,
   t_evn = evGetEventNumber(a, ev_size); /* file pointer stays here */
 
   if(t_evn == evn){
-    fseek(a->file, (-1)*4, SEEK_CUR);   /* go to top of event */
+    fseeko(a->file, (-1)*4, SEEK_CUR);   /* go to top of event */
     *size = ev_size;
     status = copySingleEvent(a, buffer, buflen, ev_size);
     return status;
@@ -745,7 +767,7 @@ static int evSearchWithinBlock(EVFILE *a, EVBSEARCH *b, int *bknum,
       /* no more events left */
       return 1;
     } else {
-      fseek(a->file, (ev_size-1)*4, SEEK_CUR);
+      fseeko(a->file, (ev_size-1)*4, SEEK_CUR);
       while (!found && a->left > 0) {
 	fread(&temp, sizeof(int), 1, a->file);
 	if (a->byte_swapped) {
@@ -762,7 +784,7 @@ static int evSearchWithinBlock(EVFILE *a, EVBSEARCH *b, int *bknum,
 	    t_evn = evGetEventNumber(a, ev_size);  /* pinter stays */
 	    /* check current event number */ 
 	    if(t_evn == evn){
-	      fseek(a->file, (-1)*4, SEEK_CUR);
+	      fseeko(a->file, (-1)*4, SEEK_CUR);
 	      found = 1;
 	      *size = ev_size;
 	      return (copySingleEvent(a, buffer, buflen, ev_size));
@@ -778,17 +800,17 @@ static int evSearchWithinBlock(EVFILE *a, EVBSEARCH *b, int *bknum,
 	    t_evn = evGetEventNumber(a, ev_size);
 	    /* check current event number */
 	    if(t_evn == evn){
-	      fseek(a->file, (-1)*4, SEEK_CUR);
+	      fseeko(a->file, (-1)*4, SEEK_CUR);
 	      *size = ev_size;
 	      found = 1;
 	      return (copySingleEvent(a, buffer, buflen, ev_size));
 	    }
 	    else{ /* go to next event */
-	      fseek(a->file, (ev_size-1)*4, SEEK_CUR);
+	      fseeko(a->file, (ev_size-1)*4, SEEK_CUR);
 	    }
 	  }
 	  else /* special event go to next event */
-	    fseek(a->file, (ev_size - 1)*4, SEEK_CUR);
+	    fseeko(a->file, (ev_size - 1)*4, SEEK_CUR);
 	}      /* end of not last event case*/
       }        /* end of search event loop*/
     }          
@@ -811,14 +833,14 @@ static void evFindEventBlockNum(EVFILE *a, EVBSEARCH *b, int *bknum)
 
   block_num = *bknum;
   while(block_num <= b->ebk){
-    fseek(a->file, a->blksiz*block_num*4, SEEK_SET);
+    fseeko(a->file, a->blksiz*block_num*4, SEEK_SET);
     fread(header, sizeof(header), 1, a->file);
     if(a->byte_swapped)
-      swapped_intcpy(buf, (char *)header, EV_HDSIZ*4);
+      swapped_intcpy((char*)buf, (char *)header, EV_HDSIZ*4);
     else
       memcpy(buf, header, EV_HDSIZ*4);
     if(buf[EV_HD_START] > 0){
-      fseek(a->file, 4*(buf[EV_HD_START]-EV_HDSIZ), SEEK_CUR);
+      fseeko(a->file, 4*(buf[EV_HD_START]-EV_HDSIZ), SEEK_CUR);
       nleft = buf[EV_HD_USED] - buf[EV_HD_START];
       if(isRealEventsInsideBlock(a,block_num,nleft)){
 	*bknum = block_num;
@@ -832,14 +854,14 @@ static void evFindEventBlockNum(EVFILE *a, EVBSEARCH *b, int *bknum)
   /* cannot find right block this way, try reverse direction */
   block_num = *bknum;
   while(block_num >= b->sbk){
-    fseek(a->file, a->blksiz*block_num*4, SEEK_SET);
+    fseeko(a->file, a->blksiz*block_num*4, SEEK_SET);
     fread(header, sizeof(header), 1, a->file);
     if(a->byte_swapped)
-      swapped_intcpy(buf,(char *)header, EV_HDSIZ*4);
+      swapped_intcpy((char*)buf,(char *)header, EV_HDSIZ*4);
     else
       memcpy((char *)buf, (char *)header, EV_HDSIZ*4);
     if(buf[EV_HD_START] > 0){
-      fseek(a->file, 4*(buf[EV_HD_START]-EV_HDSIZ), SEEK_CUR);
+      fseeko(a->file, 4*(buf[EV_HD_START]-EV_HDSIZ), SEEK_CUR);
       nleft = buf[EV_HD_USED] - buf[EV_HD_START];
       if(isRealEventsInsideBlock(a,block_num, nleft)){
 	*bknum = block_num;
@@ -874,12 +896,12 @@ static int isRealEventsInsideBlock(EVFILE *a, int bknum, int old_left)
 
     ev_type = evGetEventType(a);  /* file pointer stays */
     if(ev_type < 16){
-      fseek(a->file, (-1)*sizeof(int), SEEK_CUR); /* rewind to head of this event */
+      fseeko(a->file, (-1)*sizeof(int), SEEK_CUR); /* rewind to head of this event */
       break;
     }
     else{
       nleft = nleft - ev_size;
-      fseek(a->file, 4*(ev_size - 1), SEEK_CUR);
+      fseeko(a->file, 4*(ev_size - 1), SEEK_CUR);
     }
   }
   if(nleft <= 0)
@@ -941,11 +963,11 @@ static int copySingleEvent(EVFILE *a, int *buffer, int buflen, int ev_size)
 	}
 	nleft = nleft - ncopy;
 	if(nleft > a->blksiz - EV_HDSIZ){
-	  fseek(a->file, EV_HDSIZ*4, SEEK_CUR);
+	  fseeko(a->file, EV_HDSIZ*4, SEEK_CUR);
 	  ncopy = a->blksiz - EV_HDSIZ;
 	}
 	else if(nleft > 0){
-	  fseek(a->file, EV_HDSIZ*4,SEEK_CUR);
+	  fseeko(a->file, EV_HDSIZ*4,SEEK_CUR);
 	  ncopy = nleft;
 	}
       }
@@ -977,12 +999,12 @@ static int copySingleEvent(EVFILE *a, int *buffer, int buflen, int ev_size)
  *     Close evSearch process, release memory                          *
  * bugbug - RWM: why return an int? nothing can fail.                  *
  **********************************************************************/
-int evCloseSearch(int b_handle)
+int evCloseSearch(void* b_handle)
 {
   EVBSEARCH *b;
 
   b = (EVBSEARCH *)b_handle;
-  free((char *)b);
+  free(b);
   return(0);
 }
 
@@ -997,9 +1019,9 @@ static int evGetEventNumber(EVFILE *a, int ev_size)
 
   nleft = a->left + ev_size;
   if(nleft >= 5)
-    fseek(a->file, 3*4, SEEK_CUR);
+    fseeko(a->file, 3*4, SEEK_CUR);
   else
-    fseek(a->file, (EV_HDSIZ+3)*4, SEEK_CUR);
+    fseeko(a->file, (EV_HDSIZ+3)*4, SEEK_CUR);
   fread(&temp, sizeof(int), 1, a->file);
   if(a->byte_swapped)
     evn = int_swap_byte(temp);
@@ -1007,9 +1029,9 @@ static int evGetEventNumber(EVFILE *a, int ev_size)
     evn = temp;
 
   if(nleft >= 5)
-    fseek(a->file, (-1)*4*4, SEEK_CUR);
+    fseeko(a->file, (-1)*4*4, SEEK_CUR);
   else
-    fseek(a->file,(-1)*(EV_HDSIZ + 4)*4, SEEK_CUR);
+    fseeko(a->file,(-1)*(EV_HDSIZ + 4)*4, SEEK_CUR);
 
   return evn;
 }
@@ -1019,19 +1041,19 @@ static int evGetEventType(EVFILE *a)
   int ev_type, temp, t_temp;
   
   if(a->left == 1) /* event type long word is in the following block */
-    fseek(a->file, (EV_HDSIZ)*4,SEEK_CUR);
+    fseeko(a->file, (EV_HDSIZ)*4,SEEK_CUR);
   if(a->byte_swapped){
     fread(&t_temp, sizeof(int), 1, a->file);
-    swapped_intcpy(&temp, (char *)&t_temp, sizeof(int));
+    swapped_intcpy((char*)&temp, (char *)&t_temp, sizeof(int));
   }
   else
     fread(&temp, sizeof(int), 1, a->file);
   ev_type = (temp >> 16)&(0x0000ffff);
 
   if(a->left == 1)
-    fseek(a->file, (-1)*(EV_HDSIZ + 1)*4, SEEK_CUR);
+    fseeko(a->file, (-1)*(EV_HDSIZ + 1)*4, SEEK_CUR);
   else
-    fseek(a->file, (-1)*4, SEEK_CUR);
+    fseeko(a->file, (-1)*4, SEEK_CUR);
 
   return ev_type;
 }
@@ -1055,7 +1077,7 @@ static int physicsEventsInsideBlock(EVFILE *a)
   /* copy block header information */
   if(a->byte_swapped){
     fread(header, sizeof(header), 1, a->file);
-    swapped_intcpy(buf, (char *)header, EV_HDSIZ*4);
+    swapped_intcpy((char*)buf, (char *)header, EV_HDSIZ*4);
   }
   else
     fread(buf, sizeof(buf), 1, a->file);
@@ -1064,7 +1086,7 @@ static int physicsEventsInsideBlock(EVFILE *a)
     return 0;
   else{
     /* jump to the first event */
-    fseek(a->file, 4*(buf[EV_HD_START] - EV_HDSIZ), SEEK_CUR);
+    fseeko(a->file, 4*(buf[EV_HD_START] - EV_HDSIZ), SEEK_CUR);
     nleft = buf[EV_HD_USED] - buf[EV_HD_START];
     while (nleft > 0){
       fread(&temp, sizeof(int), 1, a->file);
@@ -1075,15 +1097,17 @@ static int physicsEventsInsideBlock(EVFILE *a)
       /* check event type and file pointer stays */
       ev_type = evGetEventType(a);
       if(ev_type < 16) { /*physics event */
-	fseek(a->file, (-1)*sizeof(int), SEEK_CUR);
+	fseeko(a->file, (-1)*sizeof(int), SEEK_CUR);
 	a->left = nleft;
 	return buf[EV_HD_BLKNUM];
       }
       else{
 	nleft = nleft - ev_size;
-	fseek(a->file, 4*(ev_size - 1), SEEK_CUR);
+	fseeko(a->file, 4*(ev_size - 1), SEEK_CUR);
       }
     }
   }
   return 0;
 }
+
+

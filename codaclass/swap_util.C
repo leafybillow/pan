@@ -16,20 +16,29 @@
  *
  * Revision History:
  *   $Log$
- *   Revision 1.1  2002/02/05 23:26:45  rom
- *   Initial revision
+ *   Revision 1.2  2011/03/21 16:29:11  rsholmes
+ *   64 bit compatible version based on hana
  *
- *   Revision 1.2  2001/10/16 19:53:25  rom
- *   new evio library
+ *   Revision 1.5  2004/06/12 20:04:41  ole
+ *   Add forgotten "using namespace std". This is C++ code now.
  *
- *   Revision 1.3  1999/10/14 18:04:56  rwm
- *   Now compiles with CC for Bob Micheals. Other cleanups.
+ *   Revision 1.4  2003/09/10 18:36:05  ole
+ *   Fix compilation warnings.
  *
- *   Revision 1.2  1998/09/21 15:07:22  abbottd
- *   Changes for compile on vxWorks
+ *   Revision 1.3  2003/06/16 17:07:25  ole
+ *   Move Release-070 branch onto the CVS trunk.
  *
- *   Revision 1.1.1.1  1996/09/19 18:25:20  chen
- *   original port to solaris
+ *   Revision 1.2.2.1  2003/04/27 04:33:19  ole
+ *   Fix warnings about uninitialized variables.
+ *
+ *   Revision 1.2  2002/03/26 22:36:31  ole
+ *   Fix compliation warnings about signed/unsigned comparisons.
+ *
+ *   Revision 1.1.1.1  2001/11/14 21:02:51  ole
+ *   Initial import Release 0.61
+ *
+ *   Revision 1.1.1.1  2001/09/14 19:31:49  rom
+ *   initial import of hana decoder (v 1.6)
  *
 *	  Revision 1.1  95/01/20  14:00:33  14:00:33  abbottd (David Abbott)
 *	  Initial revision
@@ -57,18 +66,13 @@
  *	  
  */
 
-#ifdef VXWORKS
-# include <vxWorks.h>
-# include <stdlib.h>
-# include <stdio.h>
-# include <errno.h>
-#else
-#include <string.h>
-# include <stdio.h>
-# include <stdlib.h>
-/* # include <memory.h> */
-# include <errno.h>
-#endif
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <memory.h>
+#include <cerrno>
+
+using namespace std;
 
 typedef struct _stack
 {
@@ -85,6 +89,300 @@ typedef struct _lk
   int head_pos;
   int type;
 }LK_AHEAD;         /* find out header */
+
+static evStack *init_evStack(),*evStack_top(evStack *);
+static void    evStack_popoff(evStack *);
+static void    evStack_pushon(int,int,int,int,int,evStack *);
+static void    evStack_free(evStack *);
+extern "C" void swapped_intcpy( char*, char*, int );
+
+/*********************************************************
+ *             int int_swap_byte(int input)              *
+ * get integer 32 bit input and output swapped byte      *
+ * integer                                               *
+ ********************************************************/
+int int_swap_byte(int input) 
+{
+  int temp,i,len;
+  char *buf,*temp_buf;
+
+  len = sizeof(int);
+  buf = (char *)malloc(len);
+  temp_buf = (char *)malloc(len);
+  memcpy(temp_buf,&input,len);
+  for(i=0;i<len;i++)
+    buf[i] = temp_buf[len-i-1];
+  temp = *(int *)(buf);
+  free(buf);free(temp_buf);
+  return temp;
+}
+
+/********************************************************
+ * void onmemory_swap(char *buffer)                     *
+ * swap byte order of buffer, buffer will be changed    *
+ ********************************************************/
+void onmemory_swap(char *buffer)
+{
+  char temp[4],des_temp[4];
+  int  i,int_len;
+
+  int_len = sizeof(int);
+  memcpy(temp,buffer,int_len);
+  for(i=0;i<int_len;i++)
+    des_temp[i] = temp[int_len-i-1];
+  memcpy(buffer,des_temp,int_len);
+}
+
+/********************************************************
+ * void swapped_intcpy(void *des,void *source, int size)*
+ * copy source with size size to des, but with byte     *
+ * order swapped in the unit of byte                    * 
+ *
+ * NOTE:
+ * New, more efficient version from Ole Hansen, July 2000
+ * and compiled by gcc as a separate module.
+ *******************************************************/
+
+
+
+
+
+/*******************************************************
+ * void swapped_shortcpy(char *des, char *source, size)*
+ * copy short integer or packet with swapped byte order*
+ * ****************************************************/
+void swapped_shortcpy(char *des,char *source,int size)
+{
+  char temp[2],des_temp[2];
+  int  i, j, short_len;
+  
+  short_len = sizeof(short);
+  i = 0;
+  while(i < size){
+    memcpy(temp,&source[i],short_len);
+    for(j=0; j<short_len;j++)
+      des_temp[j] = temp[short_len -j -1];
+    memcpy(&(des[i]),des_temp,short_len);
+    i += 2;
+  }
+}
+
+/*******************************************************
+ * void swapped_longcpy(char *des, char *source, size) *
+ * copy 64 bit with swapped byte order                 *
+ * ****************************************************/
+void swapped_longcpy(char *des,char *source,int size)
+{
+  char temp[8],des_temp[8];
+  int  i, j, long_len;
+  
+  long_len = 8;
+  i = 0;
+  while(i < size){
+    memcpy(temp,&source[i],long_len);
+    for(j=0; j< long_len;j++)
+      des_temp[j] = temp[long_len -j -1];
+    memcpy(&(des[i]),des_temp,long_len);
+    i += 8;
+  }
+}
+
+/*************************************************************
+ *   int swapped_fread(void *ptr, int size, int n_itmes,file)*
+ *   fread from a file stream, but return swapped result     *
+ ************************************************************/ 
+int swapped_fread(void *ptr,int size,int n_items,FILE *stream)
+{
+  char *temp_ptr;
+  int  nbytes;
+
+  temp_ptr = (char *)malloc(size*n_items);
+  nbytes = fread(temp_ptr,size,n_items,stream);
+  if(nbytes > 0){
+    swapped_intcpy((char*)ptr,temp_ptr,n_items*size);
+  }
+  free(temp_ptr);
+  return(nbytes);
+}
+	   
+/***********************************************************
+ *    void swapped_memcpy(char *buffer,char *source,size)  *
+ * swapped memory copy from source to buffer accroding     *
+ * to data type                                            *
+ **********************************************************/
+void swapped_memcpy(char *buffer,char *source,int size)
+{
+  evStack  *head, *p;
+  LK_AHEAD lk;
+  int      int_len, short_len, long_len;
+  int      i, j, depth, current_type = 0;
+  int      header1, header2;
+  int      ev_size, ev_tag, ev_num, ev_type;
+  int      bk_size, bk_tag, bk_num, bk_type;
+  int      sg_size, sg_tag, sg_type;
+  short    pk_size, pk_tag, pack;
+  char     temp[4],temp2[2];
+
+  int_len = sizeof(int);
+  short_len = sizeof(short);
+  long_len = 8;
+  head = init_evStack();
+  i = 0;   /* index pointing to 16 bit word */
+  swapped_intcpy(temp,source,int_len);
+  ev_size = *(int *)(temp);                  /*ev_size in unit of 32 bit*/
+  memcpy(&(buffer[i*2]),temp,int_len);
+  i += 2;
+  swapped_intcpy(temp,&(source[i*2]),int_len);
+  header2 = *(int *)(temp);
+  ev_tag =(header2 >> 16) & (0x0000ffff);
+  ev_type=(header2 >> 8) & (0x000000ff);
+  ev_num = (header2) & (0x000000ff);
+  memcpy(&(buffer[i*2]),temp,int_len);
+  i += 2;
+
+  if(ev_type >= 0x10){/* data type must be 0x10 bank type */
+    evStack_pushon((ev_size+1)*2,i-4,ev_type,ev_tag,ev_num,head);
+    lk.head_pos = i;
+    lk.type = ev_type;
+    if(lk.type == 0x10)
+      ev_size = ev_size + 1;
+  }
+  else{              /* sometimes event has no wrapper */
+    lk.head_pos = i + 2*(ev_size - 1);
+    lk.type = ev_type;
+    current_type = ev_type;
+  }
+
+/* get into the loop */
+  while (i < ev_size*2){
+    if ((p = evStack_top(head)) != NULL){
+      while(((p = evStack_top(head)) != NULL) && i == (p->length + p->posi)){
+	evStack_popoff(head);
+	head->length -= 1;
+      }
+    }
+    if (i == lk.head_pos){      /* dealing with header */
+      if((p = evStack_top(head)) != NULL)
+	lk.type = (p->type);
+      switch(lk.type){
+      case 0x10:
+	swapped_intcpy(temp,&(source[i*2]),int_len);
+	header1 = *(int *)(temp);
+	bk_size = header1;
+	memcpy(&(buffer[i*2]),temp,int_len);
+	i = i + 2;
+	swapped_intcpy(temp,&(source[i*2]),int_len);
+	header2 = *(int *)(temp);
+	memcpy(&(buffer[i*2]),temp,int_len);
+	bk_tag = (header2 >> 16) & (0x0000ffff);
+	bk_type = (header2 >> 8) & (0x000000ff);
+	bk_num = (header2) & (0x000000ff);
+	depth = head->length;  /* tree depth */
+	if (bk_type >= 0x10){  /* contains children */
+	  evStack_pushon((bk_size+1)*2,i-2,bk_type,bk_tag,bk_num,head);
+	  lk.head_pos = i + 2;
+	  head->length += 1;
+	  i = i + 2;
+	}
+	else{  /* real data */
+	  current_type = bk_type;
+	  lk.head_pos = i + bk_size*2;
+	  i = i+ 2;
+	}
+	break;
+      case 0x20:
+	swapped_intcpy(temp,&(source[i*2]),int_len);
+	header2 = *(int *)(temp);
+	memcpy(&(buffer[i*2]),temp,int_len);
+	sg_size = (header2) & (0x0000ffff);
+	sg_size = sg_size + 1;
+	sg_tag  = (header2 >> 24) & (0x000000ff);
+	sg_type = (header2 >> 16) & (0x000000ff);
+	if(sg_type >= 0x20){  /* contains children */
+	  evStack_pushon((sg_size)*2,i,sg_type,sg_tag,0,head);
+	  lk.head_pos = i + 2;
+	  head->length += 1;
+	  i = i+ 2;
+	}
+	else{  /* real data */
+	  current_type = sg_type;
+	  lk.head_pos = i + sg_size*2;
+	  i = i + 2;
+	}
+	break;
+      default:  /* packet type */
+	swapped_shortcpy(temp2,&(source[i*2]),short_len);
+	pack = *(short *)(temp2);
+	memcpy(&(buffer[i*2]),temp2,short_len);
+	if(pack == 0x0000){  /* empty packet increase by 1 */
+	  lk.head_pos = i + 1;
+	  i++;
+	}
+	else{
+	  pk_tag = (pack >> 8) & (0x00ff);
+	  pk_size = (pack) & (0x00ff);
+	  current_type = lk.type;
+	  lk.head_pos = i + pk_size + 1;
+	  i = i + 1;
+	}
+	break;
+      }
+    }
+    else{      /* deal with real data */
+      switch(current_type){
+      case 0x0:   /* unknown data type  */
+      case 0x1:   /* long integer       */
+      case 0x2:   /* IEEE floating point*/
+      case 0x9:   /* VAX floating point */
+	for(j = i; j < lk.head_pos; j=j+2){
+	  swapped_intcpy(temp,&(source[j*2]),int_len);
+	  memcpy(&(buffer[j*2]),temp,int_len);
+	}
+	i = lk.head_pos;
+	break;
+      case 0x4:   /* short integer     */
+      case 0x5:   /* unsigned integer  */
+      case 0x30:  
+      case 0x34:
+      case 0x35:
+	for(j = i; j < lk.head_pos; j=j+1){
+	  swapped_shortcpy(temp2,&(source[j*2]),short_len);
+	  memcpy(&(buffer[j*2]),temp2,short_len);
+	}
+	i = lk.head_pos;	
+	break;
+      case 0x3:  /* char string        */
+      case 0x6:
+      case 0x7:
+      case 0x36:
+      case 0x37:
+	memcpy(&(buffer[i*2]),&(source[i*2]),(lk.head_pos - i)*2);
+	i = lk.head_pos;		
+	break;
+      case 0x8:  /* 64 bit */
+      case 0xA:  /* 64 bit VAX floating point */
+	for(j = i; j < lk.head_pos; j=j+4){
+	  swapped_shortcpy(temp,&(source[j*2]),long_len);
+	  memcpy(&(buffer[j*2]),temp,long_len);
+	}
+	i = lk.head_pos;		
+	break;
+      case 0xF:  /* repeating structure, for now */
+	for(j = i; j < lk.head_pos; j=j+2){
+	  swapped_intcpy(temp,&(source[j*2]),int_len);
+	  memcpy(&(buffer[j*2]),temp,int_len);
+	}
+	i = lk.head_pos;
+	break;
+      default:
+	fprintf(stderr,"Wrong datatype 0x%x\n",current_type);
+	break;
+      }
+    }
+  }
+  evStack_free (head);
+}
+
 
 /**********************************************************
  *   evStack *init_evStack()                              *
@@ -138,7 +436,7 @@ static void evStack_popoff(evStack *head)
   }
   p = q->next;
   q->next = p->next;
-  free (p);
+  free ((char*)p);
 }
 
 /*******************************************************
@@ -181,328 +479,7 @@ static void evStack_free(evStack *head)
   p = head;
   while (p != NULL){
     q = p->next;
-    free (p);
+    free ((char*)p);
     p = q;
   }
 }
-
-/*********************************************************
- *             int int_swap_byte(int input)              *
- * get integer 32 bit input and output swapped byte      *
- * integer. input is not changed                         *
- ********************************************************/
-int int_swap_byte (int input) 
-{
-  int temp, i, tt, len;
-  char *p, *q;
-
-  tt  = input;
-  len = sizeof (int);
-
-  p = (char *)&tt; q = (char *)&temp;
-
-  for(i = 0;i < len; i++)
-    q [i] = p [len-i-1];
-
-  return temp;
-}
-
-/********************************************************
- * void onmemory_swap(int *buffer)                      *
- * swap byte order of buffer, buffer will be changed    *
- ********************************************************/
-void onmemory_swap(int* buffer)
-{
-  int  temp,des_temp;
-  int  i,int_len;
-  char *p, *q;
-
-  int_len = sizeof(int);
-  memcpy((void *)&temp, (void *)buffer,int_len);
-  p = (char *)&temp;
-  q = (char *)&des_temp;
-
-  for(i = 0;i < int_len; i++)
-    q[i] = p[int_len-i-1];
-
-  memcpy((void *)buffer,(void *)&des_temp,int_len);
-}
-
-/********************************************************
- * void swapped_intcpy(void *des,void *source, int size)*
- * copy source with size size to des, but with byte     *
- * order swapped in the unit of byte                    *
- *******************************************************/
-void swapped_intcpy(int *des,char *source,int size)
-{
-  int temp,des_temp;
-  int i,j,int_len;
-  char *p, *q, *d;
-  
-  int_len = sizeof(int);
-  d = (char *)des;
-
-  i = 0;
-  while(i < size) {
-    memcpy ((void *)&temp, (void *)&source[i],sizeof(int));
-    p = (char *)&temp; q = (char *)&des_temp;
-    for (j = 0; j < int_len; j++)
-      q [j] = p [int_len - j - 1];
-    memcpy ((void *)&d [i],(void *)&des_temp, int_len);
-    i += int_len;
-  }
-}
-
-/*******************************************************
- * void swapped_shortcpy(char *des, char *source, size)*
- * copy short integer or packet with swapped byte order*
- * ****************************************************/
-void swapped_shortcpy (short *des,char *source,int size)
-{
-  short temp, des_temp;
-  int  i, j, short_len;
-  char *p, *q, *d;
-  
-  short_len = sizeof(short);
-  d = (char *)des;
-
-  i = 0;
-  while(i < size){
-    memcpy ((void *)&temp, (void *)&source[i], short_len);
-    p = (char *)&temp; q = (char *)&des_temp;
-    for (j = 0; j < short_len; j++)
-      q[j] = p[short_len -j -1];
-    memcpy((void *)&(d[i]), (void *)&des_temp, short_len);
-    i += short_len;
-  }
-}
-
-/*******************************************************
- * void swapped_longcpy(char *des, char *source, size) *
- * copy 64 bit with swapped byte order                 *
- * ****************************************************/
-void swapped_longcpy(double *des,char *source,int size)
-{
-  double temp, des_temp;
-  int  i, j, long_len;
-  char *p, *q, *d;
-  
-  long_len = sizeof (double);
-  d = (char *)des;
-
-  i = 0;
-  while(i < size) {
-    memcpy ((void *)&temp, (void *)&source[i], long_len);
-    p = (char *)&temp; q = (char *)&des_temp;
-    for (j = 0; j < long_len; j++)
-      q [j] = p [long_len -j -1];
-    memcpy ((void *)&(d[i]), (void *)&des_temp, long_len);
-    i += long_len;
-  }
-}
-
-/*************************************************************
- *   int swapped_fread(void *ptr, int size, int n_itmes,file)*
- *   fread from a file stream, but return swapped result     *
- ************************************************************/ 
-int swapped_fread(int *ptr,int size,int n_items,FILE *stream)
-{
-  char *temp_ptr;
-  int  nbytes;
-
-  temp_ptr = (char *)malloc(size*n_items);
-  nbytes = fread(temp_ptr,size,n_items,stream);
-  if(nbytes > 0){
-    swapped_intcpy(ptr,temp_ptr,n_items*size);
-  }
-  free(temp_ptr);
-  return(nbytes);
-}
-	   
-/***********************************************************
- *    void swapped_memcpy(char *buffer,char *source,size)  *
- * swapped memory copy from source to buffer accroding     *
- * to data type                                            *
- **********************************************************/
-void swapped_memcpy(char *buffer,char *source,int size)
-{
-  evStack  *head, *p;
-  LK_AHEAD lk;
-  int      int_len, short_len, long_len;
-  int      i, j, depth, current_type = 0;
-  int      header1, header2;
-  int      ev_size, ev_tag, ev_num, ev_type;
-  int      bk_size, bk_tag, bk_num, bk_type;
-  int      sg_size, sg_tag,         sg_type;
-  short    pk_size, pk_tag, pack;
-  int      temp;
-  short    temp2;
-  double   temp8;
-
-  int_len = sizeof(int);
-  short_len = sizeof(short);
-  long_len = sizeof (double);
-  head = init_evStack();
-  i = 0;   /* index pointing to 16 bit word */
-
-  swapped_intcpy (&ev_size,source,int_len);
-  /*ev_size in unit of 32 bit*/
-  memcpy ((void *)&(buffer[i*2]), (void *)&ev_size,int_len);
-  i += 2;
-
-  swapped_intcpy(&temp, &(source[i*2]),int_len);
-  header2 = temp;
-  ev_tag =(header2 >> 16) & (0x0000ffff);
-  ev_type=(header2 >> 8) & (0x000000ff);
-  ev_num = (header2) & (0x000000ff);
-  memcpy(&(buffer[i*2]),&temp,int_len);
-  i += 2;
-
-  if(ev_type >= 0x10){/* data type must be 0x10 bank type */
-    evStack_pushon((ev_size+1)*2,i-4,ev_type,ev_tag,ev_num,head);
-    lk.head_pos = i;
-    lk.type = ev_type;
-    if(lk.type == 0x10)
-      ev_size = ev_size + 1;
-  }
-  else{              /* sometimes event has no wrapper */
-    lk.head_pos = i + 2*(ev_size - 1);
-    lk.type = ev_type;
-    current_type = ev_type;
-  }
-
-/* get into the loop */
-  while (i < ev_size*2){
-    if ((p = evStack_top(head)) != NULL){
-      while(((p = evStack_top(head)) != NULL) && i == (p->length + p->posi)){
-	evStack_popoff(head);
-	head->length -= 1;
-      }
-    }
-    if (i == lk.head_pos){      /* dealing with header */
-      if((p = evStack_top(head)) != NULL)
-	lk.type = (p->type);
-      switch(lk.type){
-      case 0x10:
-	swapped_intcpy (&temp,&(source[i*2]),int_len);
-	header1 = temp;
-	bk_size = header1;
-	memcpy(&(buffer[i*2]), (void *)&temp,int_len);
-	i = i + 2;
-
-	swapped_intcpy (&temp,&(source[i*2]),int_len);
-	header2 = temp;
-	memcpy(&(buffer[i*2]), (void *)&temp,int_len);
-
-	bk_tag = (header2 >> 16) & (0x0000ffff);
-	bk_type = (header2 >> 8) & (0x000000ff);
-	bk_num = (header2) & (0x000000ff);
-	depth = head->length;  /* tree depth */
-	if (bk_type >= 0x10){  /* contains children */
-	  evStack_pushon((bk_size+1)*2,i-2,bk_type,bk_tag,bk_num,head);
-	  lk.head_pos = i + 2;
-	  head->length += 1;
-	  i = i + 2;
-	}
-	else{  /* real data */
-	  current_type = bk_type;
-	  lk.head_pos = i + bk_size*2;
-	  i = i+ 2;
-	}
-	break;
-      case 0x20:
-	swapped_intcpy (&temp,&(source[i*2]),int_len);
-	header2 = temp;
-	memcpy(&(buffer[i*2]), (void *)&temp,int_len);
-
-	sg_size = (header2) & (0x0000ffff);
-	sg_size = sg_size + 1;
-	sg_tag  = (header2 >> 24) & (0x000000ff);
-	sg_type = (header2 >> 16) & (0x000000ff);
-	if(sg_type >= 0x20){  /* contains children */
-	  evStack_pushon((sg_size)*2,i,sg_type,sg_tag,NULL,head);
-	  lk.head_pos = i + 2;
-	  head->length += 1;
-	  i = i+ 2;
-	}
-	else{  /* real data */
-	  current_type = sg_type;
-	  lk.head_pos = i + sg_size*2;
-	  i = i + 2;
-	}
-	break;
-      default:  /* packet type */
-	swapped_shortcpy (&temp2,&(source[i*2]),short_len);
-	pack = temp2;
-	memcpy(&(buffer[i*2]),(void *)&temp2,short_len);
-
-	if(pack == 0x0000){  /* empty packet increase by 1 */
-	  lk.head_pos = i + 1;
-	  i++;
-	}
-	else{
-	  pk_tag = (pack >> 8) & (0x00ff);
-	  pk_size = (pack) & (0x00ff);
-	  current_type = lk.type;
-	  lk.head_pos = i + pk_size + 1;
-	  i = i + 1;
-	}
-	break;
-      }
-    }
-    else{      /* deal with real data */
-      switch(current_type){
-      case 0x0:   /* unknown data type  */
-      case 0x1:   /* long integer       */
-      case 0x2:   /* IEEE floating point*/
-      case 0x9:   /* VAX floating point */
-	for(j = i; j < lk.head_pos; j=j+2){
-	  swapped_intcpy (&temp,&(source[j*2]),int_len);
-	  memcpy (&(buffer[j*2]), (void *)&temp,int_len);
-	}
-	i = lk.head_pos;
-	break;
-      case 0x4:   /* short integer     */
-      case 0x5:   /* unsigned integer  */
-      case 0x30:  
-      case 0x34:
-      case 0x35:
-	for(j = i; j < lk.head_pos; j=j+1){
-	  swapped_shortcpy (&temp2,&(source[j*2]),short_len);
-	  memcpy (&(buffer[j*2]),(void *)&temp2,short_len);
-	}
-	i = lk.head_pos;	
-	break;
-      case 0x3:  /* char string        */
-      case 0x6:
-      case 0x7:
-      case 0x36:
-      case 0x37:
-	memcpy(&(buffer[i*2]),&(source[i*2]),(lk.head_pos - i)*2);
-	i = lk.head_pos;		
-	break;
-      case 0x8:  /* 64 bit */
-      case 0xA:  /* 64 bit VAX floating point */
-	for(j = i; j < lk.head_pos; j=j+4){
-	  swapped_shortcpy ((short *)&temp8,&(source[j*2]),long_len);
-	  memcpy (&(buffer[j*2]), (void *)&temp8,long_len);
-	}
-	i = lk.head_pos;		
-	break;
-      case 0xF:  /* repeating structure, for now */
-	for(j = i; j < lk.head_pos; j=j+2){
-	  swapped_intcpy(&temp,&(source[j*2]),int_len);
-	  memcpy(&(buffer[j*2]), (void *)&temp,int_len);
-	}
-	i = lk.head_pos;
-	break;
-      default:
-	fprintf(stderr,"Wrong datatype 0x%x\n",current_type);
-	break;
-      }
-    }
-  }
-  evStack_free (head);
-}
-
-

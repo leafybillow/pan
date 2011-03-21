@@ -38,14 +38,19 @@ ifdef ROOTPREFIX
   PREFIX=ROOTPREFIX
 endif
 
-ROOTINC=$(PREFIX)/include/root
-ROOTBIN=$(PREFIX)/bin
-ROOTLIBDIR=$(PREFIX)/lib
-ifdef ROOTSYS
-  ROOTINC=$(ROOTSYS)/include
-  ROOTBIN=$(ROOTSYS)/bin
-  ROOTLIBDIR=$(ROOTSYS)/lib
-endif
+#ROOTINC=$(PREFIX)/include/root
+#ROOTBIN=$(PREFIX)/bin
+#ROOTLIBDIR=$(PREFIX)/lib
+#ifdef ROOTSYS
+#  ROOTINC=$(ROOTSYS)/include
+#  ROOTBIN=$(ROOTSYS)/bin
+#  ROOTLIBDIR=$(ROOTSYS)/lib
+#endif
+
+ROOTCFLAGS   := $(shell root-config --cflags)
+ROOTLIBS     := $(shell root-config --libs)
+ROOTGLIBS    := $(shell root-config --glibs)
+ROOTBIN      := $(shell root-config --bindir)
 
 export OSNAME := $(shell uname)
 
@@ -56,10 +61,12 @@ ifeq ($(OSNAME),SunOS)
    ROOTGLIBS     = $(shell root-config --glibs)
    CXX           = CC
 #   CXXFLAGS      = -O  -DSUNVERS -I$(ROOTINC)
+   CFLAGS        = -O  -DSUNVERS 
    CXXFLAGS      = -O  -DSUNVERS 
    LD            = CC
    LDFLAGS       = -g -D
    SOFLAGS       = -G
+   CFLAGS       += $(ROOTCFLAGS)
    CXXFLAGS     += $(ROOTCFLAGS)
    EVIO_LIB=libevio.a
    GLIB =  -lm -lc -lgen -lw -lsocket -lnsl -ldl
@@ -95,13 +102,15 @@ ifeq ($(OSNAME),Linux)
    endif
 
    CXX           = g++
+   CFLAGS        = -Wall -fno-exceptions -fPIC \
+                   -DLINUXVERS -O $(ROOTCFLAGS)
    CXXFLAGS      = -Wall -fno-rtti -fno-exceptions -fPIC \
-                   -DLINUXVERS -I$(ROOTINC) -O
+                   -DLINUXVERS -O $(ROOTCFLAGS)
 
 # Linux with egcs
-   INCLUDES      = -I$(ROOTINC)
    CXX           = g++
-   CXXFLAGS      = -O -Wall -fno-rtti -fno-exceptions -fPIC $(INCLUDES)
+   CFLAGS        = -O -Wall -fno-exceptions -fPIC  $(ROOTCFLAGS)
+   CXXFLAGS      = -O -Wall -fno-rtti -fno-exceptions -fPIC  $(ROOTCFLAGS)
    LD            = g++
    LDFLAGS       = 
    SOFLAGS       = -shared
@@ -110,6 +119,7 @@ ifeq ($(OSNAME),Linux)
       LIBS          = $(ROOTLIBS) -lm -ldl -rdynamic
       GLIBS         = $(ROOTLIBS) $(ROOTGLIBS) -L/usr/X11R6/lib \
                       -lXpm -lX11 -lm -ldl -rdynamic
+      CFLAGS       += -DOLDROOT
       CXXFLAGS     += -DOLDROOT
    else
       LIBS          = $(ROOTLIBS)
@@ -133,6 +143,7 @@ ifeq ($(OSNAME),Linux)
   endif
 
   ifdef PROFILE
+     CFLAGS += -pg
      CXXFLAGS += -pg
   endif
 
@@ -151,13 +162,15 @@ ifeq ($(OSNAME),Darwin)
    endif
 
    CXX           = g++
+   CFLAGS        = -Wall -fno-exceptions -fPIC \
+                   -DLINUXVERS -O $(ROOTCFLAGS)
    CXXFLAGS      = -Wall -fno-rtti -fno-exceptions -fPIC \
-                   -DLINUXVERS -I$(ROOTINC) -O
+                   -DLINUXVERS -O $(ROOTCFLAGS)
 
 # Linux with egcs
-   INCLUDES      = -I$(ROOTINC)
    CXX           = g++
-   CXXFLAGS      = -O -Wall -fno-rtti -fno-exceptions -fPIC $(INCLUDES)
+   CFLAGS        = -O -Wall -fno-exceptions -fPIC $(ROOTCFLAGS)
+   CXXFLAGS      = -O -Wall -fno-rtti -fno-exceptions -fPIC $(ROOTCFLAGS)
    LD            = g++
    LDFLAGS       = 
    SOFLAGS       = -shared
@@ -166,6 +179,7 @@ ifeq ($(OSNAME),Darwin)
       LIBS          = $(ROOTLIBS) -lm -ldl -rdynamic
       GLIBS         = $(ROOTLIBS) $(ROOTGLIBS) -L/usr/X11R6/lib \
                       -lXpm -lX11 -lm -ldl -rdynamic
+      CFLAGS       += -DOLDROOT
       CXXFLAGS     += -DOLDROOT
    else
       LIBS          = $(ROOTLIBS)
@@ -189,6 +203,7 @@ ifeq ($(OSNAME),Darwin)
   endif
 
   ifdef PROFILE
+     CFLAGS += -pg
      CXXFLAGS += -pg
   endif
 
@@ -200,6 +215,7 @@ DEPS = $(SRC:.C=.d)
 DECODE_OBJS = $(SRC:.C=.o)
 
 ifdef STANDALONE 
+  CFLAGS += -DSTANDALONE
   CXXFLAGS += -DSTANDALONE
 endif
 
@@ -219,22 +235,25 @@ tstcoda: tstcoda_main.o THaCodaFile.o THaCodaData.o THaEtClient.o THaCodaFile.h 
 
 
 # Here we build a library with all this stuff
-libcoda.a: $(DECODE_OBJS) clean_evio evio.o swap_util.o 
+libcoda.a: $(DECODE_OBJS) clean_evio evio.o swap_util.o swapped_intcpy.o
 	rm -f $@
-	ar cr $@ $(DECODE_OBJS) evio.o swap_util.o 
+	ar cr $@ $(DECODE_OBJS) evio.o swap_util.o swapped_intcpy.o
 
 # Below is the evio library, which comes rather directly 
 # from CODA group with minor tweaking by R. Michaels & O. Hansen.
 
-libevio.a: clean_evio evio.o swap_util.o 
+libevio.a: clean_evio evio.o swap_util.o swapped_intcpy.o
 	rm -f $@
-	ar cr $@ evio.o swap_util.o 
+	ar cr $@ evio.o swap_util.o swapped_intcpy.o
 
 evio.o: evio.C
-	$(CXX) -c  $<
+	$(CXX) $(CXXFLAGS) -c  $<
 
 swap_util.o: swap_util.C
-	$(CXX) -c  $<
+	$(CXX) $(CXXFLAGS) -c  $<
+
+swapped_intcpy.o: swapped_intcpy.c
+	$(CC) $(CFLAGS) -c  $<
 
 clean:  clean_evio
 	rm -f *.o *.a core *~ *.d *.out *.tar etclient tstcoda tstio
@@ -243,7 +262,7 @@ realclean:  clean
 	rm -f *.d
 
 clean_evio:
-	rm -f evio.o swap_util.o 
+	rm -f evio.o swap_util.o swapped_intcpy.o
 
 
 .SUFFIXES:
@@ -259,11 +278,3 @@ clean_evio:
 		[ -s $@ ] || rm -f $@'
 
 -include $(DEPS)
-
-
-
-
-
-
-
-

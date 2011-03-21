@@ -18,9 +18,9 @@
 
 #include "Rtypes.h"
 #include "TString.h"
-#define CODA_ERROR -1     // Generic error return code
+#define CODA_ERROR -128   // Generic error return code
 #define CODA_OK  0        // Means return is ok.
-#define MAXEVLEN 80000    // Maximum size of events
+#define MAXEVLEN 100005   // Maximum size of events
 #define CODA_VERBOSE 1    // Errors explained verbosely (recommended)
 #define CODA_DEBUG  0     // Lots of printout (recommend to set = 0)
 
@@ -30,13 +30,13 @@ public:
 
    THaCodaData();
    virtual ~THaCodaData();
-   virtual int codaOpen(TString filename)=0;
-   virtual int codaOpen(TString filename, TString session) {return CODA_OK;};
-   virtual int codaOpen(TString filename, TString session, int mode) {return CODA_OK;};
+   virtual int codaOpen(const char* file_name, int mode=1)=0;
+   virtual int codaOpen(const char* file_name, const char* session, int mode=1)=0;
    virtual int codaClose()=0;
    virtual int codaRead()=0; 
-   virtual int *getEvBuffer() { return evbuffer; };     
-   virtual int getBuffSize() const { return MAXEVLEN; };
+   virtual int *getEvBuffer() { return evbuffer; }
+   virtual int getBuffSize() const { return MAXEVLEN; }
+   virtual bool isOpen() const = 0;
    virtual int status() const { return fStatus; };
 
 private:
@@ -57,10 +57,5 @@ protected:
 };
 
 #endif
-
-
-
-
-
 
 
