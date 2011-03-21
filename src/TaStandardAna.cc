@@ -18,7 +18,8 @@
 
 #define PVDIS
 
-#include "TaStandardAna.hh"e "VaEvent.hh"
+#include "TaStandardAna.hh"
+#include "VaEvent.hh"
 #include "TaRun.hh"
 #include "TaLabelledQuantity.hh"
 #include "TaDevice.hh"
