@@ -868,7 +868,7 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
 
   if (fPairTree != NULL)
     {
-      fPairTree->Branch ("evt_ev_num",   &fTreeEvNums, "evt_ev_num[2]/I", bufsize); 
+      fPairTree->Branch ("evt_ev_num", fTreeEvNums, "evt_ev_num[2]/I", bufsize); 
       fPairTree->Branch ("m_ev_num", &fTreeMEvNum, "m_ev_num/D",  bufsize); 
       fPairTree->Branch ("ok_cond",  &fTreeOKCond, "ok_cond/I",   bufsize); 
       fPairTree->Branch ("ok_cut",   &fTreeOKCut,  "ok_cut/I",    bufsize); 
@@ -882,7 +882,7 @@ VaAnalysis::InitTree (const TaCutList& cutlist)
       TString desc = "evt_ev_num[";
       desc += fNMultiplet;
       desc += "]/I";
-      fMultipletTree->Branch ("evt_ev_num", &fTreeEvNums, desc.Data(), bufsize); 
+      fMultipletTree->Branch ("evt_ev_num", fTreeEvNums, desc.Data(), bufsize); 
       fMultipletTree->Branch ("m_ev_num", &fTreeMEvNum, "m_ev_num/D",  bufsize); 
       fMultipletTree->Branch ("ok_cond",  &fTreeOKCond, "ok_cond/I",   bufsize); 
       fMultipletTree->Branch ("ok_cut",   &fTreeOKCut,  "ok_cut/I",    bufsize); 
