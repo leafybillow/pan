@@ -8,3 +8,40 @@ For details on compiling and using PAN, see ./doc/README
 
 authors:  Richard Holmes, Antonin Vacheret, Robert Michaels
           (and later others...)
+
+----------------------
+
+To compile
+
+   First compile the codaclass lib.
+      
+     cd codaclass ;  make libcoda.a ;  cp libcoda.a ../src/
+
+  Then in ./src compile the main code.
+
+     cd src ; make 
+
+  The executible "pan" gets moved by the makefile to the
+  main directory "/pan" where you are reading this.
+ 
+     You need a "db" file (example: control.db) which ideally would be
+   generated automatically for each run by the DAQ and then read in
+   by the code.  If this scheme is not set up yet, one may specify
+   a local "db" file with the "-D" option
+
+        ./pan -f $file -D control.db -D maxevents 5999 -D lobeam -1000
+
+   Here, $file is the data file, e.g. /adaq2/data1/apar/parity18_3789.dat
+
+   Any line in control.db can be overwritten by subsequent "-D" inputs.
+
+	Example: the "lobeam" cut may be +1000 control.db, but if there's
+            no beam it will cut all events.  Using "-D lobeam -2000"
+            over-rides that.
+
+   For convenience, we may use a script that does the above command,
+   see "runpan"
+
+            ./runpan 3789
+
+
