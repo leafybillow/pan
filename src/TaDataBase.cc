@@ -114,11 +114,13 @@ void TaDataBase::Read(int run, const vector<string>& dbcomm) {
 // The flag 'usectrl' can be set via the '-D control.db' command
 // line option; this forces us to use 'control.db' as the database.
 // See also the comments in ChkDbCommand()
+  cout << "Into TaDataBase Read "<<endl;
   InitDB();
   runnum = run;
   dbcommand = dbcomm;
   if (ChkDbCommand() == 0) return;  // ERROR
   if (useroot) return;  // All done, db was read from ROOT.
+  if (usectrl) cout << "Should use local control.db "<<endl;
   rootdb->Clear();
   TaFileName dbFileName ("db");
   fileRead = dbFileName.String();
@@ -130,8 +132,14 @@ void TaDataBase::Read(int run, const vector<string>& dbcomm) {
     }
     else
       delete dbfile;
-    dbFileName = TaFileName ("dbdef");
+    if (usectrl) {
+      cout << "over-ride with local control.db "<<endl;
+      dbFileName = TaFileName ("./control.db");
+    } else {
+      dbFileName = TaFileName ("dbdef");
+    }
     fileRead = dbFileName.String();
+    cout << "dbFileName   "<<dbFileName.String().c_str()<<"   =   "<<fileRead<<endl;
     dbfile = new ifstream(dbFileName.String().c_str());
     if ( ! (*dbfile) ) { // try one last time : control.db from $pwd
       dbfile = new ifstream("./control.db");
@@ -143,7 +151,7 @@ void TaDataBase::Read(int run, const vector<string>& dbcomm) {
       cerr << "You need a database to run.  Ask an expert."<<endl;
       return;
     }
-    cerr << "TaDataBase::Load: Using " << dbFileName.String() << " as default database. (May be ok.)"<<endl;
+    cerr << "TaDataBase::Load: Using " << fileRead << " as default database. (May be ok.)"<<endl;
   }
 
   clog << "TaDataBase::Load: Database loading from " 
@@ -205,12 +213,18 @@ Int_t TaDataBase::ChkDbCommand() {
   usemysql = kFALSE;
   useroot = kFALSE;
   TaString rootfile;
+  cout << "into ChkDbCommand "<<dbcommand.size()<<endl;
+  
   if (dbcommand.size() == 0) return 1;
   for (int i = 0; i < (long)dbcommand.size(); i++) {
+    cout << "dbcommand["<<i<<"] = "<<dbcommand[i]<<endl;
     if (strcasecmp(dbcommand[i].c_str(),"mysql") == 0) 
           usemysql = kTRUE;
-    if (strcasecmp(dbcommand[i].c_str(),"control.db") == 0) 
+    cout << "strcasecmp thing "<<strcasecmp(dbcommand[i].c_str(),"control.db")<<endl;
+    if (strcasecmp(dbcommand[i].c_str(),"control.db") == 0) {
+      cout << "setting usectrl to kTRUE "<<endl;
           usectrl = kTRUE;
+    }
     if (strcasecmp(dbcommand[i].c_str(),"useroot") == 0) {
       useroot = kTRUE;
       if (i+1<(long)dbcommand.size()) rootfile = dbcommand[i+1];

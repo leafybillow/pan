@@ -238,6 +238,11 @@ TaFileName::Create (const string b,
       suffix = GetEnvOrDef ("PAN_RES_FILE_SUFFIX", "res");
       path = GetEnvOrDef ("PAN_RES_FILE_PATH", ".");
     }
+  else if ((s == "control.db")||(s == "./control.db"))
+    {
+      fFileName = "./control.db";
+      return;
+    }
   else
     {
       clog << "TaFileName::TaFileName ERROR: Unknown filename type " << s << endl;
@@ -255,6 +260,7 @@ TaFileName::Create (const string b,
 	tags += string ("_") + com;
     }
 
+  cout << "TaFileName "<<path<<"   "<<base<<"  "<<tags<<"   "<<suffix<<endl;
   fFileName = path + string("/") + base + tags + string(".") + suffix;
 }
 
