@@ -218,12 +218,18 @@ void TaDevice::Init(TaDataBase& db) {
 	 }
      }
      keymap = db.GetKeyMap(devicename); 
-     if (keymap.IsTiedDevice()) AddTiedDevices(keymap);
+     //     cout << "device name, possible tying .... "<<devicename<<endl;
+     if (keymap.IsTiedDevice()) {
+          AddTiedDevices(keymap);
+	  //          cout << "Am tying !!! "<<endl;
+     }
      vector<string> vkeys = keymap.GetKeys();  
      for (vector<string>::iterator is = vkeys.begin(); 
         is != vkeys.end(); is++) {
            string keystr = *is;
+	   //	   cout << "keystr =   "<<keystr<<endl;
            key = AddRawKey(keystr); 
+	   //    cout << "add raw key  = "<<key<<endl;
            if (key < 0) continue;
            fEvPointer[key] = keymap.GetEvOffset(keystr);
            fCrate[key] = keymap.GetCrate();
@@ -258,10 +264,14 @@ void TaDevice::Init(TaDataBase& db) {
      for (i = 0; i < fNtied; i++) {
        vector<string> vtiedkey = fTiedKeys[i].GetKeys(); 
        k = 0;
+       //  cout << "vtiedkey " <<vtiedkey.size()<<endl; 
+       // for (UInt_t kk=0; kk<vtiedkey.size();kk++) cout << " tied key  "<<vtiedkey[kk]<<endl;
        db.DataMapReStart();
        while ( db.NextDataMap() ) {
          string devicename = db.GetDataMapName();  
          keymap = db.GetKeyMap(devicename); 
+	 //   cout << "here111 "<<devicename<<"   Print of keymap:"<<endl;
+	 // keymap.Print();
          vector<string> vkeys = keymap.GetKeys(); 
          for (vector<string>::iterator is = vkeys.begin(); 
            is != vkeys.end(); is++) {
@@ -269,7 +279,16 @@ void TaDevice::Init(TaDataBase& db) {
            string keystr = *is;
            key = GetKey(keystr); 
            tiedkey = GetKey(vtiedkey[k]); 
-           if ((key != tiedkey) && (key > 0 && tiedkey > 0) &&
+  /* Need something like this to clean up vqwk keys (not use blocks or other data) */
+  /* the keys for vqwk channels are of length 7, eg 'vqwk1_4', while other vqwk keys are longer */
+           Int_t isok1=1;
+           Int_t istrlen=strlen(keystr.c_str());
+           if (keymap.GetReadOut(keystr)=="vqwk") {
+	     if (istrlen != 7) isok1=0;
+	   }
+	   //           cout << "keystr "<<keystr<<"    "<<key<<"      vtiedkey "<<vtiedkey[k]<<"   "<<tiedkey<<endl;
+	   //	   cout << "stuff   devnum "<< keymap.GetDevNum(keystr)<<"   "<< i<<"   "<<k<<"  devnum "<<fTiedKeys[i].GetDevNum(vtiedkey[k])<<"   chan "<<keymap.GetChan(keystr)<<"  chan "<<fTiedKeys[i].GetChan(vtiedkey[k])<<"   "<<keymap.GetReadOut(keystr)<<"   "<< fTiedKeys[i].GetReadOut(vtiedkey[k])<<"   strlen key "<<strlen(keystr.c_str())<<"   isok1 "<<isok1<<endl;
+           if (isok1 && (key != tiedkey) && (key > 0 && tiedkey > 0) &&
                (keymap.GetDevNum(keystr) == 
                 fTiedKeys[i].GetDevNum(vtiedkey[k])) &&
                (keymap.GetChan(keystr) == 
